@@ -3,6 +3,7 @@ import "@/locales/i18n";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SearchProvider } from "@/contexts/SearchContext";
 import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
@@ -22,11 +23,22 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <BottomSheetModalProvider>
           <AuthProvider>
-            <Stack>
-              <Stack.Screen name="index" options={{ headerShown: false }} />
-              <Stack.Screen name="recipe/preview/index" options={{ headerShown: false }} />
-              <Stack.Screen name="recipe/preview/[recipeId]" options={{ headerShown: false }} />
-            </Stack>
+            <SearchProvider>
+              <Stack>
+                <Stack.Screen name="index" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="search"
+                  options={{
+                    headerShown: false,
+                    presentation: "transparentModal",
+                    animation: "fade",
+                    animationDuration: 200,
+                  }}
+                />
+                <Stack.Screen name="recipe/preview/index" options={{ headerShown: false }} />
+                <Stack.Screen name="recipe/preview/[recipeId]" options={{ headerShown: false }} />
+              </Stack>
+            </SearchProvider>
           </AuthProvider>
           <StatusBar barStyle="dark-content" />
         </BottomSheetModalProvider>

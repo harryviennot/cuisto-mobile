@@ -54,4 +54,24 @@ export const recipeService = {
     const response = await api.delete<{ message: string }>(`/recipes/${recipeId}`);
     return response.data;
   },
+
+  /**
+   * Search recipes with natural language query
+   * Uses PostgreSQL full-text search with language-aware stemming
+   *
+   * @param query - Search query (e.g., "chicken pasta", "quick dinner")
+   * @param limit - Maximum number of results (default: 20)
+   * @param offset - Pagination offset (default: 0)
+   * @returns Array of matching recipes sorted by relevance
+   */
+  searchRecipes: async (
+    query: string,
+    limit: number = 20,
+    offset: number = 0
+  ): Promise<Recipe[]> => {
+    const response = await api.get<Recipe[]>("/recipes/search", {
+      params: { q: query, limit, offset },
+    });
+    return response.data;
+  },
 };
