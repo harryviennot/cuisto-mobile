@@ -1,5 +1,7 @@
 import "@/global.css";
 import "@/locales/i18n";
+import { useEffect } from "react";
+import * as SplashScreen from "expo-splash-screen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -7,6 +9,15 @@ import { SearchProvider } from "@/contexts/SearchContext";
 import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+
+import {
+  useFonts,
+  PlayfairDisplay_400Regular,
+  PlayfairDisplay_700Bold,
+  PlayfairDisplay_400Regular_Italic,
+  PlayfairDisplay_600SemiBold,
+  PlayfairDisplay_500Medium,
+} from "@expo-google-fonts/playfair-display";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,6 +29,24 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    PlayfairDisplay_400Regular,
+    PlayfairDisplay_700Bold,
+    PlayfairDisplay_400Regular_Italic,
+    PlayfairDisplay_600SemiBold,
+    PlayfairDisplay_500Medium,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
@@ -35,6 +64,7 @@ export default function RootLayout() {
                     animationDuration: 200,
                   }}
                 />
+                <Stack.Screen name="test-creen" options={{ headerShown: false }} />
                 <Stack.Screen name="recipe/preview/index" options={{ headerShown: false }} />
                 <Stack.Screen name="recipe/preview/[recipeId]" options={{ headerShown: false }} />
               </Stack>

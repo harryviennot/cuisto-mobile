@@ -217,19 +217,29 @@ export default function Index() {
   return (
     <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
       {/* Animated Header with Search Button */}
-      <Animated.View
+      <View
         className="bg-transparent "
         style={{
-          transform: [{ translateY: headerTranslateY }],
-          paddingHorizontal: 16,
+          paddingHorizontal: 12,
           paddingVertical: 12,
         }}
       >
+        <Text
+          className="text-5xl font-playfair-bold leading-tight text-foreground-heading mb-4"
+          style={{
+            fontFamily: "PlayfairDisplay_500Medium",
+            textShadowColor: "rgba(0, 0, 0, 0.03)",
+            textShadowOffset: { width: 1, height: 1 },
+            textShadowRadius: 1,
+          }}
+        >
+          Recipes
+        </Text>
         <SearchButton
           onPress={handleSearchPress}
           placeholder={t("search.placeholder", "Search recipes...")}
         />
-      </Animated.View>
+      </View>
 
       {/* Recipe Grid */}
       <MasonryGrid

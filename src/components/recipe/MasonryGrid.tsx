@@ -36,7 +36,7 @@ export function MasonryGrid({
 
     recipes.forEach((recipe) => {
       // Generate consistent but varied heights based on recipe ID
-      const hash = recipe.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const hash = recipe.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
       const heightVariations = [180, 200, 220, 240, 260, 280];
       const baseHeight = heightVariations[hash % heightVariations.length];
       const offset = (hash * 17) % 40;
@@ -58,24 +58,26 @@ export function MasonryGrid({
   }, [recipes]);
 
   // Handle scroll for infinite loading and custom scroll handler
-  const handleScroll = useCallback((event: any) => {
-    // Call custom onScroll handler if provided
-    if (onScroll) {
-      onScroll(event);
-    }
+  const handleScroll = useCallback(
+    (event: any) => {
+      // Call custom onScroll handler if provided
+      if (onScroll) {
+        onScroll(event);
+      }
 
-    // Handle infinite loading
-    if (!onEndReached) return;
+      // Handle infinite loading
+      if (!onEndReached) return;
 
-    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-    const isCloseToBottom =
-      layoutMeasurement.height + contentOffset.y >=
-      contentSize.height - onEndReachedThreshold;
+      const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+      const isCloseToBottom =
+        layoutMeasurement.height + contentOffset.y >= contentSize.height - onEndReachedThreshold;
 
-    if (isCloseToBottom) {
-      onEndReached();
-    }
-  }, [onScroll, onEndReached, onEndReachedThreshold]);
+      if (isCloseToBottom) {
+        onEndReached();
+      }
+    },
+    [onScroll, onEndReached, onEndReachedThreshold]
+  );
 
   // Show loading state
   if (loading && recipes.length === 0) {
@@ -110,7 +112,7 @@ export function MasonryGrid({
     >
       {ListHeaderComponent}
 
-      <View className="flex-row p-2 gap-2">
+      <View className="flex-row p-4 gap-2">
         {/* Left Column */}
         <View className="flex-1 gap-2">
           {columns.leftColumn.map((recipe, index) => (
