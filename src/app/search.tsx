@@ -12,7 +12,11 @@ import { useSearchContext } from "@/contexts/SearchContext";
 export default function SearchScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { searchQuery: contextQuery, setSearchQuery: setContextQuery, clearSearch: clearContextSearch } = useSearchContext();
+  const {
+    searchQuery: contextQuery,
+    setSearchQuery: setContextQuery,
+    clearSearch: clearContextSearch,
+  } = useSearchContext();
   const [localQuery, setLocalQuery] = useState(contextQuery);
   const { isSearching, searchResults, hasSearched, error, search, clearSearch } = useSearch();
 
@@ -26,7 +30,7 @@ export default function SearchScreen() {
       duration: 200,
       useNativeDriver: true,
     }).start();
-  }, []);
+  }, [backgroundOpacity]);
 
   // Auto-search when query changes from context (e.g., when navigating from home)
   useEffect(() => {
@@ -34,7 +38,7 @@ export default function SearchScreen() {
       setLocalQuery(contextQuery);
       search(contextQuery);
     }
-  }, [contextQuery]);
+  }, [contextQuery, localQuery, search]);
 
   const handleClose = useCallback(() => {
     // Animate out before closing
@@ -49,10 +53,13 @@ export default function SearchScreen() {
     });
   }, [clearSearch, clearContextSearch, backgroundOpacity]);
 
-  const handleSearch = useCallback((query: string) => {
-    search(query);
-    setContextQuery(query);
-  }, [search, setContextQuery]);
+  const handleSearch = useCallback(
+    (query: string) => {
+      search(query);
+      setContextQuery(query);
+    },
+    [search, setContextQuery]
+  );
 
   const handleRefresh = useCallback(async () => {
     if (localQuery.trim().length > 0) {
@@ -75,9 +82,7 @@ export default function SearchScreen() {
           <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
             No recipes found
           </Text>
-          <Text className="text-foreground-secondary text-center">
-            Try a different search term
-          </Text>
+          <Text className="text-foreground-secondary text-center">Try a different search term</Text>
         </>
       ) : (
         <>

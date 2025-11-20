@@ -5,11 +5,8 @@
 import React from "react";
 import { View, Text, TouchableOpacity, FlatList, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Stack } from "expo-router";
 import { SearchButton } from "@/components/recipe/SearchButton";
 import { useTranslation } from "react-i18next";
-import { LinearGradient } from "expo-linear-gradient";
-import HomeHeader from "@/components/home/Header";
 import { BlurView } from "expo-blur";
 
 // Constants
@@ -98,6 +95,11 @@ export default function TestScreen() {
           />
         }
         renderItem={({ item }) => {
+          // Type guard to ensure item is a RecipeItem
+          if (item.type !== "recipe") {
+            return null;
+          }
+
           // Render recipe item
           return (
             <TouchableOpacity

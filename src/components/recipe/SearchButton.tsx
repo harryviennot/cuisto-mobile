@@ -10,10 +10,7 @@ interface SearchButtonProps {
   placeholder?: string;
 }
 
-export function SearchButton({
-  onPress,
-  placeholder = "Search recipes...",
-}: SearchButtonProps) {
+export function SearchButton({ onPress, placeholder = "Search recipes..." }: SearchButtonProps) {
   return (
     <Pressable
       onPress={onPress}
@@ -27,11 +24,7 @@ export function SearchButton({
       }}
     >
       {/* Search Icon */}
-      <MagnifyingGlass
-        size={20}
-        color="#5a4f3e"
-        weight="duotone"
-      />
+      <MagnifyingGlass size={20} color="#5a4f3e" weight="duotone" />
 
       {/* Placeholder Text */}
       <Text className="flex-1 ml-3 text-base text-foreground-secondary font-regular">

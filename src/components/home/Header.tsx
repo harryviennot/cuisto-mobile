@@ -1,7 +1,6 @@
-import { View, Text } from "react-native";
+import { Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SearchButton } from "../recipe/SearchButton";
-import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { BlurView } from "expo-blur";
 

@@ -3,7 +3,7 @@
  * Beautiful, accessible search input with design tokens
  */
 import { useState, useEffect, useRef } from "react";
-import { View, TextInput, Pressable, ActivityIndicator } from "react-native";
+import { View, TextInput, Pressable } from "react-native";
 import { MagnifyingGlass, X } from "phosphor-react-native";
 
 interface SearchBarProps {

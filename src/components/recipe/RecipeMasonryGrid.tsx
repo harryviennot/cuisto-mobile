@@ -37,8 +37,35 @@ export function RecipeMasonryGrid() {
     await refetch();
   }, [refetch, queryClient]);
 
+  const handleRetry = useCallback(async () => {
+    // On error retry, reset to first page only
+    queryClient.setQueryData(["recipes"], (oldData: any) => {
+      if (!oldData) return oldData;
+      return {
+        pages: oldData.pages.slice(0, 1),
+        pageParams: oldData.pageParams.slice(0, 1),
+      };
+    });
+    await refetch();
+  }, [refetch, queryClient]);
+
+  // Handle scroll to bottom for infinite loading
+  const handleScroll = useCallback(
+    (event: any) => {
+      const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+      const paddingToBottom = 100;
+      const isCloseToBottom =
+        layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+
+      if (isCloseToBottom && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
+  );
+
   // Flatten all pages into a single array
-  const recipes = data?.pages.flatMap((page) => page) ?? [];
+  const recipes = useMemo(() => data?.pages.flatMap((page) => page) ?? [], [data?.pages]);
 
   // Distribute recipes into two columns based on shortest column algorithm
   // This creates true masonry where columns are independent
@@ -50,7 +77,7 @@ export function RecipeMasonryGrid() {
     recipes.forEach((recipe) => {
       // Calculate approximate card height for this recipe
       // Hash-based like in RecipeCard component
-      const hash = recipe.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const hash = recipe.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
       const heightVariations = [180, 200, 220, 240, 260, 280];
       const baseHeight = heightVariations[hash % heightVariations.length];
       const offset = (hash * 17) % 40;
@@ -71,18 +98,6 @@ export function RecipeMasonryGrid() {
 
     return { leftColumn, rightColumn };
   }, [recipes]);
-
-  const handleRetry = useCallback(async () => {
-    // On error retry, reset to first page only
-    queryClient.setQueryData(["recipes"], (oldData: any) => {
-      if (!oldData) return oldData;
-      return {
-        pages: oldData.pages.slice(0, 1),
-        pageParams: oldData.pageParams.slice(0, 1),
-      };
-    });
-    await refetch();
-  }, [refetch, queryClient]);
 
   // Loading state (initial load)
   if (isLoading) {
@@ -129,17 +144,6 @@ export function RecipeMasonryGrid() {
       </View>
     );
   }
-
-  // Handle scroll to bottom for infinite loading
-  const handleScroll = useCallback((event: any) => {
-    const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-    const paddingToBottom = 100;
-    const isCloseToBottom = layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
-
-    if (isCloseToBottom && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <ScrollView

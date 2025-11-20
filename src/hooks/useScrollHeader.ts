@@ -1,5 +1,5 @@
-import { useRef, useState, useCallback } from 'react';
-import { Animated, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import { useRef, useState, useCallback } from "react";
+import { Animated, NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 
 interface UseScrollHeaderOptions {
   headerHeight?: number;
