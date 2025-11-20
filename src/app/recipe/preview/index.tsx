@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeIn, FadeOut, SlideInDown } from "react-native-reanimated";
 import { CheckCircle, X, ArrowCounterClockwise } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
 import { recipeService } from "@/api/services/recipe.service";
 import { useExtractionJob } from "@/hooks/useExtractionJob";
 import { ExtractionProgress } from "@/components/extraction/ExtractionProgress";
@@ -22,6 +23,7 @@ export default function UnifiedRecipePreviewScreen() {
   const { jobId } = useLocalSearchParams<{ jobId: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const queryClient = useQueryClient();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -66,6 +68,9 @@ export default function UnifiedRecipePreviewScreen() {
     try {
       setIsSaving(true);
       // Recipe is already saved in the backend after extraction
+      // Invalidate recipes query to refresh home page with new recipe
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+
       Alert.alert(t("common.success"), t("recipe.saved"), [
         {
           text: t("common.ok"),

@@ -1,10 +1,11 @@
-import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { useAuth } from "@/contexts/AuthContext";
 import { useTranslation } from "react-i18next";
-import { ScrollView, Text, View, ActivityIndicator } from "react-native";
+import { View, Text, ActivityIndicator, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRef } from "react";
-import { Camera, Image as ImageIcon } from "phosphor-react-native";
+import { useRef, useCallback } from "react";
+import { Camera, Image as ImageIcon, Plus, Warning } from "phosphor-react-native";
+import { useQueryClient } from "@tanstack/react-query";
+import { router } from "expo-router";
+import { BlurView } from "expo-blur";
 import { FAB } from "@/components/extraction/FAB";
 import {
   ExtractionMethodBottomSheet,
@@ -17,17 +18,44 @@ import {
   IMAGE_EXTRACTION_CONFIG,
   type ExtractionSourceType,
 } from "@/config/extractionMethods";
+import { SearchButton } from "@/components/recipe/SearchButton";
+import { MasonryGrid } from "@/components/recipe/MasonryGrid";
+import { useRecipes } from "@/hooks/useRecipes";
 
 export default function Index() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { user, isLoading, isAnonymous } = useAuth();
+  const queryClient = useQueryClient();
   const bottomSheetRef = useRef<ExtractionMethodBottomSheetRef>(null);
+
+  // Use recipes hook for all recipes view
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+    isRefetching,
+  } = useRecipes();
 
   // Use the image extraction flow hook
   const { handleSelectMethod, handleConfirm, handleAddMore } = useImageExtractionFlow(
     IMAGE_EXTRACTION_CONFIG.maxItems
   );
+
+  // Handle pull-to-refresh
+  const handleRefresh = useCallback(async () => {
+    queryClient.setQueryData(["recipes"], (oldData: any) => {
+      if (!oldData) return oldData;
+      return {
+        pages: oldData.pages.slice(0, 1),
+        pageParams: oldData.pageParams.slice(0, 1),
+      };
+    });
+    await refetch();
+  }, [refetch, queryClient]);
 
   const handleFABPress = () => {
     if (bottomSheetRef.current) {
@@ -44,18 +72,15 @@ export default function Index() {
   const handleMethodSelect = async (method: ExtractionSourceType) => {
     const images = await handleSelectMethod(method);
     if (images && images.length > 0) {
-      // Show confirmation view in bottom sheet
       bottomSheetRef.current?.showConfirmation(images);
     }
   };
 
   const handleConfirmImages = async (images: any[]) => {
     await handleConfirm(images);
-    // Dismiss bottom sheet after successful submission
     bottomSheetRef.current?.dismiss();
   };
 
-  // Add icons and translated labels to methods
   const methodsWithIcons = IMAGE_EXTRACTION_METHODS.map((method) => ({
     ...method,
     label:
@@ -70,83 +95,143 @@ export default function Index() {
       ),
   }));
 
+  // All recipes
+  const allRecipes = data?.pages.flatMap((page) => page) ?? [];
+
+  // Handle infinite scroll
+  const handleEndReached = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Navigate to search overlay
+  const handleSearchPress = useCallback(() => {
+    router.push("/search");
+  }, []);
+
+  const handleRetry = useCallback(async () => {
+    queryClient.setQueryData(["recipes"], (oldData: any) => {
+      if (!oldData) return oldData;
+      return {
+        pages: oldData.pages.slice(0, 1),
+        pageParams: oldData.pageParams.slice(0, 1),
+      };
+    });
+    await refetch();
+  }, [refetch, queryClient]);
+
+  // Loading state (initial load)
+  if (isLoading) {
+    return (
+      <View
+        className="flex-1 items-center justify-center bg-surface"
+        style={{ paddingTop: insets.top }}
+      >
+        <ActivityIndicator size="large" color="#334d43" />
+        <Text className="mt-4 text-foreground-secondary">Loading recipes...</Text>
+      </View>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <View
+        className="flex-1 items-center justify-center bg-surface p-6 gap-4"
+        style={{ paddingTop: insets.top }}
+      >
+        <Warning size={64} color="#ef4444" weight="duotone" />
+        <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
+          Oops! Something went wrong
+        </Text>
+        <Text className="text-foreground-secondary text-center">
+          {error.message || "Failed to load recipes"}
+        </Text>
+        <Pressable
+          onPress={handleRetry}
+          className="bg-primary rounded-lg px-6 py-3 active:opacity-80"
+        >
+          <Text className="text-white font-semibold">Try Again</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  // Empty state component for MasonryGrid
+  const EmptyComponent = (
+    <View className="flex-1 items-center justify-center p-6 gap-4">
+      <Plus size={64} color="#334d43" weight="duotone" />
+      <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
+        No recipes yet!
+      </Text>
+      <Text className="text-foreground-secondary text-center">
+        Tap the + button below to create your first recipe
+      </Text>
+    </View>
+  );
+
   return (
     <View className="flex-1 bg-surface">
-      <ScrollView className="flex-1" style={{ paddingTop: insets.top }}>
-        <View className="flex-1 items-center justify-center gap-6 p-6">
-          <Text className="text-2xl font-bold text-foreground-heading">{t("app.title")}</Text>
-          <Text className="text-center text-foreground-secondary">{t("app.description")}</Text>
-          <Text className="text-lg text-foreground">{t("common.welcome")}!</Text>
-
-          {/* Authentication Status */}
-          <View className="w-full rounded-lg bg-surface-elevated p-4 gap-3">
-            <Text className="text-xl font-semibold text-foreground-heading">
-              Authentication Status
+      {/* Recipe Grid with Sticky Header */}
+      <MasonryGrid
+        recipes={allRecipes}
+        refreshing={isRefetching}
+        onRefresh={handleRefresh}
+        onEndReached={handleEndReached}
+        showLoadingFooter={isFetchingNextPage}
+        ListEmptyComponent={EmptyComponent}
+        contentContainerStyle={{
+          paddingTop: insets.top, // Push content down so it starts below safe area
+          paddingBottom: 100,
+        }}
+        stickyHeaderIndices={[0]}
+        stickyHeaderHiddenOnScroll={true}
+        refreshControlOffset={insets.top}
+        ListHeaderComponent={
+          <BlurView
+            intensity={50}
+            tint="light"
+            style={{
+              paddingTop: insets.top, // Extend blur upward to cover safe area
+              marginTop: -insets.top, // Pull it up to start at the very top
+              paddingHorizontal: 16,
+              paddingBottom: 16,
+            }}
+          >
+            <Text
+              className="text-5xl font-playfair-bold leading-tight text-foreground-heading mb-4"
+              style={{
+                fontFamily: "PlayfairDisplay_500Medium",
+                textShadowColor: "rgba(0, 0, 0, 0.03)",
+                textShadowOffset: { width: 1, height: 1 },
+                textShadowRadius: 1,
+              }}
+            >
+              Recipes
             </Text>
+            <SearchButton
+              onPress={handleSearchPress}
+              placeholder={t("search.placeholder", "Search recipes...")}
+            />
+          </BlurView>
+        }
+      />
 
-            {isLoading ? (
-              <View className="items-center py-4">
-                <ActivityIndicator size="large" />
-                <Text className="mt-2 text-foreground-secondary">Loading...</Text>
-              </View>
-            ) : user ? (
-              <View className="gap-2">
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-foreground-secondary">Status:</Text>
-                  <View
-                    className={`rounded-full px-3 py-1 ${isAnonymous ? "bg-yellow-500/20" : "bg-green-500/20"}`}
-                  >
-                    <Text
-                      className={`font-medium ${isAnonymous ? "text-yellow-700" : "text-green-700"}`}
-                    >
-                      {isAnonymous ? "Anonymous" : "Authenticated"}
-                    </Text>
-                  </View>
-                </View>
-
-                <View className="gap-1">
-                  <Text className="text-foreground-secondary">User ID:</Text>
-                  <Text className="font-mono text-xs text-foreground">{user.id}</Text>
-                </View>
-
-                {user.email && (
-                  <View className="gap-1">
-                    <Text className="text-foreground-secondary">Email:</Text>
-                    <Text className="text-foreground">{user.email}</Text>
-                  </View>
-                )}
-
-                {user.phone && (
-                  <View className="gap-1">
-                    <Text className="text-foreground-secondary">Phone:</Text>
-                    <Text className="text-foreground">{user.phone}</Text>
-                  </View>
-                )}
-
-                <View className="gap-1">
-                  <Text className="text-foreground-secondary">Created At:</Text>
-                  <Text className="text-foreground">
-                    {new Date(user.created_at).toLocaleDateString()}
-                  </Text>
-                </View>
-
-                {user.user_metadata && Object.keys(user.user_metadata).length > 0 && (
-                  <View className="gap-1">
-                    <Text className="text-foreground-secondary">Metadata:</Text>
-                    <Text className="font-mono text-xs text-foreground">
-                      {JSON.stringify(user.user_metadata, null, 2)}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            ) : (
-              <Text className="text-foreground-secondary">Not authenticated</Text>
-            )}
-          </View>
-
-          <LanguageSwitcher />
-        </View>
-      </ScrollView>
+      {/* Always-visible BlurView for safe area - stays on top even when header hides */}
+      <BlurView
+        intensity={50}
+        tint="light"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top,
+          zIndex: 10, // Ensure it's above the refresh control
+        }}
+        pointerEvents="box-none" // Allow touches through but keep blur visible
+      />
 
       {/* FAB for adding recipes */}
       <FAB onPress={handleFABPress} />
