@@ -1,5 +1,5 @@
-import { View, ScrollView, RefreshControl, ActivityIndicator, Text } from "react-native";
-import { useMemo, useCallback, type ReactElement } from "react";
+import { View, FlatList, RefreshControl, ActivityIndicator } from "react-native";
+import { useMemo, type ReactElement } from "react";
 import { RecipeCard } from "./RecipeCard";
 import type { Recipe } from "@/types/recipe";
 
@@ -14,6 +14,10 @@ export interface MasonryGridProps {
   onScroll?: (event: any) => void;
   ListEmptyComponent?: ReactElement;
   ListHeaderComponent?: ReactElement;
+  contentContainerStyle?: any;
+  stickyHeaderIndices?: number[];
+  stickyHeaderHiddenOnScroll?: boolean;
+  refreshControlOffset?: number;
 }
 
 export function MasonryGrid({
@@ -27,6 +31,10 @@ export function MasonryGrid({
   onScroll,
   ListEmptyComponent,
   ListHeaderComponent,
+  contentContainerStyle,
+  stickyHeaderIndices,
+  stickyHeaderHiddenOnScroll = false,
+  refreshControlOffset = 0,
 }: MasonryGridProps) {
   // Distribute recipes into two columns for masonry layout
   const columns = useMemo(() => {
@@ -57,28 +65,6 @@ export function MasonryGrid({
     return { leftColumn, rightColumn };
   }, [recipes]);
 
-  // Handle scroll for infinite loading and custom scroll handler
-  const handleScroll = useCallback(
-    (event: any) => {
-      // Call custom onScroll handler if provided
-      if (onScroll) {
-        onScroll(event);
-      }
-
-      // Handle infinite loading
-      if (!onEndReached) return;
-
-      const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-      const isCloseToBottom =
-        layoutMeasurement.height + contentOffset.y >= contentSize.height - onEndReachedThreshold;
-
-      if (isCloseToBottom) {
-        onEndReached();
-      }
-    },
-    [onScroll, onEndReached, onEndReachedThreshold]
-  );
-
   // Show loading state
   if (loading && recipes.length === 0) {
     return (
@@ -93,12 +79,22 @@ export function MasonryGrid({
     return <View className="flex-1">{ListEmptyComponent}</View>;
   }
 
+  // Create data array for FlatList - single item containing both columns
+  const data = [{ id: "masonry-grid", columns }];
+
   return (
-    <ScrollView
-      className="flex-1"
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item.id}
       showsVerticalScrollIndicator={false}
-      onScroll={handleScroll}
+      onScroll={onScroll}
       scrollEventThrottle={16}
+      contentContainerStyle={contentContainerStyle}
+      stickyHeaderIndices={stickyHeaderIndices}
+      stickyHeaderHiddenOnScroll={stickyHeaderHiddenOnScroll}
+      onEndReached={onEndReached}
+      onEndReachedThreshold={onEndReachedThreshold ? onEndReachedThreshold / 1000 : 0.1}
+      ListHeaderComponent={ListHeaderComponent}
       refreshControl={
         onRefresh ? (
           <RefreshControl
@@ -106,34 +102,34 @@ export function MasonryGrid({
             onRefresh={onRefresh}
             tintColor="#334d43"
             colors={["#334d43"]}
+            progressViewOffset={refreshControlOffset}
           />
         ) : undefined
       }
-    >
-      {ListHeaderComponent}
+      renderItem={({ item }) => (
+        <View className="flex-row p-4 gap-2">
+          {/* Left Column */}
+          <View className="flex-1 gap-2 mr-1">
+            {item.columns.leftColumn.map((recipe, index) => (
+              <RecipeCard key={recipe.id} recipe={recipe} index={index * 2} />
+            ))}
+          </View>
 
-      <View className="flex-row p-4 gap-2">
-        {/* Left Column */}
-        <View className="flex-1 gap-2">
-          {columns.leftColumn.map((recipe, index) => (
-            <RecipeCard key={recipe.id} recipe={recipe} index={index * 2} />
-          ))}
-        </View>
-
-        {/* Right Column */}
-        <View className="flex-1 gap-2">
-          {columns.rightColumn.map((recipe, index) => (
-            <RecipeCard key={recipe.id} recipe={recipe} index={index * 2 + 1} />
-          ))}
-        </View>
-      </View>
-
-      {/* Loading indicator for pagination */}
-      {showLoadingFooter && (
-        <View className="py-4 items-center">
-          <ActivityIndicator size="small" color="#334d43" />
+          {/* Right Column */}
+          <View className="flex-1 gap-2 ml-1">
+            {item.columns.rightColumn.map((recipe, index) => (
+              <RecipeCard key={recipe.id} recipe={recipe} index={index * 2 + 1} />
+            ))}
+          </View>
         </View>
       )}
-    </ScrollView>
+      ListFooterComponent={
+        showLoadingFooter ? (
+          <View className="py-4 items-center">
+            <ActivityIndicator size="small" color="#334d43" />
+          </View>
+        ) : null
+      }
+    />
   );
 }

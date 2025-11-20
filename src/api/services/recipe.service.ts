@@ -16,8 +16,10 @@ export const recipeService = {
   /**
    * Get all recipes for the current user
    */
-  getRecipes: async (): Promise<Recipe[]> => {
-    const response = await api.get<Recipe[]>("/recipes");
+  getRecipes: async (limit: number = 20, offset: number = 0): Promise<Recipe[]> => {
+    const response = await api.get<Recipe[]>("/recipes", {
+      params: { limit, offset },
+    });
     return response.data;
   },
 
