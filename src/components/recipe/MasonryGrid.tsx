@@ -1,4 +1,11 @@
-import { View, FlatList, RefreshControl, ActivityIndicator } from "react-native";
+import {
+  View,
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
+  Platform,
+  useWindowDimensions,
+} from "react-native";
 import { useMemo, type ReactElement } from "react";
 import { RecipeCard } from "./RecipeCard";
 import type { Recipe } from "@/types/recipe";
@@ -36,11 +43,33 @@ export function MasonryGrid({
   stickyHeaderHiddenOnScroll = false,
   refreshControlOffset = 0,
 }: MasonryGridProps) {
-  // Distribute recipes into two columns for masonry layout
+  const { width } = useWindowDimensions();
+
+  // Calculate number of columns based on device type and screen width
+  const numColumns = useMemo(() => {
+    const isTablet = Platform.OS === "ios" && Platform.isPad;
+
+    if (!isTablet) {
+      // iPhone/iPod: always 2 columns
+      return 2;
+    }
+
+    // iPad: calculate based on width (max 5 columns)
+    // Assuming minimum column width of ~300px for good UX
+    const minColumnWidth = 250;
+    const padding = 32; // Account for horizontal padding
+    const gap = 8; // Gap between columns
+
+    const availableWidth = width - padding;
+    const calculatedColumns = Math.floor((availableWidth + gap) / (minColumnWidth + gap));
+
+    return Math.min(Math.max(calculatedColumns, 2), 5);
+  }, [width]);
+
+  // Distribute recipes into columns for masonry layout
   const columns = useMemo(() => {
-    const leftColumn: Recipe[] = [];
-    const rightColumn: Recipe[] = [];
-    const columnHeights = [0, 0];
+    const columnArrays: Recipe[][] = Array.from({ length: numColumns }, () => []);
+    const columnHeights: number[] = Array(numColumns).fill(0);
 
     recipes.forEach((recipe) => {
       // Generate consistent but varied heights based on recipe ID
@@ -52,18 +81,14 @@ export function MasonryGrid({
       // Approximate total card height (image + metadata section)
       const approxCardHeight = imageHeight + 120;
 
-      // Add to shorter column to balance layout
-      if (columnHeights[0] <= columnHeights[1]) {
-        leftColumn.push(recipe);
-        columnHeights[0] += approxCardHeight;
-      } else {
-        rightColumn.push(recipe);
-        columnHeights[1] += approxCardHeight;
-      }
+      // Find the shortest column and add recipe to it
+      const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
+      columnArrays[shortestColumnIndex].push(recipe);
+      columnHeights[shortestColumnIndex] += approxCardHeight;
     });
 
-    return { leftColumn, rightColumn };
-  }, [recipes]);
+    return columnArrays;
+  }, [recipes, numColumns]);
 
   // Show loading state
   if (loading && recipes.length === 0) {
@@ -79,7 +104,7 @@ export function MasonryGrid({
     return <View className="flex-1">{ListEmptyComponent}</View>;
   }
 
-  // Create data array for FlatList - single item containing both columns
+  // Create data array for FlatList - single item containing all columns
   const data = [{ id: "masonry-grid", columns }];
 
   return (
@@ -108,19 +133,21 @@ export function MasonryGrid({
       }
       renderItem={({ item }) => (
         <View className="flex-row p-4 gap-2">
-          {/* Left Column */}
-          <View className="flex-1 gap-2 mr-1">
-            {item.columns.leftColumn.map((recipe, index) => (
-              <RecipeCard key={recipe.id} recipe={recipe} index={index * 2} />
-            ))}
-          </View>
-
-          {/* Right Column */}
-          <View className="flex-1 gap-2 ml-1">
-            {item.columns.rightColumn.map((recipe, index) => (
-              <RecipeCard key={recipe.id} recipe={recipe} index={index * 2 + 1} />
-            ))}
-          </View>
+          {item.columns.map((columnRecipes, columnIndex) => (
+            <View
+              key={`column-${columnIndex}`}
+              className="flex-1 gap-2"
+              style={{ marginHorizontal: 4 }}
+            >
+              {columnRecipes.map((recipe, recipeIndex) => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  index={columnIndex + recipeIndex * numColumns}
+                />
+              ))}
+            </View>
+          ))}
         </View>
       )}
       ListFooterComponent={
