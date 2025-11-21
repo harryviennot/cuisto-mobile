@@ -65,10 +65,6 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
     return <CookingMode recipe={recipe} onClose={() => setIsCooking(false)} />;
   }
 
-  recipe.ingredients.map((ing, index) => {
-    console.log(ing?.quantity, ing?.unit, ing.name, ing?.notes);
-  });
-
   // Render left column (image and header info)
   const renderLeftColumn = () => {
     // In landscape mode, we want the image to be flexible height so all content fits without scrolling
@@ -108,7 +104,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
 
             {/* Draft Badge */}
             {isDraft && (
-              <View className="absolute bottom-4 left-4">
+              <View className={`absolute bottom-4 ${isTablet ? "left-8" : "left-4"}`}>
                 <View className="rounded-full bg-surface-elevated/90 px-3 py-1.5 shadow-sm">
                   <Text className="text-xs font-bold uppercase tracking-widest text-primary">
                     {t("recipe.draftPreview")}
@@ -156,8 +152,8 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
 
             {/* Primary Actions */}
             <RecipeActionButtons
-              onDecline={() => onDiscard}
-              onSaveRecipe={() => onSave}
+              onDecline={() => onDiscard?.()}
+              onSaveRecipe={() => onSave?.()}
               onEdit={() => {}}
               onShare={() => {}}
               onStartCooking={() => setIsCooking(true)}

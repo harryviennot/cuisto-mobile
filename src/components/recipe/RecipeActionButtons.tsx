@@ -85,17 +85,15 @@ export function RecipeActionButtons({
       {isDraft ? (
         <Pressable
           onPress={onDecline}
-          className="w-14 h-14 bg-white rounded-lg items-center justify-center"
+          className="w-14 h-14 bg-white rounded-lg items-center justify-center border border-danger"
           style={{
-            borderWidth: 1,
-            borderColor: "#E8E3D6",
             shadowColor: "#2C2416",
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.08,
             shadowRadius: 8,
           }}
         >
-          <TrashIcon size={20} color="#334d43" weight="regular" />
+          <TrashIcon size={20} color="#c65d47" weight="regular" />
         </Pressable>
       ) : (
         <Pressable

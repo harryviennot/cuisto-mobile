@@ -83,6 +83,14 @@ module.exports = {
           info: "#91b5a7", // forest-300
         },
 
+        // Semantic Colors
+        danger: {
+          DEFAULT: "#c65d47", // Warm terracotta red - main danger color
+          light: "#d98775", // Lighter shade for backgrounds
+          dark: "#a84a36", // Darker shade for emphasis
+          muted: "#e4b4a9", // Very light for subtle danger states
+        },
+
         // Full color palettes (for granular control)
         forest: {
           50: "#f0f5f3",
@@ -113,6 +121,18 @@ module.exports = {
           400: "#a8a29e",
           500: "#78716c",
           600: "#57534e",
+        },
+        terracotta: {
+          50: "#fdf5f3",
+          100: "#fae8e3",
+          200: "#f5d0c7",
+          300: "#e4b4a9",
+          400: "#d98775",
+          500: "#c65d47", // Main danger color
+          600: "#a84a36",
+          700: "#8a3d2d",
+          800: "#6d3224",
+          900: "#4f251b",
         },
       },
       fontFamily: {

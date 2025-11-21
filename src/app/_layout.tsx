@@ -1,6 +1,5 @@
 import "@/global.css";
-import "@/locales/i18n";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
@@ -9,6 +8,7 @@ import { SearchProvider } from "@/contexts/SearchContext";
 import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import i18n from "@/locales/i18n";
 
 import {
   useFonts,
@@ -18,6 +18,9 @@ import {
   PlayfairDisplay_600SemiBold,
   PlayfairDisplay_500Medium,
 } from "@expo-google-fonts/playfair-display";
+
+// Keep splash screen visible while we load resources
+SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +32,7 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
+  const [i18nInitialized, setI18nInitialized] = useState(false);
   const [fontsLoaded] = useFonts({
     PlayfairDisplay_400Regular,
     PlayfairDisplay_700Bold,
@@ -38,14 +42,32 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (fontsLoaded) {
+    // Wait for i18n to be ready
+    if (i18n.isInitialized) {
+      setI18nInitialized(true);
+    } else {
+      const checkI18n = setInterval(() => {
+        if (i18n.isInitialized) {
+          setI18nInitialized(true);
+          clearInterval(checkI18n);
+        }
+      }, 100);
+
+      return () => clearInterval(checkI18n);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (fontsLoaded && i18nInitialized) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, i18nInitialized]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || !i18nInitialized) {
     return null;
   }
+
+  console.log("LOADED");
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

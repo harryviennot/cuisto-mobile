@@ -95,8 +95,11 @@ export default function Index() {
       ),
   }));
 
-  // All recipes
+  // All recipes - deduplicate by ID to handle any backend duplicates
   const allRecipes = data?.pages.flatMap((page) => page) ?? [];
+  const uniqueRecipes = Array.from(
+    new Map(allRecipes.map((recipe) => [recipe.id, recipe])).values()
+  );
 
   // Handle infinite scroll
   const handleEndReached = useCallback(() => {
@@ -175,7 +178,7 @@ export default function Index() {
     <View className="flex-1 bg-surface">
       {/* Recipe Grid with Sticky Header */}
       <MasonryGrid
-        recipes={allRecipes}
+        recipes={uniqueRecipes}
         refreshing={isRefetching}
         onRefresh={handleRefresh}
         onEndReached={handleEndReached}
@@ -208,7 +211,7 @@ export default function Index() {
                 textShadowRadius: 1,
               }}
             >
-              Recipes
+              My Recipes
             </Text>
             <SearchButton
               onPress={handleSearchPress}

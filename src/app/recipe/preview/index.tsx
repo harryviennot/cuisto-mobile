@@ -25,7 +25,6 @@ export default function UnifiedRecipePreviewScreen() {
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
 
   // Monitor extraction job with SSE and polling fallback
   const {
@@ -62,48 +61,26 @@ export default function UnifiedRecipePreviewScreen() {
     retryConnection();
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!recipe) return;
-    console.log("save pressed !");
-    try {
-      setIsSaving(true);
-      // Recipe is already saved in the backend after extraction
-      // Invalidate recipes query to refresh home page with new recipe
-      queryClient.invalidateQueries({ queryKey: ["recipes"] });
 
-      Alert.alert(t("common.success"), t("recipe.saved"), [
-        {
-          text: t("common.ok"),
-          onPress: () => router.replace("/"),
-        },
-      ]);
-    } catch (error) {
-      console.error("Error saving recipe:", error);
-      Alert.alert(t("common.error"), t("recipe.failedToSave"));
-    } finally {
-      setIsSaving(false);
-    }
+    // Navigate immediately for instant feedback
+    router.replace("/");
+
+    // Invalidate recipes query in background to refresh home page
+    queryClient.invalidateQueries({ queryKey: ["recipes"] });
   };
 
   const handleDiscard = () => {
-    Alert.alert(t("recipe.discardRecipe"), t("recipe.discardConfirm"), [
-      { text: t("common.cancel"), style: "cancel" },
-      {
-        text: t("recipe.discard"),
-        style: "destructive",
-        onPress: async () => {
-          try {
-            if (job?.recipe_id) {
-              await recipeService.deleteRecipe(job.recipe_id);
-            }
-            router.replace("/");
-          } catch (error) {
-            console.error("Error discarding recipe:", error);
-            Alert.alert(t("common.error"), t("recipe.failedToDiscard"));
-          }
-        },
-      },
-    ]);
+    // Navigate immediately for instant feedback
+    router.replace("/");
+
+    // Delete recipe in background
+    if (job?.recipe_id) {
+      recipeService.deleteRecipe(job.recipe_id).catch((error) => {
+        console.error("Error discarding recipe:", error);
+      });
+    }
   };
 
   // Validate jobId
@@ -181,45 +158,6 @@ export default function UnifiedRecipePreviewScreen() {
         onDiscard={handleDiscard}
         onSave={handleSave}
       />
-      // <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
-      //   {/* Recipe content with scroll */}
-      //   <RecipePreviewContent recipe={recipe} showScrollView={true} />
-
-      //   {/* Action buttons */}
-      //   <Animated.View
-      //     entering={SlideInDown.delay(600).duration(400)}
-      //     className="border-t border-border bg-surface-elevated px-6 py-4"
-      //     style={{ paddingBottom: insets.bottom + 16 }}
-      //   >
-      //     <View className="flex-row gap-3">
-      //       <Pressable
-      //         onPress={handleDiscard}
-      //         disabled={isSaving}
-      //         className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border-2 border-border bg-surface-elevated py-4 active:bg-surface-overlay"
-      //       >
-      //         <X size={24} color="#6b5d4a" weight="bold" />
-      //         <Text className="text-base font-semibold text-foreground">{t("recipe.discard")}</Text>
-      //       </Pressable>
-
-      //       <Pressable
-      //         onPress={handleSave}
-      //         disabled={isSaving}
-      //         className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-primary py-4 active:bg-primary-hover"
-      //       >
-      //         {isSaving ? (
-      //           <ActivityIndicator color="#FFFFFF" />
-      //         ) : (
-      //           <>
-      //             <CheckCircle size={24} color="#FFFFFF" weight="bold" />
-      //             <Text className="text-base font-semibold text-white">
-      //               {t("recipe.saveRecipe")}
-      //             </Text>
-      //           </>
-      //         )}
-      //       </Pressable>
-      //     </View>
-      //   </Animated.View>
-      // </View>
     );
   }
 

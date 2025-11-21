@@ -104,7 +104,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
             <Animated.View
               entering={FadeIn}
               className="h-full bg-primary"
-              style={{ width: `${progressPercentage}%` }}
+              style={{ width: `${progressPercentage}%` as any }}
             />
           </View>
         </View>
@@ -142,7 +142,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
 
           {/* Instruction Text */}
           <Text className="mb-8 text-2xl font-bold leading-tight text-foreground-heading">
-            {currentInstruction.text}
+            {currentInstruction.description}
           </Text>
 
           {/* Group Context */}

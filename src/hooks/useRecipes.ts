@@ -13,7 +13,7 @@ export function useRecipes() {
     queryKey: ["recipes"],
     queryFn: async ({ pageParam = 0 }) => {
       const offset = pageParam as number;
-      return recipeService.getRecipes(RECIPES_PER_PAGE, offset);
+      return recipeService.getRecipesPaginated(RECIPES_PER_PAGE, offset);
     },
     getNextPageParam: (lastPage, allPages) => {
       // If the last page has fewer items than the limit, we've reached the end
