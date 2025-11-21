@@ -18,8 +18,8 @@ import {
   IMAGE_EXTRACTION_CONFIG,
   type ExtractionSourceType,
 } from "@/config/extractionMethods";
-import { SearchButton } from "@/components/recipe/SearchButton";
-import { MasonryGrid } from "@/components/recipe/MasonryGrid";
+import { SearchButton } from "@/components/home/SearchButton";
+import { MasonryGrid } from "@/components/home/MasonryGrid";
 import { useRecipes } from "@/hooks/useRecipes";
 
 export default function Index() {

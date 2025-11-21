@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { MagnifyingGlass, X } from "phosphor-react-native";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { SearchBar } from "@/components/recipe/SearchBar";
-import { MasonryGrid } from "@/components/recipe/MasonryGrid";
+import { SearchBar } from "@/components/home/SearchBar";
+import { MasonryGrid } from "@/components/home/MasonryGrid";
 import { useSearch } from "@/hooks/useSearch";
 import { useSearchContext } from "@/contexts/SearchContext";
 

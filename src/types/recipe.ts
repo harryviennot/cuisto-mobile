@@ -29,7 +29,8 @@ export interface Ingredient {
 
 export interface Instruction {
   step_number: number;
-  text: string;
+  title: string;
+  description: string;
   timer_minutes?: number;
   image_url?: string;
   group?: string;

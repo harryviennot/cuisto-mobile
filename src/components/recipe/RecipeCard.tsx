@@ -15,9 +15,10 @@ interface RecipeCardProps {
   index: number;
 }
 
-export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) {
+export const aiRecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) {
   const handlePress = () => {
-    router.push(`/recipe/preview/${recipe.id}` as any);
+    // Navigate to recipe detail page for saved recipes
+    router.push(`/recipe/${recipe.id}` as any);
   };
 
   // Calculate total time

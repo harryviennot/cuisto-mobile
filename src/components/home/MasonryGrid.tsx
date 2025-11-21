@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useMemo, type ReactElement } from "react";
-import { RecipeCard } from "./RecipeCard";
+import { aiRecipeCard as RecipeCard } from "../recipe/RecipeCard";
 import type { Recipe } from "@/types/recipe";
 
 export interface MasonryGridProps {

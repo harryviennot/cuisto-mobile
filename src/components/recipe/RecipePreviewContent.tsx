@@ -168,7 +168,7 @@ export function RecipePreviewContent({
                         </View>
                         <View className="flex-1">
                           <Text className="text-base leading-relaxed text-foreground-heading">
-                            {instruction.text}
+                            {instruction.description}
                           </Text>
                           {instruction.timer_minutes && (
                             <Text className="mt-1 text-sm text-foreground-secondary">

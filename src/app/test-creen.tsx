@@ -5,7 +5,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, FlatList, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { SearchButton } from "@/components/recipe/SearchButton";
+import { SearchButton } from "@/components/home/SearchButton";
 import { useTranslation } from "react-i18next";
 import { BlurView } from "expo-blur";
 

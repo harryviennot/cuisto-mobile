@@ -1,6 +1,6 @@
 import { Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { SearchButton } from "../recipe/SearchButton";
+import { SearchButton } from "./SearchButton";
 import { useTranslation } from "react-i18next";
 import { BlurView } from "expo-blur";
 

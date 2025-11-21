@@ -53,20 +53,18 @@ export default function RootLayout() {
         <BottomSheetModalProvider>
           <AuthProvider>
             <SearchProvider>
-              <Stack>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="index" />
                 <Stack.Screen
                   name="search"
                   options={{
-                    headerShown: false,
                     presentation: "transparentModal",
                     animation: "fade",
                     animationDuration: 200,
                   }}
                 />
-                <Stack.Screen name="test-creen" options={{ headerShown: false }} />
-                <Stack.Screen name="recipe/preview/index" options={{ headerShown: false }} />
-                <Stack.Screen name="recipe/preview/[recipeId]" options={{ headerShown: false }} />
+                <Stack.Screen name="test-creen" />
+                <Stack.Screen name="recipe" />
               </Stack>
             </SearchProvider>
           </AuthProvider>
