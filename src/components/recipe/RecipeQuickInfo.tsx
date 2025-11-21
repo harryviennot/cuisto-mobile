@@ -2,6 +2,7 @@ import "@/global.css";
 import { View, Text, Pressable } from "react-native";
 import { ChefHatIcon, UsersThreeIcon } from "phosphor-react-native";
 import { DifficultyLevel } from "@/types/recipe";
+import { useTranslation } from "react-i18next";
 
 interface RecipeQuickInfoProps {
   time: number | undefined;
@@ -16,6 +17,8 @@ export function RecipeQuickInfo({
   servings,
   onTimePress,
 }: RecipeQuickInfoProps) {
+  const { t } = useTranslation();
+
   return (
     <View
       className="bg-white rounded-lg p-4 mb-4"
@@ -31,8 +34,8 @@ export function RecipeQuickInfo({
       <View className="flex-row items-center justify-around">
         {/* Time - Editable */}
         <Pressable onPress={onTimePress} className="items-center flex-1">
-          <Text className="text-sm text-[#6B6456] mt-1">{time} min</Text>
-          <Text className="text-xs text-[#334d43] font-medium mt-0.5">Tap to edit</Text>
+          <Text className="text-sm text-[#6B6456] mt-1">{time} {t("common.min")}</Text>
+          <Text className="text-xs text-[#334d43] font-medium mt-0.5">{t("recipe.quickInfo.tapToEdit")}</Text>
         </Pressable>
 
         {/* Difficulty */}
@@ -44,7 +47,7 @@ export function RecipeQuickInfo({
         {/* Servings */}
         <View className="items-center flex-1">
           <UsersThreeIcon size={20} color="#6B6456" weight="regular" />
-          <Text className="text-sm text-[#6B6456] mt-1">{servings} servings</Text>
+          <Text className="text-sm text-[#6B6456] mt-1">{servings} {t("common.servings")}</Text>
         </View>
       </View>
     </View>

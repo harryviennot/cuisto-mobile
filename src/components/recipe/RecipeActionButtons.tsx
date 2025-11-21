@@ -7,6 +7,7 @@ import {
   PencilIcon,
   PlayIcon,
 } from "phosphor-react-native";
+import { useTranslation } from "react-i18next";
 
 interface RecipeActionButtonsProps {
   onStartCooking: () => void;
@@ -25,6 +26,8 @@ export function RecipeActionButtons({
   onSaveRecipe,
   isDraft,
 }: RecipeActionButtonsProps) {
+  const { t } = useTranslation();
+
   return (
     <View className="flex-row gap-3 mb-6">
       {/* Start Cooking Button */}
@@ -39,8 +42,10 @@ export function RecipeActionButtons({
             shadowRadius: 8,
           }}
         >
-          <CheckIcon size={20} color="white" weight="fill" />
-          <Text className="text-white font-semibold text-base ml-2">Save Recipe</Text>
+          <CheckIcon size={20} color="white" weight="bold" />
+          <Text className="text-white font-semibold text-base ml-2">
+            {t("recipe.actions.saveRecipe")}
+          </Text>
         </Pressable>
       ) : (
         <Pressable
@@ -54,7 +59,9 @@ export function RecipeActionButtons({
           }}
         >
           <PlayIcon size={20} color="white" weight="fill" />
-          <Text className="text-white font-semibold text-base ml-2">Start Cooking</Text>
+          <Text className="text-white font-semibold text-base ml-2">
+            {t("recipe.actions.startCooking")}
+          </Text>
         </Pressable>
       )}
 

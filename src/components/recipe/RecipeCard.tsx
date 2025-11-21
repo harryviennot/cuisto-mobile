@@ -8,6 +8,7 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Image as ImageIcon, Clock, Flame, Bookmark } from "phosphor-react-native";
 import { BlurView } from "expo-blur";
+import { useTranslation } from "react-i18next";
 import type { Recipe } from "@/types/recipe";
 
 interface RecipeCardProps {
@@ -16,6 +17,8 @@ interface RecipeCardProps {
 }
 
 export const aiRecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) {
+  const { t } = useTranslation();
+
   const handlePress = () => {
     // Navigate to recipe detail page for saved recipes
     router.push(`/recipe/${recipe.id}` as any);
@@ -56,7 +59,7 @@ export const aiRecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps
   const imageHeight = getImageHeight();
 
   // Get category or first tag
-  const categoryLabel = recipe.categories?.[0] || recipe.tags?.[0] || "RECIPE";
+  const categoryLabel = recipe.categories?.[0] || recipe.tags?.[0] || t("recipe.card.recipeLabel");
 
   // Get calories (placeholder - TODO: add nutrition field to Recipe type)
   const calories = 450;
@@ -91,7 +94,7 @@ export const aiRecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps
           ) : (
             <View className="w-full h-full items-center justify-center gap-2">
               <ImageIcon size={48} color="#a8a29e" weight="duotone" />
-              <Text className="text-stone-400 text-sm">No Image</Text>
+              <Text className="text-stone-400 text-sm">{t("recipe.card.noImage")}</Text>
             </View>
           )}
 
@@ -168,7 +171,7 @@ export const aiRecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps
               <View className="flex-row items-center gap-1">
                 <Clock size={12} color="#a8a29e" weight="regular" />
                 <Text className="text-[11px] font-medium tracking-wide text-stone-500">
-                  {totalTime} min
+                  {totalTime} {t("common.min")}
                 </Text>
               </View>
             )}
@@ -179,7 +182,7 @@ export const aiRecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps
             <View className="flex-row items-center gap-1">
               <Flame size={12} color="#a8a29e" weight="regular" />
               <Text className="text-[11px] font-medium tracking-wide text-stone-500">
-                {calories} kcal
+                {calories} {t("common.kcal")}
               </Text>
             </View>
           </View>

@@ -13,7 +13,14 @@
     "success": "Success",
     "ok": "OK",
     "retry": "Retry",
-    "tryAgain": "Try Again"
+    "tryAgain": "Try Again",
+    "of": "of",
+    "previous": "Previous",
+    "finish": "Finish",
+    "minutes": "minutes",
+    "min": "min",
+    "kcal": "kcal",
+    "servings": "servings"
   },
   "app": {
     "title": "CuiStudio",
@@ -76,7 +83,30 @@
     "failedToSave": "Failed to save recipe",
     "failedToLoad": "Failed to load recipe. Please try again.",
     "failedToDiscard": "Failed to discard recipe",
-    "invalidJob": "Invalid extraction job"
+    "invalidJob": "Invalid extraction job",
+    "noImage": "No image",
+    "draftPreview": "AI Draft Preview",
+    "yourRating": "Your Rating",
+    "adjustServings": "Adjust servings to scale ingredients automatically",
+    "cookingMode": {
+      "title": "Cooking Mode",
+      "step": "Step",
+      "percentComplete": "% Complete",
+      "stepCompleted": "Step Completed",
+      "markAsComplete": "Mark as Complete",
+      "nextStep": "Next Step"
+    },
+    "card": {
+      "recipeLabel": "RECIPE",
+      "noImage": "No Image"
+    },
+    "actions": {
+      "saveRecipe": "Save Recipe",
+      "startCooking": "Start Cooking"
+    },
+    "quickInfo": {
+      "tapToEdit": "Tap to edit"
+    }
   },
   "errors": {
     "extractionFailed": "Extraction Failed",

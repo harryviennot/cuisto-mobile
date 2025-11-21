@@ -17,6 +17,7 @@ import { ExtractionProgress } from "@/components/extraction/ExtractionProgress";
 import { RecipePreviewContent } from "@/components/recipe/RecipePreviewContent";
 import { ExtractionStatus } from "@/types/extraction";
 import type { Recipe } from "@/types/recipe";
+import { RecipeDetail } from "@/components/recipe/RecipeDetail";
 
 export default function UnifiedRecipePreviewScreen() {
   const { t } = useTranslation();
@@ -174,45 +175,52 @@ export default function UnifiedRecipePreviewScreen() {
   // Recipe loaded - show with animations
   if (recipe) {
     return (
-      <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
-        {/* Recipe content with scroll */}
-        <RecipePreviewContent recipe={recipe} showScrollView={true} />
+      <RecipeDetail
+        recipe={recipe}
+        onBack={() => {}}
+        isDraft={true}
+        onDiscard={handleDiscard}
+        onSave={handleSave}
+      />
+      // <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
+      //   {/* Recipe content with scroll */}
+      //   <RecipePreviewContent recipe={recipe} showScrollView={true} />
 
-        {/* Action buttons */}
-        <Animated.View
-          entering={SlideInDown.delay(600).duration(400)}
-          className="border-t border-border bg-surface-elevated px-6 py-4"
-          style={{ paddingBottom: insets.bottom + 16 }}
-        >
-          <View className="flex-row gap-3">
-            <Pressable
-              onPress={handleDiscard}
-              disabled={isSaving}
-              className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border-2 border-border bg-surface-elevated py-4 active:bg-surface-overlay"
-            >
-              <X size={24} color="#6b5d4a" weight="bold" />
-              <Text className="text-base font-semibold text-foreground">{t("recipe.discard")}</Text>
-            </Pressable>
+      //   {/* Action buttons */}
+      //   <Animated.View
+      //     entering={SlideInDown.delay(600).duration(400)}
+      //     className="border-t border-border bg-surface-elevated px-6 py-4"
+      //     style={{ paddingBottom: insets.bottom + 16 }}
+      //   >
+      //     <View className="flex-row gap-3">
+      //       <Pressable
+      //         onPress={handleDiscard}
+      //         disabled={isSaving}
+      //         className="flex-1 flex-row items-center justify-center gap-2 rounded-xl border-2 border-border bg-surface-elevated py-4 active:bg-surface-overlay"
+      //       >
+      //         <X size={24} color="#6b5d4a" weight="bold" />
+      //         <Text className="text-base font-semibold text-foreground">{t("recipe.discard")}</Text>
+      //       </Pressable>
 
-            <Pressable
-              onPress={handleSave}
-              disabled={isSaving}
-              className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-primary py-4 active:bg-primary-hover"
-            >
-              {isSaving ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <>
-                  <CheckCircle size={24} color="#FFFFFF" weight="bold" />
-                  <Text className="text-base font-semibold text-white">
-                    {t("recipe.saveRecipe")}
-                  </Text>
-                </>
-              )}
-            </Pressable>
-          </View>
-        </Animated.View>
-      </View>
+      //       <Pressable
+      //         onPress={handleSave}
+      //         disabled={isSaving}
+      //         className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-primary py-4 active:bg-primary-hover"
+      //       >
+      //         {isSaving ? (
+      //           <ActivityIndicator color="#FFFFFF" />
+      //         ) : (
+      //           <>
+      //             <CheckCircle size={24} color="#FFFFFF" weight="bold" />
+      //             <Text className="text-base font-semibold text-white">
+      //               {t("recipe.saveRecipe")}
+      //             </Text>
+      //           </>
+      //         )}
+      //       </Pressable>
+      //     </View>
+      //   </Animated.View>
+      // </View>
     );
   }
 

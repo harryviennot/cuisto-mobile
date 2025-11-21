@@ -108,7 +108,7 @@ export function AnimatedPageHeader({
   const defaultLeftButton = onBackPress ? (
     <View className="w-12 h-12 items-center justify-center">
       <Animated.View
-        className="absolute w-12 h-12 rounded-full bg-white"
+        className="absolute w-12 h-12 rounded-full bg-surface-elevated"
         style={[
           {
             shadowColor: "#000",
@@ -128,7 +128,7 @@ export function AnimatedPageHeader({
   const defaultRightButton = onMenuPress ? (
     <View className="w-12 h-12 items-center justify-center">
       <Animated.View
-        className="absolute w-12 h-12 rounded-full bg-white"
+        className="absolute w-12 h-12 rounded-full bg-surface-elevated"
         style={[
           {
             shadowColor: "#000",
@@ -149,7 +149,7 @@ export function AnimatedPageHeader({
     <>
       {/* Fixed Buttons Layer - Always visible above header */}
       <View
-        className="absolute left-6 right-6 z-50 flex-row items-center justify-between"
+        className="absolute left-4 right-4 z-50 flex-row items-center justify-between"
         style={{ top: top + 8 }}
       >
         {leftButton !== undefined ? leftButton : defaultLeftButton}
@@ -158,12 +158,11 @@ export function AnimatedPageHeader({
 
       {/* Sticky Header - Fades in when content scrolls */}
       <Animated.View
-        className="absolute top-0 left-0 right-0 z-40 border-b"
+        className="absolute top-0 left-0 right-0 z-40 border-b bg-surface-elevated"
         style={[
           {
             height: HEADER_HEIGHT + top,
             paddingTop: top,
-            backgroundColor,
             borderBottomColor: borderColor,
           },
           headerAnimatedStyle,

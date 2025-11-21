@@ -76,7 +76,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
             <Text className="mb-1 text-xs font-medium uppercase tracking-wide text-foreground-muted">
-              Cooking Mode
+              {t("recipe.cookingMode.title")}
             </Text>
             <Text className="text-lg font-bold text-foreground-heading" numberOfLines={1}>
               {recipe.title}
@@ -94,10 +94,10 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         <View className="mt-4">
           <View className="mb-2 flex-row items-center justify-between">
             <Text className="text-xs font-medium text-foreground">
-              Step {currentStep + 1} of {totalSteps}
+              {t("recipe.cookingMode.step")} {currentStep + 1} {t("common.of")} {totalSteps}
             </Text>
             <Text className="text-xs font-medium text-primary">
-              {progressPercentage}% Complete
+              {progressPercentage}{t("recipe.cookingMode.percentComplete")}
             </Text>
           </View>
           <View className="h-2 overflow-hidden rounded-full bg-surface-texture-light">
@@ -134,7 +134,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
               <View className="flex-row items-center gap-2 rounded-full bg-orange-50 px-4 py-2">
                 <Clock size={20} color="#f97316" weight="bold" />
                 <Text className="text-sm font-bold text-orange-600">
-                  {currentInstruction.timer_minutes} minutes
+                  {currentInstruction.timer_minutes} {t("common.minutes")}
                 </Text>
               </View>
             )}
@@ -176,7 +176,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
                 isStepComplete ? "text-state-success" : "text-foreground-secondary"
               }`}
             >
-              {isStepComplete ? "Step Completed" : "Mark as Complete"}
+              {isStepComplete ? t("recipe.cookingMode.stepCompleted") : t("recipe.cookingMode.markAsComplete")}
             </Text>
           </Pressable>
 
@@ -211,7 +211,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
                 isFirstStep ? "text-foreground-tertiary" : "text-foreground-secondary"
               }`}
             >
-              Previous
+              {t("common.previous")}
             </Text>
           </Pressable>
 
@@ -221,7 +221,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
             className="flex-1 flex-row items-center justify-center gap-2 rounded-xl bg-primary py-4 active:opacity-90"
           >
             <Text className="text-base font-bold text-white">
-              {isLastStep ? "Finish" : "Next Step"}
+              {isLastStep ? t("common.finish") : t("recipe.cookingMode.nextStep")}
             </Text>
             {!isLastStep && <CaretRight size={24} color="#FFFFFF" weight="bold" />}
           </Pressable>

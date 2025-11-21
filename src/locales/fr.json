@@ -13,7 +13,14 @@
     "success": "Succès",
     "ok": "OK",
     "retry": "Réessayer",
-    "tryAgain": "Réessayer"
+    "tryAgain": "Réessayer",
+    "of": "de",
+    "previous": "Précédent",
+    "finish": "Terminer",
+    "minutes": "minutes",
+    "min": "min",
+    "kcal": "kcal",
+    "servings": "portions"
   },
   "app": {
     "title": "CuiStudio",
@@ -76,7 +83,30 @@
     "failedToSave": "Échec de l'enregistrement de la recette",
     "failedToLoad": "Échec du chargement de la recette. Veuillez réessayer.",
     "failedToDiscard": "Échec de la suppression de la recette",
-    "invalidJob": "Tâche d'extraction invalide"
+    "invalidJob": "Tâche d'extraction invalide",
+    "noImage": "Aucune image",
+    "draftPreview": "Aperçu du brouillon IA",
+    "yourRating": "Votre note",
+    "adjustServings": "Ajustez les portions pour mettre à l'échelle les ingrédients automatiquement",
+    "cookingMode": {
+      "title": "Mode cuisson",
+      "step": "Étape",
+      "percentComplete": "% Terminé",
+      "stepCompleted": "Étape terminée",
+      "markAsComplete": "Marquer comme terminée",
+      "nextStep": "Étape suivante"
+    },
+    "card": {
+      "recipeLabel": "RECETTE",
+      "noImage": "Aucune image"
+    },
+    "actions": {
+      "saveRecipe": "Enregistrer la recette",
+      "startCooking": "Commencer la cuisson"
+    },
+    "quickInfo": {
+      "tapToEdit": "Appuyer pour modifier"
+    }
   },
   "errors": {
     "extractionFailed": "Échec de l'extraction",

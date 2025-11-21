@@ -172,7 +172,7 @@ export function RecipePreviewContent({
                           </Text>
                           {instruction.timer_minutes && (
                             <Text className="mt-1 text-sm text-foreground-secondary">
-                              ⏱️ {instruction.timer_minutes} minutes
+                              ⏱️ {instruction.timer_minutes} {t("common.minutes")}
                             </Text>
                           )}
                         </View>
