@@ -245,9 +245,9 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
       <AnimatedPageHeader
         title={recipe.title}
         scrollY={scrollY}
-        onBackPress={onBack}
+        onBackPress={!isDraft ? onBack : undefined}
         // onMenuPress={setIsActionSheetVisible(true)}
-        onMenuPress={() => {}}
+        onMenuPress={!isDraft ? () => {} : undefined}
         animationConfig={{
           scrollThresholdStart,
           scrollThresholdEnd,

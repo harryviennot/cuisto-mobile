@@ -14,7 +14,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { recipeService } from "@/api/services/recipe.service";
 import { useExtractionJob } from "@/hooks/useExtractionJob";
 import { ExtractionProgress } from "@/components/extraction/ExtractionProgress";
-import { RecipePreviewContent } from "@/components/recipe/RecipePreviewContent";
 import { ExtractionStatus } from "@/types/extraction";
 import type { Recipe } from "@/types/recipe";
 import { RecipeDetail } from "@/components/recipe/RecipeDetail";
@@ -65,7 +64,7 @@ export default function UnifiedRecipePreviewScreen() {
 
   const handleSave = async () => {
     if (!recipe) return;
-
+    console.log("save pressed !");
     try {
       setIsSaving(true);
       // Recipe is already saved in the backend after extraction
