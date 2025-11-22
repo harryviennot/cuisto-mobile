@@ -14,7 +14,7 @@ export const ServingsSelector: React.FC<ServingsSelectorProps> = ({
   currentServings,
   onServingsChange,
 }) => {
-  const { width } = useDeviceType();
+  const { width, isTablet, isTabletLandscape } = useDeviceType();
   const scrollViewRef = useRef<ScrollView>(null);
   const isUserScrollingRef = useRef(false);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -28,10 +28,19 @@ export const ServingsSelector: React.FC<ServingsSelectorProps> = ({
     return servings;
   };
 
+  const TABLET_ITEM_WIDTH = (width - 10 * 8 - 4) / 5;
+  const HORIZONTAL_TABLET_ITEM_WIDTH = (width * 0.55 - 10 * 8 - 4) / 5;
+  const PHONE_ITEM_WIDTH = (width - 4 * 8 - 4) / 5; // Width of each serving button
+
   const allServings = generateServings();
-  const ITEM_WIDTH = (width - 4 * 8 - 4) / 5; // Width of each serving button
+
   const CONTAINER_PADDING = 4; // Padding from ShadowItem
 
+  const ITEM_WIDTH = isTablet
+    ? isTabletLandscape
+      ? HORIZONTAL_TABLET_ITEM_WIDTH
+      : TABLET_ITEM_WIDTH
+    : PHONE_ITEM_WIDTH;
   // Scroll to center the selected value
   const scrollToCenter = useCallback(
     (value: number) => {

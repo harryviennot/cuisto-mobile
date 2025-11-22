@@ -1,6 +1,7 @@
 import "@/global.css";
-import { View, Pressable } from "react-native";
-import { Star } from "phosphor-react-native";
+import { View, Pressable, PanResponder } from "react-native";
+import { StarIcon } from "phosphor-react-native";
+import { useState, useRef, useMemo } from "react";
 
 interface StarRatingProps {
   rating: number;
@@ -15,26 +16,78 @@ export function StarRating({
   size = 32,
   editable = true,
 }: StarRatingProps) {
+  const [displayRating, setDisplayRating] = useState(rating);
+  const containerRef = useRef<View>(null);
+  const containerX = useRef(0);
+  const containerWidth = useRef(0);
+  const lastRating = useRef(rating);
+
+  // Measure container position and size
+  const onLayout = () => {
+    containerRef.current?.measureInWindow((x, _y, width) => {
+      containerX.current = x;
+      containerWidth.current = width;
+    });
+  };
+
+  const calculateRating = (pageX: number) => {
+    const relativeX = pageX - containerX.current;
+    const percentage = relativeX / containerWidth.current;
+    const clampedPercentage = Math.max(0, Math.min(1, percentage));
+    const rawRating = clampedPercentage * 5;
+    const roundedRating = Math.round(rawRating * 2) / 2;
+    return Math.max(0, Math.min(5, roundedRating));
+  };
+
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => editable,
+        onMoveShouldSetPanResponder: () => editable,
+        onPanResponderGrant: (evt) => {
+          const newRating = calculateRating(evt.nativeEvent.pageX);
+          setDisplayRating(newRating);
+          lastRating.current = newRating;
+        },
+        onPanResponderMove: (evt) => {
+          const newRating = calculateRating(evt.nativeEvent.pageX);
+          setDisplayRating(newRating);
+          lastRating.current = newRating;
+        },
+        onPanResponderRelease: () => {
+          onRatingChange(lastRating.current);
+        },
+      }),
+    [editable, onRatingChange]
+  );
+
   const handleStarPress = (position: number) => {
     if (!editable) return;
 
-    // Cycle through: empty → half → full → empty
+    let newRating;
     if (rating === position) {
-      // Full star, clear it
-      onRatingChange(position - 1);
+      newRating = position - 1;
     } else if (rating === position - 0.5) {
-      // Half star, make it full
-      onRatingChange(position);
+      newRating = position;
     } else {
-      // Empty or lower, make it half
-      onRatingChange(position - 0.5);
+      newRating = position - 0.5;
     }
+
+    setDisplayRating(newRating);
+    onRatingChange(newRating);
   };
 
+  const currentRating = displayRating;
+
   return (
-    <View className="flex-row items-center gap">
+    <View
+      ref={containerRef}
+      className="flex-row items-center gap"
+      onLayout={onLayout}
+      {...panResponder.panHandlers}
+    >
       {[1, 2, 3, 4, 5].map((position) => {
-        const starValue = rating >= position ? 1 : rating >= position - 0.5 ? 0.5 : 0;
+        const starValue = currentRating >= position ? 1 : currentRating >= position - 0.5 ? 0.5 : 0;
 
         return (
           <Pressable
@@ -45,24 +98,36 @@ export function StarRating({
             disabled={!editable}
           >
             {/* Background empty star */}
-            <View className="absolute inset-0 items-center justify-center">
-              <Star size={size} color="#E8B44F" weight="regular" />
-            </View>
+            <StarIcon size={size} color="#E8B44F" weight="regular" />
 
-            {/* Half star overlay */}
+            {/* Half star overlay - positioned absolutely on top */}
             {starValue === 0.5 && (
               <View
-                className="absolute left-0 top-0 bottom-0 overflow-hidden justify-center"
-                style={{ width: size / 2 }}
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  width: size / 2,
+                  height: size,
+                  overflow: "hidden",
+                }}
               >
-                <Star size={size} color="#E8B44F" weight="fill" />
+                <StarIcon size={size} color="#E8B44F" weight="fill" />
               </View>
             )}
 
             {/* Full star overlay */}
             {starValue === 1 && (
-              <View className="absolute inset-0 items-center justify-center">
-                <Star size={size} color="#E8B44F" weight="fill" />
+              <View
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  width: size,
+                  height: size,
+                }}
+              >
+                <StarIcon size={size} color="#E8B44F" weight="fill" />
               </View>
             )}
           </Pressable>
