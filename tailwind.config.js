@@ -52,6 +52,7 @@ module.exports = {
         border: {
           DEFAULT: "#d4c5a9", // Default border
           light: "#e4dbc8", // Light border
+          button: "#e8e3d6", //Soft light border
           dark: "#b5a082", // Dark border
           input: "#78716c", // Input borders
         },

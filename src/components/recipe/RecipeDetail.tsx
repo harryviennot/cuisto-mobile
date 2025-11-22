@@ -3,10 +3,11 @@
  * Displays recipe information in a two-column layout on tablets
  */
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Image, Pressable, useWindowDimensions } from "react-native";
+import { View, Text, ScrollView, Image, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
+import { useDeviceType } from "@/hooks/useDeviceType";
 
 import type { Recipe } from "@/types/recipe";
 import { CookingMode } from "./CookingMode";
@@ -17,6 +18,8 @@ import { RecipeTags } from "./RecipeTags";
 import { AnimatedPageHeader } from "../AnimatedPageHeader";
 import { RecipeIngredients } from "./RecipeIngredients";
 import { RecipeInstructions } from "./RecipeInstructions";
+import { EditCookTimeBottomSheet } from "./EditCookTimeBottomSheet";
+import { ShadowItem } from "../ShadowedSection";
 
 interface RecipeDetailProps {
   recipe: Recipe;
@@ -36,15 +39,30 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
   const { t } = useTranslation();
   const scrollY = useSharedValue(0);
   const insets = useSafeAreaInsets();
-  const { width, height } = useWindowDimensions();
+  const { isTablet, isTabletLandscape } = useDeviceType();
   const [servings, setServings] = useState(recipe.servings || 4);
   const [isCooking, setIsCooking] = useState(false);
   const [imageHeight, setImageHeight] = useState(0);
   const [titleLayout, setTitleLayout] = useState({ y: 0, height: 0 });
 
-  // Determine if we're in landscape tablet mode
-  const isTabletLandscape = width >= 768 && width > height;
-  const isTablet = width >= 768;
+  // Time editing state
+  const [isTimeEditVisible, setIsTimeEditVisible] = useState(false);
+  const [prepTime, setPrepTime] = useState(recipe.timings?.prep_time_minutes || 0);
+  const [cookTime, setCookTime] = useState(recipe.timings?.cook_time_minutes || 0);
+
+  // Handlers for time editing
+  const handleOpenTimeEdit = () => {
+    setIsTimeEditVisible(true);
+  };
+
+  const handleSaveTimes = (newPrepMinutes: number, newCookMinutes: number) => {
+    setPrepTime(newPrepMinutes);
+    setCookTime(newCookMinutes);
+    // TODO: Save to backend
+  };
+
+  // Calculate total time
+  const totalTime = prepTime + cookTime;
 
   // Reset scrollY when switching to landscape mode to hide the header
   useEffect(() => {
@@ -144,10 +162,10 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
 
             {/* Stats Grid */}
             <RecipeQuickInfo
-              time={recipe.timings?.total_time_minutes}
+              time={totalTime}
               difficulty={recipe.difficulty}
               servings={recipe?.servings}
-              onTimePress={() => {}}
+              onTimePress={handleOpenTimeEdit}
             />
 
             {/* Primary Actions */}
@@ -186,17 +204,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
           <Text className="mb-4 text-xs text-foreground-muted">{t("recipe.adjustServings")}</Text>
 
           {/* Servings Selector */}
-          <View
-            className="flex-row rounded-xl p-1 gap-1 mb-6 bg-white"
-            style={{
-              borderWidth: 1,
-              borderColor: "#E8E3D6",
-              shadowColor: "#2C2416",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-            }}
-          >
+          <ShadowItem className="flex-row rounded-xl p-1 gap-1 mb-6">
             {servingOptions.map((opt) => (
               <Pressable
                 key={opt}
@@ -214,7 +222,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
                 </Text>
               </Pressable>
             ))}
-          </View>
+          </ShadowItem>
           <RecipeIngredients
             ingredients={recipe.ingredients}
             recipeServings={recipe.servings || 4}
@@ -230,7 +238,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
 
   // Calculate dynamic scroll thresholds based on title position
   // Title's Y position is relative to its parent, so we add the image height to get absolute scroll position
-  const titleAbsoluteY = imageHeight - insets.top;
+  const titleAbsoluteY = imageHeight - insets.top - 12;
   const scrollThresholdStart = titleAbsoluteY > 0 ? titleAbsoluteY : 200;
   const scrollThresholdEnd =
     titleAbsoluteY > 0 ? titleAbsoluteY + titleLayout.height - insets.top : 244;
@@ -262,6 +270,13 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
           {renderRightColumn()}
         </Animated.ScrollView>
       )}
+      <EditCookTimeBottomSheet
+        visible={isTimeEditVisible}
+        initialPrepMinutes={prepTime}
+        initialCookMinutes={cookTime}
+        onSave={handleSaveTimes}
+        onClose={() => setIsTimeEditVisible(false)}
+      />
     </View>
   );
 };

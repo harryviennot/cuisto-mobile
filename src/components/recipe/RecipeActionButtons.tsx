@@ -1,5 +1,5 @@
 import "@/global.css";
-import { View, Pressable, Text } from "react-native";
+import { View, Text } from "react-native";
 import {
   CheckIcon,
   TrashIcon,
@@ -8,6 +8,7 @@ import {
   PlayIcon,
 } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
+import { ShadowItem } from "@/components/ShadowedSection";
 
 interface RecipeActionButtonsProps {
   onStartCooking: () => void;
@@ -32,84 +33,35 @@ export function RecipeActionButtons({
     <View className="flex-row gap-3 mb-6">
       {/* Start Cooking Button */}
       {isDraft ? (
-        <Pressable
-          onPress={onSaveRecipe}
-          className="flex-1 bg-primary py-4 rounded-lg flex-row items-center justify-center"
-          style={{
-            shadowColor: "#334d43",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.2,
-            shadowRadius: 8,
-          }}
-        >
+        <ShadowItem variant="primary" onPress={onSaveRecipe} className="flex-1 py-4 flex-row">
           <CheckIcon size={20} color="white" weight="bold" />
           <Text className="text-white font-semibold text-base ml-2">
             {t("recipe.actions.saveRecipe")}
           </Text>
-        </Pressable>
+        </ShadowItem>
       ) : (
-        <Pressable
-          onPress={onStartCooking}
-          className="flex-1 bg-primary py-4 rounded-lg flex-row items-center justify-center"
-          style={{
-            shadowColor: "#334d43",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.2,
-            shadowRadius: 8,
-          }}
-        >
+        <ShadowItem variant="primary" onPress={onStartCooking} className="flex-1 py-4 flex-row">
           <PlayIcon size={20} color="white" weight="fill" />
           <Text className="text-white font-semibold text-base ml-2">
             {t("recipe.actions.startCooking")}
           </Text>
-        </Pressable>
+        </ShadowItem>
       )}
 
       {/* Edit Button */}
-      <Pressable
-        onPress={onEdit}
-        className="w-14 h-14 bg-white rounded-lg items-center justify-center"
-        style={{
-          borderWidth: 1,
-          borderColor: "#E8E3D6",
-          shadowColor: "#2C2416",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-        }}
-      >
+      <ShadowItem onPress={onEdit} className="w-14 h-14 bg-white">
         <PencilIcon size={20} color="#334d43" weight="regular" />
-      </Pressable>
+      </ShadowItem>
 
       {/* Share Button */}
       {isDraft ? (
-        <Pressable
-          onPress={onDecline}
-          className="w-14 h-14 bg-white rounded-lg items-center justify-center border border-danger"
-          style={{
-            shadowColor: "#2C2416",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.08,
-            shadowRadius: 8,
-          }}
-        >
+        <ShadowItem onPress={onDecline} className="w-14 h-14  border border-danger ">
           <TrashIcon size={20} color="#c65d47" weight="regular" />
-        </Pressable>
+        </ShadowItem>
       ) : (
-        <Pressable
-          onPress={onShare}
-          className="w-14 h-14 bg-white rounded-lg items-center justify-center"
-          style={{
-            borderWidth: 1,
-            borderColor: "#E8E3D6",
-            shadowColor: "#2C2416",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.08,
-            shadowRadius: 8,
-          }}
-        >
+        <ShadowItem onPress={onShare} className="w-14 h-14">
           <ShareNetworkIcon size={20} color="#334d43" weight="regular" />
-        </Pressable>
+        </ShadowItem>
       )}
     </View>
   );
