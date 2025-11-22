@@ -7,7 +7,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { recipeService } from "@/api/services";
 import { RecipeDetail } from "@/components/recipe/RecipeDetail";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

@@ -1,17 +1,17 @@
 import "@/global.css";
-import { View, Text, Pressable } from "react-native";
+import { View, Pressable } from "react-native";
 import { Star } from "phosphor-react-native";
 
 interface StarRatingProps {
   rating: number;
-  onRatingChange: (rating: number) => void;
+  onRatingChange?: (rating: number) => void;
   size?: number;
   editable?: boolean;
 }
 
 export function StarRating({
   rating,
-  onRatingChange,
+  onRatingChange = () => {},
   size = 32,
   editable = true,
 }: StarRatingProps) {
@@ -32,7 +32,7 @@ export function StarRating({
   };
 
   return (
-    <View className="flex-row items-center gap-2">
+    <View className="flex-row items-center gap">
       {[1, 2, 3, 4, 5].map((position) => {
         const starValue = rating >= position ? 1 : rating >= position - 0.5 ? 0.5 : 0;
 
@@ -68,9 +68,6 @@ export function StarRating({
           </Pressable>
         );
       })}
-      <Text className="text-base text-[#2C2416] font-medium ml-1">
-        {rating > 0 ? rating.toFixed(1) : "Tap to rate"}
-      </Text>
     </View>
   );
 }

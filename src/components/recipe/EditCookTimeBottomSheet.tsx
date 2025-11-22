@@ -11,16 +11,22 @@ interface EditCookTimeBottomSheetProps {
   visible: boolean;
   initialPrepMinutes: number;
   initialCookMinutes: number;
+  originalPrepMinutes: number;
+  originalCookMinutes: number;
   onSave: (prepMinutes: number, cookMinutes: number) => void;
   onClose: () => void;
+  isOwner?: boolean;
 }
 
 export function EditCookTimeBottomSheet({
   visible,
   initialPrepMinutes,
   initialCookMinutes,
+  originalPrepMinutes,
+  originalCookMinutes,
   onSave,
   onClose,
+  isOwner = false,
 }: EditCookTimeBottomSheetProps) {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { isTabletLandscape, isTablet } = useDeviceType();
@@ -77,14 +83,21 @@ export function EditCookTimeBottomSheet({
     []
   );
 
-  const handleSave = () => {
-    onSave(prepTotalMinutes, cookTotalMinutes);
+  const handleClose = () => {
+    // Reset local state to initial values when closing without saving
+    setPrepTotalMinutes(initialPrepMinutes);
+    setCookTotalMinutes(initialCookMinutes);
     onClose();
   };
 
+  const handleSave = () => {
+    onSave(prepTotalMinutes, cookTotalMinutes);
+    // Don't call handleClose here - the parent will close and state will sync via useEffect
+  };
+
   const handleReset = () => {
-    setPrepTotalMinutes(initialPrepMinutes);
-    setCookTotalMinutes(initialCookMinutes);
+    setPrepTotalMinutes(originalPrepMinutes);
+    setCookTotalMinutes(originalCookMinutes);
   };
 
   const formatTime = (totalMinutes: number) => {
@@ -132,14 +145,23 @@ export function EditCookTimeBottomSheet({
     value,
     onChange,
     presets,
+    originalValue,
   }: {
     label: string;
     value: number;
     onChange: React.Dispatch<React.SetStateAction<number>>;
     presets: { label: string; minutes: number }[];
+    originalValue?: number;
   }) => (
     <View className={isTabletLandscape ? "flex-1" : "mb-4"}>
-      <Text className="text-lg font-semibold text-foreground-heading mb-4">{label}</Text>
+      <View className="flex-row items-center justify-between mb-4">
+        <Text className="text-lg font-semibold text-foreground-heading">{label}</Text>
+        {originalValue !== undefined && (
+          <Text className="text-sm text-foreground-muted">
+            Original: {formatTime(originalValue)}
+          </Text>
+        )}
+      </View>
 
       {/* Time Controls */}
       <ShadowItem className="rounded-xl p-6 mb-4">
@@ -183,28 +205,33 @@ export function EditCookTimeBottomSheet({
       ref={bottomSheetModalRef}
       enableDynamicSizing
       enablePanDownToClose
-      onDismiss={onClose}
+      onDismiss={handleClose}
       backdropComponent={renderBackdrop}
       backgroundStyle={{ backgroundColor: "#FEFCF8" }}
       handleIndicatorStyle={{ backgroundColor: "#334d43", width: 40 }}
     >
       <BottomSheetView style={{ flex: 1 }}>
         {/* Header */}
-        <View
-          className={`flex-row items-center justify-between ${isTablet ? "px-10 pb-6" : "px-4 pb-4"}`}
-        >
-          <Text
-            className="text-2xl text-foreground-heading"
-            style={{ fontFamily: "PlayfairDisplay_700Bold" }}
-          >
-            Edit Recipe Times
-          </Text>
-          <Pressable
-            onPress={onClose}
-            className="w-10 h-10 rounded-full bg-surface-elevated items-center justify-center"
-          >
-            <X size={20} color="#334d43" weight="bold" />
-          </Pressable>
+        <View className={`${isTablet ? "px-10 pb-6" : "px-4 pb-4"}`}>
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1">
+              <Text
+                className="text-2xl text-foreground-heading"
+                style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+              >
+                Edit Recipe Times
+              </Text>
+              <Text className="text-xs text-foreground-muted mt-1">
+                Customize times to match your pace
+              </Text>
+            </View>
+            <Pressable
+              onPress={handleClose}
+              className="w-10 h-10 rounded-full bg-surface-elevated items-center justify-center"
+            >
+              <X size={20} color="#334d43" weight="bold" />
+            </Pressable>
+          </View>
         </View>
 
         {/* Scrollable Content */}
@@ -225,6 +252,7 @@ export function EditCookTimeBottomSheet({
               value={prepTotalMinutes}
               onChange={setPrepTotalMinutes}
               presets={prepPresets}
+              originalValue={originalPrepMinutes}
             />
 
             {/* Cook Time Section */}
@@ -233,6 +261,7 @@ export function EditCookTimeBottomSheet({
               value={cookTotalMinutes}
               onChange={setCookTotalMinutes}
               presets={cookPresets}
+              originalValue={originalCookMinutes}
             />
           </View>
         </View>

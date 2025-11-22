@@ -17,6 +17,7 @@ interface RecipeActionButtonsProps {
   onSaveRecipe: () => void;
   onDecline: () => void;
   isDraft: boolean;
+  isOwner: boolean;
 }
 
 export function RecipeActionButtons({
@@ -26,6 +27,7 @@ export function RecipeActionButtons({
   onDecline,
   onSaveRecipe,
   isDraft,
+  isOwner,
 }: RecipeActionButtonsProps) {
   const { t } = useTranslation();
 
@@ -49,9 +51,11 @@ export function RecipeActionButtons({
       )}
 
       {/* Edit Button */}
-      <ShadowItem onPress={onEdit} className="w-14 h-14 bg-white">
-        <PencilIcon size={20} color="#334d43" weight="regular" />
-      </ShadowItem>
+      {isOwner && (
+        <ShadowItem onPress={onEdit} className="w-14 h-14 bg-white">
+          <PencilIcon size={20} color="#334d43" weight="regular" />
+        </ShadowItem>
+      )}
 
       {/* Share Button */}
       {isDraft ? (

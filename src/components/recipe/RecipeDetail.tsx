@@ -3,15 +3,17 @@
  * Displays recipe information in a two-column layout on tablets
  */
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Image, Pressable } from "react-native";
+import { View, Text, ScrollView, Image, Pressable, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useDeviceType } from "@/hooks/useDeviceType";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUpdateRecipeRating, useUpdateRecipeTimings } from "@/hooks/useRecipes";
 
 import type { Recipe } from "@/types/recipe";
 import { CookingMode } from "./CookingMode";
-import { StarRating } from "../StarRating";
+import { RecipeRating } from "./RecipeRating";
 import { RecipeActionButtons } from "./RecipeActionButtons";
 import { RecipeQuickInfo } from "./RecipeQuickInfo";
 import { RecipeTags } from "./RecipeTags";
@@ -40,29 +42,70 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
   const scrollY = useSharedValue(0);
   const insets = useSafeAreaInsets();
   const { isTablet, isTabletLandscape } = useDeviceType();
+  const { user } = useAuth();
   const [servings, setServings] = useState(recipe.servings || 4);
   const [isCooking, setIsCooking] = useState(false);
   const [imageHeight, setImageHeight] = useState(0);
   const [titleLayout, setTitleLayout] = useState({ y: 0, height: 0 });
 
-  // Time editing state
+  // Mutations
+  const updateRatingMutation = useUpdateRecipeRating();
+  const updateTimingsMutation = useUpdateRecipeTimings();
+
+  // Time editing state - use user custom times if available, fallback to base recipe
   const [isTimeEditVisible, setIsTimeEditVisible] = useState(false);
-  const [prepTime, setPrepTime] = useState(recipe.timings?.prep_time_minutes || 0);
-  const [cookTime, setCookTime] = useState(recipe.timings?.cook_time_minutes || 0);
+  const displayPrepTime =
+    recipe.user_data?.custom_prep_time_minutes ?? recipe.timings?.prep_time_minutes ?? 0;
+  const displayCookTime =
+    recipe.user_data?.custom_cook_time_minutes ?? recipe.timings?.cook_time_minutes ?? 0;
+
+  // Rating state - use user's personal rating if available
+  const userRating = recipe.user_data?.rating ?? 0;
+  const isOwner = user?.id === recipe.created_by;
 
   // Handlers for time editing
   const handleOpenTimeEdit = () => {
     setIsTimeEditVisible(true);
   };
 
-  const handleSaveTimes = (newPrepMinutes: number, newCookMinutes: number) => {
-    setPrepTime(newPrepMinutes);
-    setCookTime(newCookMinutes);
-    // TODO: Save to backend
+  const handleSaveTimes = async (newPrepMinutes: number, newCookMinutes: number) => {
+    try {
+      await updateTimingsMutation.mutateAsync({
+        recipeId: recipe.id,
+        timings: {
+          prep_time_minutes: newPrepMinutes,
+          cook_time_minutes: newCookMinutes,
+        },
+      });
+
+      setIsTimeEditVisible(false);
+    } catch (error) {
+      console.error("Failed to update timings:", error);
+      Alert.alert("Error", "Failed to update timing. Please try again.");
+    }
+  };
+
+  // Handler for rating changes
+  const handleRatingChange = async (rating: number) => {
+    // Validate rating is in 0.5 increments
+    if ((rating * 2) % 1 !== 0 || rating < 0.5 || rating > 5.0) {
+      Alert.alert("Error", "Please select a rating in 0.5 increments (0.5 to 5.0)");
+      return;
+    }
+
+    try {
+      await updateRatingMutation.mutateAsync({
+        recipeId: recipe.id,
+        rating,
+      });
+    } catch (error) {
+      console.error("Failed to update rating:", error);
+      Alert.alert("Error", "Failed to update rating. Please try again.");
+    }
   };
 
   // Calculate total time
-  const totalTime = prepTime + cookTime;
+  const totalTime = displayPrepTime + displayCookTime;
 
   // Reset scrollY when switching to landscape mode to hide the header
   useEffect(() => {
@@ -152,12 +195,12 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
 
             {/* Rating - Not shown for drafts */}
             {!isDraft && (
-              <View className="mb-6 gap-1">
-                <Text className="text-xs font-medium uppercase tracking-wide text-foreground-muted">
-                  {t("recipe.yourRating")}
-                </Text>
-                <StarRating rating={4.5} onRatingChange={() => {}} editable />
-              </View>
+              <RecipeRating
+                userRating={userRating}
+                averageRating={recipe.average_rating}
+                ratingCount={recipe.rating_count}
+                onRatingChange={handleRatingChange}
+              />
             )}
 
             {/* Stats Grid */}
@@ -172,6 +215,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
             <RecipeActionButtons
               onDecline={() => onDiscard?.()}
               onSaveRecipe={() => onSave?.()}
+              isOwner={isOwner}
               onEdit={() => {}}
               onShare={() => {}}
               onStartCooking={() => setIsCooking(true)}
@@ -272,10 +316,13 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
       )}
       <EditCookTimeBottomSheet
         visible={isTimeEditVisible}
-        initialPrepMinutes={prepTime}
-        initialCookMinutes={cookTime}
+        initialPrepMinutes={displayPrepTime}
+        initialCookMinutes={displayCookTime}
+        originalPrepMinutes={recipe.timings?.prep_time_minutes ?? 0}
+        originalCookMinutes={recipe.timings?.cook_time_minutes ?? 0}
         onSave={handleSaveTimes}
         onClose={() => setIsTimeEditVisible(false)}
+        isOwner={isOwner}
       />
     </View>
   );
