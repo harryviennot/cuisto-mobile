@@ -3,7 +3,7 @@
  * Displays recipe information in a two-column layout on tablets
  */
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Image, Pressable, Alert } from "react-native";
+import { View, Text, ScrollView, Image, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
@@ -21,7 +21,7 @@ import { AnimatedPageHeader } from "../AnimatedPageHeader";
 import { RecipeIngredients } from "./RecipeIngredients";
 import { RecipeInstructions } from "./RecipeInstructions";
 import { EditCookTimeBottomSheet } from "./EditCookTimeBottomSheet";
-import { ShadowItem } from "../ShadowedSection";
+import { ServingsSelector } from "./ServingsSelector";
 
 interface RecipeDetailProps {
   recipe: Recipe;
@@ -114,7 +114,6 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
     }
   }, [isTabletLandscape, scrollY]);
 
-  const servingOptions = [2, 4, 6, 8];
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -248,25 +247,11 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
           <Text className="mb-4 text-xs text-foreground-muted">{t("recipe.adjustServings")}</Text>
 
           {/* Servings Selector */}
-          <ShadowItem className="flex-row rounded-xl p-1 gap-1 mb-6">
-            {servingOptions.map((opt) => (
-              <Pressable
-                key={opt}
-                onPress={() => setServings(opt)}
-                className={`flex-1 py-3 rounded-lg items-center ${
-                  servings === opt ? "bg-primary" : ""
-                }`}
-              >
-                <Text
-                  className={`text-sm font-medium ${
-                    servings === opt ? "text-white" : "text-foreground-heading"
-                  }`}
-                >
-                  {opt}
-                </Text>
-              </Pressable>
-            ))}
-          </ShadowItem>
+          <ServingsSelector
+            initialServings={recipe.servings || 4}
+            currentServings={servings}
+            onServingsChange={setServings}
+          />
           <RecipeIngredients
             ingredients={recipe.ingredients}
             recipeServings={recipe.servings || 4}
