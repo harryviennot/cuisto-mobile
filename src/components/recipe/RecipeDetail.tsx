@@ -114,7 +114,6 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
     }
   }, [isTabletLandscape, scrollY]);
 
-
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollY.value = event.contentOffset.y;
@@ -208,6 +207,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
               difficulty={recipe.difficulty}
               servings={recipe?.servings}
               onTimePress={handleOpenTimeEdit}
+              isDraft={isDraft}
             />
 
             {/* Primary Actions */}
