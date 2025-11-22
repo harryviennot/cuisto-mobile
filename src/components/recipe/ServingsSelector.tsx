@@ -47,7 +47,7 @@ export const ServingsSelector: React.FC<ServingsSelectorProps> = ({
         animated: true,
       });
     },
-    [allServings]
+    [allServings, ITEM_WIDTH]
   );
 
   // Reset idle timer - call this whenever user interacts with scroll
