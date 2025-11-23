@@ -46,7 +46,8 @@
         {
           "photosPermission": "The app accesses your photos to let you upload them to your recipes."
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
