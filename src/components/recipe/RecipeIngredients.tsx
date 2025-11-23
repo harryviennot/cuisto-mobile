@@ -1,5 +1,6 @@
 import { Ingredient } from "@/types/recipe";
 import { View, Text } from "react-native";
+import { groupIngredients } from "@/utils/groupIngredients";
 
 interface RecipeIngredientsProps {
   ingredients: Ingredient[];
@@ -40,15 +41,7 @@ export function RecipeIngredients({
   };
 
   // Group ingredients by group field
-  const groupedIngredients = ingredients.reduce(
-    (acc, ing) => {
-      const group = ing.group || "Main";
-      if (!acc[group]) acc[group] = [];
-      acc[group].push(ing);
-      return acc;
-    },
-    {} as Record<string, Ingredient[]>
-  );
+  const groupedIngredients = groupIngredients(ingredients);
 
   return (
     <View className="gap-8">

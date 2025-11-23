@@ -52,6 +52,21 @@ export const recipeCategoriesTagsSchema = z.object({
 
 export type RecipeCategoriesTagsFormData = z.infer<typeof recipeCategoriesTagsSchema>;
 
+// Ingredient schema
+export const ingredientSchema = z.object({
+  name: z.string().min(1, "Ingredient name is required"),
+  quantity: z.string().optional(),
+  unit: z.string().optional(),
+  notes: z.string().optional(),
+  group: z.string().optional(),
+});
+
+export const ingredientsArraySchema = z
+  .array(ingredientSchema)
+  .min(1, "At least one ingredient is required");
+
+export type IngredientFormData = z.infer<typeof ingredientSchema>;
+
 // Complete recipe edit schema (combination of all, for single form)
 export const recipeEditSchema = z.object({
   // Main info
@@ -89,6 +104,9 @@ export const recipeEditSchema = z.object({
   // Categories and tags
   categories: z.array(z.string()).min(1, "Please select at least one category").max(5),
   tags: z.array(z.string()).max(10, "Maximum 10 tags allowed"),
+
+  // Ingredients
+  ingredients: ingredientsArraySchema,
 });
 
 export type RecipeEditFormData = z.infer<typeof recipeEditSchema>;

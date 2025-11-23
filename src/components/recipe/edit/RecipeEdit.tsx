@@ -17,6 +17,7 @@ import { RecipeDetail } from "../RecipeDetail";
 import { RecipeMainInfoForm } from "./RecipeMainInfoForm";
 import { RecipeMetadataForm } from "./RecipeMetadataForm";
 import { RecipeCategoriesTagsForm } from "./RecipeCategoriesTagsForm";
+import { RecipeIngredientsForm } from "./RecipeIngredientsForm";
 import { ShadowItem } from "@/components/ShadowedSection";
 import { recipeEditSchema, type RecipeEditFormData } from "@/schemas/recipe.schema";
 
@@ -50,6 +51,7 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
       difficulty: recipe.difficulty || DifficultyLevel.MEDIUM,
       categories: recipe.categories || [],
       tags: recipe.tags || [],
+      ingredients: recipe.ingredients || [],
     },
   });
 
@@ -71,6 +73,7 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
     difficulty: formValues.difficulty,
     categories: formValues.categories,
     tags: formValues.tags,
+    ingredients: formValues.ingredients,
   };
 
   // Final save handler - saves all changes to the server
@@ -91,6 +94,7 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
           difficulty: data.difficulty,
           categories: data.categories,
           tags: data.tags,
+          ingredients: data.ingredients,
         },
       });
 
@@ -154,7 +158,10 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
         {/* Categories & Tags Form */}
         <RecipeCategoriesTagsForm control={control} />
 
-        {/* TODO: Ingredients & Instructions forms */}
+        {/* Ingredients Form */}
+        <RecipeIngredientsForm control={control} />
+
+        {/* TODO: Instructions form */}
 
         {/* Action Buttons */}
         <View className="mt-12">
