@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, TextInput as RNTextInput } from "react-native";
 import { Control, useController } from "react-hook-form";
-import { XIcon, PlusIcon, CaretUpIcon, CaretDownIcon } from "phosphor-react-native";
+import { XIcon, PlusIcon, CaretUpIcon, CaretDownIcon, CheckIcon } from "phosphor-react-native";
 
 import { ShadowItem } from "@/components/ShadowedSection";
 import type { RecipeEditFormData } from "@/schemas/recipe.schema";
@@ -13,6 +13,137 @@ interface RecipeIngredientsFormProps {
   control: Control<RecipeEditFormData, any>;
 }
 
+interface IngredientFormProps {
+  mode: "add" | "edit";
+  groupName: string;
+  ingredient?: Ingredient;
+  onSave: (ingredient: Ingredient) => void;
+  onCancel: () => void;
+}
+
+function IngredientForm({ mode, groupName, ingredient, onSave, onCancel }: IngredientFormProps) {
+  const { isTablet } = useDeviceType();
+  const [name, setName] = useState(ingredient?.name || "");
+  const [quantity, setQuantity] = useState(ingredient?.quantity || "");
+  const [unit, setUnit] = useState(ingredient?.unit || "");
+  const [notes, setNotes] = useState(ingredient?.notes || "");
+
+  const handleSave = () => {
+    if (!name.trim()) return;
+
+    const savedIngredient: Ingredient = {
+      name: name.trim(),
+      quantity: quantity.trim() || undefined,
+      unit: unit.trim() || undefined,
+      notes: notes.trim() || undefined,
+      group:
+        mode === "edit" && ingredient?.group
+          ? ingredient.group
+          : groupName === "Main"
+            ? undefined
+            : groupName,
+    };
+
+    onSave(savedIngredient);
+
+    // Reset form only in add mode
+    if (mode === "add") {
+      setName("");
+      setQuantity("");
+      setUnit("");
+      setNotes("");
+    }
+  };
+
+  return (
+    <ShadowItem className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
+      <Text className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
+        {mode === "add"
+          ? `Add Ingredient${groupName !== "Main" ? ` to ${groupName}` : ""}`
+          : "Edit Ingredient"}
+      </Text>
+
+      {/* Main Row: Quantity, Unit, Name - matches preview layout */}
+      <View className={`mb-3 flex-row items-center ${isTablet ? "gap-2.5" : "gap-2"}`}>
+        {/* Quantity */}
+        <View style={{ width: isTablet ? 90 : 70 }}>
+          <RNTextInput
+            value={quantity}
+            onChangeText={setQuantity}
+            placeholder="Qty"
+            placeholderTextColor="#a89f8d"
+            className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+            keyboardType="numeric"
+            returnKeyType="next"
+          />
+        </View>
+
+        {/* Unit */}
+        <View style={{ width: isTablet ? 110 : 85 }}>
+          <RNTextInput
+            value={unit}
+            onChangeText={setUnit}
+            placeholder="Unit"
+            placeholderTextColor="#a89f8d"
+            className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+            autoCapitalize="none"
+            returnKeyType="next"
+          />
+        </View>
+
+        {/* Ingredient Name - takes remaining space */}
+        <View className="flex-1">
+          <RNTextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="Ingredient name *"
+            placeholderTextColor="#a89f8d"
+            className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+            autoCapitalize="words"
+            returnKeyType="next"
+          />
+        </View>
+      </View>
+
+      {/* Notes - Full Width */}
+      <View className="mb-4 w-full">
+        <RNTextInput
+          value={notes}
+          onChangeText={setNotes}
+          placeholder="Notes (e.g., chopped, optional)"
+          placeholderTextColor="#a89f8d"
+          className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+          autoCapitalize="none"
+          returnKeyType="done"
+          onSubmitEditing={handleSave}
+        />
+      </View>
+
+      {/* Action Buttons */}
+      <View className={`flex-row ${isTablet ? "gap-3" : "gap-2"}`}>
+        <Pressable onPress={onCancel} className="flex-1">
+          <ShadowItem className="items-center rounded-lg border border-border-button bg-white py-3">
+            <Text className="text-sm font-semibold text-foreground">Cancel</Text>
+          </ShadowItem>
+        </Pressable>
+        <Pressable onPress={handleSave} className="flex-1" disabled={!name.trim()}>
+          <ShadowItem
+            variant="primary"
+            className={`flex-row items-center justify-center gap-1.5 rounded-lg py-3 ${
+              !name.trim() ? "opacity-50" : ""
+            }`}
+          >
+            <CheckIcon size={16} color="#FFFFFF" weight="bold" />
+            <Text className="text-sm font-semibold text-white">
+              {mode === "add" ? "Add" : "Save"}
+            </Text>
+          </ShadowItem>
+        </Pressable>
+      </View>
+    </ShadowItem>
+  );
+}
+
 export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
   const {
     field: { value: ingredients, onChange: onIngredientsChange },
@@ -22,6 +153,8 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
   const { isTablet } = useDeviceType();
   const [newGroupName, setNewGroupName] = useState("");
   const [groupNames, setGroupNames] = useState<string[]>([]);
+  const [addingToGroup, setAddingToGroup] = useState<string | null>(null);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   // Initialize group names from ingredients on mount
   useEffect(() => {
@@ -207,6 +340,52 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
     onIngredientsChange(updatedIngredients);
   };
 
+  // Add a new ingredient to a specific group
+  const addIngredient = (ingredient: Ingredient, groupName: string) => {
+    // Find the last ingredient in this group to insert after it
+    const groupIngredients = ingredients.filter(
+      (ing: Ingredient) => (ing.group || "Main") === groupName
+    );
+
+    if (groupIngredients.length === 0) {
+      // No ingredients in this group yet - add at the appropriate position
+      const allGroups = ["Main", ...groupNames];
+      const groupIndex = allGroups.indexOf(groupName);
+
+      // Find the index to insert at (after the last ingredient of the previous group)
+      let insertIndex = 0;
+      for (let i = 0; i < groupIndex; i++) {
+        const prevGroupName = allGroups[i];
+        const prevGroupIngredients = ingredients.filter(
+          (ing: Ingredient) => (ing.group || "Main") === prevGroupName
+        );
+        insertIndex += prevGroupIngredients.length;
+      }
+
+      const updatedIngredients = [...ingredients];
+      updatedIngredients.splice(insertIndex, 0, ingredient);
+      onIngredientsChange(updatedIngredients);
+    } else {
+      // Add after the last ingredient in this group
+      const lastIngredient = groupIngredients[groupIngredients.length - 1];
+      const lastIndex = ingredients.indexOf(lastIngredient);
+
+      const updatedIngredients = [...ingredients];
+      updatedIngredients.splice(lastIndex + 1, 0, ingredient);
+      onIngredientsChange(updatedIngredients);
+    }
+
+    setAddingToGroup(null);
+  };
+
+  // Edit an existing ingredient
+  const editIngredient = (index: number, updatedIngredient: Ingredient) => {
+    const updatedIngredients = [...ingredients];
+    updatedIngredients[index] = updatedIngredient;
+    onIngredientsChange(updatedIngredients);
+    setEditingIndex(null);
+  };
+
   return (
     <View className="gap-2">
       {/* Section Header */}
@@ -309,79 +488,110 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
               {groupIngredients.length > 0 ? (
                 <View className="gap-2">
                   {groupIngredients.map((ingredient: Ingredient) => {
-                const ingredientIndex = ingredients.indexOf(ingredient);
-                const isInMainGroup = (ingredient.group || "Main") === "Main";
-                const groupIngs = ingredients.filter(
-                  (ing: Ingredient) => (ing.group || "Main") === (ingredient.group || "Main")
-                );
-                const indexInGroup = groupIngs.indexOf(ingredient);
-                const isFirst = indexInGroup === 0;
-                const isLast = indexInGroup === groupIngs.length - 1;
-                const allGroups = ["Main", ...groupNames];
-                const currentGroupIndex = allGroups.indexOf(ingredient.group || "Main");
-                const isLastGroup = currentGroupIndex === allGroups.length - 1;
+                    const ingredientIndex = ingredients.indexOf(ingredient);
+                    const isInMainGroup = (ingredient.group || "Main") === "Main";
+                    const groupIngs = ingredients.filter(
+                      (ing: Ingredient) => (ing.group || "Main") === (ingredient.group || "Main")
+                    );
+                    const indexInGroup = groupIngs.indexOf(ingredient);
+                    const isFirst = indexInGroup === 0;
+                    const isLast = indexInGroup === groupIngs.length - 1;
+                    const allGroups = ["Main", ...groupNames];
+                    const currentGroupIndex = allGroups.indexOf(ingredient.group || "Main");
+                    const isLastGroup = currentGroupIndex === allGroups.length - 1;
+                    const isEditing = editingIndex === ingredientIndex;
 
-                return (
-                  <ShadowItem
-                    key={ingredientIndex}
-                    className="flex-row items-center gap-3 rounded-xl p-3"
-                  >
-                    {/* Up/Down Arrows */}
-                    <View className="gap-1">
-                      <Pressable
-                        onPress={() => moveIngredientUp(ingredientIndex)}
-                        disabled={isInMainGroup && isFirst}
-                        className={isInMainGroup && isFirst ? "opacity-30" : ""}
-                      >
-                        <CaretUpIcon size={20} color="#3a3226" weight="bold" />
-                      </Pressable>
-                      <Pressable
-                        onPress={() => moveIngredientDown(ingredientIndex)}
-                        disabled={isLast && isLastGroup}
-                        className={isLast && isLastGroup ? "opacity-30" : ""}
-                      >
-                        <CaretDownIcon size={20} color="#3a3226" weight="bold" />
-                      </Pressable>
-                    </View>
+                    if (isEditing) {
+                      return (
+                        <IngredientForm
+                          key={ingredientIndex}
+                          mode="edit"
+                          groupName={ingredient.group || "Main"}
+                          ingredient={ingredient}
+                          onSave={(updated: Ingredient) => editIngredient(ingredientIndex, updated)}
+                          onCancel={() => setEditingIndex(null)}
+                        />
+                      );
+                    }
 
-                    {/* Ingredient Display (simple for now) */}
-                    <View className="flex-1">
-                      <Text className="text-base text-foreground">
-                        {ingredient.quantity && `${ingredient.quantity} `}
-                        {ingredient.unit && `${ingredient.unit} `}
-                        {ingredient.name}
-                        {ingredient.notes && ` (${ingredient.notes})`}
+                    return (
+                      <ShadowItem
+                        key={ingredientIndex}
+                        className="flex-row items-center gap-3 rounded-xl p-3"
+                      >
+                        {/* Up/Down Arrows */}
+                        <View className="gap-1">
+                          <Pressable
+                            onPress={() => moveIngredientUp(ingredientIndex)}
+                            disabled={isInMainGroup && isFirst}
+                            className={isInMainGroup && isFirst ? "opacity-30" : ""}
+                          >
+                            <CaretUpIcon size={20} color="#3a3226" weight="bold" />
+                          </Pressable>
+                          <Pressable
+                            onPress={() => moveIngredientDown(ingredientIndex)}
+                            disabled={isLast && isLastGroup}
+                            className={isLast && isLastGroup ? "opacity-30" : ""}
+                          >
+                            <CaretDownIcon size={20} color="#3a3226" weight="bold" />
+                          </Pressable>
+                        </View>
+
+                        {/* Ingredient Display - Clickable to edit */}
+                        <Pressable
+                          className="flex-1"
+                          onPress={() => setEditingIndex(ingredientIndex)}
+                        >
+                          <Text className="text-base text-foreground">
+                            {ingredient.quantity && `${ingredient.quantity} `}
+                            {ingredient.unit && `${ingredient.unit} `}
+                            {ingredient.name}
+                            {ingredient.notes && ` (${ingredient.notes})`}
+                          </Text>
+                        </Pressable>
+
+                        {/* Delete Button */}
+                        <Pressable onPress={() => removeIngredient(ingredientIndex)}>
+                          <XIcon size={20} color="#3a3226" weight="bold" />
+                        </Pressable>
+                      </ShadowItem>
+                    );
+                  })}
+                </View>
+              ) : (
+                /* Empty group state */
+                groupName !== "Main" && (
+                  <View className="rounded-xl border border-dashed border-border-light bg-surface-elevated p-4">
+                    <Text className="text-center text-sm text-foreground-muted italic">
+                      No ingredients in this group yet
+                    </Text>
+                  </View>
+                )
+              )}
+
+              {/* Add Ingredient Form or Button */}
+              <View className="mt-3">
+                {addingToGroup === groupName ? (
+                  <IngredientForm
+                    mode="add"
+                    groupName={groupName}
+                    onSave={(ingredient: Ingredient) => addIngredient(ingredient, groupName)}
+                    onCancel={() => setAddingToGroup(null)}
+                  />
+                ) : (
+                  <Pressable onPress={() => setAddingToGroup(groupName)}>
+                    <ShadowItem className="flex-row items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border-light bg-white py-3">
+                      <PlusIcon size={20} color="#334d43" weight="bold" />
+                      <Text className="text-sm font-semibold text-foreground">
+                        Add Ingredient{groupName !== "Main" && ` to ${groupName}`}
                       </Text>
-                    </View>
-
-                    {/* Delete Button */}
-                    <Pressable onPress={() => removeIngredient(ingredientIndex)}>
-                      <XIcon size={20} color="#3a3226" weight="bold" />
-                    </Pressable>
-                  </ShadowItem>
-                );
-              })}
-            </View>
-          ) : (
-            /* Empty group state */
-            groupName !== "Main" && (
-              <View className="rounded-xl border border-dashed border-border-light bg-surface-elevated p-4">
-                <Text className="text-center text-sm text-foreground-muted italic">
-                  No ingredients in this group yet
-                </Text>
+                    </ShadowItem>
+                  </Pressable>
+                )}
               </View>
-            )
-          )}
-        </View>
-      );
-    })}
-      </View>
-
-      {/* TODO: Add Ingredient Button */}
-      <View className="mt-4">
-        <Text className="text-sm text-foreground-muted italic">
-          Add ingredient functionality coming soon...
-        </Text>
+            </View>
+          );
+        })}
       </View>
 
       {ingredientsError && (
