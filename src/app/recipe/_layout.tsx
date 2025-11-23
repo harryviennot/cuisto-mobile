@@ -11,6 +11,8 @@ export default function RecipeLayout() {
       }}
     >
       <Stack.Screen name="[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="[id]/edit" options={{ headerShown: false }} />
+      <Stack.Screen name="preview" options={{ headerShown: false }} />
     </Stack>
   );
 }

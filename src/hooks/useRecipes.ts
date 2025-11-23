@@ -184,3 +184,44 @@ export function useUpdateRecipeTimings() {
     },
   });
 }
+
+/**
+ * Hook for updating a recipe's core data (title, description, metadata, etc.)
+ */
+export function useUpdateRecipe() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Recipe,
+    Error,
+    { recipeId: string; data: Partial<Recipe> },
+    { previousRecipe: Recipe | undefined }
+  >({
+    mutationFn: async ({ recipeId, data }) => {
+      return recipeService.updateRecipe(recipeId, data);
+    },
+    // Optimistically update the UI
+    onMutate: async ({ recipeId, data }) => {
+      await queryClient.cancelQueries({ queryKey: ["recipe", recipeId] });
+
+      const previousRecipe = queryClient.getQueryData<Recipe>(["recipe", recipeId]);
+
+      queryClient.setQueryData<Recipe>(["recipe", recipeId], (old) => {
+        if (!old) return old;
+        return { ...old, ...data };
+      });
+
+      return { previousRecipe };
+    },
+    onError: (_err, variables, context) => {
+      if (context?.previousRecipe) {
+        queryClient.setQueryData(["recipe", variables.recipeId], context.previousRecipe);
+      }
+    },
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData<Recipe>(["recipe", variables.recipeId], data);
+      // Invalidate the recipes list to reflect the update
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+    },
+  });
+}

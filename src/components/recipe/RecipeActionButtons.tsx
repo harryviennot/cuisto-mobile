@@ -18,6 +18,7 @@ interface RecipeActionButtonsProps {
   onDecline: () => void;
   isDraft: boolean;
   isOwner: boolean;
+  isEditing?: boolean;
 }
 
 export function RecipeActionButtons({
@@ -28,6 +29,7 @@ export function RecipeActionButtons({
   onSaveRecipe,
   isDraft,
   isOwner,
+  isEditing = false,
 }: RecipeActionButtonsProps) {
   const { t } = useTranslation();
 
@@ -42,7 +44,12 @@ export function RecipeActionButtons({
           </Text>
         </ShadowItem>
       ) : (
-        <ShadowItem variant="primary" onPress={onStartCooking} className="flex-1 py-4 flex-row">
+        <ShadowItem
+          variant="primary"
+          onPress={onStartCooking}
+          disabled={isEditing}
+          className="flex-1 py-4 flex-row"
+        >
           <PlayIcon size={20} color="white" weight="fill" />
           <Text className="text-white font-semibold text-base ml-2">
             {t("recipe.actions.startCooking")}
@@ -51,11 +58,12 @@ export function RecipeActionButtons({
       )}
 
       {/* Edit Button */}
-      {isOwner && (
-        <ShadowItem onPress={onEdit} className="w-14 h-14 bg-white">
-          <PencilIcon size={20} color="#334d43" weight="regular" />
-        </ShadowItem>
-      )}
+      {isOwner ||
+        (!isEditing && (
+          <ShadowItem onPress={onEdit} className="w-14 h-14 bg-white">
+            <PencilIcon size={20} color="#334d43" weight="regular" />
+          </ShadowItem>
+        ))}
 
       {/* Share Button */}
       {isDraft ? (

@@ -1,0 +1,94 @@
+/**
+ * Zod validation schemas for recipe editing
+ */
+import { z } from "zod";
+import { DifficultyLevel, RecipeCategory } from "@/types/recipe";
+
+// Main info schema
+export const recipeMainInfoSchema = z.object({
+  title: z
+    .string()
+    .min(3, "Title must be at least 3 characters")
+    .max(200, "Title must be less than 200 characters"),
+  description: z
+    .string()
+    .max(1000, "Description must be less than 1000 characters")
+    .optional()
+    .or(z.literal("")),
+  image_url: z.string().url("Invalid image URL").optional().or(z.literal("")),
+});
+
+export type RecipeMainInfoFormData = z.infer<typeof recipeMainInfoSchema>;
+
+// Metadata schema
+export const recipeMetadataSchema = z.object({
+  servings: z
+    .number()
+    .int("Servings must be a whole number")
+    .min(1, "Servings must be at least 1")
+    .max(100, "Servings must be less than 100"),
+  prep_time_minutes: z
+    .number()
+    .int("Prep time must be a whole number")
+    .min(0, "Prep time cannot be negative")
+    .max(1440, "Prep time must be less than 24 hours"),
+  cook_time_minutes: z
+    .number()
+    .int("Cook time must be a whole number")
+    .min(0, "Cook time cannot be negative")
+    .max(1440, "Cook time must be less than 24 hours"),
+  difficulty: z.nativeEnum(DifficultyLevel, {
+    message: "Please select a difficulty level",
+  }),
+});
+
+export type RecipeMetadataFormData = z.infer<typeof recipeMetadataSchema>;
+
+// Categories and tags schema
+export const recipeCategoriesTagsSchema = z.object({
+  categories: z.array(z.string()).min(1, "Please select at least one category").max(5),
+  tags: z.array(z.string()).max(10, "Maximum 10 tags allowed"),
+});
+
+export type RecipeCategoriesTagsFormData = z.infer<typeof recipeCategoriesTagsSchema>;
+
+// Complete recipe edit schema (combination of all, for single form)
+export const recipeEditSchema = z.object({
+  // Main info
+  title: z
+    .string()
+    .min(3, "Title must be at least 3 characters")
+    .max(200, "Title must be less than 200 characters"),
+  description: z
+    .string()
+    .max(1000, "Description must be less than 1000 characters")
+    .optional()
+    .or(z.literal("")),
+  image_url: z.string().url("Invalid image URL").optional().or(z.literal("")),
+
+  // Metadata
+  servings: z
+    .number()
+    .int("Servings must be a whole number")
+    .min(1, "Servings must be at least 1")
+    .max(100, "Servings must be less than 100"),
+  prep_time_minutes: z
+    .number()
+    .int("Prep time must be a whole number")
+    .min(0, "Prep time cannot be negative")
+    .max(1440, "Prep time must be less than 24 hours"),
+  cook_time_minutes: z
+    .number()
+    .int("Cook time must be a whole number")
+    .min(0, "Cook time cannot be negative")
+    .max(1440, "Cook time must be less than 24 hours"),
+  difficulty: z.nativeEnum(DifficultyLevel, {
+    message: "Please select a difficulty level",
+  }),
+
+  // Categories and tags
+  categories: z.array(z.string()).min(1, "Please select at least one category").max(5),
+  tags: z.array(z.string()).max(10, "Maximum 10 tags allowed"),
+});
+
+export type RecipeEditFormData = z.infer<typeof recipeEditSchema>;

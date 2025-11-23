@@ -1,0 +1,221 @@
+import React from "react";
+import { View, Text, Pressable } from "react-native";
+import { Control, useController } from "react-hook-form";
+import { MinusIcon, PlusIcon } from "phosphor-react-native";
+
+import { ShadowItem } from "@/components/ShadowedSection";
+import { DifficultyLevel } from "@/types/recipe";
+import type { RecipeEditFormData } from "@/schemas/recipe.schema";
+
+interface RecipeMetadataFormProps {
+  control: Control<RecipeEditFormData, any>;
+}
+
+const difficultyOptions: { label: string; value: DifficultyLevel; color: string }[] = [
+  { label: "Easy", value: DifficultyLevel.EASY, color: "#10b981" },
+  { label: "Medium", value: DifficultyLevel.MEDIUM, color: "#f59e0b" },
+  { label: "Hard", value: DifficultyLevel.HARD, color: "#ef4444" },
+];
+
+export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
+  const {
+    field: { value: servings, onChange: onServingsChange },
+    fieldState: { error: servingsError },
+  } = useController({ control, name: "servings" });
+
+  const {
+    field: { value: prepTime, onChange: onPrepTimeChange },
+    fieldState: { error: prepTimeError },
+  } = useController({ control, name: "prep_time_minutes" });
+
+  const {
+    field: { value: cookTime, onChange: onCookTimeChange },
+    fieldState: { error: cookTimeError },
+  } = useController({ control, name: "cook_time_minutes" });
+
+  const {
+    field: { value: difficulty, onChange: onDifficultyChange },
+    fieldState: { error: difficultyError },
+  } = useController({ control, name: "difficulty" });
+
+  const formatTime = (minutes: number) => {
+    if (minutes === 0) return "0m";
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours === 0) return `${mins}m`;
+    if (mins === 0) return `${hours}h`;
+    return `${hours}h ${mins}m`;
+  };
+
+  return (
+    <View className="gap-2">
+      {/* Section Header */}
+      <Text
+        className="font-playfair-bold mb-4 text-2xl uppercase tracking-wide text-foreground-heading"
+        style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+      >
+        Cooking Info
+      </Text>
+
+      {/* Servings Control */}
+      <View className="mb-4">
+        <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary mb-2">
+          Servings
+        </Text>
+        <ShadowItem className="flex-row items-center justify-between rounded-xl p-4">
+          <Pressable
+            onPress={() => {
+              const newValue = Math.max(1, servings - 1);
+              onServingsChange(newValue);
+            }}
+            className="h-10 w-10 items-center justify-center"
+          >
+            <MinusIcon size={24} color="#3a3226" weight="bold" />
+          </Pressable>
+
+          <Text
+            className="text-3xl text-foreground-heading"
+            style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+          >
+            {servings}
+          </Text>
+
+          <Pressable
+            onPress={() => {
+              const newValue = Math.min(100, servings + 1);
+              onServingsChange(newValue);
+            }}
+            className="h-10 w-10 items-center justify-center"
+          >
+            <PlusIcon size={24} color="#3a3226" weight="bold" />
+          </Pressable>
+        </ShadowItem>
+        {servingsError && (
+          <Text className="mt-1.5 text-sm text-red-600">{servingsError.message}</Text>
+        )}
+      </View>
+
+      {/* Prep & Cook Time Controls - Side by Side */}
+      <View>
+        <View className="mb-4 flex-row gap-4">
+          {/* Prep Time Control */}
+          <View className="flex-1">
+            <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary mb-2">
+              Prep Time
+            </Text>
+            <ShadowItem className="flex-row items-center justify-between rounded-xl p-4">
+              <Pressable
+                onPress={() => {
+                  const newValue = Math.max(0, prepTime - 5);
+                  onPrepTimeChange(newValue);
+                }}
+                className="h-10 w-10 items-center justify-center"
+              >
+                <MinusIcon size={24} color="#3a3226" weight="bold" />
+              </Pressable>
+
+              <Text
+                className="text-2xl text-foreground-heading"
+                style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+              >
+                {formatTime(prepTime)}
+              </Text>
+
+              <Pressable
+                onPress={() => {
+                  const newValue = Math.min(1440, prepTime + 5);
+                  onPrepTimeChange(newValue);
+                }}
+                className="h-10 w-10 items-center justify-center"
+              >
+                <PlusIcon size={24} color="#3a3226" weight="bold" />
+              </Pressable>
+            </ShadowItem>
+            {prepTimeError && (
+              <Text className="mt-1.5 text-sm text-red-600">{prepTimeError.message}</Text>
+            )}
+          </View>
+
+          {/* Cook Time Control */}
+          <View className="flex-1">
+            <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary mb-2">
+              Cook Time
+            </Text>
+            <ShadowItem className="flex-row items-center justify-between rounded-xl p-4">
+              <Pressable
+                onPress={() => {
+                  const newValue = Math.max(0, cookTime - 5);
+                  onCookTimeChange(newValue);
+                }}
+                className="h-10 w-10 items-center justify-center"
+              >
+                <MinusIcon size={24} color="#3a3226" weight="bold" />
+              </Pressable>
+
+              <Text
+                className="text-2xl text-foreground-heading"
+                style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+              >
+                {formatTime(cookTime)}
+              </Text>
+
+              <Pressable
+                onPress={() => {
+                  const newValue = Math.min(1440, cookTime + 5);
+                  onCookTimeChange(newValue);
+                }}
+                className="h-10 w-10 items-center justify-center"
+              >
+                <PlusIcon size={24} color="#3a3226" weight="bold" />
+              </Pressable>
+            </ShadowItem>
+            {cookTimeError && (
+              <Text className="mt-1.5 text-sm text-red-600">{cookTimeError.message}</Text>
+            )}
+          </View>
+        </View>
+
+        {/* Total Time Display */}
+        <ShadowItem variant="primary" className="mb-6 items-start rounded-xl p-4">
+          <Text className="mb-1 text-sm uppercase tracking-wide text-white/80">Total Time</Text>
+          <Text className="text-3xl text-white" style={{ fontFamily: "PlayfairDisplay_700Bold" }}>
+            {formatTime(prepTime + cookTime)}
+          </Text>
+        </ShadowItem>
+      </View>
+
+      {/* Difficulty Selection */}
+      <View className="mb-4">
+        <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary mb-2">
+          Difficulty
+        </Text>
+        <View className="flex-row gap-3">
+          {difficultyOptions.map((option) => (
+            <Pressable
+              key={option.value}
+              onPress={() => {
+                onDifficultyChange(option.value);
+              }}
+              className="flex-1"
+            >
+              <ShadowItem
+                className={`rounded-xl p-4`}
+                style={{ borderColor: difficulty === option.value ? option.color : "#e8e3d6" }}
+              >
+                <Text
+                  className="text-center text-base font-semibold"
+                  style={{ color: difficulty === option.value ? option.color : "#3a3226" }}
+                >
+                  {option.label}
+                </Text>
+              </ShadowItem>
+            </Pressable>
+          ))}
+        </View>
+        {difficultyError && (
+          <Text className="mt-1.5 text-sm text-red-600">{difficultyError.message}</Text>
+        )}
+      </View>
+    </View>
+  );
+}

@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUpdateRecipeRating, useUpdateRecipeTimings } from "@/hooks/useRecipes";
+import { router } from "expo-router";
 
 import type { Recipe } from "@/types/recipe";
 import { CookingMode } from "./CookingMode";
@@ -25,23 +26,25 @@ import { ServingsSelector } from "./ServingsSelector";
 
 interface RecipeDetailProps {
   recipe: Recipe;
-  onBack: () => void;
+  onBack?: () => void;
   isDraft?: boolean;
+  isEditing?: boolean;
   onSave?: () => void;
   onDiscard?: () => void;
 }
 
 export const RecipeDetail: React.FC<RecipeDetailProps> = ({
   recipe,
-  onBack,
+  onBack = () => {},
   isDraft = false,
+  isEditing = false,
   onSave,
   onDiscard,
 }) => {
   const { t } = useTranslation();
   const scrollY = useSharedValue(0);
   const insets = useSafeAreaInsets();
-  const { isTablet, isTabletLandscape } = useDeviceType();
+  const { isTablet, isTabletLandscape } = useDeviceType(isEditing);
   const { user } = useAuth();
   const [servings, setServings] = useState(recipe.servings || 4);
   const [isCooking, setIsCooking] = useState(false);
@@ -162,11 +165,11 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
             )}
 
             {/* Draft Badge */}
-            {isDraft && (
+            {(isDraft || isEditing) && (
               <View className={`absolute bottom-4 ${isTablet ? "left-8" : "left-4"}`}>
                 <View className="rounded-full bg-surface-elevated/90 px-3 py-1.5 shadow-sm">
                   <Text className="text-xs font-bold uppercase tracking-widest text-primary">
-                    {t("recipe.draftPreview")}
+                    {isEditing ? "Preview changes" : t("recipe.draftPreview")}
                   </Text>
                 </View>
               </View>
@@ -192,7 +195,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
             )}
 
             {/* Rating - Not shown for drafts */}
-            {!isDraft && (
+            {!isDraft && !isEditing && (
               <RecipeRating
                 userRating={userRating}
                 averageRating={recipe.average_rating}
@@ -207,7 +210,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
               difficulty={recipe.difficulty}
               servings={recipe?.servings}
               onTimePress={handleOpenTimeEdit}
-              isDraft={isDraft}
+              enableUpdate={!isDraft && !isEditing}
             />
 
             {/* Primary Actions */}
@@ -215,10 +218,11 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
               onDecline={() => onDiscard?.()}
               onSaveRecipe={() => onSave?.()}
               isOwner={isOwner}
-              onEdit={() => {}}
+              onEdit={() => router.push(`/recipe/${recipe.id}/edit`)}
               onShare={() => {}}
               onStartCooking={() => setIsCooking(true)}
               isDraft={isDraft}
+              isEditing={isEditing}
             />
             {/* Tags */}
             <RecipeTags categories={recipe.categories} tags={recipe.tags} />
