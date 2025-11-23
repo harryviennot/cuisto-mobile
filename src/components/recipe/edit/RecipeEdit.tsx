@@ -3,9 +3,9 @@
  * Displays recipe preview and edit forms in a two-column layout on tablets
  */
 import React from "react";
-import { View, ScrollView, Alert, Text } from "react-native";
+import { View, Alert, Text } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDeviceType } from "@/hooks/useDeviceType";
@@ -27,7 +27,6 @@ interface RecipeEditProps {
 }
 
 export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscard }) => {
-  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { isTablet, isTabletLandscape } = useDeviceType();
   const updateRecipeMutation = useUpdateRecipe();
@@ -135,10 +134,15 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
 
   // Render right column (form)
   const renderForm = () => (
-    <ScrollView
-      className={`${isTabletLandscape ? "w-[55%] bg-surface-elevated" : "w-full"}`}
+    <KeyboardAwareScrollView
+      className={`${isTabletLandscape ? "w-[55%] bg-surface-elevated" : "flex-1 bg-surface"}`}
       showsVerticalScrollIndicator={false}
-      style={{ paddingTop: insets.top }}
+      contentContainerStyle={{
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom + 20, // Extra padding for keyboard
+      }}
+      bottomOffset={64}
+      keyboardShouldPersistTaps="handled"
     >
       <View className={`${isTablet ? "px-10 py-8" : "px-4 pb-8 pt-6"} gap-8`}>
         {/* Main Info Form */}
@@ -182,7 +186,7 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
           )}
         </View>
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 
   // Main layout

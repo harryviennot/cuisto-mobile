@@ -8,6 +8,7 @@ import { SearchProvider } from "@/contexts/SearchContext";
 import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import i18n from "@/locales/i18n";
 
 import {
@@ -71,28 +72,30 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <BottomSheetModalProvider>
-          <AuthProvider>
-            <SearchProvider>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="index" />
-                <Stack.Screen
-                  name="search"
-                  options={{
-                    presentation: "transparentModal",
-                    animation: "fade",
-                    animationDuration: 200,
-                  }}
-                />
-                <Stack.Screen name="test-creen" />
-                <Stack.Screen name="recipe" />
-              </Stack>
-            </SearchProvider>
-          </AuthProvider>
-          <StatusBar barStyle="dark-content" />
-        </BottomSheetModalProvider>
-      </QueryClientProvider>
+      <KeyboardProvider>
+        <QueryClientProvider client={queryClient}>
+          <BottomSheetModalProvider>
+            <AuthProvider>
+              <SearchProvider>
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="index" />
+                  <Stack.Screen
+                    name="search"
+                    options={{
+                      presentation: "transparentModal",
+                      animation: "fade",
+                      animationDuration: 200,
+                    }}
+                  />
+                  <Stack.Screen name="test-creen" />
+                  <Stack.Screen name="recipe" />
+                </Stack>
+              </SearchProvider>
+            </AuthProvider>
+            <StatusBar barStyle="dark-content" />
+          </BottomSheetModalProvider>
+        </QueryClientProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }
