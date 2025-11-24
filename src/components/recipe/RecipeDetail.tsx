@@ -122,12 +122,17 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
   // Calculate total time
   const totalTime = displayPrepTime + displayCookTime;
 
+  // Initialize scrollY to 0 on mount to prevent inverted animation
+  useEffect(() => {
+    scrollY.value = 0;
+  }, []);
+
   // Reset scrollY when switching to landscape mode to hide the header
   useEffect(() => {
     if (isTabletLandscape) {
       scrollY.value = 0;
     }
-  }, [isTabletLandscape, scrollY]);
+  }, [isTabletLandscape]);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -158,7 +163,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
         <ContentWrapper {...contentWrapperProps}>
           {/* Hero Image */}
           <View
-            className={`relative w-full ${isTabletLandscape ? "flex-1" : "aspect-[4/3]"}`}
+            className={`relative w-full ${isTabletLandscape ? "flex-1" : "aspect-[5/4]"}`}
             onLayout={(event) => {
               const { height } = event.nativeEvent.layout;
               setImageHeight(height);
@@ -285,8 +290,9 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
   // Title's Y position is relative to its parent, so we add the image height to get absolute scroll position
   const titleAbsoluteY = imageHeight - insets.top - 12;
   const scrollThresholdStart = titleAbsoluteY > 0 ? titleAbsoluteY : 200;
-  const scrollThresholdEnd =
-    titleAbsoluteY > 0 ? titleAbsoluteY + titleLayout.height - insets.top : 244;
+  const calculatedEnd = titleAbsoluteY > 0 ? titleAbsoluteY + titleLayout.height : 244;
+  // Ensure end is always greater than start by adding a minimum range
+  const scrollThresholdEnd = Math.max(calculatedEnd, scrollThresholdStart + 50);
 
   // Main layout
   return (
