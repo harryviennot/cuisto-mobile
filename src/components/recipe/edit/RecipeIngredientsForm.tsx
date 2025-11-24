@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Pressable, TextInput as RNTextInput } from "react-native";
+import { View, Text, Pressable, TextInput as RNTextInput, Animated, LayoutAnimation, Platform, UIManager } from "react-native";
 import { Control, useController } from "react-hook-form";
 import { XIcon, PlusIcon, CaretUpIcon, CaretDownIcon, CheckIcon } from "phosphor-react-native";
+
+// Enable LayoutAnimation on Android
+if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 import { ShadowItem } from "@/components/ShadowedSection";
 import type { RecipeEditFormData } from "@/schemas/recipe.schema";
@@ -27,6 +32,27 @@ function IngredientForm({ mode, groupName, ingredient, onSave, onCancel }: Ingre
   const [quantity, setQuantity] = useState(ingredient?.quantity || "");
   const [unit, setUnit] = useState(ingredient?.unit || "");
   const [notes, setNotes] = useState(ingredient?.notes || "");
+
+  // Animation values
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [scaleAnim] = useState(new Animated.Value(0.95));
+
+  // Animate in on mount
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 100,
+        friction: 10,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const handleSave = () => {
     if (!name.trim()) return;
@@ -55,92 +81,117 @@ function IngredientForm({ mode, groupName, ingredient, onSave, onCancel }: Ingre
     }
   };
 
-  return (
-    <ShadowItem className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
-      <Text className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
-        {mode === "add"
-          ? `Add Ingredient${groupName !== "Main" ? ` to ${groupName}` : ""}`
-          : "Edit Ingredient"}
-      </Text>
+  const handleCancel = () => {
+    // Animate out before closing
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 0.95,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      onCancel();
+    });
+  };
 
-      {/* Main Row: Quantity, Unit, Name - matches preview layout */}
-      <View className={`mb-3 flex-row items-center ${isTablet ? "gap-2.5" : "gap-2"}`}>
-        {/* Quantity */}
-        <View style={{ width: isTablet ? 90 : 70 }}>
-          <RNTextInput
-            value={quantity}
-            onChangeText={setQuantity}
-            placeholder="Qty"
-            placeholderTextColor="#a89f8d"
-            className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
-            keyboardType="numeric"
-            returnKeyType="next"
-          />
+  return (
+    <Animated.View
+      style={{
+        opacity: fadeAnim,
+        transform: [{ scale: scaleAnim }],
+      }}
+    >
+      <ShadowItem className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
+        <Text className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
+          {mode === "add"
+            ? `Add Ingredient${groupName !== "Main" ? ` to ${groupName}` : ""}`
+            : "Edit Ingredient"}
+        </Text>
+
+        {/* Main Row: Quantity, Unit, Name - matches preview layout */}
+        <View className={`mb-3 flex-row items-center ${isTablet ? "gap-2.5" : "gap-2"}`}>
+          {/* Quantity */}
+          <View style={{ width: isTablet ? 90 : 70 }}>
+            <RNTextInput
+              value={quantity}
+              onChangeText={setQuantity}
+              placeholder="Qty"
+              placeholderTextColor="#a89f8d"
+              className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+              keyboardType="numeric"
+              returnKeyType="next"
+            />
+          </View>
+
+          {/* Unit */}
+          <View style={{ width: isTablet ? 110 : 85 }}>
+            <RNTextInput
+              value={unit}
+              onChangeText={setUnit}
+              placeholder="Unit"
+              placeholderTextColor="#a89f8d"
+              className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+              autoCapitalize="none"
+              returnKeyType="next"
+            />
+          </View>
+
+          {/* Ingredient Name - takes remaining space */}
+          <View className="flex-1">
+            <RNTextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Ingredient name *"
+              placeholderTextColor="#a89f8d"
+              className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+              autoCapitalize="words"
+              returnKeyType="next"
+            />
+          </View>
         </View>
 
-        {/* Unit */}
-        <View style={{ width: isTablet ? 110 : 85 }}>
+        {/* Notes - Full Width */}
+        <View className="mb-4 w-full">
           <RNTextInput
-            value={unit}
-            onChangeText={setUnit}
-            placeholder="Unit"
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Notes (e.g., chopped, optional)"
             placeholderTextColor="#a89f8d"
             className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
             autoCapitalize="none"
-            returnKeyType="next"
+            returnKeyType="done"
+            onSubmitEditing={handleSave}
           />
         </View>
 
-        {/* Ingredient Name - takes remaining space */}
-        <View className="flex-1">
-          <RNTextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Ingredient name *"
-            placeholderTextColor="#a89f8d"
-            className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
-            autoCapitalize="words"
-            returnKeyType="next"
-          />
+        {/* Action Buttons */}
+        <View className={`flex-row ${isTablet ? "gap-3" : "gap-2"}`}>
+          <Pressable onPress={handleCancel} className="flex-1">
+            <ShadowItem className="items-center rounded-lg border border-border-button bg-white py-3">
+              <Text className="text-sm font-semibold text-foreground">Cancel</Text>
+            </ShadowItem>
+          </Pressable>
+          <Pressable onPress={handleSave} className="flex-1" disabled={!name.trim()}>
+            <ShadowItem
+              variant="primary"
+              className={`flex-row items-center justify-center gap-1.5 rounded-lg py-3 ${
+                !name.trim() ? "opacity-50" : ""
+              }`}
+            >
+              <CheckIcon size={16} color="#FFFFFF" weight="bold" />
+              <Text className="text-sm font-semibold text-white">
+                {mode === "add" ? "Add" : "Save"}
+              </Text>
+            </ShadowItem>
+          </Pressable>
         </View>
-      </View>
-
-      {/* Notes - Full Width */}
-      <View className="mb-4 w-full">
-        <RNTextInput
-          value={notes}
-          onChangeText={setNotes}
-          placeholder="Notes (e.g., chopped, optional)"
-          placeholderTextColor="#a89f8d"
-          className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
-          autoCapitalize="none"
-          returnKeyType="done"
-          onSubmitEditing={handleSave}
-        />
-      </View>
-
-      {/* Action Buttons */}
-      <View className={`flex-row ${isTablet ? "gap-3" : "gap-2"}`}>
-        <Pressable onPress={onCancel} className="flex-1">
-          <ShadowItem className="items-center rounded-lg border border-border-button bg-white py-3">
-            <Text className="text-sm font-semibold text-foreground">Cancel</Text>
-          </ShadowItem>
-        </Pressable>
-        <Pressable onPress={handleSave} className="flex-1" disabled={!name.trim()}>
-          <ShadowItem
-            variant="primary"
-            className={`flex-row items-center justify-center gap-1.5 rounded-lg py-3 ${
-              !name.trim() ? "opacity-50" : ""
-            }`}
-          >
-            <CheckIcon size={16} color="#FFFFFF" weight="bold" />
-            <Text className="text-sm font-semibold text-white">
-              {mode === "add" ? "Add" : "Save"}
-            </Text>
-          </ShadowItem>
-        </Pressable>
-      </View>
-    </ShadowItem>
+      </ShadowItem>
+    </Animated.View>
   );
 }
 
