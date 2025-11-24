@@ -1,6 +1,6 @@
 import "@/global.css";
 import { View, Text, Pressable } from "react-native";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Minus, Plus } from "phosphor-react-native";
 import { ShadowItem } from "../ShadowedSection";
 
@@ -25,18 +25,23 @@ export function TimeAdjuster({
   value,
   onChange,
   originalValue,
-  increment = 5,
+  increment = 1,
   min = 0,
   max = 1440,
   className = "",
 }: TimeAdjusterProps) {
+  // Local display state for smooth visual updates
+  const [displayValue, setDisplayValue] = useState(value);
+
   // Long press interval refs
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const delayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const currentValueRef = useRef(value);
+  const pendingValueRef = useRef<number | null>(null);
 
-  // Keep ref in sync with value
-  currentValueRef.current = value;
+  // Sync display value when prop changes from outside
+  useEffect(() => {
+    setDisplayValue(value);
+  }, [value]);
 
   const formatTime = (totalMinutes: number) => {
     if (totalMinutes === 0) return "0m";
@@ -58,6 +63,12 @@ export function TimeAdjuster({
       clearTimeout(delayTimeoutRef.current);
       delayTimeoutRef.current = null;
     }
+
+    // Sync final value to parent ONCE when releasing
+    if (pendingValueRef.current !== null) {
+      onChange(pendingValueRef.current);
+    }
+    pendingValueRef.current = null;
   };
 
   // Clean up on unmount
@@ -67,32 +78,41 @@ export function TimeAdjuster({
     };
   }, []);
 
-  // Start auto-increment on long press with 500ms delay
+  // Start auto-increment on long press with delay
   const startAutoIncrement = (incrementAmount: number) => {
     // Clear any existing timers first
     clearAutoIncrement();
 
-    // Wait 500ms before starting auto-increment
+    // Wait 200ms before starting auto-increment
     const timeout = setTimeout(() => {
-      // Start interval for continued changes
+      let internalValue = displayValue;
+
+      // Start interval for smooth visual updates
       const interval = setInterval(() => {
-        const newValue = Math.min(max, Math.max(min, currentValueRef.current + incrementAmount));
-        onChange(newValue);
-      }, 100); // Repeat every 100ms
+        internalValue = Math.min(max, Math.max(min, internalValue + incrementAmount));
+
+        // Update display immediately for smooth animation
+        setDisplayValue(internalValue);
+
+        // Track pending value to sync on release
+        pendingValueRef.current = internalValue;
+      }, 60); // Update every 30ms for smooth visual feedback
 
       intervalRef.current = interval as any;
-    }, 500); // 500ms delay before auto-increment starts
+    }, 200); // 200ms delay before auto-increment starts
 
     delayTimeoutRef.current = timeout as any;
   };
 
   const handleIncrement = () => {
-    const newValue = Math.min(max, value + increment);
+    const newValue = Math.min(max, displayValue + increment);
+    setDisplayValue(newValue);
     onChange(newValue);
   };
 
   const handleDecrement = () => {
-    const newValue = Math.max(min, value - increment);
+    const newValue = Math.max(min, displayValue - increment);
+    setDisplayValue(newValue);
     onChange(newValue);
   };
 
@@ -129,7 +149,7 @@ export function TimeAdjuster({
           className="text-2xl text-foreground-heading"
           style={{ fontFamily: "PlayfairDisplay_700Bold" }}
         >
-          {formatTime(value)}
+          {formatTime(displayValue)}
         </Text>
 
         <Pressable
