@@ -67,6 +67,22 @@ export const ingredientsArraySchema = z
 
 export type IngredientFormData = z.infer<typeof ingredientSchema>;
 
+// Instruction schema
+export const instructionSchema = z.object({
+  step_number: z.number().int("Step number must be a whole number").min(1, "Step number must be at least 1"),
+  title: z.string().min(1, "Instruction title is required").max(200, "Title must be less than 200 characters"),
+  description: z.string().min(1, "Instruction description is required").max(2000, "Description must be less than 2000 characters"),
+  timer_minutes: z.number().int("Timer must be a whole number").min(0, "Timer cannot be negative").max(1440, "Timer must be less than 24 hours").optional(),
+  image_url: z.string().url("Invalid image URL").optional().or(z.literal("")),
+  group: z.string().optional(),
+});
+
+export const instructionsArraySchema = z
+  .array(instructionSchema)
+  .min(1, "At least one instruction is required");
+
+export type InstructionFormData = z.infer<typeof instructionSchema>;
+
 // Complete recipe edit schema (combination of all, for single form)
 export const recipeEditSchema = z.object({
   // Main info
@@ -107,6 +123,9 @@ export const recipeEditSchema = z.object({
 
   // Ingredients
   ingredients: ingredientsArraySchema,
+
+  // Instructions
+  instructions: instructionsArraySchema,
 });
 
 export type RecipeEditFormData = z.infer<typeof recipeEditSchema>;

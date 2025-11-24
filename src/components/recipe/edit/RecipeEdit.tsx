@@ -19,6 +19,7 @@ import { RecipeMainInfoForm } from "./RecipeMainInfoForm";
 import { RecipeMetadataForm } from "./RecipeMetadataForm";
 import { RecipeCategoriesTagsForm } from "./RecipeCategoriesTagsForm";
 import { RecipeIngredientsForm } from "./RecipeIngredientsForm";
+import { RecipeInstructionsForm } from "./RecipeInstructionsForm";
 import { ShadowItem } from "@/components/ShadowedSection";
 import { recipeEditSchema, type RecipeEditFormData } from "@/schemas/recipe.schema";
 
@@ -55,6 +56,7 @@ const RecipeEditForm: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscard }
       categories: recipe.categories || [],
       tags: recipe.tags || [],
       ingredients: recipe.ingredients || [],
+      instructions: recipe.instructions || [],
     },
   });
 
@@ -77,6 +79,7 @@ const RecipeEditForm: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscard }
     categories: formValues.categories,
     tags: formValues.tags,
     ingredients: formValues.ingredients,
+    instructions: formValues.instructions,
   };
 
   // Final save handler - saves all changes to the server
@@ -98,6 +101,7 @@ const RecipeEditForm: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscard }
           categories: data.categories,
           tags: data.tags,
           ingredients: data.ingredients,
+          instructions: data.instructions,
         },
       });
 
@@ -170,7 +174,8 @@ const RecipeEditForm: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscard }
         {/* Ingredients Form */}
         <RecipeIngredientsForm control={control} />
 
-        {/* TODO: Instructions form */}
+        {/* Instructions Form */}
+        <RecipeInstructionsForm control={control} />
 
         {/* Action Buttons */}
         <View className="mt-12">
