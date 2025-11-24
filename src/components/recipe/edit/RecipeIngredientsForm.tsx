@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Pressable, TextInput as RNTextInput, Animated, LayoutAnimation, Platform, UIManager } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  TextInput as RNTextInput,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from "react-native";
 import { Control, useController } from "react-hook-form";
 import { XIcon, PlusIcon, CaretUpIcon, CaretDownIcon, CheckIcon } from "phosphor-react-native";
 
@@ -18,41 +26,28 @@ interface RecipeIngredientsFormProps {
   control: Control<RecipeEditFormData, any>;
 }
 
-interface IngredientFormProps {
+interface ExpandableIngredientFormProps {
   mode: "add" | "edit";
   groupName: string;
   ingredient?: Ingredient;
+  isExpanded: boolean;
+  onToggle: () => void;
   onSave: (ingredient: Ingredient) => void;
-  onCancel: () => void;
 }
 
-function IngredientForm({ mode, groupName, ingredient, onSave, onCancel }: IngredientFormProps) {
+function ExpandableIngredientForm({
+  mode,
+  groupName,
+  ingredient,
+  isExpanded,
+  onToggle,
+  onSave,
+}: ExpandableIngredientFormProps) {
   const { isTablet } = useDeviceType();
   const [name, setName] = useState(ingredient?.name || "");
   const [quantity, setQuantity] = useState(ingredient?.quantity || "");
   const [unit, setUnit] = useState(ingredient?.unit || "");
   const [notes, setNotes] = useState(ingredient?.notes || "");
-
-  // Animation values
-  const [fadeAnim] = useState(new Animated.Value(0));
-  const [scaleAnim] = useState(new Animated.Value(0.95));
-
-  // Animate in on mount
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        tension: 100,
-        friction: 10,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
 
   const handleSave = () => {
     if (!name.trim()) return;
@@ -81,39 +76,32 @@ function IngredientForm({ mode, groupName, ingredient, onSave, onCancel }: Ingre
     }
   };
 
-  const handleCancel = () => {
-    // Animate out before closing
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scaleAnim, {
-        toValue: 0.95,
-        duration: 150,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      onCancel();
-    });
-  };
-
   return (
-    <Animated.View
-      style={{
-        opacity: fadeAnim,
-        transform: [{ scale: scaleAnim }],
-      }}
-    >
-      <ShadowItem className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
+    <View>
+      {/* Collapsed state - button */}
+      {!isExpanded && (
+        <Pressable onPress={onToggle}>
+          <ShadowItem className="flex-row items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border-light bg-white py-3">
+            <PlusIcon size={20} color="#334d43" weight="bold" />
+            <Text className="text-sm font-semibold text-foreground">
+              {mode === "add"
+                ? `Add Ingredient${groupName !== "Main" ? ` to ${groupName}` : ""}`
+                : ingredient?.name || "Edit Ingredient"}
+            </Text>
+          </ShadowItem>
+        </Pressable>
+      )}
+
+      {/* Expanded state - form */}
+      {isExpanded && (
+        <ShadowItem className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
         <Text className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
           {mode === "add"
             ? `Add Ingredient${groupName !== "Main" ? ` to ${groupName}` : ""}`
             : "Edit Ingredient"}
         </Text>
 
-        {/* Main Row: Quantity, Unit, Name - matches preview layout */}
+        {/* Main Row: Quantity, Unit, Name */}
         <View className={`mb-3 flex-row items-center ${isTablet ? "gap-2.5" : "gap-2"}`}>
           {/* Quantity */}
           <View style={{ width: isTablet ? 90 : 70 }}>
@@ -141,7 +129,7 @@ function IngredientForm({ mode, groupName, ingredient, onSave, onCancel }: Ingre
             />
           </View>
 
-          {/* Ingredient Name - takes remaining space */}
+          {/* Ingredient Name */}
           <View className="flex-1">
             <RNTextInput
               value={name}
@@ -155,7 +143,7 @@ function IngredientForm({ mode, groupName, ingredient, onSave, onCancel }: Ingre
           </View>
         </View>
 
-        {/* Notes - Full Width */}
+        {/* Notes */}
         <View className="mb-4 w-full">
           <RNTextInput
             value={notes}
@@ -171,7 +159,7 @@ function IngredientForm({ mode, groupName, ingredient, onSave, onCancel }: Ingre
 
         {/* Action Buttons */}
         <View className={`flex-row ${isTablet ? "gap-3" : "gap-2"}`}>
-          <Pressable onPress={handleCancel} className="flex-1">
+          <Pressable onPress={onToggle} className="flex-1">
             <ShadowItem className="items-center rounded-lg border border-border-button bg-white py-3">
               <Text className="text-sm font-semibold text-foreground">Cancel</Text>
             </ShadowItem>
@@ -191,7 +179,8 @@ function IngredientForm({ mode, groupName, ingredient, onSave, onCancel }: Ingre
           </Pressable>
         </View>
       </ShadowItem>
-    </Animated.View>
+      )}
+    </View>
   );
 }
 
@@ -206,6 +195,18 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
   const [groupNames, setGroupNames] = useState<string[]>([]);
   const [addingToGroup, setAddingToGroup] = useState<string | null>(null);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  // Helper to set addingToGroup with animation
+  const setAddingToGroupAnimated = (groupName: string | null) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setAddingToGroup(groupName);
+  };
+
+  // Helper to set editingIndex with animation
+  const setEditingIndexAnimated = (index: number | null) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setEditingIndex(index);
+  };
 
   // Initialize group names from ingredients on mount
   useEffect(() => {
@@ -426,7 +427,7 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
       onIngredientsChange(updatedIngredients);
     }
 
-    setAddingToGroup(null);
+    setAddingToGroupAnimated(null);
   };
 
   // Edit an existing ingredient
@@ -434,7 +435,7 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
     const updatedIngredients = [...ingredients];
     updatedIngredients[index] = updatedIngredient;
     onIngredientsChange(updatedIngredients);
-    setEditingIndex(null);
+    setEditingIndexAnimated(null);
   };
 
   return (
@@ -513,6 +514,7 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
                   {/* Group reorder arrows */}
                   <View className="flex-row gap-1">
                     <Pressable
+                      hitSlop={4}
                       onPress={() => moveGroupUp(groupName)}
                       disabled={groupIndex === 0}
                       className={groupIndex === 0 ? "opacity-30" : ""}
@@ -520,6 +522,7 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
                       <CaretUpIcon size={16} color="#3a3226" weight="bold" />
                     </Pressable>
                     <Pressable
+                      hitSlop={4}
                       onPress={() => moveGroupDown(groupName)}
                       disabled={isLastGroup}
                       className={isLastGroup ? "opacity-30" : ""}
@@ -552,60 +555,66 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
                     const isLastGroup = currentGroupIndex === allGroups.length - 1;
                     const isEditing = editingIndex === ingredientIndex;
 
-                    if (isEditing) {
-                      return (
-                        <IngredientForm
-                          key={ingredientIndex}
-                          mode="edit"
-                          groupName={ingredient.group || "Main"}
-                          ingredient={ingredient}
-                          onSave={(updated: Ingredient) => editIngredient(ingredientIndex, updated)}
-                          onCancel={() => setEditingIndex(null)}
-                        />
-                      );
-                    }
-
                     return (
-                      <ShadowItem
-                        key={ingredientIndex}
-                        className="flex-row items-center gap-3 rounded-xl p-3"
-                      >
-                        {/* Up/Down Arrows */}
-                        <View className="gap-1">
-                          <Pressable
-                            onPress={() => moveIngredientUp(ingredientIndex)}
-                            disabled={isInMainGroup && isFirst}
-                            className={isInMainGroup && isFirst ? "opacity-30" : ""}
-                          >
-                            <CaretUpIcon size={20} color="#3a3226" weight="bold" />
-                          </Pressable>
-                          <Pressable
-                            onPress={() => moveIngredientDown(ingredientIndex)}
-                            disabled={isLast && isLastGroup}
-                            className={isLast && isLastGroup ? "opacity-30" : ""}
-                          >
-                            <CaretDownIcon size={20} color="#3a3226" weight="bold" />
-                          </Pressable>
-                        </View>
+                      <View key={ingredientIndex}>
+                        {!isEditing && (
+                          <ShadowItem className="flex-row items-center gap-3 rounded-xl p-3 pr-4">
+                            {/* Up/Down Arrows */}
+                            <View className="gap-1">
+                              <Pressable
+                                hitSlop={4}
+                                onPress={() => moveIngredientUp(ingredientIndex)}
+                                disabled={isInMainGroup && isFirst}
+                                className={isInMainGroup && isFirst ? "opacity-30" : ""}
+                              >
+                                <CaretUpIcon size={20} color="#3a3226" weight="bold" />
+                              </Pressable>
+                              <Pressable
+                                hitSlop={4}
+                                onPress={() => moveIngredientDown(ingredientIndex)}
+                                disabled={isLast && isLastGroup}
+                                className={isLast && isLastGroup ? "opacity-30" : ""}
+                              >
+                                <CaretDownIcon size={20} color="#3a3226" weight="bold" />
+                              </Pressable>
+                            </View>
 
-                        {/* Ingredient Display - Clickable to edit */}
-                        <Pressable
-                          className="flex-1"
-                          onPress={() => setEditingIndex(ingredientIndex)}
-                        >
-                          <Text className="text-base text-foreground">
-                            {ingredient.quantity && `${ingredient.quantity} `}
-                            {ingredient.unit && `${ingredient.unit} `}
-                            {ingredient.name}
-                            {ingredient.notes && ` (${ingredient.notes})`}
-                          </Text>
-                        </Pressable>
+                            {/* Ingredient Display - Clickable to edit */}
+                            <Pressable
+                              className="flex-1"
+                              onPress={() => setEditingIndexAnimated(ingredientIndex)}
+                            >
+                              <Text className="text-base text-foreground">
+                                {ingredient.quantity && `${ingredient.quantity} `}
+                                {ingredient.unit && `${ingredient.unit} `}
+                                {ingredient.name}
+                                {ingredient.notes && ` (${ingredient.notes})`}
+                              </Text>
+                            </Pressable>
 
-                        {/* Delete Button */}
-                        <Pressable onPress={() => removeIngredient(ingredientIndex)}>
-                          <XIcon size={20} color="#3a3226" weight="bold" />
-                        </Pressable>
-                      </ShadowItem>
+                            {/* Delete Button */}
+                            <Pressable
+                              hitSlop={8}
+                              onPress={() => removeIngredient(ingredientIndex)}
+                            >
+                              <XIcon size={20} color="#3a3226" weight="bold" />
+                            </Pressable>
+                          </ShadowItem>
+                        )}
+
+                        {isEditing && (
+                          <ExpandableIngredientForm
+                            mode="edit"
+                            groupName={ingredient.group || "Main"}
+                            ingredient={ingredient}
+                            isExpanded={isEditing}
+                            onToggle={() => setEditingIndexAnimated(null)}
+                            onSave={(updated: Ingredient) =>
+                              editIngredient(ingredientIndex, updated)
+                            }
+                          />
+                        )}
+                      </View>
                     );
                   })}
                 </View>
@@ -620,25 +629,17 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
                 )
               )}
 
-              {/* Add Ingredient Form or Button */}
+              {/* Add Ingredient Form */}
               <View className="mt-3">
-                {addingToGroup === groupName ? (
-                  <IngredientForm
-                    mode="add"
-                    groupName={groupName}
-                    onSave={(ingredient: Ingredient) => addIngredient(ingredient, groupName)}
-                    onCancel={() => setAddingToGroup(null)}
-                  />
-                ) : (
-                  <Pressable onPress={() => setAddingToGroup(groupName)}>
-                    <ShadowItem className="flex-row items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border-light bg-white py-3">
-                      <PlusIcon size={20} color="#334d43" weight="bold" />
-                      <Text className="text-sm font-semibold text-foreground">
-                        Add Ingredient{groupName !== "Main" && ` to ${groupName}`}
-                      </Text>
-                    </ShadowItem>
-                  </Pressable>
-                )}
+                <ExpandableIngredientForm
+                  mode="add"
+                  groupName={groupName}
+                  isExpanded={addingToGroup === groupName}
+                  onToggle={() =>
+                    setAddingToGroupAnimated(addingToGroup === groupName ? null : groupName)
+                  }
+                  onSave={(ingredient: Ingredient) => addIngredient(ingredient, groupName)}
+                />
               </View>
             </View>
           );
