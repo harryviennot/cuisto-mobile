@@ -2,25 +2,21 @@ import React, { useState, useEffect, useMemo } from "react";
 import {
   View,
   Text,
-  Pressable,
-  TextInput as RNTextInput,
   LayoutAnimation,
   Platform,
   UIManager,
 } from "react-native";
 import { Control, useController } from "react-hook-form";
-import { XIcon, PlusIcon } from "phosphor-react-native";
 import { DraggableList } from "../../DragAndDrop/DraggableList";
 import { RenderItemParams } from "../../DragAndDrop/types";
 import * as Haptics from "expo-haptics";
-import { ShadowItem } from "@/components/ShadowedSection";
 import type { RecipeEditFormData } from "@/schemas/recipe.schema";
 import type { Ingredient } from "@/types/recipe";
-import { useDeviceType } from "@/hooks/useDeviceType";
 
 import { ExpandableIngredientForm } from "./ExpandableIngredientForm";
 import { IngredientItem } from "./IngredientItem";
 import { GroupHeader } from "./GroupHeader";
+import { FormGroupInput } from "@/components/forms/FormGroupInput";
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -42,7 +38,6 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
     fieldState: { error: ingredientsError },
   } = useController({ control, name: "ingredients" });
 
-  const { isTablet } = useDeviceType();
   const [newGroupName, setNewGroupName] = useState("");
   const [groupNames, setGroupNames] = useState<string[]>([]);
   const [addingToGroup, setAddingToGroup] = useState<string | null>(null);
@@ -330,7 +325,7 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
   };
 
   return (
-    <View className="gap-2">
+    <View className="">
       {/* Section Header */}
       <Text
         className="font-playfair-bold mb-4 text-2xl uppercase tracking-wide text-foreground-heading"
@@ -340,54 +335,17 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
       </Text>
 
       {/* Group Management */}
-      <View className="mb-6">
-        <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary mb-2">
-          Ingredient Groups
-        </Text>
-
-        {/* Add Group Input */}
-        <View className={`mb-3 flex-row ${isTablet ? "gap-4" : "gap-2"}`}>
-          <View className="flex-1">
-            <RNTextInput
-              value={newGroupName}
-              onChangeText={setNewGroupName}
-              onSubmitEditing={addGroup}
-              placeholder="e.g., For the sauce, For the dough..."
-              placeholderTextColor="#a89f8d"
-              className="rounded-xl border border-border-button bg-white px-4 py-3.5 text-base text-foreground"
-              returnKeyType="done"
-              autoCapitalize="words"
-            />
-          </View>
-
-          <ShadowItem
-            variant="primary"
-            className={`items-center justify-center rounded-xl px-4 ${!newGroupName.trim() || groupNames.includes(newGroupName.trim()) ? "opacity-50" : ""
-              }`}
-            onPress={addGroup}
-            disabled={!newGroupName.trim() || groupNames.includes(newGroupName.trim())}
-          >
-            <PlusIcon size={20} color="#FFFFFF" weight="bold" />
-          </ShadowItem>
-        </View>
-
-        {/* Current Groups (excluding Main) */}
-        {groupNames.length > 0 && (
-          <View className="flex-row flex-wrap gap-2">
-            {groupNames.map((group) => (
-              <ShadowItem
-                key={group}
-                className="flex-row items-center gap-2 rounded-full bg-surface-elevated px-3 py-2"
-              >
-                <Text className="text-sm text-foreground">{group}</Text>
-                <Pressable onPress={() => deleteGroup(group)}>
-                  <XIcon size={16} color="#3a3226" weight="bold" />
-                </Pressable>
-              </ShadowItem>
-            ))}
-          </View>
-        )}
-      </View>
+      <FormGroupInput
+        label="Ingredient Groups"
+        placeholder="e.g., For the sauce, For the dough..."
+        items={groupNames}
+        newItemValue={newGroupName}
+        onNewItemChange={setNewGroupName}
+        onAddItem={addGroup}
+        onRemoveItem={deleteGroup}
+        autoCapitalize="words"
+        className="mb-6"
+      />
 
       {/* Ingredients by Group - Drag and Drop List */}
       <View>
@@ -400,6 +358,7 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
             activationDelay={500}
             autoscrollThreshold={50}
             autoscrollSpeed={10}
+
           />
         ) : (
           <View className="rounded-xl border border-dashed border-border-light bg-surface-elevated p-4">

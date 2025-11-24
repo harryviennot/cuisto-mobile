@@ -24,7 +24,7 @@ export function GroupHeader({
     const isLast = groupIndex >= totalGroups - 1;
 
     const content = (
-        <View className="mb-3 mt-8 flex-row items-center gap-3">
+        <View className="mb-3 mt-6 flex-row items-center gap-3">
             {/* Group reorder arrows */}
             <View className="flex-row gap-1">
                 <Pressable
