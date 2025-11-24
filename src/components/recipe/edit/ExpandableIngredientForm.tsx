@@ -59,19 +59,18 @@ export function ExpandableIngredientForm({
         <View>
             {/* Collapsed state - button */}
             {!isExpanded && (
-                <Pressable onPress={onToggle}>
-                    <ShadowItem className="flex-row items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border-light bg-white py-3">
-                        <PlusIcon size={20} color="#334d43" weight="bold" />
-                        <Text className="text-sm font-semibold text-foreground">
-                            {mode === "add" ? "Add Ingredient" : ingredient?.name || "Edit Ingredient"}
-                        </Text>
-                    </ShadowItem>
-                </Pressable>
+
+                <ShadowItem className="flex-row items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border-light bg-transparent py-3" onPress={onToggle}>
+                    <PlusIcon size={20} color="#334d43" weight="bold" />
+                    <Text className="text-sm font-semibold text-foreground">
+                        {mode === "add" ? "Add Ingredient" : ingredient?.name || "Edit Ingredient"}
+                    </Text>
+                </ShadowItem>
             )}
 
             {/* Expanded state - form */}
             {isExpanded && (
-                <ShadowItem className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
+                <ShadowItem className="rounded-xl border-primary p-4">
                     <Text className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
                         {mode === "add" ? `Add Ingredient` : "Edit Ingredient"}
                     </Text>
@@ -85,7 +84,7 @@ export function ExpandableIngredientForm({
                                 onChangeText={setQuantity}
                                 placeholder="Qty"
                                 placeholderTextColor="#a89f8d"
-                                className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+                                className="rounded-xl border border-border-button bg-white px-3 py-3 text-base text-foreground"
                                 keyboardType="numeric"
                                 returnKeyType="next"
                             />
@@ -98,7 +97,7 @@ export function ExpandableIngredientForm({
                                 onChangeText={setUnit}
                                 placeholder="Unit"
                                 placeholderTextColor="#a89f8d"
-                                className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+                                className="rounded-xl border border-border-button bg-white px-3 py-3 text-base text-foreground"
                                 autoCapitalize="none"
                                 returnKeyType="next"
                             />
@@ -111,7 +110,7 @@ export function ExpandableIngredientForm({
                                 onChangeText={setName}
                                 placeholder="Ingredient name *"
                                 placeholderTextColor="#a89f8d"
-                                className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+                                className="rounded-xl border border-border-button bg-white px-3 py-3 text-base text-foreground"
                                 autoCapitalize="words"
                                 returnKeyType="next"
                             />
@@ -125,7 +124,7 @@ export function ExpandableIngredientForm({
                             onChangeText={setNotes}
                             placeholder="Notes (e.g., chopped, optional)"
                             placeholderTextColor="#a89f8d"
-                            className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
+                            className="rounded-xl border border-border-button bg-white px-3 py-3 text-base text-foreground"
                             autoCapitalize="none"
                             returnKeyType="done"
                             onSubmitEditing={handleSave}
@@ -135,14 +134,14 @@ export function ExpandableIngredientForm({
                     {/* Action Buttons */}
                     <View className={`flex-row ${isTablet ? "gap-3" : "gap-2"}`}>
                         <Pressable onPress={onToggle} className="flex-1">
-                            <ShadowItem className="items-center rounded-lg border border-border-button bg-white py-3">
+                            <ShadowItem className="items-center rounded-xl border border-border-button bg-white py-3">
                                 <Text className="text-sm font-semibold text-foreground">Cancel</Text>
                             </ShadowItem>
                         </Pressable>
                         <Pressable onPress={handleSave} className="flex-1" disabled={!name.trim()}>
                             <ShadowItem
                                 variant="primary"
-                                className={`flex-row items-center justify-center gap-1.5 rounded-lg py-3 ${!name.trim() ? "opacity-50" : ""
+                                className={`flex-row items-center justify-center gap-1.5 rounded-xl py-3 ${!name.trim() ? "opacity-50" : ""
                                     }`}
                             >
                                 <CheckIcon size={16} color="#FFFFFF" weight="bold" />

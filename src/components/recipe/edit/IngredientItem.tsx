@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
-import { XIcon } from "phosphor-react-native";
+import { XIcon, DotsSixVerticalIcon } from "phosphor-react-native";
 import { GestureDetector } from "react-native-gesture-handler";
 import { DraggableItem } from "../../DragAndDrop/DraggableItem";
 import { ShadowItem } from "@/components/ShadowedSection";
@@ -35,22 +35,7 @@ export function IngredientItem({
                 >
                     {/* Drag Handle Icon - Only this part triggers drag */}
                     <GestureDetector gesture={panGesture}>
-                        <View className={`p-2 -m-2 ${isActive ? "opacity-60" : "opacity-40"}`}>
-                            <View className="flex-col gap-0.5">
-                                <View className="flex-row gap-0.5">
-                                    <View className="h-1 w-1 rounded-full bg-foreground" />
-                                    <View className="h-1 w-1 rounded-full bg-foreground" />
-                                </View>
-                                <View className="flex-row gap-0.5">
-                                    <View className="h-1 w-1 rounded-full bg-foreground" />
-                                    <View className="h-1 w-1 rounded-full bg-foreground" />
-                                </View>
-                                <View className="flex-row gap-0.5">
-                                    <View className="h-1 w-1 rounded-full bg-foreground" />
-                                    <View className="h-1 w-1 rounded-full bg-foreground" />
-                                </View>
-                            </View>
-                        </View>
+                        <DotsSixVerticalIcon size={20} color="#6b5e4c" weight="bold" />
                     </GestureDetector>
 
                     {/* Ingredient Display - Clickable to edit */}
