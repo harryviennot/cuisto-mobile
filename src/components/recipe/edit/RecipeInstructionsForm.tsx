@@ -439,7 +439,7 @@ export function RecipeInstructionsForm({ control }: RecipeInstructionsFormProps)
               onDragEnd={handleDragEnd}
               keyExtractor={(item: FlatListItem) => item.id}
               renderItem={renderDraggableItem}
-              activationDelay={500}
+              activationDelay={100}
               autoscrollThreshold={50}
               autoscrollSpeed={10}
             />

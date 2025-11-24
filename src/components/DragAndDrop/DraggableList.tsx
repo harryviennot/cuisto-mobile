@@ -250,7 +250,7 @@ export function DraggableList<T>({
 
               // No movement or invalid destination, just end the drag
               gestureTranslationY.value = withSpring(0, {
-                damping: 20,
+                damping: 45,
                 stiffness: 200,
                 mass: 0.5
               }, (finished) => {

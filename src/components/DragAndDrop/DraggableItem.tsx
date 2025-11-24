@@ -79,7 +79,7 @@ export function DraggableItem({
     }
 
     // Tighter spring config for less "bouncy" feel
-    shiftY.value = withSpring(targetShift, { damping: 25, stiffness: 300 });
+    shiftY.value = withSpring(targetShift, { damping: 40, stiffness: 300 });
   }, [activeIndex, destIndex, index, isActive, itemHeight, itemLayouts, shiftY]);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -102,7 +102,7 @@ export function DraggableItem({
     >
       <Animated.View
         style={[styles.itemContainer, animatedStyle]}
-        layout={LinearTransition.springify().damping(20).stiffness(200)}
+        layout={LinearTransition.springify().damping(45).stiffness(200)}
       >
         {children}
       </Animated.View>

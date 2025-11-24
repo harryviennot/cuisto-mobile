@@ -24,7 +24,7 @@ export function GroupHeader({
     const isLast = groupIndex >= totalGroups - 1;
 
     const content = (
-        <View className="mb-3 mt-2 flex-row items-center gap-3">
+        <View className="mb-3 mt-8 flex-row items-center gap-3">
             {/* Group reorder arrows */}
             <View className="flex-row gap-1">
                 <Pressable
@@ -45,7 +45,7 @@ export function GroupHeader({
                 </Pressable>
             </View>
 
-            <Text className="font-bold shrink-0 text-xs uppercase tracking-widest text-foreground-tertiary">
+            <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary">
                 {groupName}
             </Text>
             <View className="h-px flex-1 bg-border-light" />
