@@ -21,7 +21,7 @@ export const aiRecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps
 
   const handlePress = () => {
     // Navigate to recipe detail page for saved recipes
-    router.push(`/recipe/${recipe.id}` as any);
+    router.push(`/recipe/${recipe.id}`);
   };
 
   // Calculate total time

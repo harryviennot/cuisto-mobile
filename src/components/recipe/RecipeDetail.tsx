@@ -35,7 +35,7 @@ interface RecipeDetailProps {
 
 export const RecipeDetail: React.FC<RecipeDetailProps> = ({
   recipe,
-  onBack = () => {},
+  onBack = () => { },
   isDraft = false,
   isEditing = false,
   onSave,
@@ -134,10 +134,10 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
     const contentWrapperProps = isTabletLandscape
       ? { className: "flex-1" }
       : {
-          showsVerticalScrollIndicator: false,
-          className: "flex-1",
-          contentContainerStyle: { paddingBottom: 0 },
-        };
+        showsVerticalScrollIndicator: false,
+        className: "flex-1",
+        contentContainerStyle: { paddingBottom: 0 },
+      };
 
     return (
       <View
@@ -219,7 +219,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
               onSaveRecipe={() => onSave?.()}
               isOwner={isOwner}
               onEdit={() => router.push(`/recipe/${recipe.id}/edit`)}
-              onShare={() => {}}
+              onShare={() => { }}
               onStartCooking={() => setIsCooking(true)}
               isDraft={isDraft}
               isEditing={isEditing}
@@ -284,7 +284,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
         scrollY={scrollY}
         onBackPress={!isDraft ? onBack : undefined}
         // onMenuPress={setIsActionSheetVisible(true)}
-        onMenuPress={!isDraft ? () => {} : undefined}
+        onMenuPress={!isDraft ? () => { } : undefined}
         animationConfig={{
           scrollThresholdStart,
           scrollThresholdEnd,

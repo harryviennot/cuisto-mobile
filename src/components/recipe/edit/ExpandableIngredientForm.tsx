@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, TextInput as RNTextInput } from "react-native";
 import { PlusIcon, CheckIcon } from "phosphor-react-native";
 import { ShadowItem } from "@/components/ShadowedSection";
@@ -22,20 +22,33 @@ export function ExpandableIngredientForm({
     onToggle,
     onSave,
 }: ExpandableIngredientFormProps) {
+    console.log("Ingredient:", ingredient);
     const { isTablet } = useDeviceType();
-    const [name, setName] = useState(ingredient?.name || "");
-    const [quantity, setQuantity] = useState(ingredient?.quantity || "");
-    const [unit, setUnit] = useState(ingredient?.unit || "");
-    const [notes, setNotes] = useState(ingredient?.notes || "");
+    const [name, setName] = useState(ingredient?.name ?? "");
+    const [quantity, setQuantity] = useState<string>(
+        ingredient?.quantity != null ? String(ingredient.quantity) : ""
+    );
+    const [unit, setUnit] = useState(ingredient?.unit ?? "");
+    const [notes, setNotes] = useState(ingredient?.notes ?? "");
+
+    // Sync state with ingredient prop when it changes (for edit mode)
+    useEffect(() => {
+        if (ingredient && isExpanded) {
+            setName(ingredient.name ?? "");
+            setQuantity(ingredient.quantity != null ? String(ingredient.quantity) : "");
+            setUnit(ingredient.unit ?? "");
+            setNotes(ingredient.notes ?? "");
+        }
+    }, [ingredient, isExpanded]);
 
     const handleSave = () => {
         if (!name.trim()) return;
 
         const savedIngredient: Ingredient = {
             name: name.trim(),
-            quantity: quantity.trim() || undefined,
-            unit: unit.trim() || undefined,
-            notes: notes.trim() || undefined,
+            quantity: quantity?.trim() || undefined,
+            unit: unit?.trim() || undefined,
+            notes: notes?.trim() || undefined,
             group:
                 mode === "edit" && ingredient?.group
                     ? ingredient.group

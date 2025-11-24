@@ -2,7 +2,7 @@ import "@/global.css";
 import { useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useSegments } from "expo-router";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SearchProvider } from "@/contexts/SearchContext";
 import { StatusBar } from "react-native";
@@ -42,6 +42,8 @@ export default function RootLayout() {
     PlayfairDisplay_500Medium,
   });
 
+  const segments = useSegments();
+
   useEffect(() => {
     // Wait for i18n to be ready
     if (i18n.isInitialized) {
@@ -68,7 +70,7 @@ export default function RootLayout() {
     return null;
   }
 
-  console.log("LOADED");
+  console.log(segments);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

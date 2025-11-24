@@ -53,7 +53,7 @@ export function RecipeMainInfoForm({ control }: RecipeMainInfoFormProps) {
                   </View>
                 </View>
               ) : (
-                <View className="aspect-[4/1] w-full items-center justify-center bg-surface-texture-light">
+                <View className="aspect-[3/2] w-full items-center justify-center bg-surface-texture-light">
                   <Camera size={48} color="#334d43" weight="bold" />
                   <Text className="mt-3 text-sm font-semibold text-foreground-heading">
                     Add Recipe Photo

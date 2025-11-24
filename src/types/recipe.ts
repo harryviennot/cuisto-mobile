@@ -21,19 +21,19 @@ export enum DifficultyLevel {
 
 export interface Ingredient {
   name: string;
-  quantity?: string;
-  unit?: string;
-  notes?: string;
-  group?: string;
+  quantity?: string | null;
+  unit?: string | null;
+  notes?: string | null;
+  group?: string | null;
 }
 
 export interface Instruction {
   step_number: number;
   title: string;
   description: string;
-  timer_minutes?: number;
-  image_url?: string;
-  group?: string;
+  timer_minutes?: number | null;
+  image_url?: string | null;
+  group?: string | null;
 }
 
 export interface Timings {
