@@ -9,16 +9,18 @@ import {
   UIManager,
 } from "react-native";
 import { Control, useController } from "react-hook-form";
-import { XIcon, PlusIcon, CaretUpIcon, CaretDownIcon, CheckIcon } from "phosphor-react-native";
-import DraggableFlatList, {
-  ScaleDecorator,
-  RenderItemParams,
-} from "react-native-draggable-flatlist";
+import { XIcon, PlusIcon } from "phosphor-react-native";
+import { DraggableList } from "../../DragAndDrop/DraggableList";
+import { RenderItemParams } from "../../DragAndDrop/types";
 import * as Haptics from "expo-haptics";
 import { ShadowItem } from "@/components/ShadowedSection";
 import type { RecipeEditFormData } from "@/schemas/recipe.schema";
 import type { Ingredient } from "@/types/recipe";
 import { useDeviceType } from "@/hooks/useDeviceType";
+
+import { ExpandableIngredientForm } from "./ExpandableIngredientForm";
+import { IngredientItem } from "./IngredientItem";
+import { GroupHeader } from "./GroupHeader";
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -33,160 +35,6 @@ interface RecipeIngredientsFormProps {
 type FlatListItem =
   | { type: "header"; groupName: string; id: string }
   | { type: "ingredient"; ingredient: Ingredient; ingredientId: string; id: string };
-
-interface ExpandableIngredientFormProps {
-  mode: "add" | "edit";
-  groupName: string;
-  ingredient?: Ingredient;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onSave: (ingredient: Ingredient) => void;
-}
-
-function ExpandableIngredientForm({
-  mode,
-  groupName,
-  ingredient,
-  isExpanded,
-  onToggle,
-  onSave,
-}: ExpandableIngredientFormProps) {
-  const { isTablet } = useDeviceType();
-  const [name, setName] = useState(ingredient?.name || "");
-  const [quantity, setQuantity] = useState(ingredient?.quantity || "");
-  const [unit, setUnit] = useState(ingredient?.unit || "");
-  const [notes, setNotes] = useState(ingredient?.notes || "");
-
-  const handleSave = () => {
-    if (!name.trim()) return;
-
-    const savedIngredient: Ingredient = {
-      name: name.trim(),
-      quantity: quantity.trim() || undefined,
-      unit: unit.trim() || undefined,
-      notes: notes.trim() || undefined,
-      group:
-        mode === "edit" && ingredient?.group
-          ? ingredient.group
-          : groupName === "Main"
-            ? undefined
-            : groupName,
-    };
-
-    onSave(savedIngredient);
-
-    // Reset form only in add mode
-    if (mode === "add") {
-      setName("");
-      setQuantity("");
-      setUnit("");
-      setNotes("");
-    }
-  };
-
-  return (
-    <View>
-      {/* Collapsed state - button */}
-      {!isExpanded && (
-        <Pressable onPress={onToggle}>
-          <ShadowItem className="flex-row items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border-light bg-white py-3">
-            <PlusIcon size={20} color="#334d43" weight="bold" />
-            <Text className="text-sm font-semibold text-foreground">
-              {mode === "add" ? "Add Ingredient" : ingredient?.name || "Edit Ingredient"}
-            </Text>
-          </ShadowItem>
-        </Pressable>
-      )}
-
-      {/* Expanded state - form */}
-      {isExpanded && (
-        <ShadowItem className="rounded-xl border-2 border-primary/30 bg-primary/5 p-4">
-          <Text className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
-            {mode === "add" ? `Add Ingredient` : "Edit Ingredient"}
-          </Text>
-
-          {/* Main Row: Quantity, Unit, Name */}
-          <View className={`mb-3 flex-row items-center ${isTablet ? "gap-2.5" : "gap-2"}`}>
-            {/* Quantity */}
-            <View style={{ width: isTablet ? 90 : 70 }}>
-              <RNTextInput
-                value={quantity}
-                onChangeText={setQuantity}
-                placeholder="Qty"
-                placeholderTextColor="#a89f8d"
-                className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
-                keyboardType="numeric"
-                returnKeyType="next"
-              />
-            </View>
-
-            {/* Unit */}
-            <View style={{ width: isTablet ? 110 : 85 }}>
-              <RNTextInput
-                value={unit}
-                onChangeText={setUnit}
-                placeholder="Unit"
-                placeholderTextColor="#a89f8d"
-                className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
-                autoCapitalize="none"
-                returnKeyType="next"
-              />
-            </View>
-
-            {/* Ingredient Name */}
-            <View className="flex-1">
-              <RNTextInput
-                value={name}
-                onChangeText={setName}
-                placeholder="Ingredient name *"
-                placeholderTextColor="#a89f8d"
-                className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
-                autoCapitalize="words"
-                returnKeyType="next"
-              />
-            </View>
-          </View>
-
-          {/* Notes */}
-          <View className="mb-4 w-full">
-            <RNTextInput
-              value={notes}
-              onChangeText={setNotes}
-              placeholder="Notes (e.g., chopped, optional)"
-              placeholderTextColor="#a89f8d"
-              className="rounded-lg border border-border-button bg-white px-3 py-3 text-base text-foreground"
-              autoCapitalize="none"
-              returnKeyType="done"
-              onSubmitEditing={handleSave}
-            />
-          </View>
-
-          {/* Action Buttons */}
-          <View className={`flex-row ${isTablet ? "gap-3" : "gap-2"}`}>
-            <Pressable onPress={onToggle} className="flex-1">
-              <ShadowItem className="items-center rounded-lg border border-border-button bg-white py-3">
-                <Text className="text-sm font-semibold text-foreground">Cancel</Text>
-              </ShadowItem>
-            </Pressable>
-            <Pressable onPress={handleSave} className="flex-1" disabled={!name.trim()}>
-              <ShadowItem
-                variant="primary"
-                className={`flex-row items-center justify-center gap-1.5 rounded-lg py-3 ${
-                  !name.trim() ? "opacity-50" : ""
-                }`}
-              >
-                <CheckIcon size={16} color="#FFFFFF" weight="bold" />
-                <Text className="text-sm font-semibold text-white">
-                  {mode === "add" ? "Add" : "Save"}
-                </Text>
-              </ShadowItem>
-            </Pressable>
-          </View>
-        </ShadowItem>
-      )}
-    </View>
-  );
-}
 
 export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
   const {
@@ -286,142 +134,6 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
     });
 
     onIngredientsChange(newIngredients);
-  };
-
-  // Render individual item in the draggable list
-  const renderDraggableItem = ({ item, drag, isActive }: RenderItemParams<FlatListItem>) => {
-    // Render group header (non-draggable)
-    if (item.type === "header") {
-      const groupIndex = groupNames.indexOf(item.groupName);
-      const isLastGroup = groupIndex === groupNames.length - 1;
-
-      return (
-        <View className="mb-3 mt-2 flex-row items-center gap-3">
-          {/* Group reorder arrows */}
-          <View className="flex-row gap-1">
-            <Pressable
-              hitSlop={4}
-              onPress={() => moveGroupUp(item.groupName)}
-              disabled={groupIndex === 0}
-              className={groupIndex === 0 ? "opacity-30" : ""}
-            >
-              <CaretUpIcon size={16} color="#3a3226" weight="bold" />
-            </Pressable>
-            <Pressable
-              hitSlop={4}
-              onPress={() => moveGroupDown(item.groupName)}
-              disabled={isLastGroup}
-              className={isLastGroup ? "opacity-30" : ""}
-            >
-              <CaretDownIcon size={16} color="#3a3226" weight="bold" />
-            </Pressable>
-          </View>
-
-          <Text className="font-bold shrink-0 text-xs uppercase tracking-widest text-foreground-tertiary">
-            {item.groupName}
-          </Text>
-          <View className="h-px flex-1 bg-border-light" />
-        </View>
-      );
-    }
-
-    // Render ingredient item (draggable)
-    const { ingredient } = item;
-
-    // Find the current index in the ingredients array
-    const currentIndex = ingredients.findIndex(
-      (ing: Ingredient) =>
-        ing.name === ingredient.name &&
-        ing.quantity === ingredient.quantity &&
-        ing.unit === ingredient.unit &&
-        ing.group === ingredient.group
-    );
-
-    const isEditing = editingIndex === currentIndex && currentIndex !== -1;
-
-    if (isEditing) {
-      return (
-        <View className="mb-2">
-          <ExpandableIngredientForm
-            mode="edit"
-            groupName={ingredient.group || "Main"}
-            ingredient={ingredient}
-            isExpanded={isEditing}
-            onToggle={() => setEditingIndexAnimated(null)}
-            onSave={(updated: Ingredient) => editIngredient(currentIndex, updated)}
-          />
-        </View>
-      );
-    }
-
-    return (
-      <ScaleDecorator>
-        <Pressable
-          onLongPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            drag();
-          }}
-          disabled={isActive}
-          delayLongPress={500}
-        >
-          <ShadowItem
-            className={`mb-2 flex-row items-center gap-3 rounded-xl p-3 pr-4 ${
-              isActive ? "border-2 border-primary bg-primary/5" : ""
-            }`}
-            // style={
-            //   isActive
-            //     ? {
-            //         shadowColor: "#334d43",
-            //         shadowOffset: { width: 0, height: 8 },
-            //         shadowOpacity: 0.3,
-            //         shadowRadius: 12,
-            //         elevation: 8,
-            //       }
-            //     : undefined
-            // }
-          >
-            {/* Drag Handle Icon */}
-            <View className={`${isActive ? "opacity-60" : "opacity-40"}`}>
-              <View className="flex-col gap-0.5">
-                <View className="flex-row gap-0.5">
-                  <View className="h-1 w-1 rounded-full bg-foreground" />
-                  <View className="h-1 w-1 rounded-full bg-foreground" />
-                </View>
-                <View className="flex-row gap-0.5">
-                  <View className="h-1 w-1 rounded-full bg-foreground" />
-                  <View className="h-1 w-1 rounded-full bg-foreground" />
-                </View>
-                <View className="flex-row gap-0.5">
-                  <View className="h-1 w-1 rounded-full bg-foreground" />
-                  <View className="h-1 w-1 rounded-full bg-foreground" />
-                </View>
-              </View>
-            </View>
-
-            {/* Ingredient Display - Clickable to edit */}
-            <Pressable
-              className="flex-1"
-              onPress={() => currentIndex !== -1 && setEditingIndexAnimated(currentIndex)}
-            >
-              <Text className="text-base text-foreground">
-                {ingredient.quantity && `${ingredient.quantity} `}
-                {ingredient.unit && `${ingredient.unit} `}
-                {ingredient.name}
-                {ingredient.notes && ` (${ingredient.notes})`}
-              </Text>
-            </Pressable>
-
-            {/* Delete Button */}
-            <Pressable
-              hitSlop={8}
-              onPress={() => currentIndex !== -1 && removeIngredient(currentIndex)}
-            >
-              <XIcon size={20} color="#3a3226" weight="bold" />
-            </Pressable>
-          </ShadowItem>
-        </Pressable>
-      </ScaleDecorator>
-    );
   };
 
   // Add a new group
@@ -556,6 +268,67 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
     setEditingIndexAnimated(null);
   };
 
+  // Render individual item in the draggable list
+  const renderDraggableItem = ({ item, drag, isActive, ...rest }: RenderItemParams<FlatListItem>) => {
+    // @ts-ignore - Extract internal props passed from DraggableList
+    const { internalProps } = rest;
+
+    // Render group header (non-draggable but shifts)
+    if (item.type === "header") {
+      const groupIndex = groupNames.indexOf(item.groupName);
+      return (
+        <GroupHeader
+          groupName={item.groupName}
+          groupIndex={groupIndex}
+          totalGroups={groupNames.length}
+          onMoveUp={() => moveGroupUp(item.groupName)}
+          onMoveDown={() => moveGroupDown(item.groupName)}
+          internalProps={internalProps}
+        />
+      );
+    }
+
+    // Render ingredient item (draggable)
+    const { ingredient } = item;
+
+    // Find the current index in the ingredients array
+    const currentIndex = ingredients.findIndex(
+      (ing: Ingredient) =>
+        ing.name === ingredient.name &&
+        ing.quantity === ingredient.quantity &&
+        ing.unit === ingredient.unit &&
+        ing.group === ingredient.group
+    );
+
+    const isEditing = editingIndex === currentIndex && currentIndex !== -1;
+
+    if (isEditing) {
+      return (
+        <View className="mb-2">
+          <ExpandableIngredientForm
+            mode="edit"
+            groupName={ingredient.group || "Main"}
+            ingredient={ingredient}
+            isExpanded={isEditing}
+            onToggle={() => setEditingIndexAnimated(null)}
+            onSave={(updated: Ingredient) => editIngredient(currentIndex, updated)}
+          />
+        </View>
+      );
+    }
+
+    return (
+      <IngredientItem
+        ingredient={ingredient}
+        isActive={isActive}
+        drag={drag}
+        onEdit={() => currentIndex !== -1 && setEditingIndexAnimated(currentIndex)}
+        onDelete={() => currentIndex !== -1 && removeIngredient(currentIndex)}
+        internalProps={internalProps}
+      />
+    );
+  };
+
   return (
     <View className="gap-2">
       {/* Section Header */}
@@ -589,9 +362,8 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
 
           <ShadowItem
             variant="primary"
-            className={`items-center justify-center rounded-xl px-4 ${
-              !newGroupName.trim() || groupNames.includes(newGroupName.trim()) ? "opacity-50" : ""
-            }`}
+            className={`items-center justify-center rounded-xl px-4 ${!newGroupName.trim() || groupNames.includes(newGroupName.trim()) ? "opacity-50" : ""
+              }`}
             onPress={addGroup}
             disabled={!newGroupName.trim() || groupNames.includes(newGroupName.trim())}
           >
@@ -618,15 +390,16 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
       </View>
 
       {/* Ingredients by Group - Drag and Drop List */}
-      <View className="">
+      <View>
         {flatData.length > 0 ? (
-          <DraggableFlatList
+          <DraggableList
             data={flatData}
             onDragEnd={handleDragEnd}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item: FlatListItem) => item.id}
             renderItem={renderDraggableItem}
-            containerStyle={{ flex: 1 }}
-            scrollEnabled={false}
+            activationDelay={500}
+            autoscrollThreshold={50}
+            autoscrollSpeed={10}
           />
         ) : (
           <View className="rounded-xl border border-dashed border-border-light bg-surface-elevated p-4">
@@ -659,11 +432,11 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
             }
           />
         </View>
-      </View>
+      </View >
 
       {ingredientsError && (
         <Text className="mt-1.5 text-sm text-red-600">{ingredientsError.message}</Text>
       )}
-    </View>
+    </View >
   );
 }

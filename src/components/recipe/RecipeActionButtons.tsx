@@ -33,6 +33,8 @@ export function RecipeActionButtons({
 }: RecipeActionButtonsProps) {
   const { t } = useTranslation();
 
+  console.log(isOwner, isDraft, isEditing);
+
   return (
     <View className="flex-row gap-3 mb-6">
       {/* Start Cooking Button */}
@@ -58,12 +60,11 @@ export function RecipeActionButtons({
       )}
 
       {/* Edit Button */}
-      {isOwner ||
-        (!isEditing && (
-          <ShadowItem onPress={onEdit} className="w-14 h-14 bg-white">
-            <PencilIcon size={20} color="#334d43" weight="regular" />
-          </ShadowItem>
-        ))}
+      {isOwner && !isEditing && (
+        <ShadowItem onPress={onEdit} className="w-14 h-14 bg-white">
+          <PencilIcon size={20} color="#334d43" weight="regular" />
+        </ShadowItem>
+      )}
 
       {/* Share Button */}
       {isDraft ? (

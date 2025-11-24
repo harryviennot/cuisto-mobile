@@ -2,14 +2,15 @@
  * Recipe edit component with iPad landscape support
  * Displays recipe preview and edit forms in a two-column layout on tablets
  */
-import React from "react";
-import { View, Alert, Text } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import React, { useRef } from "react";
+import { View, Alert, Text, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { useUpdateRecipe } from "@/hooks/useRecipes";
+import { DragProvider, useDragContext } from "@/components/DragAndDrop";
 
 import type { Recipe } from "@/types/recipe";
 import { DifficultyLevel } from "@/types/recipe";
@@ -27,10 +28,12 @@ interface RecipeEditProps {
   onDiscard?: () => void;
 }
 
-export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscard }) => {
+// Inner component that uses the drag context
+const RecipeEditForm: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscard }) => {
   const insets = useSafeAreaInsets();
   const { isTablet, isTabletLandscape } = useDeviceType();
   const updateRecipeMutation = useUpdateRecipe();
+  const { isDragging, rootScrollViewRef, scrollY } = useDragContext();
 
   // Single form instance managing all recipe data
   const {
@@ -38,7 +41,7 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
     handleSubmit,
     watch,
     reset,
-    formState: { isDirty, errors },
+    formState: { isDirty },
   } = useForm<RecipeEditFormData>({
     resolver: zodResolver(recipeEditSchema),
     defaultValues: {
@@ -139,6 +142,7 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
   // Render right column (form)
   const renderForm = () => (
     <KeyboardAwareScrollView
+      ref={rootScrollViewRef as any}
       className={`${isTabletLandscape ? "w-[55%] bg-surface-elevated" : "flex-1 bg-surface"}`}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{
@@ -147,7 +151,11 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
       }}
       bottomOffset={64}
       keyboardShouldPersistTaps="handled"
-      nestedScrollEnabled
+      scrollEnabled={!isDragging}
+      onScroll={(e) => {
+        scrollY.value = e.nativeEvent.contentOffset.y;
+      }}
+      scrollEventThrottle={16}
     >
       <View className={`${isTablet ? "px-10 py-8" : "px-4 pb-8 pt-6"} gap-8`}>
         {/* Main Info Form */}
@@ -209,5 +217,16 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
         renderForm()
       )}
     </View>
+  );
+};
+
+// Wrap with DragProvider to enable drag context
+export const RecipeEdit: React.FC<RecipeEditProps> = (props) => {
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  return (
+    <DragProvider rootScrollViewRef={scrollViewRef}>
+      <RecipeEditForm {...props} />
+    </DragProvider>
   );
 };
