@@ -48,6 +48,14 @@ export function DraggableList<T>({
   const isTouchActive = useSharedValue(false);
   const startScrollY = useSharedValue(0);
 
+  // Shared value to track destination index on UI thread
+  const destIndexSV = useSharedValue<number | null>(null);
+
+  // Sync destIndexSV with currentDestIndex
+  useEffect(() => {
+    destIndexSV.value = currentDestIndex;
+  }, [currentDestIndex, destIndexSV]);
+
   // Calculate total translation including scroll offset compensation
   // This ensures the item stays under the finger even when auto-scrolling
   // and the finger is held still (gesture doesn't update, but scrollY does)
@@ -111,8 +119,48 @@ export function DraggableList<T>({
           })
           .onEnd(() => {
             isTouchActive.value = false;
-            gestureTranslationY.value = withSpring(0);
-            runOnJS(handleDragEnd)();
+
+            // Animate to destination before finishing
+            const destIndex = destIndexSV.value;
+            if (destIndex !== null && destIndex !== -1 && activeItemHeight) {
+              const targetY = (destIndex - index) * activeItemHeight;
+
+              // We need to account for the scroll delta that happened during drag
+              // totalTranslateY = gestureTranslationY + scrollDelta
+              // We want totalTranslateY to end up at targetY
+              // So we animate gestureTranslationY to (targetY - scrollDelta)
+              // But since scrollDelta keeps changing if we scroll, we might just want to freeze scroll?
+              // Actually, once we release, auto-scroll stops.
+
+              // Simpler approach: animate gestureTranslationY to reach the target visual position
+              // The visual position is relative to the item's original slot.
+              // targetY is the relative distance to the new slot.
+
+              // However, totalTranslateY includes scroll compensation.
+              // If we want the item to land at 'targetY' relative to its original position in the list content,
+              // we should animate totalTranslateY to targetY?
+              // No, totalTranslateY is a derived value. We can only animate gestureTranslationY.
+
+              // Let's calculate the required gestureTranslationY
+              const currentScrollDelta = scrollY.value - startScrollY.value;
+              const requiredGestureY = targetY - currentScrollDelta;
+
+              gestureTranslationY.value = withSpring(requiredGestureY, {
+                damping: 20,
+                stiffness: 200,
+                mass: 0.5
+              }, (finished) => {
+                if (finished) {
+                  runOnJS(handleDragEnd)();
+                }
+              });
+            } else {
+              gestureTranslationY.value = withSpring(0, {}, (finished) => {
+                if (finished) {
+                  runOnJS(handleDragEnd)();
+                }
+              });
+            }
           })
           .onTouchesUp(() => {
             isTouchActive.value = false;

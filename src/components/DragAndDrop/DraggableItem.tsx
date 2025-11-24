@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -8,7 +8,6 @@ import Animated, {
   SharedValue,
   LinearTransition
 } from "react-native-reanimated";
-import { GestureDetector, PanGesture } from "react-native-gesture-handler";
 
 interface DraggableItemProps {
   children: React.ReactNode;
@@ -17,7 +16,6 @@ interface DraggableItemProps {
   activeIndex: number | null;
   destIndex: number | null;
   itemHeight: number;
-  panGesture: PanGesture;
   dragTranslationY: SharedValue<number>;
   onLayout?: (event: any) => void;
 }
@@ -29,7 +27,6 @@ export function DraggableItem({
   activeIndex,
   destIndex,
   itemHeight,
-  panGesture,
   dragTranslationY,
   onLayout,
 }: DraggableItemProps) {
@@ -76,7 +73,7 @@ export function DraggableItem({
     }
 
     // Tighter spring config for less "bouncy" feel
-    shiftY.value = withSpring(targetShift, { damping: 50, stiffness: 300 });
+    shiftY.value = withSpring(targetShift, { damping: 25, stiffness: 300 });
   }, [activeIndex, destIndex, index, isActive, itemHeight, shiftY]);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -92,20 +89,18 @@ export function DraggableItem({
   });
 
   return (
-    <GestureDetector gesture={panGesture}>
-      <View
-        style={[styles.container, { zIndex: isActive ? 9999 : 1 }]}
-        collapsable={false}
-        onLayout={onLayout}
+    <View
+      style={[styles.container, { zIndex: isActive ? 9999 : 1 }]}
+      collapsable={false}
+      onLayout={onLayout}
+    >
+      <Animated.View
+        style={[styles.itemContainer, animatedStyle]}
+        layout={LinearTransition.springify().damping(20).stiffness(200)}
       >
-        <Animated.View
-          style={[styles.itemContainer, animatedStyle]}
-          layout={LinearTransition.springify().damping(50).stiffness(200)}
-        >
-          {children}
-        </Animated.View>
-      </View>
-    </GestureDetector>
+        {children}
+      </Animated.View>
+    </View>
   );
 }
 
