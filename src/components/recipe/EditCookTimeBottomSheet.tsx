@@ -2,10 +2,11 @@ import "@/global.css";
 import { View, Text, Pressable } from "react-native";
 import { useRef, useCallback, useEffect, useState } from "react";
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
-import { X, Minus, Plus } from "phosphor-react-native";
+import { X } from "phosphor-react-native";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { ShadowItem } from "../ShadowedSection";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TimeAdjuster } from "./TimeAdjuster";
 
 interface EditCookTimeBottomSheetProps {
   visible: boolean;
@@ -35,10 +36,6 @@ export function EditCookTimeBottomSheet({
   // Work directly with total minutes for more flexibility
   const [prepTotalMinutes, setPrepTotalMinutes] = useState(initialPrepMinutes);
   const [cookTotalMinutes, setCookTotalMinutes] = useState(initialCookMinutes);
-
-  // Long press interval refs
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const delayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update local state when initial values change
   useEffect(() => {
@@ -109,97 +106,6 @@ export function EditCookTimeBottomSheet({
     return `${hours}h ${mins}m`;
   };
 
-  // Clear any running interval and delay timeout
-  const clearAutoIncrement = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    if (delayTimeoutRef.current) {
-      clearTimeout(delayTimeoutRef.current);
-      delayTimeoutRef.current = null;
-    }
-  };
-
-  // Start auto-increment on long press with 500ms delay
-  const startAutoIncrement = (
-    onChange: React.Dispatch<React.SetStateAction<number>>,
-    increment: number
-  ) => {
-    // Wait 500ms before starting auto-increment
-    const timeout = setTimeout(() => {
-      // Start interval for continued changes
-      const interval = setInterval(() => {
-        onChange((prev: number) => Math.max(0, prev + increment));
-      }, 100); // Repeat every 100ms
-
-      intervalRef.current = interval as any;
-    }, 500); // 500ms delay before auto-increment starts
-
-    delayTimeoutRef.current = timeout as any;
-  };
-
-  // Time adjustment component
-  const TimeAdjuster = ({
-    label,
-    value,
-    onChange,
-    presets,
-    originalValue,
-  }: {
-    label: string;
-    value: number;
-    onChange: React.Dispatch<React.SetStateAction<number>>;
-    presets: { label: string; minutes: number }[];
-    originalValue?: number;
-  }) => (
-    <View className={isTabletLandscape ? "flex-1" : "mb-4"}>
-      <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-lg font-semibold text-foreground-heading">{label}</Text>
-        {originalValue !== undefined && (
-          <Text className="text-sm text-foreground-muted">
-            Original: {formatTime(originalValue)}
-          </Text>
-        )}
-      </View>
-
-      {/* Time Controls */}
-      <ShadowItem className="rounded-xl p-6 mb-4">
-        {/* Fine Controls - 1 minute increments with long press */}
-        <View className="flex-row items-center justify-center gap-3">
-          <Pressable
-            onPress={() => onChange(Math.max(0, value - 1))}
-            onPressIn={() => startAutoIncrement(onChange, -1)}
-            onPressOut={clearAutoIncrement}
-            onTouchEnd={clearAutoIncrement}
-            className="w-14 h-14 items-center justify-center"
-          >
-            <Minus size={32} color="#3a3226" weight="bold" />
-          </Pressable>
-
-          <View className="flex-1 items-center">
-            <Text
-              className="text-4xl text-foreground-heading"
-              style={{ fontFamily: "PlayfairDisplay_700Bold" }}
-            >
-              {formatTime(value)}
-            </Text>
-          </View>
-
-          <Pressable
-            onPress={() => onChange(value + 1)}
-            onPressIn={() => startAutoIncrement(onChange, 1)}
-            onPressOut={clearAutoIncrement}
-            onTouchEnd={clearAutoIncrement}
-            className="w-14 h-14 items-center justify-center"
-          >
-            <Plus size={32} color="#3a3226" weight="bold" />
-          </Pressable>
-        </View>
-      </ShadowItem>
-    </View>
-  );
-
   return (
     <BottomSheetModal
       ref={bottomSheetModalRef}
@@ -251,8 +157,8 @@ export function EditCookTimeBottomSheet({
               label="Prep Time"
               value={prepTotalMinutes}
               onChange={setPrepTotalMinutes}
-              presets={prepPresets}
               originalValue={originalPrepMinutes}
+              increment={1}
             />
 
             {/* Cook Time Section */}
@@ -260,8 +166,8 @@ export function EditCookTimeBottomSheet({
               label="Cook Time"
               value={cookTotalMinutes}
               onChange={setCookTotalMinutes}
-              presets={cookPresets}
               originalValue={originalCookMinutes}
+              increment={1}
             />
           </View>
         </View>
