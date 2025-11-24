@@ -132,25 +132,59 @@ export function DraggableList<T>({
     console.log(`   From index: ${fromIndex}, To index: ${toIndex}`);
     console.log(`   Total layouts in map: ${layouts.size}`);
 
+    // Get the active item's actual measured height
+    const activeItemLayout = layouts.get(fromIndex);
+    const activeItemHeight = activeItemLayout?.height || 0;
+    console.log(`   📦 Active item (index ${fromIndex}) height: ${activeItemHeight.toFixed(2)}px`);
+
+    // Note: Layout measurements do NOT include margins
+    // We need to apply a small correction factor per item to account for
+    // spacing/overlap between the ghost space and final position
+    // Instructions use 0.75px correction, headers may need different
+    const INSTRUCTION_CORRECTION = 0.75;
+    const HEADER_CORRECTION = 2.0; // Headers have more spacing (mt-2)
+
+    // Helper to determine if an item is a header by checking its height
+    const isHeader = (index: number) => {
+      const height = layouts.get(index)?.height || 0;
+      return height < 50; // Headers are ~34px, instructions are ~132px
+    };
+
     let offset = 0;
+    let itemCount = 0;
+    let totalCorrection = 0;
+
     if (fromIndex < toIndex) {
       console.log(`   📏 Moving DOWN - Items between ${fromIndex + 1} and ${toIndex}:`);
       for (let i = fromIndex + 1; i <= toIndex; i++) {
         const itemHeight = layouts.get(i)?.height || 0;
-        console.log(`      Item ${i}: ${itemHeight.toFixed(2)}px`);
+        const correction = isHeader(i) ? HEADER_CORRECTION : INSTRUCTION_CORRECTION;
+        const itemType = isHeader(i) ? 'header' : 'instruction';
+        itemCount++;
+        totalCorrection += correction * itemCount;
+        console.log(`      Item ${i} (${itemType}): ${itemHeight.toFixed(2)}px - ${(correction * itemCount).toFixed(2)}px correction`);
         offset += itemHeight;
       }
+      offset -= totalCorrection;
     } else {
       console.log(`   📏 Moving UP - Items between ${toIndex} and ${fromIndex - 1}:`);
       for (let i = toIndex; i < fromIndex; i++) {
         const itemHeight = layouts.get(i)?.height || 0;
-        console.log(`      Item ${i}: ${itemHeight.toFixed(2)}px`);
+        const correction = isHeader(i) ? HEADER_CORRECTION : INSTRUCTION_CORRECTION;
+        const itemType = isHeader(i) ? 'header' : 'instruction';
+        itemCount++;
+        totalCorrection += correction * itemCount;
+        console.log(`      Item ${i} (${itemType}): ${itemHeight.toFixed(2)}px - ${(correction * itemCount).toFixed(2)}px correction`);
         offset -= itemHeight;
       }
+      offset += totalCorrection; // Add because we're going negative
     }
 
-    const ghostOffset = Math.round(offset);
-    console.log(`   ✨ Calculated offset: ${ghostOffset}px`);
+    console.log(`   📊 Summary: ${itemCount} items, raw offset: ${(fromIndex < toIndex ? offset + totalCorrection : offset - totalCorrection).toFixed(2)}px, correction: ${totalCorrection.toFixed(2)}px, final: ${offset.toFixed(2)}px`);
+
+    // Keep sub-pixel precision - don't round
+    const ghostOffset = offset;
+    console.log(`   ✨ Calculated offset: ${ghostOffset.toFixed(2)}px`);
     console.log(`   🎯 Starting animation to ghost offset...`);
 
     // Start the animation
