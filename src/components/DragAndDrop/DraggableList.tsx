@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
 import Animated, {
   useSharedValue,
@@ -15,41 +15,6 @@ import { useAutoScroll } from "./useAutoScroll";
 import { DraggableListProps } from "./types";
 import { useDragContext } from "./DragContext";
 
-// Helper to calculate where the ghost space is positioned
-// This is where items have shifted to create space for the dragged item
-function calculateGhostSpaceOffset(
-  fromIndex: number,
-  toIndex: number,
-  layouts: Map<number, any>
-): number {
-  'worklet';
-  if (fromIndex === toIndex) return 0;
-
-  // The ghost space is created by items shifting
-  // We need to calculate the cumulative Y offset of those shifts
-  let offset = 0;
-  const activeItemHeight = layouts.get(fromIndex)?.height || 0;
-
-  if (fromIndex < toIndex) {
-    // Moving down: items between fromIndex and toIndex shifted UP
-    // The ghost space is below us, so we need to move DOWN
-    // by the sum of heights of items that shifted
-    for (let i = fromIndex + 1; i <= toIndex; i++) {
-      const itemHeight = layouts.get(i)?.height || 0;
-      offset += itemHeight;
-    }
-  } else {
-    // Moving up: items between toIndex and fromIndex shifted DOWN
-    // The ghost space is above us, so we need to move UP (negative)
-    // by the sum of heights of items that shifted
-    for (let i = toIndex; i < fromIndex; i++) {
-      const itemHeight = layouts.get(i)?.height || 0;
-      offset -= itemHeight;
-    }
-  }
-
-  return offset;
-}
 
 export function DraggableList<T>({
   data,
@@ -73,6 +38,14 @@ export function DraggableList<T>({
     endDrag,
     setItemLayout,
   } = useDragAndDrop<T>(data);
+
+  // Create a ref that the worklet can access to get current layouts
+  const itemLayoutsRef = useRef(itemLayouts);
+
+  // Keep ref in sync with itemLayouts
+  useEffect(() => {
+    itemLayoutsRef.current = itemLayouts;
+  }, [itemLayouts]);
 
   const { startAutoScroll, stopAutoScroll } = useAutoScroll({
     scrollViewRef: rootScrollViewRef,
@@ -106,12 +79,21 @@ export function DraggableList<T>({
   }, [dragState.activeIndex, setIsDragging]);
 
   const handleDragEnd = useCallback(() => {
-    console.log("[DraggableList] Drag ended, cleaning up");
+    console.log("\n💥 [handleDragEnd] Called - about to update React state");
+    console.log("   Stopping auto-scroll and cleaning up...");
+
     stopAutoScroll();
     setIsDragging(false);
+
     endDrag((from, to, newData) => {
-      console.log("[DraggableList] Item moved from", from, "to", to);
+      console.log(`\n📊 [STATE UPDATE] React re-rendering with new order`);
+      console.log(`   Item moved from index ${from} → ${to}`);
+      console.log(`   New data length: ${newData.length}`);
+      console.log(`   Calling parent onDragEnd callback...`);
+
       onDragEnd({ data: newData, from, to });
+
+      console.log(`   ✨ State update complete! Item should now be at index ${to}\n`);
     });
   }, [endDrag, onDragEnd, stopAutoScroll, setIsDragging]);
 
@@ -130,10 +112,60 @@ export function DraggableList<T>({
   const handleItemLayout = useCallback(
     (index: number, event: any) => {
       const { layout } = event.nativeEvent;
+      console.log(`📐 [LAYOUT] Item ${index} measured: height=${layout.height.toFixed(2)}px, width=${layout.width.toFixed(2)}px`);
       setItemLayout(index, layout);
+
+      // Verify it was stored by checking the map right after
+      setTimeout(() => {
+        const stored = itemLayouts.get(index);
+        console.log(`   ✓ Item ${index} in map: ${stored ? stored.height.toFixed(2) + 'px' : 'NOT FOUND'}, total items in map: ${itemLayouts.size}`);
+      }, 0);
     },
-    [setItemLayout]
+    [setItemLayout, itemLayouts]
   );
+
+  // Helper function to calculate and animate to ghost offset
+  // Called from JS thread so it has access to current itemLayouts
+  const animateToGhostPosition = useCallback((fromIndex: number, toIndex: number) => {
+    const layouts = itemLayoutsRef.current;
+    console.log(`\n🎯 [animateToGhostPosition] Called from JS thread`);
+    console.log(`   From index: ${fromIndex}, To index: ${toIndex}`);
+    console.log(`   Total layouts in map: ${layouts.size}`);
+
+    let offset = 0;
+    if (fromIndex < toIndex) {
+      console.log(`   📏 Moving DOWN - Items between ${fromIndex + 1} and ${toIndex}:`);
+      for (let i = fromIndex + 1; i <= toIndex; i++) {
+        const itemHeight = layouts.get(i)?.height || 0;
+        console.log(`      Item ${i}: ${itemHeight.toFixed(2)}px`);
+        offset += itemHeight;
+      }
+    } else {
+      console.log(`   📏 Moving UP - Items between ${toIndex} and ${fromIndex - 1}:`);
+      for (let i = toIndex; i < fromIndex; i++) {
+        const itemHeight = layouts.get(i)?.height || 0;
+        console.log(`      Item ${i}: ${itemHeight.toFixed(2)}px`);
+        offset -= itemHeight;
+      }
+    }
+
+    const ghostOffset = Math.round(offset);
+    console.log(`   ✨ Calculated offset: ${ghostOffset}px`);
+    console.log(`   🎯 Starting animation to ghost offset...`);
+
+    // Start the animation
+    gestureTranslationY.value = withSpring(ghostOffset, {
+      damping: 20,
+      stiffness: 200,
+      mass: 0.5
+    }, (finished) => {
+      if (finished) {
+        console.log(`   ✅ Animation completed to: ${gestureTranslationY.value}px`);
+        console.log(`   🔄 Calling handleDragEnd to update state...`);
+        runOnJS(handleDragEnd)();
+      }
+    });
+  }, [gestureTranslationY, handleDragEnd]);
 
   return (
     <View style={styles.container}>
@@ -144,43 +176,52 @@ export function DraggableList<T>({
         // Create gesture for this specific item
         const panGesture = Gesture.Pan()
           .onStart(() => {
+            console.log(`\n🟢 [DRAG START] Item ${index}`);
+            console.log(`   Initial gestureTranslationY: ${gestureTranslationY.value}`);
+            console.log(`   Initial scrollY: ${scrollY.value}`);
+
             runOnJS(startDrag)(index);
             gestureTranslationY.value = 0;
             startScrollY.value = scrollY.value;
             runOnJS(setIsDragging)(true);
             isTouchActive.value = true;
+
+            console.log(`   After reset - gestureTranslationY: ${gestureTranslationY.value}`);
           })
           .onUpdate((event) => {
             gestureTranslationY.value = event.translationY;
             absoluteY.value = event.absoluteY;
+            // Uncomment for very detailed tracking during drag:
+            // console.log(`   [DRAGGING] translationY: ${event.translationY.toFixed(2)}, absoluteY: ${event.absoluteY.toFixed(2)}`);
           })
           .onEnd(() => {
+            console.log(`\n🔴 [DRAG END] Item ${index}`);
+            console.log(`   Current gestureTranslationY: ${gestureTranslationY.value}`);
+            console.log(`   Current scrollY: ${scrollY.value}`);
+            console.log(`   startScrollY: ${startScrollY.value}`);
+            console.log(`   Scroll offset during drag: ${scrollY.value - startScrollY.value}`);
+
             isTouchActive.value = false;
 
             // Calculate where the ghost space is positioned
             const destIndex = destIndexSV.value;
-            if (destIndex !== null && destIndex !== -1) {
-              // Calculate the Y offset to the ghost space
-              const ghostOffset = calculateGhostSpaceOffset(index, destIndex, itemLayouts);
+            console.log(`   Source index: ${index}, Destination index: ${destIndex}`);
 
-              // Animate to the ghost space position
-              gestureTranslationY.value = withSpring(ghostOffset, {
-                damping: 20,
-                stiffness: 200,
-                mass: 0.5
-              }, (finished) => {
-                if (finished) {
-                  runOnJS(handleDragEnd)();
-                }
-              });
+            if (destIndex !== null && destIndex !== -1 && destIndex !== index) {
+              // Calculate and animate to the ghost space position on JS thread
+              // This has access to the current itemLayouts Map
+              runOnJS(animateToGhostPosition)(index, destIndex);
             } else {
-              // No valid destination, animate back to original position
+              console.log(`   ↩️  No movement - animating back to 0`);
+
+              // No movement or invalid destination, just end the drag
               gestureTranslationY.value = withSpring(0, {
                 damping: 20,
                 stiffness: 200,
                 mass: 0.5
               }, (finished) => {
                 if (finished) {
+                  console.log(`   ✅ Return animation completed`);
                   runOnJS(handleDragEnd)();
                 }
               });
