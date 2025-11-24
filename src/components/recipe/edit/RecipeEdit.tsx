@@ -147,6 +147,7 @@ export const RecipeEdit: React.FC<RecipeEditProps> = ({ recipe, onSave, onDiscar
       }}
       bottomOffset={64}
       keyboardShouldPersistTaps="handled"
+      nestedScrollEnabled
     >
       <View className={`${isTablet ? "px-10 py-8" : "px-4 pb-8 pt-6"} gap-8`}>
         {/* Main Info Form */}
