@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, LayoutRectangle } from "react-native";
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -18,6 +18,7 @@ interface DraggableItemProps {
   itemHeight: number;
   dragTranslationY: SharedValue<number>;
   onLayout?: (event: any) => void;
+  itemLayouts?: Map<number, LayoutRectangle>;
 }
 
 export function DraggableItem({
@@ -29,6 +30,7 @@ export function DraggableItem({
   itemHeight,
   dragTranslationY,
   onLayout,
+  itemLayouts,
 }: DraggableItemProps) {
   const scaleAnim = useSharedValue(1);
   const opacityAnim = useSharedValue(1);
@@ -61,20 +63,24 @@ export function DraggableItem({
     let targetShift = 0;
 
     if (activeIndex < destIndex) {
-      // Dragging down: items between active and dest shift UP
+      // Dragging down: items between active and dest shift UP by the active item's height
       if (index > activeIndex && index <= destIndex) {
-        targetShift = -itemHeight;
+        // Use the actual height of the active item from layouts
+        const activeHeight = itemLayouts?.get(activeIndex)?.height ?? itemHeight;
+        targetShift = -activeHeight;
       }
     } else if (activeIndex > destIndex) {
-      // Dragging up: items between dest and active shift DOWN
+      // Dragging up: items between dest and active shift DOWN by the active item's height
       if (index >= destIndex && index < activeIndex) {
-        targetShift = itemHeight;
+        // Use the actual height of the active item from layouts
+        const activeHeight = itemLayouts?.get(activeIndex)?.height ?? itemHeight;
+        targetShift = activeHeight;
       }
     }
 
     // Tighter spring config for less "bouncy" feel
     shiftY.value = withSpring(targetShift, { damping: 25, stiffness: 300 });
-  }, [activeIndex, destIndex, index, isActive, itemHeight, shiftY]);
+  }, [activeIndex, destIndex, index, isActive, itemHeight, itemLayouts, shiftY]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {

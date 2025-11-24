@@ -114,6 +114,7 @@ export function useDragAndDrop<T>(data: T[]) {
     currentDestIndex,
     orderedData,
     activeItemHeight,
+    itemLayouts: itemLayouts.current,
     startDrag,
     updateDragPosition,
     endDrag,

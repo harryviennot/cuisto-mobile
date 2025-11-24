@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from "react";
-import { View, StyleSheet, Dimensions, LayoutChangeEvent } from "react-native";
+import { View, StyleSheet } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,6 +14,42 @@ import { useDragAndDrop } from "./useDragAndDrop";
 import { useAutoScroll } from "./useAutoScroll";
 import { DraggableListProps } from "./types";
 import { useDragContext } from "./DragContext";
+
+// Helper to calculate where the ghost space is positioned
+// This is where items have shifted to create space for the dragged item
+function calculateGhostSpaceOffset(
+  fromIndex: number,
+  toIndex: number,
+  layouts: Map<number, any>
+): number {
+  'worklet';
+  if (fromIndex === toIndex) return 0;
+
+  // The ghost space is created by items shifting
+  // We need to calculate the cumulative Y offset of those shifts
+  let offset = 0;
+  const activeItemHeight = layouts.get(fromIndex)?.height || 0;
+
+  if (fromIndex < toIndex) {
+    // Moving down: items between fromIndex and toIndex shifted UP
+    // The ghost space is below us, so we need to move DOWN
+    // by the sum of heights of items that shifted
+    for (let i = fromIndex + 1; i <= toIndex; i++) {
+      const itemHeight = layouts.get(i)?.height || 0;
+      offset += itemHeight;
+    }
+  } else {
+    // Moving up: items between toIndex and fromIndex shifted DOWN
+    // The ghost space is above us, so we need to move UP (negative)
+    // by the sum of heights of items that shifted
+    for (let i = toIndex; i < fromIndex; i++) {
+      const itemHeight = layouts.get(i)?.height || 0;
+      offset -= itemHeight;
+    }
+  }
+
+  return offset;
+}
 
 export function DraggableList<T>({
   data,
@@ -31,6 +67,7 @@ export function DraggableList<T>({
     currentDestIndex,
     orderedData,
     activeItemHeight,
+    itemLayouts,
     startDrag,
     updateDragPosition,
     endDrag,
@@ -120,32 +157,14 @@ export function DraggableList<T>({
           .onEnd(() => {
             isTouchActive.value = false;
 
-            // Animate to destination before finishing
+            // Calculate where the ghost space is positioned
             const destIndex = destIndexSV.value;
-            if (destIndex !== null && destIndex !== -1 && activeItemHeight) {
-              const targetY = (destIndex - index) * activeItemHeight;
+            if (destIndex !== null && destIndex !== -1) {
+              // Calculate the Y offset to the ghost space
+              const ghostOffset = calculateGhostSpaceOffset(index, destIndex, itemLayouts);
 
-              // We need to account for the scroll delta that happened during drag
-              // totalTranslateY = gestureTranslationY + scrollDelta
-              // We want totalTranslateY to end up at targetY
-              // So we animate gestureTranslationY to (targetY - scrollDelta)
-              // But since scrollDelta keeps changing if we scroll, we might just want to freeze scroll?
-              // Actually, once we release, auto-scroll stops.
-
-              // Simpler approach: animate gestureTranslationY to reach the target visual position
-              // The visual position is relative to the item's original slot.
-              // targetY is the relative distance to the new slot.
-
-              // However, totalTranslateY includes scroll compensation.
-              // If we want the item to land at 'targetY' relative to its original position in the list content,
-              // we should animate totalTranslateY to targetY?
-              // No, totalTranslateY is a derived value. We can only animate gestureTranslationY.
-
-              // Let's calculate the required gestureTranslationY
-              const currentScrollDelta = scrollY.value - startScrollY.value;
-              const requiredGestureY = targetY - currentScrollDelta;
-
-              gestureTranslationY.value = withSpring(requiredGestureY, {
+              // Animate to the ghost space position
+              gestureTranslationY.value = withSpring(ghostOffset, {
                 damping: 20,
                 stiffness: 200,
                 mass: 0.5
@@ -155,7 +174,12 @@ export function DraggableList<T>({
                 }
               });
             } else {
-              gestureTranslationY.value = withSpring(0, {}, (finished) => {
+              // No valid destination, animate back to original position
+              gestureTranslationY.value = withSpring(0, {
+                damping: 20,
+                stiffness: 200,
+                mass: 0.5
+              }, (finished) => {
                 if (finished) {
                   runOnJS(handleDragEnd)();
                 }
@@ -188,6 +212,7 @@ export function DraggableList<T>({
                 panGesture,
                 dragTranslationY: totalTranslateY,
                 onLayout: (event: any) => handleItemLayout(index, event),
+                itemLayouts,
               }
             })}
           </React.Fragment>
