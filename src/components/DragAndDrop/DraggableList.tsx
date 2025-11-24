@@ -1,15 +1,13 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import { View, StyleSheet } from "react-native";
-import Animated, {
+import {
   useSharedValue,
-  useAnimatedStyle,
   withSpring,
   useAnimatedReaction,
-  SharedValue,
   runOnJS,
   useDerivedValue,
 } from "react-native-reanimated";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { Gesture } from "react-native-gesture-handler";
 import { useDragAndDrop } from "./useDragAndDrop";
 import { useAutoScroll } from "./useAutoScroll";
 import { DraggableListProps } from "./types";
@@ -79,21 +77,11 @@ export function DraggableList<T>({
   }, [dragState.activeIndex, setIsDragging]);
 
   const handleDragEnd = useCallback(() => {
-    console.log("\n💥 [handleDragEnd] Called - about to update React state");
-    console.log("   Stopping auto-scroll and cleaning up...");
-
     stopAutoScroll();
     setIsDragging(false);
 
     endDrag((from, to, newData) => {
-      console.log(`\n📊 [STATE UPDATE] React re-rendering with new order`);
-      console.log(`   Item moved from index ${from} → ${to}`);
-      console.log(`   New data length: ${newData.length}`);
-      console.log(`   Calling parent onDragEnd callback...`);
-
       onDragEnd({ data: newData, from, to });
-
-      console.log(`   ✨ State update complete! Item should now be at index ${to}\n`);
     });
   }, [endDrag, onDragEnd, stopAutoScroll, setIsDragging]);
 
@@ -112,30 +100,19 @@ export function DraggableList<T>({
   const handleItemLayout = useCallback(
     (index: number, event: any) => {
       const { layout } = event.nativeEvent;
-      console.log(`📐 [LAYOUT] Item ${index} measured: height=${layout.height.toFixed(2)}px, width=${layout.width.toFixed(2)}px`);
       setItemLayout(index, layout);
-
-      // Verify it was stored by checking the map right after
-      setTimeout(() => {
-        const stored = itemLayouts.get(index);
-        console.log(`   ✓ Item ${index} in map: ${stored ? stored.height.toFixed(2) + 'px' : 'NOT FOUND'}, total items in map: ${itemLayouts.size}`);
-      }, 0);
     },
-    [setItemLayout, itemLayouts]
+    [setItemLayout]
   );
 
   // Helper function to calculate and animate to ghost offset
   // Called from JS thread so it has access to current itemLayouts
   const animateToGhostPosition = useCallback((fromIndex: number, toIndex: number) => {
     const layouts = itemLayoutsRef.current;
-    console.log(`\n🎯 [animateToGhostPosition] Called from JS thread`);
-    console.log(`   From index: ${fromIndex}, To index: ${toIndex}`);
-    console.log(`   Total layouts in map: ${layouts.size}`);
 
     // Get the active item's actual measured height
     const activeItemLayout = layouts.get(fromIndex);
     const activeItemHeight = activeItemLayout?.height || 0;
-    console.log(`   📦 Active item (index ${fromIndex}) height: ${activeItemHeight.toFixed(2)}px`);
 
     // Note: Layout measurements do NOT include margins
     // We need to apply a small correction factor per item to account for
@@ -155,37 +132,27 @@ export function DraggableList<T>({
     let totalCorrection = 0;
 
     if (fromIndex < toIndex) {
-      console.log(`   📏 Moving DOWN - Items between ${fromIndex + 1} and ${toIndex}:`);
       for (let i = fromIndex + 1; i <= toIndex; i++) {
         const itemHeight = layouts.get(i)?.height || 0;
         const correction = isHeader(i) ? HEADER_CORRECTION : INSTRUCTION_CORRECTION;
-        const itemType = isHeader(i) ? 'header' : 'instruction';
         itemCount++;
         totalCorrection += correction * itemCount;
-        console.log(`      Item ${i} (${itemType}): ${itemHeight.toFixed(2)}px - ${(correction * itemCount).toFixed(2)}px correction`);
         offset += itemHeight;
       }
       offset -= totalCorrection;
     } else {
-      console.log(`   📏 Moving UP - Items between ${toIndex} and ${fromIndex - 1}:`);
       for (let i = toIndex; i < fromIndex; i++) {
         const itemHeight = layouts.get(i)?.height || 0;
         const correction = isHeader(i) ? HEADER_CORRECTION : INSTRUCTION_CORRECTION;
-        const itemType = isHeader(i) ? 'header' : 'instruction';
         itemCount++;
         totalCorrection += correction * itemCount;
-        console.log(`      Item ${i} (${itemType}): ${itemHeight.toFixed(2)}px - ${(correction * itemCount).toFixed(2)}px correction`);
         offset -= itemHeight;
       }
       offset += totalCorrection; // Add because we're going negative
     }
 
-    console.log(`   📊 Summary: ${itemCount} items, raw offset: ${(fromIndex < toIndex ? offset + totalCorrection : offset - totalCorrection).toFixed(2)}px, correction: ${totalCorrection.toFixed(2)}px, final: ${offset.toFixed(2)}px`);
-
     // Keep sub-pixel precision - don't round
     const ghostOffset = offset;
-    console.log(`   ✨ Calculated offset: ${ghostOffset.toFixed(2)}px`);
-    console.log(`   🎯 Starting animation to ghost offset...`);
 
     // Start the animation
     gestureTranslationY.value = withSpring(ghostOffset, {
@@ -194,8 +161,6 @@ export function DraggableList<T>({
       mass: 0.5
     }, (finished) => {
       if (finished) {
-        console.log(`   ✅ Animation completed to: ${gestureTranslationY.value}px`);
-        console.log(`   🔄 Calling handleDragEnd to update state...`);
         runOnJS(handleDragEnd)();
       }
     });
@@ -210,44 +175,27 @@ export function DraggableList<T>({
         // Create gesture for this specific item
         const panGesture = Gesture.Pan()
           .onStart(() => {
-            console.log(`\n🟢 [DRAG START] Item ${index}`);
-            console.log(`   Initial gestureTranslationY: ${gestureTranslationY.value}`);
-            console.log(`   Initial scrollY: ${scrollY.value}`);
-
             runOnJS(startDrag)(index);
             gestureTranslationY.value = 0;
             startScrollY.value = scrollY.value;
             runOnJS(setIsDragging)(true);
             isTouchActive.value = true;
-
-            console.log(`   After reset - gestureTranslationY: ${gestureTranslationY.value}`);
           })
           .onUpdate((event) => {
             gestureTranslationY.value = event.translationY;
             absoluteY.value = event.absoluteY;
-            // Uncomment for very detailed tracking during drag:
-            // console.log(`   [DRAGGING] translationY: ${event.translationY.toFixed(2)}, absoluteY: ${event.absoluteY.toFixed(2)}`);
           })
           .onEnd(() => {
-            console.log(`\n🔴 [DRAG END] Item ${index}`);
-            console.log(`   Current gestureTranslationY: ${gestureTranslationY.value}`);
-            console.log(`   Current scrollY: ${scrollY.value}`);
-            console.log(`   startScrollY: ${startScrollY.value}`);
-            console.log(`   Scroll offset during drag: ${scrollY.value - startScrollY.value}`);
-
             isTouchActive.value = false;
 
             // Calculate where the ghost space is positioned
             const destIndex = destIndexSV.value;
-            console.log(`   Source index: ${index}, Destination index: ${destIndex}`);
 
             if (destIndex !== null && destIndex !== -1 && destIndex !== index) {
               // Calculate and animate to the ghost space position on JS thread
               // This has access to the current itemLayouts Map
               runOnJS(animateToGhostPosition)(index, destIndex);
             } else {
-              console.log(`   ↩️  No movement - animating back to 0`);
-
               // No movement or invalid destination, just end the drag
               gestureTranslationY.value = withSpring(0, {
                 damping: 45,
@@ -255,7 +203,6 @@ export function DraggableList<T>({
                 mass: 0.5
               }, (finished) => {
                 if (finished) {
-                  console.log(`   ✅ Return animation completed`);
                   runOnJS(handleDragEnd)();
                 }
               });
