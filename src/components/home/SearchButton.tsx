@@ -3,6 +3,7 @@
  * Used on home page to navigate to search overlay
  */
 import { Pressable, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { MagnifyingGlass } from "phosphor-react-native";
 
 interface SearchButtonProps {
@@ -10,7 +11,12 @@ interface SearchButtonProps {
   placeholder?: string;
 }
 
-export function SearchButton({ onPress, placeholder = "Search recipes..." }: SearchButtonProps) {
+export function SearchButton({ onPress, placeholder }: SearchButtonProps) {
+  const { t } = useTranslation();
+
+  // Use translation as default placeholder
+  const placeholderText = placeholder || t("search.placeholder");
+
   return (
     <Pressable
       onPress={onPress}
@@ -28,7 +34,7 @@ export function SearchButton({ onPress, placeholder = "Search recipes..." }: Sea
 
       {/* Placeholder Text */}
       <Text className="flex-1 ml-3 text-base text-foreground-secondary font-regular">
-        {placeholder}
+        {placeholderText}
       </Text>
 
       {/* Reserved space to match SearchBar layout */}

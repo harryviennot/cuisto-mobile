@@ -7,6 +7,7 @@ import {
   UIManager,
 } from "react-native";
 import { Control, useController } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { DraggableList } from "../../DragAndDrop/DraggableList";
 import { RenderItemParams } from "../../DragAndDrop/types";
 import * as Haptics from "expo-haptics";
@@ -33,6 +34,8 @@ type FlatListItem =
   | { type: "instruction"; instruction: Instruction; instructionId: string; id: string };
 
 export function RecipeInstructionsForm({ control }: RecipeInstructionsFormProps) {
+  const { t } = useTranslation();
+
   const {
     field: { value: instructions, onChange: onInstructionsChange },
     fieldState: { error: instructionsError },
@@ -369,13 +372,13 @@ export function RecipeInstructionsForm({ control }: RecipeInstructionsFormProps)
         className="mb-4 font-playfair-bold text-2xl uppercase tracking-wide text-foreground-heading"
         style={{ fontFamily: "PlayfairDisplay_700Bold" }}
       >
-        Instructions
+        {t("recipe.edit.instructions")}
       </Text>
 
       {/* Group Management */}
       <FormGroupInput
-        label="Instruction Groups"
-        placeholder="e.g., Making the sauce, Assembling..."
+        label={t("recipe.edit.instructionGroups")}
+        placeholder={t("recipe.edit.instructionGroupsPlaceholder")}
         items={groupNames}
         newItemValue={newGroupName}
         onNewItemChange={setNewGroupName}
@@ -402,10 +405,10 @@ export function RecipeInstructionsForm({ control }: RecipeInstructionsFormProps)
         ) : (
           <View className="mb-4 rounded-2xl border-2 border-dashed border-border-light bg-surface p-8">
             <Text className="text-center text-base text-foreground-muted">
-              No instructions yet
+              {t("recipe.edit.noInstructionsYet")}
             </Text>
             <Text className="mt-1 text-center text-sm text-foreground-tertiary">
-              Add your first step below to get started
+              {t("recipe.edit.noInstructionsDescription")}
             </Text>
           </View>
         )}

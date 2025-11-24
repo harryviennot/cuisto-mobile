@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Control, useController } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import { ShadowItem } from "@/components/ShadowedSection";
 import { RecipeCategory } from "@/types/recipe";
@@ -11,18 +12,19 @@ interface RecipeCategoriesTagsFormProps {
   control: Control<RecipeEditFormData, any>;
 }
 
-const categoryOptions = [
-  { label: "Breakfast", value: RecipeCategory.BREAKFAST },
-  { label: "Lunch", value: RecipeCategory.LUNCH },
-  { label: "Dinner", value: RecipeCategory.DINNER },
-  { label: "Dessert", value: RecipeCategory.DESSERT },
-  { label: "Snack", value: RecipeCategory.SNACK },
-  { label: "Appetizer", value: RecipeCategory.APPETIZER },
-  { label: "Beverage", value: RecipeCategory.BEVERAGE },
-  { label: "Other", value: RecipeCategory.OTHER },
-];
-
 export function RecipeCategoriesTagsForm({ control }: RecipeCategoriesTagsFormProps) {
+  const { t } = useTranslation();
+
+  const categoryOptions = [
+    { label: t("recipe.category.breakfast"), value: RecipeCategory.BREAKFAST },
+    { label: t("recipe.category.lunch"), value: RecipeCategory.LUNCH },
+    { label: t("recipe.category.dinner"), value: RecipeCategory.DINNER },
+    { label: t("recipe.category.dessert"), value: RecipeCategory.DESSERT },
+    { label: t("recipe.category.snack"), value: RecipeCategory.SNACK },
+    { label: t("recipe.category.appetizer"), value: RecipeCategory.APPETIZER },
+    { label: t("recipe.category.beverage"), value: RecipeCategory.BEVERAGE },
+    { label: t("recipe.category.other"), value: RecipeCategory.OTHER },
+  ];
   const {
     field: { value: categories, onChange: onCategoriesChange },
     fieldState: { error: categoriesError },
@@ -62,13 +64,13 @@ export function RecipeCategoriesTagsForm({ control }: RecipeCategoriesTagsFormPr
         className="font-playfair-bold mb-4 text-2xl uppercase tracking-wide text-foreground-heading"
         style={{ fontFamily: "PlayfairDisplay_700Bold" }}
       >
-        Categories & Tags
+        {t("recipe.edit.categoriesAndTags")}
       </Text>
 
       {/* Categories Selection */}
       <View className="mb-6">
         <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary mb-2">
-          Categories
+          {t("recipe.edit.categories")}
         </Text>
         <View className="flex-row flex-wrap gap-2">
           {categoryOptions.map((option) => {
@@ -99,8 +101,8 @@ export function RecipeCategoriesTagsForm({ control }: RecipeCategoriesTagsFormPr
 
       {/* Tags Input */}
       <FormGroupInput
-        label="Tags"
-        placeholder="e.g., vegan, gluten-free, quick..."
+        label={t("recipe.edit.tags")}
+        placeholder={t("recipe.edit.tagsPlaceholder")}
         items={tags}
         newItemValue={newTag}
         onNewItemChange={setNewTag}

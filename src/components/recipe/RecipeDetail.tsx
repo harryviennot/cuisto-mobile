@@ -4,6 +4,7 @@
  */
 import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, Image, Alert } from "react-native";
+import Toast from "react-native-toast-message";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { useAnimatedScrollHandler, useSharedValue } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
@@ -84,7 +85,11 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
       setIsTimeEditVisible(false);
     } catch (error) {
       console.error("Failed to update timings:", error);
-      Alert.alert("Error", "Failed to update timing. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("recipe.errors.updateTimingFailed"),
+      });
     }
   };
 
@@ -92,7 +97,11 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
   const handleRatingChange = async (rating: number) => {
     // Validate rating is in 0.5 increments
     if ((rating * 2) % 1 !== 0 || rating < 0.5 || rating > 5.0) {
-      Alert.alert("Error", "Please select a rating in 0.5 increments (0.5 to 5.0)");
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("recipe.errors.invalidRatingFormat"),
+      });
       return;
     }
 
@@ -102,8 +111,11 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
         rating,
       });
     } catch (error) {
-      console.error("Failed to update rating:", error);
-      Alert.alert("Error", "Failed to update rating. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: t("recipe.errors.rateRecipeFailed"),
+      });
     }
   };
 
@@ -169,7 +181,7 @@ export const RecipeDetail: React.FC<RecipeDetailProps> = ({
               <View className={`absolute bottom-4 ${isTablet ? "left-8" : "left-4"}`}>
                 <View className="rounded-full bg-surface-elevated/90 px-3 py-1.5 shadow-sm">
                   <Text className="text-xs font-bold uppercase tracking-widest text-primary">
-                    {isEditing ? "Preview changes" : t("recipe.draftPreview")}
+                    {isEditing ? t("recipe.previewChanges") : t("recipe.draftPreview")}
                   </Text>
                 </View>
               </View>

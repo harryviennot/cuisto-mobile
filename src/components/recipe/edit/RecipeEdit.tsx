@@ -4,10 +4,12 @@
  */
 import React, { useRef, useEffect } from "react";
 import { View, Alert, Text, ScrollView, ActivityIndicator, BackHandler, TouchableOpacity } from "react-native";
+import Toast from "react-native-toast-message";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslation } from "react-i18next";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { useUpdateRecipe } from "@/hooks/useRecipes";
 import { DragProvider, useDragContext } from "@/components/DragAndDrop";
@@ -38,6 +40,7 @@ export interface RecipeEditRef {
 // Inner component that uses the drag context
 const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(
   ({ recipe, onSave, onDiscard }, ref) => {
+    const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const { isTablet, isTabletLandscape } = useDeviceType();
     const updateRecipeMutation = useUpdateRecipe();
@@ -78,12 +81,12 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(
       const backAction = () => {
         if (isDirty) {
           Alert.alert(
-            "Unsaved Changes",
-            "Careful, you have unsaved changes. Are you sure you want to leave?",
+            t("recipe.edit.unsavedChangesTitle"),
+            t("recipe.edit.unsavedChangesMessage"),
             [
-              { text: "Stay", style: "cancel" },
+              { text: t("common.stay"), style: "cancel" },
               {
-                text: "Leave",
+                text: t("common.leave"),
                 style: "destructive",
                 onPress: () => onDiscard?.(),
               },
@@ -96,7 +99,7 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(
 
       const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
       return () => backHandler.remove();
-    }, [isDirty, onDiscard]);
+    }, [isDirty, onDiscard, t]);
 
 
     // Build preview recipe from form values
@@ -125,10 +128,7 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(
           onSave?.();
           return;
         }
-        console.log("💾 [RecipeEdit] Save handler called - validation passed");
-        console.log("📊 [RecipeEdit] First ingredient:", JSON.stringify(data.ingredients[0], null, 2));
         try {
-          console.log("💾 [RecipeEdit] Starting mutation...");
           await updateRecipeMutation.mutateAsync({
             recipeId: recipe.id,
             data: {
@@ -148,14 +148,18 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(
               instructions: data.instructions,
             },
           });
-
-          console.log("✅ [RecipeEdit] Save successful, showing alert");
-          Alert.alert("Success", "Recipe updated successfully!");
-          console.log("🔙 [RecipeEdit] Calling onSave()");
+          Toast.show({
+            type: "success",
+            text1: t("common.success"),
+            text2: t("recipe.edit.updateSuccess"),
+          });
           onSave?.();
         } catch (error) {
-          console.error("❌ [RecipeEdit] Failed to update recipe:", error);
-          Alert.alert("Error", "Failed to update recipe. Please try again.");
+          Toast.show({
+            type: "error",
+            text1: t("common.error"),
+            text2: t("recipe.edit.updateFailed"),
+          });
         }
       },
       (errors) => {
@@ -167,12 +171,12 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(
     const handleDiscardChanges = () => {
       if (isDirty) {
         Alert.alert(
-          "Discard Changes?",
-          "Are you sure you want to discard your changes? This cannot be undone.",
+          t("recipe.edit.discardChangesTitle"),
+          t("recipe.edit.discardChangesMessage"),
           [
-            { text: "Cancel", style: "cancel" },
+            { text: t("common.cancel"), style: "cancel" },
             {
-              text: "Discard",
+              text: t("common.discard"),
               style: "destructive",
               onPress: () => {
                 reset();

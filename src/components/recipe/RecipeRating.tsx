@@ -1,5 +1,6 @@
 import "@/global.css";
 import { View, Text } from "react-native";
+import { useTranslation } from "react-i18next";
 import { StarRating } from "../StarRating";
 
 interface RecipeRatingProps {
@@ -20,6 +21,8 @@ export function RecipeRating({
   ratingCount,
   onRatingChange,
 }: RecipeRatingProps) {
+  const { t } = useTranslation();
+
   // Split the rating into integer and decimal parts for custom positioning
   const ratingValue = averageRating ? averageRating.toFixed(1) : "—";
   const [integerPart, decimalPart] = ratingValue.includes(".")
@@ -31,7 +34,7 @@ export function RecipeRating({
       {/* User Rating - Interactive */}
       <View className="flex flex-col gap-2">
         <Text className="text-[10px] font-bold uppercase tracking-widest text-foreground-muted">
-          {userRating ? "Your Rating" : "Rate Recipe"}
+          {userRating ? t("recipe.rating.yourRating") : t("recipe.rating.rateRecipe")}
         </Text>
         <StarRating rating={userRating} size={30} editable={true} onRatingChange={onRatingChange} />
       </View>
@@ -39,7 +42,7 @@ export function RecipeRating({
       {/* Community Rating - Static */}
       <View className="flex  flex-col items-end justify-between gap-2">
         <Text className="text-[10px] font-bold uppercase tracking-widest text-foreground-muted">
-          Average
+          {t("recipe.rating.average")}
         </Text>
         <View className="flex-row items-center gap-2">
           {/* Rating Number with superscript decimal */}
@@ -63,8 +66,8 @@ export function RecipeRating({
             <StarRating rating={Math.round(averageRating || 0)} size={12} editable={false} />
             <Text className="text-[10px] text-foreground-tertiary font-medium mt-1">
               {ratingCount > 0
-                ? `${ratingCount} ${ratingCount === 1 ? "review" : "reviews"}`
-                : "No reviews"}
+                ? `${ratingCount} ${ratingCount === 1 ? t("recipe.rating.review") : t("recipe.rating.reviews")}`
+                : t("recipe.rating.noReviews")}
             </Text>
           </View>
         </View>

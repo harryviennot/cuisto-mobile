@@ -10,6 +10,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import i18n from "@/locales/i18n";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "@/components/ui/ToastConfig";
 
 import {
   useFonts,
@@ -98,6 +100,7 @@ export default function RootLayout() {
           </BottomSheetModalProvider>
         </QueryClientProvider>
       </KeyboardProvider>
+      <Toast config={toastConfig} topOffset={60} />
     </GestureHandlerRootView>
   );
 }

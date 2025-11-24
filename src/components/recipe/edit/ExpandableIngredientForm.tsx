@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, TextInput as RNTextInput } from "react-native";
 import { PlusIcon, CheckIcon } from "phosphor-react-native";
+import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import type { Ingredient } from "@/types/recipe";
@@ -23,6 +24,7 @@ export function ExpandableIngredientForm({
     onSave,
 }: ExpandableIngredientFormProps) {
     console.log("Ingredient:", ingredient);
+    const { t } = useTranslation();
     const { isTablet } = useDeviceType();
     const [name, setName] = useState(ingredient?.name ?? "");
     const [quantity, setQuantity] = useState<string>(
@@ -76,7 +78,7 @@ export function ExpandableIngredientForm({
                 <ShadowItem className="flex-row items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border-light bg-transparent py-3" onPress={onToggle}>
                     <PlusIcon size={20} color="#334d43" weight="bold" />
                     <Text className="text-sm font-semibold text-foreground">
-                        {mode === "add" ? "Add Ingredient" : ingredient?.name || "Edit Ingredient"}
+                        {mode === "add" ? t("recipe.edit.addIngredient") : ingredient?.name || t("recipe.edit.editIngredient")}
                     </Text>
                 </ShadowItem>
             )}
@@ -85,7 +87,7 @@ export function ExpandableIngredientForm({
             {isExpanded && (
                 <ShadowItem className="rounded-xl border-primary p-4">
                     <Text className="mb-3 text-sm font-bold uppercase tracking-widest text-primary">
-                        {mode === "add" ? `Add Ingredient` : "Edit Ingredient"}
+                        {mode === "add" ? t("recipe.edit.addIngredient") : t("recipe.edit.editIngredient")}
                     </Text>
 
                     {/* Main Row: Quantity, Unit, Name */}
@@ -95,7 +97,7 @@ export function ExpandableIngredientForm({
                             <RNTextInput
                                 value={quantity}
                                 onChangeText={setQuantity}
-                                placeholder="Qty"
+                                placeholder={t("recipe.edit.qtyAbbr")}
                                 placeholderTextColor="#a89f8d"
                                 className="rounded-xl border border-border-button bg-white px-3 py-3 text-base text-foreground"
                                 keyboardType="numeric"
@@ -108,7 +110,7 @@ export function ExpandableIngredientForm({
                             <RNTextInput
                                 value={unit}
                                 onChangeText={setUnit}
-                                placeholder="Unit"
+                                placeholder={t("recipe.edit.unit")}
                                 placeholderTextColor="#a89f8d"
                                 className="rounded-xl border border-border-button bg-white px-3 py-3 text-base text-foreground"
                                 autoCapitalize="none"
@@ -121,7 +123,7 @@ export function ExpandableIngredientForm({
                             <RNTextInput
                                 value={name}
                                 onChangeText={setName}
-                                placeholder="Ingredient name *"
+                                placeholder={t("recipe.edit.ingredientName")}
                                 placeholderTextColor="#a89f8d"
                                 className="rounded-xl border border-border-button bg-white px-3 py-3 text-base text-foreground"
                                 autoCapitalize="words"
@@ -135,7 +137,7 @@ export function ExpandableIngredientForm({
                         <RNTextInput
                             value={notes}
                             onChangeText={setNotes}
-                            placeholder="Notes (e.g., chopped, optional)"
+                            placeholder={t("recipe.edit.ingredientNotes")}
                             placeholderTextColor="#a89f8d"
                             className="rounded-xl border border-border-button bg-white px-3 py-3 text-base text-foreground"
                             autoCapitalize="none"
@@ -148,7 +150,7 @@ export function ExpandableIngredientForm({
                     <View className={`flex-row ${isTablet ? "gap-3" : "gap-2"}`}>
                         <Pressable onPress={onToggle} className="flex-1">
                             <ShadowItem className="items-center rounded-xl border border-border-button bg-white py-3">
-                                <Text className="text-sm font-semibold text-foreground">Cancel</Text>
+                                <Text className="text-sm font-semibold text-foreground">{t("common.cancel")}</Text>
                             </ShadowItem>
                         </Pressable>
                         <Pressable onPress={handleSave} className="flex-1" disabled={!name.trim()}>
@@ -159,7 +161,7 @@ export function ExpandableIngredientForm({
                             >
                                 <CheckIcon size={16} color="#FFFFFF" weight="bold" />
                                 <Text className="text-sm font-semibold text-white">
-                                    {mode === "add" ? "Add" : "Save"}
+                                    {mode === "add" ? t("common.add") : t("common.save")}
                                 </Text>
                             </ShadowItem>
                         </Pressable>

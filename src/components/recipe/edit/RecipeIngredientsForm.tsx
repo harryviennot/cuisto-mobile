@@ -7,6 +7,7 @@ import {
   UIManager,
 } from "react-native";
 import { Control, useController } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { DraggableList } from "../../DragAndDrop/DraggableList";
 import { RenderItemParams } from "../../DragAndDrop/types";
 import * as Haptics from "expo-haptics";
@@ -33,6 +34,8 @@ type FlatListItem =
   | { type: "ingredient"; ingredient: Ingredient; ingredientId: string; id: string };
 
 export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
+  const { t } = useTranslation();
+
   const {
     field: { value: ingredients, onChange: onIngredientsChange },
     fieldState: { error: ingredientsError },
@@ -331,13 +334,13 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
         className="font-playfair-bold mb-4 text-2xl uppercase tracking-wide text-foreground-heading"
         style={{ fontFamily: "PlayfairDisplay_700Bold" }}
       >
-        Ingredients
+        {t("recipe.edit.ingredients")}
       </Text>
 
       {/* Group Management */}
       <FormGroupInput
-        label="Ingredient Groups"
-        placeholder="e.g., For the sauce, For the dough..."
+        label={t("recipe.edit.ingredientGroups")}
+        placeholder={t("recipe.edit.ingredientGroupsPlaceholder")}
         items={groupNames}
         newItemValue={newGroupName}
         onNewItemChange={setNewGroupName}
@@ -363,7 +366,7 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
         ) : (
           <View className="rounded-xl border border-dashed border-border-light bg-surface-elevated p-4">
             <Text className="text-center text-sm text-foreground-muted italic">
-              No ingredients yet. Add your first ingredient below.
+              {t("recipe.edit.noIngredientsYet")}
             </Text>
           </View>
         )}

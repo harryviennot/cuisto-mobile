@@ -1,6 +1,7 @@
 import "@/global.css";
 import { View, Text, Pressable } from "react-native";
 import { useRef, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Minus, Plus } from "phosphor-react-native";
 import { ShadowItem } from "../ShadowedSection";
 
@@ -30,6 +31,8 @@ export function TimeAdjuster({
   max = 1440,
   className = "",
 }: TimeAdjusterProps) {
+  const { t } = useTranslation();
+
   // Local display state for smooth visual updates
   const [displayValue, setDisplayValue] = useState(value);
 
@@ -127,7 +130,7 @@ export function TimeAdjuster({
         </Text>
         {isModified && (
           <View className="bg-primary-main px-2 py-0.5 rounded-full">
-            <Text className="text-white text-xs font-semibold">Modified</Text>
+            <Text className="text-white text-xs font-semibold">{t("recipe.timeAdjuster.modified")}</Text>
           </View>
         )}
       </View>

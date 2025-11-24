@@ -1,6 +1,7 @@
 import "@/global.css";
 import { View, Text, Pressable } from "react-native";
 import { useRef, useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { X } from "phosphor-react-native";
 import { useDeviceType } from "@/hooks/useDeviceType";
@@ -29,6 +30,7 @@ export function EditCookTimeBottomSheet({
   onClose,
   isOwner = false,
 }: EditCookTimeBottomSheetProps) {
+  const { t } = useTranslation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const { isTabletLandscape, isTablet } = useDeviceType();
   const insets = useSafeAreaInsets();
@@ -125,10 +127,10 @@ export function EditCookTimeBottomSheet({
                 className="text-2xl text-foreground-heading"
                 style={{ fontFamily: "PlayfairDisplay_700Bold" }}
               >
-                Edit Recipe Times
+                {t("recipe.editCookTime.title")}
               </Text>
               <Text className="text-xs text-foreground-muted mt-1">
-                Customize times to match your pace
+                {t("recipe.editCookTime.description")}
               </Text>
             </View>
             <Pressable
@@ -144,7 +146,7 @@ export function EditCookTimeBottomSheet({
         <View className={`${isTablet ? "px-10" : "px-4"}`}>
           {/* Total Time Summary */}
           <ShadowItem className="items-start rounded-xl p-4 mb-8" variant="primary">
-            <Text className="text-sm text-white/80 mb-1 uppercase tracking-wide">Total Time</Text>
+            <Text className="text-sm text-white/80 mb-1 uppercase tracking-wide">{t("recipe.editCookTime.totalTime")}</Text>
             <Text className="text-4xl text-white" style={{ fontFamily: "PlayfairDisplay_700Bold" }}>
               {formatTime(prepTotalMinutes + cookTotalMinutes)}
             </Text>
@@ -154,7 +156,7 @@ export function EditCookTimeBottomSheet({
           <View className={isTabletLandscape ? "flex-row gap-10" : ""}>
             {/* Prep Time Section */}
             <TimeAdjuster
-              label="Prep Time"
+              label={t("recipe.editCookTime.prepTime")}
               value={prepTotalMinutes}
               onChange={setPrepTotalMinutes}
               originalValue={originalPrepMinutes}
@@ -163,7 +165,7 @@ export function EditCookTimeBottomSheet({
 
             {/* Cook Time Section */}
             <TimeAdjuster
-              label="Cook Time"
+              label={t("recipe.editCookTime.cookTime")}
               value={cookTotalMinutes}
               onChange={setCookTotalMinutes}
               originalValue={originalCookMinutes}
@@ -182,11 +184,11 @@ export function EditCookTimeBottomSheet({
               onPress={handleReset}
               className="flex-1 rounded-xl py-4 bg-white  border-border-dark items-center"
             >
-              <Text className="text-base font-semibold text-foreground-heading">Reset</Text>
+              <Text className="text-base font-semibold text-foreground-heading">{t("common.reset")}</Text>
             </ShadowItem>
 
             <ShadowItem onPress={handleSave} className="flex-1 py-4 rounded-xl" variant="primary">
-              <Text className="text-base font-semibold text-white">Save Changes</Text>
+              <Text className="text-base font-semibold text-white">{t("common.saveChanges")}</Text>
             </ShadowItem>
           </View>
         </View>

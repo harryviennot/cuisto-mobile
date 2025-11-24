@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { Control, useController } from "react-hook-form";
 import { MinusIcon, PlusIcon } from "phosphor-react-native";
+import { useTranslation } from "react-i18next";
 
 import { ShadowItem } from "@/components/ShadowedSection";
 import { TimeAdjuster } from "@/components/recipe/TimeAdjuster";
@@ -21,13 +22,15 @@ interface RecipeMetadataFormProps {
   control: Control<RecipeEditFormData, any>;
 }
 
-const difficultyOptions: { label: string; value: DifficultyLevel; color: string }[] = [
-  { label: "Easy", value: DifficultyLevel.EASY, color: "#10b981" },
-  { label: "Medium", value: DifficultyLevel.MEDIUM, color: "#f59e0b" },
-  { label: "Hard", value: DifficultyLevel.HARD, color: "#ef4444" },
-];
-
 export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
+  const { t } = useTranslation();
+
+  const difficultyOptions: { label: string; value: DifficultyLevel; color: string }[] = [
+    { label: t("recipe.difficulty.easy"), value: DifficultyLevel.EASY, color: "#10b981" },
+    { label: t("recipe.difficulty.medium"), value: DifficultyLevel.MEDIUM, color: "#f59e0b" },
+    { label: t("recipe.difficulty.hard"), value: DifficultyLevel.HARD, color: "#ef4444" },
+  ];
+
   const {
     field: { value: servings, onChange: onServingsChange },
     fieldState: { error: servingsError },
@@ -55,13 +58,13 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
         className="font-playfair-bold mb-4 text-2xl uppercase tracking-wide text-foreground-heading"
         style={{ fontFamily: "PlayfairDisplay_700Bold" }}
       >
-        Cooking Info
+        {t("recipe.edit.cookingInfo")}
       </Text>
 
       {/* Servings Control */}
       <View className="mb-4">
         <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary mb-2">
-          Servings
+          {t("recipe.edit.servings")}
         </Text>
         <ShadowItem className="flex-row items-center justify-between rounded-xl p-4">
           <Pressable
@@ -101,7 +104,7 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
         <View className="mb-4 flex-row gap-4">
           {/* Prep Time Control */}
           <TimeAdjuster
-            label="Prep Time"
+            label={t("recipe.edit.prepTime")}
             value={prepTime}
             onChange={onPrepTimeChange}
             increment={1}
@@ -110,7 +113,7 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
 
           {/* Cook Time Control */}
           <TimeAdjuster
-            label="Cook Time"
+            label={t("recipe.edit.cookTime")}
             value={cookTime}
             onChange={onCookTimeChange}
             increment={1}
@@ -136,7 +139,7 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
 
         {/* Total Time Display */}
         <ShadowItem variant="primary" className="mb-6 items-start rounded-xl p-4">
-          <Text className="mb-1 text-sm uppercase tracking-wide text-white/80">Total Time</Text>
+          <Text className="mb-1 text-sm uppercase tracking-wide text-white/80">{t("recipe.edit.totalTime")}</Text>
           <Text className="text-3xl text-white" style={{ fontFamily: "PlayfairDisplay_700Bold" }}>
             {formatTime(prepTime + cookTime)}
           </Text>
@@ -146,7 +149,7 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
       {/* Difficulty Selection */}
       <View className="mb-4">
         <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary mb-2">
-          Difficulty
+          {t("recipe.edit.difficulty")}
         </Text>
         <View className="flex-row gap-3">
           {difficultyOptions.map((option) => (

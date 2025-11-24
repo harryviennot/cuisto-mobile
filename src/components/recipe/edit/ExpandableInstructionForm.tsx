@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, TextInput as RNTextInput } from "react-native";
 import { PlusIcon, CheckIcon, ClockIcon, AlarmIcon } from "phosphor-react-native";
+import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import type { Instruction } from "@/types/recipe";
@@ -24,6 +25,7 @@ export function ExpandableInstructionForm({
   onSave,
   nextStepNumber,
 }: ExpandableInstructionFormProps) {
+  const { t } = useTranslation();
   const { isTablet } = useDeviceType();
   const [title, setTitle] = useState(instruction?.title || "");
   const [description, setDescription] = useState(instruction?.description || "");
@@ -69,8 +71,8 @@ export function ExpandableInstructionForm({
           <PlusIcon size={20} color="#334d43" weight="bold" />
           <Text className="text-base font-semibold text-foreground">
             {mode === "add"
-              ? `Add Step`
-              : instruction?.title || "Edit Instruction"}
+              ? t("recipe.edit.addStep")
+              : instruction?.title || t("recipe.edit.editInstruction")}
           </Text>
         </ShadowItem>
       )}
@@ -107,19 +109,19 @@ export function ExpandableInstructionForm({
                     onSubmitEditing={handleSave}
                   />
                 </View>
-                <Text className="text-xs text-foreground-muted">min</Text>
+                <Text className="text-xs text-foreground-muted">{t("common.minAbbr")}</Text>
               </View>
             </View>
 
             {/* Title Input */}
             <View className="mb-4 w-full">
               <Text className="mb-2 text-sm font-semibold text-foreground-secondary">
-                Title *
+                {t("recipe.edit.instructionTitle")}
               </Text>
               <RNTextInput
                 value={title}
                 onChangeText={setTitle}
-                placeholder="e.g., Preheat the oven"
+                placeholder={t("recipe.edit.instructionTitlePlaceholder")}
                 placeholderTextColor="#a8a29e"
                 className="w-full rounded-xl border border-border-button bg-input-background px-4 py-3.5 text-base text-foreground-heading"
                 autoCapitalize="sentences"
@@ -130,12 +132,12 @@ export function ExpandableInstructionForm({
             {/* Description Input - Multiline */}
             <View className="mb-5 w-full">
               <Text className="mb-2 text-sm font-semibold text-foreground-secondary">
-                Instructions *
+                {t("recipe.edit.instructionDescription")}
               </Text>
               <RNTextInput
                 value={description}
                 onChangeText={setDescription}
-                placeholder="Describe the step in detail..."
+                placeholder={t("recipe.edit.instructionDescriptionPlaceholder")}
                 placeholderTextColor="#a8a29e"
                 className="w-full min-h-[100px] rounded-xl border border-border-button bg-input-background px-4 py-3.5 text-base leading-6 text-foreground-heading"
                 autoCapitalize="sentences"
@@ -149,7 +151,7 @@ export function ExpandableInstructionForm({
             <View className={`w-full flex-row ${isTablet ? "gap-3" : "gap-3"}`}>
               <Pressable onPress={onToggle} className="flex-1">
                 <ShadowItem className="items-center rounded-xl border border-border-button bg-white py-3.5">
-                  <Text className="text-base font-semibold text-foreground">Cancel</Text>
+                  <Text className="text-base font-semibold text-foreground">{t("common.cancel")}</Text>
                 </ShadowItem>
               </Pressable>
               <Pressable
@@ -164,7 +166,7 @@ export function ExpandableInstructionForm({
                 >
                   <CheckIcon size={18} color="#FFFFFF" weight="bold" />
                   <Text className="text-base font-semibold text-white">
-                    {mode === "add" ? "Add Step" : "Save Changes"}
+                    {mode === "add" ? t("recipe.edit.addStep") : t("common.saveChanges")}
                   </Text>
                 </ShadowItem>
               </Pressable>
