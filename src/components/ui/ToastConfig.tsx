@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { ToastConfig } from "react-native-toast-message";
 import { CheckCircle, WarningCircle, Info, X, CheckCircleIcon, WarningCircleIcon, InfoIcon, WarningDiamondIcon } from "phosphor-react-native";
 import Toast from "react-native-toast-message";
+import { useDeviceType } from "@/hooks/useDeviceType";
 
 const ToastLayout = ({
     text1,
@@ -19,9 +20,10 @@ const ToastLayout = ({
     color: string;
     bgColor?: string;
 }) => {
+    const { isTablet, isTabletLandscape } = useDeviceType();
     return (
         <View
-            className={`w-[94%] flex-row items-center rounded-2xl ${bgColor} p-4 shadow-xl shadow-black/10 border border-border-light`}
+            className={`${isTablet ? (isTabletLandscape ? "w-[60%]" : "mx-10") : "mx-4"} flex-row items-center rounded-2xl ${bgColor} p-4 shadow-xl shadow-black/10 border border-border-light`}
         >
             <View
                 className="mr-4 h-10 w-10 items-center justify-center rounded-full"
