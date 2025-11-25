@@ -216,7 +216,7 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
 
   // Remove an ingredient
   const removeIngredient = (index: number) => {
-    const updatedIngredients = ingredients.filter((_: any, i: number) => i !== index);
+    const updatedIngredients = ingredients.filter((_, i) => i !== index);
     onIngredientsChange(updatedIngredients);
   };
 
@@ -268,7 +268,7 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
 
   // Render individual item in the draggable list
   const renderDraggableItem = ({ item, drag, isActive, ...rest }: RenderItemParams<FlatListItem>) => {
-    // @ts-ignore - Extract internal props passed from DraggableList
+    // Extract internal props passed from DraggableList
     const { internalProps } = rest;
 
     // Render group header (non-draggable but shifts)

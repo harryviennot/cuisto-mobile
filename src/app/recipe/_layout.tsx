@@ -2,8 +2,10 @@
  * Recipe layout - removes default header
  */
 import { Stack } from "expo-router";
+import { useDeviceType } from "@/hooks/useDeviceType";
 
 export default function RecipeLayout() {
+  const { isTablet, isTabletLandscape } = useDeviceType();
   return (
     <Stack
       screenOptions={{
@@ -17,7 +19,7 @@ export default function RecipeLayout() {
         options={{
           headerShown: false,
           gestureEnabled: false,
-          presentation: "modal",
+          presentation: isTablet ? "fullScreenModal" : "modal",
           animation: "slide_from_bottom",
           animationTypeForReplace: "pop",
         }}

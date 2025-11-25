@@ -9,6 +9,7 @@ import {
 } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface RecipeActionButtonsProps {
   onStartCooking: () => void;
@@ -19,6 +20,7 @@ interface RecipeActionButtonsProps {
   isDraft: boolean;
   isOwner: boolean;
   isEditing?: boolean;
+  isLoading?: boolean;
 }
 
 export function RecipeActionButtons({
@@ -30,10 +32,20 @@ export function RecipeActionButtons({
   isDraft,
   isOwner,
   isEditing = false,
+  isLoading = false,
 }: RecipeActionButtonsProps) {
   const { t } = useTranslation();
 
-  console.log(isOwner, isDraft, isEditing);
+  if (isLoading) {
+    return (
+      <View className="flex-row gap-3 mb-6">
+        {/* Primary Action Button Skeleton */}
+        <Skeleton height={56} borderRadius={12} style={{ flex: 1 }} />
+        {/* Secondary Button Skeleton */}
+        <Skeleton width={56} height={56} borderRadius={12} />
+      </View>
+    );
+  }
 
   return (
     <View className="flex-row gap-3 mb-6">

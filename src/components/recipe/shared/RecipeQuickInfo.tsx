@@ -4,6 +4,7 @@ import { ChefHatIcon, ClockIcon, UsersThreeIcon } from "phosphor-react-native";
 import { DifficultyLevel } from "@/types/recipe";
 import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface RecipeQuickInfoProps {
   time: number | undefined;
@@ -11,6 +12,7 @@ interface RecipeQuickInfoProps {
   servings: number | undefined;
   onTimePress: () => void;
   enableUpdate: boolean;
+  isLoading?: boolean;
 }
 
 export function RecipeQuickInfo({
@@ -19,8 +21,33 @@ export function RecipeQuickInfo({
   servings,
   onTimePress,
   enableUpdate = true,
+  isLoading = false,
 }: RecipeQuickInfoProps) {
   const { t } = useTranslation();
+
+  if (isLoading) {
+    return (
+      <ShadowItem className="flex-row p-4 mb-4 justify-around">
+        {/* Time Skeleton */}
+        <View className="items-center flex-1">
+          <Skeleton width={20} height={20} borderRadius={4} />
+          <Skeleton width={60} height={14} borderRadius={4} style={{ marginTop: 4 }} />
+        </View>
+
+        {/* Difficulty Skeleton */}
+        <View className="items-center flex-1">
+          <Skeleton width={20} height={20} borderRadius={4} />
+          <Skeleton width={50} height={14} borderRadius={4} style={{ marginTop: 4 }} />
+        </View>
+
+        {/* Servings Skeleton */}
+        <View className="items-center flex-1">
+          <Skeleton width={20} height={20} borderRadius={4} />
+          <Skeleton width={70} height={14} borderRadius={4} style={{ marginTop: 4 }} />
+        </View>
+      </ShadowItem>
+    );
+  }
 
   return (
     <ShadowItem className="flex-row p-4 mb-4  justify-around">

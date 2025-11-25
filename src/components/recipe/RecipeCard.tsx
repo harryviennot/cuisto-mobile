@@ -2,7 +2,7 @@
  * Recipe card component for displaying recipe in grid view
  * Editorial Pinterest-style design with glassmorphism
  */
-import { memo } from "react";
+import { memo, useState } from "react";
 import { View, Text, Pressable, Platform } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -10,14 +10,16 @@ import { Image as ImageIcon, Clock, Flame, Bookmark } from "phosphor-react-nativ
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
 import type { Recipe } from "@/types/recipe";
+import { Skeleton } from "../ui/Skeleton";
 
 interface RecipeCardProps {
   recipe: Recipe;
   index: number;
 }
 
-export const aiRecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) {
+export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) {
   const { t } = useTranslation();
+  const [imageLoading, setImageLoading] = useState(true);
 
   const handlePress = () => {
     // Navigate to recipe detail page for saved recipes
@@ -83,14 +85,26 @@ export const aiRecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps
           }}
         >
           {recipe.image_url ? (
-            <Image
-              source={{ uri: recipe.image_url }}
-              style={{ width: "100%", height: "100%" }}
-              contentFit="cover"
-              transition={200}
-              cachePolicy="memory-disk"
-              priority="normal"
-            />
+            <>
+              {/* Loading Skeleton */}
+              {imageLoading && (
+                <View className="absolute inset-0 z-10">
+                  <Skeleton width="100%" height="100%" borderRadius={0} />
+                </View>
+              )}
+              {/* Image - ready for shared element transitions */}
+              <Image
+                source={{ uri: recipe.image_url }}
+                style={{ width: "100%", height: "100%" }}
+                contentFit="cover"
+                transition={200}
+                cachePolicy="memory-disk"
+                priority="normal"
+                onLoadStart={() => setImageLoading(true)}
+                onLoad={() => setImageLoading(false)}
+                onError={() => setImageLoading(false)}
+              />
+            </>
           ) : (
             <View className="w-full h-full items-center justify-center gap-2">
               <ImageIcon size={48} color="#a8a29e" weight="duotone" />

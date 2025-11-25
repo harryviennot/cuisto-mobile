@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Pressable, TextInput as RNTextInput } from "react-native";
+import { View, Text, Pressable, TextInput as RNTextInput, TouchableOpacity } from "react-native";
 import { PlusIcon, CheckIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import type { Ingredient } from "@/types/recipe";
+import { AnimatedDropZone } from "@/components/ui/AnimatedDropZone";
 
 interface ExpandableIngredientFormProps {
     mode: "add" | "edit";
@@ -23,7 +24,6 @@ export function ExpandableIngredientForm({
     onToggle,
     onSave,
 }: ExpandableIngredientFormProps) {
-    console.log("Ingredient:", ingredient);
     const { t } = useTranslation();
     const { isTablet } = useDeviceType();
     const [name, setName] = useState(ingredient?.name ?? "");
@@ -74,13 +74,14 @@ export function ExpandableIngredientForm({
         <View>
             {/* Collapsed state - button */}
             {!isExpanded && (
-
-                <ShadowItem className="flex-row items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border-light bg-transparent py-3" onPress={onToggle}>
-                    <PlusIcon size={20} color="#334d43" weight="bold" />
-                    <Text className="text-sm font-semibold text-foreground">
-                        {mode === "add" ? t("recipe.edit.addIngredient") : ingredient?.name || t("recipe.edit.editIngredient")}
-                    </Text>
-                </ShadowItem>
+                <Pressable onPress={onToggle}>
+                    <AnimatedDropZone className="flex-row items-center justify-center gap-2.5 rounded-xl  bg-transparent">
+                        <PlusIcon size={20} color="#334d43" weight="bold" />
+                        <Text className="text-base font-semibold text-foreground">
+                            {mode === "add" ? t("recipe.edit.addIngredient") : ingredient?.name || t("recipe.edit.editIngredient")}
+                        </Text>
+                    </AnimatedDropZone>
+                </Pressable>
             )}
 
             {/* Expanded state - form */}

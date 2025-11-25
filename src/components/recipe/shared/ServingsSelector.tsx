@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useCallback } from "react";
 import { ScrollView, Text, Pressable } from "react-native";
-import { ShadowItem } from "../ShadowedSection";
+import { ShadowItem } from "@/components/ShadowedSection";
 import { useDeviceType } from "@/hooks/useDeviceType";
 
 interface ServingsSelectorProps {

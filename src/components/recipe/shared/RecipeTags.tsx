@@ -1,11 +1,24 @@
 import { View, Text } from "react-native";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface RecipeTagsProps {
   categories: string[] | undefined;
   tags: string[] | undefined;
+  isLoading?: boolean;
 }
 
-export function RecipeTags({ tags, categories }: RecipeTagsProps) {
+export function RecipeTags({ tags, categories, isLoading = false }: RecipeTagsProps) {
+  if (isLoading) {
+    return (
+      <View className="flex-row flex-wrap gap-2">
+        <Skeleton width={80} height={28} borderRadius={14} />
+        <Skeleton width={100} height={28} borderRadius={14} />
+        <Skeleton width={70} height={28} borderRadius={14} />
+        <Skeleton width={90} height={28} borderRadius={14} />
+      </View>
+    );
+  }
+
   if (!categories && !tags) return null;
 
   return (

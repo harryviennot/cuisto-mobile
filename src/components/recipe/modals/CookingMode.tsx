@@ -1,14 +1,11 @@
-/**
- * Cooking Mode - Step-by-step cooking interface
- * Full-screen immersive mode for following recipe instructions
- */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   Pressable,
   ScrollView,
   useWindowDimensions,
+  BackHandler,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -19,7 +16,16 @@ import {
   Clock,
 } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
-import Animated, { FadeIn, FadeOut, SlideInRight, SlideOutLeft } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInRight,
+  SlideOutLeft,
+  SlideInUp,
+  SlideInDown,
+  ZoomIn,
+  withDelay
+} from "react-native-reanimated";
 import type { Recipe } from "@/types/recipe";
 
 interface CookingModeProps {
@@ -39,6 +45,21 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === totalSteps - 1;
   const currentInstruction = instructions[currentStep];
+
+  // Handle hardware back button
+  useEffect(() => {
+    const backAction = () => {
+      onClose();
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [onClose]);
 
   const handleNext = () => {
     if (!isLastStep) {
@@ -72,7 +93,10 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
   return (
     <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="border-b border-border-light bg-surface-elevated px-6 py-4">
+      <Animated.View
+        entering={SlideInUp.delay(200).springify().damping(15)}
+        className="border-b border-border-light bg-surface-elevated px-6 py-4"
+      >
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
             <Text className="mb-1 text-xs font-medium uppercase tracking-wide text-foreground-muted">
@@ -102,13 +126,13 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
           </View>
           <View className="h-2 overflow-hidden rounded-full bg-surface-texture-light">
             <Animated.View
-              entering={FadeIn}
+              entering={FadeIn.delay(400)}
               className="h-full bg-primary"
               style={{ width: `${progressPercentage}%` as any }}
             />
           </View>
         </View>
-      </View>
+      </Animated.View>
 
       {/* Step Content */}
       <ScrollView
@@ -123,7 +147,10 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
           className="flex-1"
         >
           {/* Step Number Badge */}
-          <View className="mb-6 flex-row items-center gap-4">
+          <Animated.View
+            entering={ZoomIn.delay(300).springify()}
+            className="mb-6 flex-row items-center gap-4"
+          >
             <View className="h-16 w-16 items-center justify-center rounded-full border-4 border-primary bg-surface-elevated shadow-lg">
               <Text className="text-2xl font-bold text-primary">
                 {currentInstruction.step_number}
@@ -138,55 +165,55 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
                 </Text>
               </View>
             )}
-          </View>
+          </Animated.View>
 
           {/* Instruction Text */}
-          <Text className="mb-8 text-2xl font-bold leading-tight text-foreground-heading">
+          <Animated.Text
+            entering={FadeIn.delay(400).duration(500)}
+            className="mb-8 text-2xl font-bold leading-tight text-foreground-heading"
+          >
             {currentInstruction.description}
-          </Text>
+          </Animated.Text>
 
           {/* Group Context */}
           {currentInstruction.group && currentInstruction.group !== "Main" && (
-            <View className="mb-6 rounded-xl bg-surface-elevated p-4">
+            <Animated.View
+              entering={FadeIn.delay(500)}
+              className="mb-6 rounded-xl bg-surface-elevated p-4"
+            >
               <Text className="text-xs font-bold uppercase tracking-widest text-foreground-muted">
                 {currentInstruction.group}
               </Text>
-            </View>
+            </Animated.View>
           )}
 
-          {/* Ingredients for this step (if we had them linked) */}
-          {/* This would require backend changes to link ingredients to steps */}
-
           {/* Complete Step Button */}
-          <Pressable
-            onPress={handleToggleComplete}
-            className={`mb-6 flex-row items-center justify-center gap-3 rounded-xl px-6 py-4 active:scale-[0.98] ${
-              isStepComplete ? "bg-state-success/10 border-2 border-state-success" : "bg-surface-elevated border-2 border-border"
-            }`}
-          >
-            <View
-              className={`h-6 w-6 items-center justify-center rounded-full ${
-                isStepComplete ? "bg-state-success" : "bg-surface-elevated"
-              }`}
+          <Animated.View entering={FadeIn.delay(600).duration(500)}>
+            <Pressable
+              onPress={handleToggleComplete}
+              className={`mb-6 flex-row items-center justify-center gap-3 rounded-xl px-6 py-4 active:scale-[0.98] ${isStepComplete ? "bg-state-success/10 border-2 border-state-success" : "bg-surface-elevated border-2 border-border"
+                }`}
             >
-              {isStepComplete && <Check size={16} color="#FFFFFF" weight="bold" />}
-            </View>
-            <Text
-              className={`text-base font-bold ${
-                isStepComplete ? "text-state-success" : "text-foreground-secondary"
-              }`}
-            >
-              {isStepComplete ? t("recipe.cookingMode.stepCompleted") : t("recipe.cookingMode.markAsComplete")}
-            </Text>
-          </Pressable>
-
-          {/* Helpful Tips (placeholder for future enhancement) */}
-          {/* Could show tips, alternative techniques, or warnings */}
+              <View
+                className={`h-6 w-6 items-center justify-center rounded-full ${isStepComplete ? "bg-state-success" : "bg-surface-elevated"
+                  }`}
+              >
+                {isStepComplete && <Check size={16} color="#FFFFFF" weight="bold" />}
+              </View>
+              <Text
+                className={`text-base font-bold ${isStepComplete ? "text-state-success" : "text-foreground-secondary"
+                  }`}
+              >
+                {isStepComplete ? t("recipe.cookingMode.stepCompleted") : t("recipe.cookingMode.markAsComplete")}
+              </Text>
+            </Pressable>
+          </Animated.View>
         </Animated.View>
       </ScrollView>
 
       {/* Navigation Footer */}
-      <View
+      <Animated.View
+        entering={SlideInDown.delay(200).springify().damping(15)}
         className="border-t border-border-light bg-surface-elevated px-6 py-4"
         style={{ paddingBottom: insets.bottom + 16 }}
       >
@@ -195,11 +222,10 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
           <Pressable
             onPress={handlePrevious}
             disabled={isFirstStep}
-            className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border-2 py-4 ${
-              isFirstStep
+            className={`flex-1 flex-row items-center justify-center gap-2 rounded-xl border-2 py-4 ${isFirstStep
                 ? "border-border-light bg-surface-elevated"
                 : "border-border bg-surface-elevated active:bg-surface-elevated"
-            }`}
+              }`}
           >
             <CaretLeft
               size={24}
@@ -207,9 +233,8 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
               weight="bold"
             />
             <Text
-              className={`text-base font-bold ${
-                isFirstStep ? "text-foreground-tertiary" : "text-foreground-secondary"
-              }`}
+              className={`text-base font-bold ${isFirstStep ? "text-foreground-tertiary" : "text-foreground-secondary"
+                }`}
             >
               {t("common.previous")}
             </Text>
@@ -233,17 +258,16 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
             <Pressable
               key={idx}
               onPress={() => setCurrentStep(idx)}
-              className={`h-2 rounded-full ${
-                idx === currentStep
+              className={`h-2 rounded-full ${idx === currentStep
                   ? "w-8 bg-primary"
                   : completedSteps.has(idx)
                     ? "w-2 bg-state-success"
                     : "w-2 bg-surface-texture-light"
-              }`}
+                }`}
             />
           ))}
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 };

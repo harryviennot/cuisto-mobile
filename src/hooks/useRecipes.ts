@@ -10,6 +10,7 @@ import type {
   RecipeTimingsUpdateResponse,
   RecipeRatingUpdateResponse,
 } from "@/types/recipe";
+import Toast from "react-native-toast-message";
 
 const RECIPES_PER_PAGE = 20;
 
@@ -81,6 +82,11 @@ export function useUpdateRecipeRating() {
     },
     // If the mutation fails, rollback to the previous value
     onError: (_err, variables, context) => {
+      Toast.show({
+        type: "error",
+        text1: "There was an error updating the recipe rating",
+        text2: _err.message,
+      });
       if (context?.previousRecipe) {
         queryClient.setQueryData(["recipe", variables.recipeId], context.previousRecipe);
       }
@@ -148,6 +154,11 @@ export function useUpdateRecipeTimings() {
     },
     // If the mutation fails, rollback
     onError: (_err, variables, context) => {
+      Toast.show({
+        type: "error",
+        text1: "Error updating recipe timings",
+        text2: _err.message,
+      });
       if (context?.previousRecipe) {
         queryClient.setQueryData(["recipe", variables.recipeId], context.previousRecipe);
       }
@@ -214,6 +225,11 @@ export function useUpdateRecipe() {
       return { previousRecipe };
     },
     onError: (_err, variables, context) => {
+      Toast.show({
+        type: "error",
+        text1: "Error updating recipe",
+        text2: _err.message,
+      });
       if (context?.previousRecipe) {
         queryClient.setQueryData(["recipe", variables.recipeId], context.previousRecipe);
       }

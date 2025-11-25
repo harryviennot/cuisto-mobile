@@ -1,7 +1,18 @@
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, type LayoutRectangle } from "react-native";
 import { CaretUpIcon, CaretDownIcon } from "phosphor-react-native";
 import { DraggableItem } from "../../DragAndDrop/DraggableItem";
+import type { SharedValue } from "react-native-reanimated";
+
+interface DraggableInternalProps {
+    index: number;
+    activeIndex: number | null;
+    destIndex: number | null;
+    itemHeight: number;
+    dragTranslationY: SharedValue<number>;
+    onLayout?: (event: any) => void;
+    itemLayouts?: Map<number, LayoutRectangle>;
+}
 
 interface GroupHeaderProps {
     groupName: string;
@@ -9,7 +20,7 @@ interface GroupHeaderProps {
     totalGroups: number;
     onMoveUp: () => void;
     onMoveDown: () => void;
-    internalProps?: any;
+    internalProps?: DraggableInternalProps;
 }
 
 export function GroupHeader({

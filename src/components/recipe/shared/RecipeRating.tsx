@@ -1,13 +1,15 @@
 import "@/global.css";
 import { View, Text } from "react-native";
 import { useTranslation } from "react-i18next";
-import { StarRating } from "../StarRating";
+import { StarRating } from "@/components/StarRating";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface RecipeRatingProps {
   userRating?: number;
   averageRating?: number;
   ratingCount: number;
   onRatingChange: (rating: number) => void;
+  isLoading?: boolean;
 }
 
 /**
@@ -20,6 +22,7 @@ export function RecipeRating({
   averageRating,
   ratingCount,
   onRatingChange,
+  isLoading = false,
 }: RecipeRatingProps) {
   const { t } = useTranslation();
 
@@ -28,6 +31,38 @@ export function RecipeRating({
   const [integerPart, decimalPart] = ratingValue.includes(".")
     ? ratingValue.split(".")
     : [ratingValue, null];
+
+  if (isLoading) {
+    return (
+      <View className="flex-row items-start justify-between mb-6">
+        {/* User Rating Skeleton */}
+        <View className="flex flex-col gap-2">
+          <Skeleton width={80} height={12} borderRadius={4} />
+          <View className="flex-row gap-1">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} width={30} height={30} borderRadius={15} />
+            ))}
+          </View>
+        </View>
+
+        {/* Community Rating Skeleton */}
+        <View className="flex flex-col items-end justify-between gap-2">
+          <Skeleton width={60} height={12} borderRadius={4} />
+          <View className="flex-row items-center gap-2">
+            <Skeleton width={50} height={36} borderRadius={8} />
+            <View className="flex flex-col items-center gap-1">
+              <View className="flex-row gap-0.5">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Skeleton key={index} width={12} height={12} borderRadius={6} />
+                ))}
+              </View>
+              <Skeleton width={60} height={10} borderRadius={4} />
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-row items-start justify-between mb-6">

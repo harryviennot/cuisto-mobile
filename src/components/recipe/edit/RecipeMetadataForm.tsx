@@ -5,7 +5,7 @@ import { MinusIcon, PlusIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 
 import { ShadowItem } from "@/components/ShadowedSection";
-import { TimeAdjuster } from "@/components/recipe/TimeAdjuster";
+import { TimeAdjuster } from "@/components/recipe/shared/TimeAdjuster";
 import { DifficultyLevel } from "@/types/recipe";
 import type { RecipeEditFormData } from "@/schemas/recipe.schema";
 

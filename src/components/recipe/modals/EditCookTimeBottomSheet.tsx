@@ -5,9 +5,9 @@ import { useTranslation } from "react-i18next";
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
 import { X } from "phosphor-react-native";
 import { useDeviceType } from "@/hooks/useDeviceType";
-import { ShadowItem } from "../ShadowedSection";
+import { ShadowItem } from "@/components/ShadowedSection";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TimeAdjuster } from "./TimeAdjuster";
+import { TimeAdjuster } from "@/components/recipe/shared/TimeAdjuster";
 
 interface EditCookTimeBottomSheetProps {
   visible: boolean;
@@ -70,7 +70,7 @@ export function EditCookTimeBottomSheet({
   }, [visible]);
 
   const renderBackdrop = useCallback(
-    (props: any) => (
+    (props: React.ComponentProps<typeof BottomSheetBackdrop>) => (
       <BottomSheetBackdrop
         {...props}
         disappearsOnIndex={-1}

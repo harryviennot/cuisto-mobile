@@ -231,7 +231,7 @@ export function RecipeInstructionsForm({ control }: RecipeInstructionsFormProps)
 
   // Remove an instruction
   const removeInstruction = (index: number) => {
-    const updatedInstructions = instructionsList.filter((_: any, i: number) => i !== index);
+    const updatedInstructions = instructionsList.filter((_, i) => i !== index);
     // Recalculate step numbers after removal
     onInstructionsChange(recalculateStepNumbers(updatedInstructions));
   };
@@ -308,7 +308,7 @@ export function RecipeInstructionsForm({ control }: RecipeInstructionsFormProps)
     isActive,
     ...rest
   }: RenderItemParams<FlatListItem>) => {
-    // @ts-ignore - Extract internal props passed from DraggableList
+    // Extract internal props passed from DraggableList
     const { internalProps } = rest;
 
     // Render group header (non-draggable but shifts)

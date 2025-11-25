@@ -41,8 +41,7 @@ export default function UnifiedRecipePreviewScreen() {
       }
     },
     onError: (error) => {
-      // Log error but don't alert user for temporary network issues
-      console.warn("Connection error (will retry):", error.message);
+      // Connection errors are handled by the retry mechanism
     },
     enableSSE: true, // Re-enabled with fixes - test carefully
   });
@@ -52,7 +51,6 @@ export default function UnifiedRecipePreviewScreen() {
       const data = await recipeService.getRecipe(recipeId);
       setRecipe(data);
     } catch (error) {
-      console.error("Error loading recipe:", error);
       Toast.show({
         type: "error",
         text1: t("common.error"),
@@ -87,8 +85,8 @@ export default function UnifiedRecipePreviewScreen() {
 
     // Delete recipe in background
     if (job?.recipe_id) {
-      recipeService.deleteRecipe(job.recipe_id).catch((error) => {
-        console.error("Error discarding recipe:", error);
+      recipeService.deleteRecipe(job.recipe_id).catch(() => {
+        // Silently handle deletion errors
       });
     }
   };
@@ -167,6 +165,7 @@ export default function UnifiedRecipePreviewScreen() {
         isDraft={true}
         onDiscard={handleDiscard}
         onSave={handleSave}
+        showHeader={false}
       />
     );
   }

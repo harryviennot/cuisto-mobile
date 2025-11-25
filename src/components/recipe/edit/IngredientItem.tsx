@@ -1,10 +1,23 @@
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, type LayoutRectangle } from "react-native";
 import { XIcon, DotsSixVerticalIcon } from "phosphor-react-native";
 import { GestureDetector } from "react-native-gesture-handler";
+import type { GestureType } from "react-native-gesture-handler";
 import { DraggableItem } from "../../DragAndDrop/DraggableItem";
 import { ShadowItem } from "@/components/ShadowedSection";
+import type { SharedValue } from "react-native-reanimated";
 import type { Ingredient } from "@/types/recipe";
+
+interface DraggableInternalProps {
+    panGesture: GestureType;
+    index: number;
+    activeIndex: number | null;
+    destIndex: number | null;
+    itemHeight: number;
+    dragTranslationY: SharedValue<number>;
+    onLayout?: (event: any) => void;
+    itemLayouts?: Map<number, LayoutRectangle>;
+}
 
 interface IngredientItemProps {
     ingredient: Ingredient;
@@ -12,7 +25,7 @@ interface IngredientItemProps {
     drag: () => void;
     onEdit: () => void;
     onDelete: () => void;
-    internalProps?: any;
+    internalProps?: DraggableInternalProps;
 }
 
 export function IngredientItem({

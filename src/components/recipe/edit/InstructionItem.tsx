@@ -1,17 +1,30 @@
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, type LayoutRectangle } from "react-native";
 import { TrashIcon, DotsSixVerticalIcon, AlarmIcon } from "phosphor-react-native";
 import { DraggableItem } from "@/components/DragAndDrop";
 import { ShadowItem } from "@/components/ShadowedSection";
 import type { Instruction } from "@/types/recipe";
 import { GestureDetector } from "react-native-gesture-handler";
+import type { GestureType } from "react-native-gesture-handler";
+import type { SharedValue } from "react-native-reanimated";
+
+interface DraggableInternalProps {
+  panGesture: GestureType;
+  index: number;
+  activeIndex: number | null;
+  destIndex: number | null;
+  itemHeight: number;
+  dragTranslationY: SharedValue<number>;
+  onLayout?: (event: any) => void;
+  itemLayouts?: Map<number, LayoutRectangle>;
+}
 
 interface InstructionItemProps {
   instruction: Instruction;
   isActive: boolean;
   onEdit: () => void;
   onDelete: () => void;
-  internalProps: any;
+  internalProps: DraggableInternalProps;
 }
 
 export function InstructionItem({

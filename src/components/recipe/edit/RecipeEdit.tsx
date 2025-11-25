@@ -39,7 +39,7 @@ export interface RecipeEditRef {
 
 // Inner component that uses the drag context
 const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(
-  ({ recipe, onSave, onDiscard }, ref) => {
+  function RecipeEditForm({ recipe, onSave, onDiscard }, ref) {
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
     const { isTablet, isTabletLandscape } = useDeviceType();
@@ -163,7 +163,7 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(
         }
       },
       (errors) => {
-        console.log("⚠️ [RecipeEdit] Validation errors:", JSON.stringify(errors, null, 2));
+        // Validation errors are already displayed in the form
       }
     );
 
@@ -200,7 +200,7 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(
     // Render left column (preview) - only shown in tablet landscape
     const renderPreview = () => (
       <View className="w-[45%] border-r border-border-light bg-surface">
-        <RecipeDetail recipe={previewRecipe} isEditing />
+        <RecipeDetail recipe={previewRecipe} isEditing showHeader={false} />
       </View>
     );
 

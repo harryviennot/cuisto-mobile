@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import type { Instruction } from "@/types/recipe";
+import { AnimatedDropZone } from "@/components/ui/AnimatedDropZone";
 
 interface ExpandableInstructionFormProps {
   mode: "add" | "edit";
@@ -67,14 +68,16 @@ export function ExpandableInstructionForm({
     <View className="mb-3 w-full">
       {/* Collapsed state - button */}
       {!isExpanded && (
-        <ShadowItem onPress={onToggle} className="flex-row items-center justify-center gap-2.5 rounded-xl border-2 border-dashed border-border-light bg-transparent py-4">
-          <PlusIcon size={20} color="#334d43" weight="bold" />
-          <Text className="text-base font-semibold text-foreground">
-            {mode === "add"
-              ? t("recipe.edit.addStep")
-              : instruction?.title || t("recipe.edit.editInstruction")}
-          </Text>
-        </ShadowItem>
+        <Pressable onPress={onToggle}>
+          <AnimatedDropZone className="flex-row items-center justify-center gap-2.5 rounded-xl  border-border-light bg-primary-foreground">
+            <PlusIcon size={20} color="#334d43" weight="bold" />
+            <Text className="text-base font-semibold text-foreground">
+              {mode === "add"
+                ? t("recipe.edit.addStep")
+                : instruction?.title || t("recipe.edit.editInstruction")}
+            </Text>
+          </AnimatedDropZone>
+        </Pressable>
       )}
 
       {/* Expanded state - form */}

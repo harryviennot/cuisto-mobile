@@ -3,7 +3,7 @@ import { View, Text, Pressable } from "react-native";
 import { useRef, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Minus, Plus } from "phosphor-react-native";
-import { ShadowItem } from "../ShadowedSection";
+import { ShadowItem } from "@/components/ShadowedSection";
 
 interface Preset {
   label: string;
