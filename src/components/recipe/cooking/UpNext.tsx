@@ -5,6 +5,7 @@ import Animated, {
     SharedValue,
     useAnimatedStyle,
     interpolate,
+    useDerivedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -38,23 +39,36 @@ export const UpNext: React.FC<UpNextProps> = ({
         };
     }, [currentStep, totalSteps]);
 
-    const labelAnimatedStyle = useAnimatedStyle(() => {
+    const labelOpacity = useDerivedValue(() => {
         // If we are at the last step, force hide
         if (currentStep === totalSteps - 1) {
-            return { opacity: 0, transform: [{ translateY: 10 }] };
+            return 0;
         }
 
         // Animate label out only when moving to the last step AND going forward
         if (currentStep === totalSteps - 2 && nextStepAnim.value > 0 && directionAnim.value !== -1) {
-            return {
-                opacity: interpolate(nextStepAnim.value, [0, 1], [1, 0]),
-                transform: [
-                    { translateY: interpolate(nextStepAnim.value, [0, 1], [0, 10]) },
-                ],
-            };
+            return interpolate(nextStepAnim.value, [0, 1], [1, 0]);
         }
-        return { opacity: 1, transform: [{ translateY: 0 }] };
+        return 1;
     }, [currentStep, totalSteps]);
+
+    const labelTranslateY = useDerivedValue(() => {
+        if (currentStep === totalSteps - 1) {
+            return 10;
+        }
+
+        if (currentStep === totalSteps - 2 && nextStepAnim.value > 0 && directionAnim.value !== -1) {
+            return interpolate(nextStepAnim.value, [0, 1], [0, 10]);
+        }
+        return 0;
+    }, [currentStep, totalSteps]);
+
+    const labelAnimatedStyle = useAnimatedStyle(() => {
+        return {
+            opacity: labelOpacity.value,
+            transform: [{ translateY: labelTranslateY.value }],
+        };
+    });
 
     // Persist the next step to allow exit animation
     const lastNextStep = React.useRef(nextStep);

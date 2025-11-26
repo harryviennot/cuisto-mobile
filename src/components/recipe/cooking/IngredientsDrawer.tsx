@@ -6,6 +6,7 @@ import Animated, {
     SharedValue,
     useAnimatedStyle,
     interpolate,
+    useDerivedValue,
 } from "react-native-reanimated";
 import type { Ingredient } from "@/types/recipe";
 
@@ -31,18 +32,26 @@ export const IngredientsDrawer: React.FC<IngredientsDrawerProps> = ({
     const { t } = useTranslation();
     const { height } = useWindowDimensions();
 
+    const sheetTranslateY = useDerivedValue(() => {
+        return interpolate(
+            ingredientsSheetAnim.value,
+            [0, 1],
+            [height * 0.4, 0]
+        );
+    });
+
+    const sheetOpacity = useDerivedValue(() => {
+        return interpolate(ingredientsSheetAnim.value, [0, 1], [0, 1]);
+    });
+
     const ingredientsSheetStyle = useAnimatedStyle(() => {
         return {
             transform: [
                 {
-                    translateY: interpolate(
-                        ingredientsSheetAnim.value,
-                        [0, 1],
-                        [height * 0.4, 0]
-                    ),
+                    translateY: sheetTranslateY.value,
                 },
             ],
-            opacity: interpolate(ingredientsSheetAnim.value, [0, 1], [0, 1]),
+            opacity: sheetOpacity.value,
         };
     });
 
@@ -143,8 +152,8 @@ export const IngredientsDrawer: React.FC<IngredientsDrawerProps> = ({
                                     <View
                                         key={idx}
                                         className={`flex-row justify-between ${!ing.isRelevant && !viewAllIngredients
-                                                ? "opacity-50"
-                                                : "opacity-100"
+                                            ? "opacity-50"
+                                            : "opacity-100"
                                             }`}
                                     >
                                         <View className="flex-1 flex-row items-start gap-3">
@@ -154,8 +163,8 @@ export const IngredientsDrawer: React.FC<IngredientsDrawerProps> = ({
                                             />
                                             <Text
                                                 className={`flex-1 font-medium leading-snug ${ing.isRelevant
-                                                        ? "text-foreground-heading font-bold"
-                                                        : "text-foreground-secondary"
+                                                    ? "text-foreground-heading font-bold"
+                                                    : "text-foreground-secondary"
                                                     }`}
                                             >
                                                 {ing.name}

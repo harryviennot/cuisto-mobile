@@ -2,10 +2,9 @@
  * Recipe layout - removes default header
  */
 import { Stack } from "expo-router";
-import { useDeviceType } from "@/hooks/useDeviceType";
+import { Dimensions } from "react-native";
 
 export default function RecipeLayout() {
-  const { isTablet, isTabletLandscape } = useDeviceType();
   return (
     <Stack
       screenOptions={{
@@ -16,12 +15,17 @@ export default function RecipeLayout() {
       <Stack.Screen name="[id]/index" options={{ headerShown: false }} />
       <Stack.Screen
         name="[id]/edit"
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-          presentation: isTablet ? "fullScreenModal" : "modal",
-          animation: "slide_from_bottom",
-          animationTypeForReplace: "pop",
+        options={() => {
+          const { width } = Dimensions.get("window");
+          const isTablet = width >= 768;
+
+          return {
+            headerShown: false,
+            gestureEnabled: false,
+            presentation: isTablet ? "fullScreenModal" : "modal",
+            animation: "slide_from_bottom",
+            animationTypeForReplace: "pop",
+          };
         }}
       />
     </Stack>

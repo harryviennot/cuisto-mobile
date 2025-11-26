@@ -63,7 +63,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
     });
 
   if (isFinished) {
-    return <FinishedScreen title={recipe.title} onClose={onClose} />;
+    return <FinishedScreen recipe={recipe} onClose={onClose} />;
   }
 
   const currentTimer = timers.find((t) => t.stepIndex === currentStep);

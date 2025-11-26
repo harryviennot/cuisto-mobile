@@ -2,7 +2,12 @@ import React from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { Clock, Play, Pause, ArrowCounterClockwise } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
-import Animated, { SharedValue, interpolate, useAnimatedStyle } from "react-native-reanimated";
+import Animated, {
+    SharedValue,
+    useAnimatedStyle,
+    interpolate,
+    useDerivedValue,
+} from "react-native-reanimated";
 import { GestureDetector, Gesture, GestureType } from "react-native-gesture-handler";
 import type { ActiveTimer } from "./hooks/useCookingController";
 import { UpNext } from "./UpNext";
@@ -44,13 +49,25 @@ export const StepCard: React.FC<StepCardProps> = ({
 }) => {
     const { t } = useTranslation();
 
+    const contentTranslateX = useDerivedValue(() => {
+        return interpolate(slideAnim.value, [-1, 0, 1], [-width, 0, width]);
+    });
+
+    const contentScale = useDerivedValue(() => {
+        return interpolate(slideAnim.value, [-1, 0, 1], [0.9, 1, 0.9]);
+    });
+
+    const contentOpacity = useDerivedValue(() => {
+        return interpolate(slideAnim.value, [-1, 0, 1], [0, 1, 0]);
+    });
+
     const contentAnimatedStyle = useAnimatedStyle(() => {
         return {
             transform: [
-                { translateX: interpolate(slideAnim.value, [-1, 0, 1], [-width, 0, width]) },
-                { scale: interpolate(slideAnim.value, [-1, 0, 1], [0.9, 1, 0.9]) },
+                { translateX: contentTranslateX.value },
+                { scale: contentScale.value },
             ],
-            opacity: interpolate(slideAnim.value, [-1, 0, 1], [0, 1, 0]),
+            opacity: contentOpacity.value,
         };
     });
 
@@ -143,7 +160,7 @@ export const StepCard: React.FC<StepCardProps> = ({
                                                     onStartTimer(
                                                         currentStepIndex,
                                                         step.timer_minutes,
-                                                        step.title || `Step ${step.step_number}`
+                                                        step.title || `Step ${step.step_number} `
                                                     )
                                                 }
                                                 className="h-10 w-10 items-center justify-center rounded-full bg-primary shadow-lg active:scale-90"

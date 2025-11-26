@@ -27,7 +27,10 @@
     "leave": "Quitter",
     "discard": "Supprimer",
     "reset": "Réinitialiser",
-    "saveChanges": "Enregistrer les modifications"
+    "saveChanges": "Enregistrer les modifications",
+    "bonAppetit": "Bon Appétit !",
+    "photo": "Photo",
+    "share": "Partager"
   },
   "app": {
     "title": "CuiStudio",
@@ -103,7 +106,10 @@
       "percentComplete": "% Terminé",
       "stepCompleted": "Étape terminée",
       "markAsComplete": "Marquer comme terminée",
-      "nextStep": "Étape suivante"
+      "nextStep": "Étape suivante",
+      "mastered": "Vous avez maîtrisé",
+      "completeSession": "Terminer la session",
+      "finishedMessage": "Félicitations ! Vous avez terminé {{title}}."
     },
     "card": {
       "recipeLabel": "RECETTE",
