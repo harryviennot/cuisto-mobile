@@ -131,7 +131,7 @@ export const useCookingController = (recipe: Recipe) => {
 
     // Navigation
     const changeStep = useCallback((direction: "next" | "prev") => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
 
         if (direction === "next") {
             directionAnim.value = 1;
