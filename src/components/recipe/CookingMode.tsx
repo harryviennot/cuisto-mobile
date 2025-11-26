@@ -8,6 +8,7 @@ import {
   BackHandler,
   Platform,
   StatusBar,
+  Modal,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
@@ -25,6 +26,7 @@ import {
   ArrowCounterClockwise,
   Stack,
   List,
+  Trash,
 } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import Animated, {
@@ -41,6 +43,8 @@ import Animated, {
   Extrapolation,
   runOnJS,
   Keyframe,
+  ZoomIn,
+  ZoomOut,
 } from "react-native-reanimated";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
@@ -75,6 +79,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
   const [timers, setTimers] = useState<ActiveTimer[]>([]);
   const [isFinished, setIsFinished] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedTimerIndex, setSelectedTimerIndex] = useState<number | null>(null);
 
   // Animation values
   const slideAnim = useSharedValue(0); // 0 = center, -1 = left, 1 = right
@@ -149,6 +154,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
 
   const stopTimer = (stepIndex: number) => {
     setTimers((prev) => prev.filter((t) => t.stepIndex !== stepIndex));
+    if (selectedTimerIndex === stepIndex) setSelectedTimerIndex(null);
   };
 
   const resetTimer = (stepIndex: number) => {
@@ -156,6 +162,12 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
       prev.map((t) =>
         t.stepIndex === stepIndex ? { ...t, timeLeft: t.duration, isRunning: false } : t
       )
+    );
+  };
+
+  const toggleTimer = (stepIndex: number) => {
+    setTimers((prev) =>
+      prev.map((t) => (t.stepIndex === stepIndex ? { ...t, isRunning: !t.isRunning } : t))
     );
   };
 
@@ -180,8 +192,11 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
 
         // Animate "Up Next" (rotate down)
         nextStepAnim.value = withTiming(1, { duration: 200 }, () => {
-          nextStepAnim.value = -1; // Reset to top for next entrance
-          nextStepAnim.value = withSpring(0);
+          // Only reset if we are NOT going to the last step (where Up Next disappears)
+          if (currentStep < totalSteps - 2) {
+            nextStepAnim.value = -1; // Reset to top for next entrance
+            nextStepAnim.value = withSpring(0);
+          }
         });
       } else {
         setIsFinished(true);
@@ -260,11 +275,22 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
   const nextStepAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
-        { translateY: interpolate(nextStepAnim.value, [-1, 0, 1], [-20, 0, 20]) },
+        { translateY: interpolate(nextStepAnim.value, [-1, 0, 1], [-10, 0, 10]) },
       ],
       opacity: interpolate(nextStepAnim.value, [-1, 0, 1], [0, 1, 0]),
     };
   });
+
+  const labelAnimatedStyle = useAnimatedStyle(() => {
+    // Animate label out only when moving to the last step
+    if (currentStep === totalSteps - 2 && nextStepAnim.value > 0) {
+      return {
+        opacity: interpolate(nextStepAnim.value, [0, 1], [1, 0]),
+        transform: [{ translateY: interpolate(nextStepAnim.value, [0, 1], [0, 10]) }],
+      };
+    }
+    return { opacity: 1, transform: [{ translateY: 0 }] };
+  }, [currentStep, totalSteps]);
 
   const ingredientsSheetStyle = useAnimatedStyle(() => {
     return {
@@ -323,8 +349,13 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
   }
 
   const currentTimer = timers.find(t => t.stepIndex === currentStep);
-  const otherTimers = timers.filter(t => t.stepIndex !== currentStep);
+  // Sort other timers by time left (smallest first)
+  const otherTimers = timers
+    .filter(t => t.stepIndex !== currentStep)
+    .sort((a, b) => a.timeLeft - b.timeLeft);
+
   const stepDurationSeconds = step.timer_minutes ? step.timer_minutes * 60 : 0;
+  const selectedTimer = timers.find(t => t.stepIndex === selectedTimerIndex);
 
   return (
     <View className="flex-1 bg-black">
@@ -361,7 +392,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
               <View
                 key={idx}
                 className={`h-1 rounded-full transition-all ${idx === currentStep ? "w-6 bg-white" :
-                    idx < currentStep ? "w-1.5 bg-white/60" : "w-1.5 bg-white/20"
+                  idx < currentStep ? "w-1.5 bg-white/60" : "w-1.5 bg-white/20"
                   }`}
               />
             ))}
@@ -385,20 +416,28 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
             contentContainerStyle={{ paddingHorizontal: 24, gap: 8 }}
           >
             {otherTimers.map((t) => (
-              <Animated.View
-                entering={SlideInUp}
-                exiting={FadeOut}
+              <Pressable
                 key={t.stepIndex}
-                className="flex-row items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1.5 backdrop-blur-md"
+                onLongPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                  setSelectedTimerIndex(t.stepIndex);
+                }}
+                delayLongPress={300}
               >
-                <Text className="text-[10px] font-bold uppercase tracking-wider text-white/60">{t.label}</Text>
-                <Text className={`font-mono text-sm font-medium ${t.timeLeft === 0 ? "text-red-400" : "text-white"}`}>
-                  {formatTime(t.timeLeft)}
-                </Text>
-                <Pressable onPress={() => stopTimer(t.stepIndex)} className="ml-1">
-                  <X size={12} color="#a8a29e" />
-                </Pressable>
-              </Animated.View>
+                <Animated.View
+                  entering={SlideInUp}
+                  exiting={FadeOut}
+                  className="flex-row items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1.5 backdrop-blur-md"
+                >
+                  <Text className="text-[10px] font-bold uppercase tracking-wider text-white/60">{t.label}</Text>
+                  <Text className={`font-mono text-sm font-medium ${t.timeLeft === 0 ? "text-red-400" : "text-white"}`}>
+                    {formatTime(t.timeLeft)}
+                  </Text>
+                  <Pressable onPress={() => stopTimer(t.stepIndex)} className="ml-1">
+                    <X size={12} color="#a8a29e" />
+                  </Pressable>
+                </Animated.View>
+              </Pressable>
             ))}
           </ScrollView>
         </View>
@@ -473,6 +512,15 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
                         </Pressable>
                       ) : (
                         <>
+
+                          {!currentTimer.isRunning && (
+                            <Pressable
+                              onPress={() => resetTimer(currentStep)}
+                              className="h-10 w-10 items-center justify-center rounded-full bg-surface-texture-dark active:scale-90"
+                            >
+                              <ArrowCounterClockwise size={18} color="#78716c" />
+                            </Pressable>
+                          )}
                           <Pressable
                             onPress={() => startTimer(currentStep, step.timer_minutes, step.title || `Step ${step.step_number}`)}
                             className={`h-10 w-10 items-center justify-center rounded-full active:scale-90 ${currentTimer.isRunning ? "bg-orange-100" : "bg-primary"
@@ -484,14 +532,6 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
                               <Play size={18} color="white" weight="fill" />
                             )}
                           </Pressable>
-                          {!currentTimer.isRunning && (
-                            <Pressable
-                              onPress={() => resetTimer(currentStep)}
-                              className="h-10 w-10 items-center justify-center rounded-full bg-surface-texture-dark active:scale-90"
-                            >
-                              <ArrowCounterClockwise size={18} color="#78716c" />
-                            </Pressable>
-                          )}
                         </>
                       )}
                     </View>
@@ -505,18 +545,23 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
 
       {/* Up Next - Sticky at Bottom */}
       {nextStep && (
-        <Animated.View
-          style={nextStepAnimatedStyle}
-          className="absolute bottom-[100px] left-0 right-0 z-0 items-center justify-center px-8 pb-4"
+        <View
+          className="absolute left-0 right-0 z-0 items-center justify-center px-8 pb-4"
+          style={{ bottom: 128 + insets.bottom }}
         >
-          <Text className="mb-1 text-center text-[10px] uppercase tracking-widest text-white/60">
+          <Animated.Text
+            style={labelAnimatedStyle}
+            className="mb-1 text-center text-[10px] uppercase tracking-widest text-white/60"
+          >
             {t("common.upNext")}
-          </Text>
-          <Text className="truncate text-center font-playfair text-base text-white/90" numberOfLines={1}>
-            {nextStep.group && nextStep.group !== step.group ? `${nextStep.group}: ` : ""}
-            {nextStep.title || nextStep.description}
-          </Text>
-        </Animated.View>
+          </Animated.Text>
+          <Animated.View style={nextStepAnimatedStyle}>
+            <Text className="truncate text-center font-playfair text-base text-white/90" numberOfLines={1}>
+              {nextStep.group && nextStep.group !== step.group ? `${nextStep.group}: ` : ""}
+              {nextStep.title || nextStep.description}
+            </Text>
+          </Animated.View>
+        </View>
       )}
 
       {/* Ingredients Drawer */}
@@ -631,8 +676,8 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         <Pressable
           onPress={toggleIngredients}
           className={`flex-1 flex-col items-center justify-center gap-1 rounded-2xl border active:scale-95 transition-all ${isIngredientsOpen
-              ? "bg-white border-white"
-              : "bg-transparent border-white/30"
+            ? "bg-white border-white"
+            : "bg-transparent border-white/30"
             }`}
         >
           <Text className={`text-[10px] font-bold uppercase tracking-wider ${isIngredientsOpen ? "text-black" : "text-white"}`}>
@@ -666,6 +711,72 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
           />
         </View>
       )}
+
+      {/* Timer Control Modal */}
+      <Modal
+        visible={selectedTimerIndex !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedTimerIndex(null)}
+      >
+        <BlurView intensity={20} tint="dark" className="flex-1 items-center justify-center bg-black/40">
+          <Pressable className="absolute inset-0" onPress={() => setSelectedTimerIndex(null)} />
+
+          {selectedTimer && (
+            <Animated.View
+              entering={ZoomIn}
+              exiting={ZoomOut}
+              className="w-[80%] overflow-hidden rounded-3xl bg-surface-elevated p-6 shadow-2xl"
+            >
+              <View className="mb-6 flex-row items-center justify-between">
+                <Text className="font-playfair text-xl font-bold text-foreground-heading">
+                  {selectedTimer.label}
+                </Text>
+                <Pressable onPress={() => setSelectedTimerIndex(null)} className="rounded-full bg-surface-texture-light p-2">
+                  <X size={20} color="#78716c" />
+                </Pressable>
+              </View>
+
+              <View className="mb-8 items-center">
+                <Text className={`font-mono text-6xl font-medium ${selectedTimer.isRunning ? "text-primary" : "text-foreground-heading"}`}>
+                  {formatTime(selectedTimer.timeLeft)}
+                </Text>
+                <Text className="mt-2 text-sm uppercase tracking-widest text-foreground-muted">
+                  {selectedTimer.isRunning ? t("recipe.cookingMode.timerRunning") : t("recipe.cookingMode.timerPaused")}
+                </Text>
+              </View>
+
+              <View className="flex-row justify-center gap-6">
+                <Pressable
+                  onPress={() => resetTimer(selectedTimer.stepIndex)}
+                  className="h-16 w-16 items-center justify-center rounded-full bg-surface-texture-dark active:scale-90"
+                >
+                  <ArrowCounterClockwise size={24} color="#78716c" />
+                </Pressable>
+
+                <Pressable
+                  onPress={() => toggleTimer(selectedTimer.stepIndex)}
+                  className={`h-20 w-20 items-center justify-center rounded-full shadow-lg active:scale-90 ${selectedTimer.isRunning ? "bg-orange-100" : "bg-primary"
+                    }`}
+                >
+                  {selectedTimer.isRunning ? (
+                    <Pause size={32} color="#ea580c" weight="fill" />
+                  ) : (
+                    <Play size={32} color="white" weight="fill" />
+                  )}
+                </Pressable>
+
+                <Pressable
+                  onPress={() => stopTimer(selectedTimer.stepIndex)}
+                  className="h-16 w-16 items-center justify-center rounded-full bg-red-50 active:scale-90"
+                >
+                  <Trash size={24} color="#ef4444" />
+                </Pressable>
+              </View>
+            </Animated.View>
+          )}
+        </BlurView>
+      </Modal>
     </View>
   );
 };
