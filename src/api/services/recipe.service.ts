@@ -6,7 +6,6 @@ import type {
   Recipe,
   RecipeTimingsUpdateRequest,
   RecipeTimingsUpdateResponse,
-  RecipeRatingUpdateResponse,
 } from "@/types/recipe";
 
 export const recipeService = {
@@ -86,13 +85,13 @@ export const recipeService = {
    * Update recipe rating with half-star precision
    * @param recipeId - The recipe ID
    * @param rating - Rating value (must be 0.5, 1.0, 1.5, ..., 5.0)
-   * @returns Updated rating information including aggregate statistics
+   * @returns Complete updated recipe with new rating and aggregate statistics
    */
   updateRecipeRating: async (
     recipeId: string,
     rating: number
-  ): Promise<RecipeRatingUpdateResponse> => {
-    const response = await api.patch<RecipeRatingUpdateResponse>(
+  ): Promise<Recipe> => {
+    const response = await api.patch<Recipe>(
       `/recipes/${recipeId}/rating`,
       { rating }
     );

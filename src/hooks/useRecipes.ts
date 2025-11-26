@@ -8,7 +8,6 @@ import type {
   Recipe,
   RecipeTimingsUpdateRequest,
   RecipeTimingsUpdateResponse,
-  RecipeRatingUpdateResponse,
 } from "@/types/recipe";
 import Toast from "react-native-toast-message";
 
@@ -42,18 +41,20 @@ export function useRecipes() {
 
 /**
  * Hook for updating recipe rating with optimistic updates
+ * Backend now returns the full updated Recipe object for simplicity
  */
 export function useUpdateRecipeRating() {
   const queryClient = useQueryClient();
 
   return useMutation<
-    RecipeRatingUpdateResponse,
+    Recipe,
     Error,
     { recipeId: string; rating: number },
     { previousRecipe: Recipe | undefined }
   >({
     mutationFn: async ({ recipeId, rating }) => {
-      return recipeService.updateRecipeRating(recipeId, rating);
+      const result = await recipeService.updateRecipeRating(recipeId, rating);
+      return result;
     },
     // Optimistically update the UI before the API call completes
     onMutate: async ({ recipeId, rating }) => {
@@ -63,10 +64,12 @@ export function useUpdateRecipeRating() {
       // Snapshot the previous value
       const previousRecipe = queryClient.getQueryData<Recipe>(["recipe", recipeId]);
 
-      // Optimistically update the user's rating
+      // Optimistically update the user's rating for instant feedback
       queryClient.setQueryData<Recipe>(["recipe", recipeId], (old) => {
-        if (!old) return old;
-        return {
+        if (!old) {
+          return old;
+        }
+        const updated = {
           ...old,
           user_data: {
             ...old.user_data,
@@ -75,6 +78,7 @@ export function useUpdateRecipeRating() {
             is_favorite: old.user_data?.is_favorite ?? false,
           },
         };
+        return updated;
       });
 
       // Return context with the previous value
@@ -91,23 +95,15 @@ export function useUpdateRecipeRating() {
         queryClient.setQueryData(["recipe", variables.recipeId], context.previousRecipe);
       }
     },
-    onSuccess: (data, variables) => {
-      // Update with the real values from the server (including updated average)
-      queryClient.setQueryData<Recipe>(["recipe", variables.recipeId], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          average_rating: data.recipe_average_rating,
-          rating_count: data.recipe_rating_count,
-          rating_distribution: data.recipe_rating_distribution,
-          user_data: {
-            ...old.user_data,
-            rating: data.user_rating,
-            times_cooked: old.user_data?.times_cooked ?? 0,
-            is_favorite: old.user_data?.is_favorite ?? false,
-          },
-        };
-      });
+    // Update with the full recipe from the server (single source of truth)
+    onSuccess: (fullRecipe, variables) => {
+      // Replace the entire recipe with the server data
+      // This includes updated user_data.rating and aggregate stats (average_rating, rating_count, rating_distribution)
+      queryClient.setQueryData<Recipe>(["recipe", variables.recipeId], fullRecipe);
+
+      // Note: We intentionally do NOT invalidate the recipes list cache
+      // One user's rating has minimal impact on aggregate ratings in the list
+      // This avoids unnecessary refetches of the entire recipe list
     },
   });
 }

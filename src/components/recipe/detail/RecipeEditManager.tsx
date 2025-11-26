@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useState, useRef, useEffect } from "react";
 import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
 import { EditCookTimeBottomSheet } from "@/components/recipe/modals/EditCookTimeBottomSheet";
@@ -11,7 +11,7 @@ interface RecipeEditManagerProps {
     userRating?: number;
     displayPrepTime: number;
     displayCookTime: number;
-    handleRatingChange: (rating: number) => Promise<void>;
+    handleRatingChange: (rating: number) => void;
     handleOpenTimeEdit: () => void;
     handleSaveTimings: (prepMinutes: number, cookMinutes: number) => Promise<void>;
     isTimeEditVisible: boolean;
@@ -28,9 +28,22 @@ export const RecipeEditManager = memo(function RecipeEditManager({
   // State
   const [isTimeEditVisible, setIsTimeEditVisible] = useState(false);
 
+  // Debounce refs for rating
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingRatingRef = useRef<number | null>(null);
+
   // Mutations
   const updateRatingMutation = useUpdateRecipeRating();
   const updateTimingsMutation = useUpdateRecipeTimings();
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Get user's custom data or fallback to recipe defaults
   const userRating = recipe.user_data?.rating;
@@ -67,8 +80,8 @@ export const RecipeEditManager = memo(function RecipeEditManager({
     }
   };
 
-  // Handler for rating changes
-  const handleRatingChange = async (rating: number) => {
+  // Handler for rating changes with debouncing
+  const handleRatingChange = (rating: number) => {
     // Validate rating is in 0.5 increments
     if ((rating * 2) % 1 !== 0 || rating < 0.5 || rating > 5.0) {
       Toast.show({
@@ -79,18 +92,34 @@ export const RecipeEditManager = memo(function RecipeEditManager({
       return;
     }
 
-    try {
-      await updateRatingMutation.mutateAsync({
-        recipeId: recipe.id,
-        rating,
-      });
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: t("common.error"),
-        text2: t("recipe.errors.rateRecipeFailed"),
-      });
+    // Store the pending rating
+    pendingRatingRef.current = rating;
+
+    // Clear any existing debounce timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
+
+    // Debounce the API call - only send after user stops clicking for 800ms
+    debounceTimerRef.current = setTimeout(async () => {
+      const ratingToSend = pendingRatingRef.current;
+      if (ratingToSend === null) return;
+
+      try {
+        await updateRatingMutation.mutateAsync({
+          recipeId: recipe.id,
+          rating: ratingToSend,
+        });
+        pendingRatingRef.current = null;
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text1: t("common.error"),
+          text2: t("recipe.errors.rateRecipeFailed"),
+        });
+        pendingRatingRef.current = null;
+      }
+    }, 800); // Wait 800ms after last click before sending to server
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, Pressable, StatusBar, StyleSheet } from "react-native";
 import { Image } from "expo-image";
 import { BlurView } from "expo-blur";
@@ -37,6 +37,8 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
     });
 
     const [rating, setRating] = useState(cachedRecipe.user_data?.rating || 0);
+    const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const pendingRatingRef = useRef<number | null>(null);
 
     // Update local rating state when cache updates
     useEffect(() => {
@@ -46,6 +48,15 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
     }, [cachedRecipe.user_data?.rating]);
 
     const updateRecipeRatingMutation = useUpdateRecipeRating();
+
+    // Cleanup debounce timer on unmount
+    useEffect(() => {
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+        };
+    }, []);
 
     // Animations
     const pulseAnim = useSharedValue(1);
@@ -65,20 +76,36 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
         transform: [{ scale: pulseAnim.value }],
     }));
 
-    const handleRating = async (newRating: number) => {
+    const handleRating = (newRating: number) => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+        // Update UI immediately for instant feedback
         setRating(newRating);
 
-        // Update the rating on the server with optimistic updates
-        try {
-            await updateRecipeRatingMutation.mutateAsync({
-                recipeId: recipe.id,
-                rating: newRating,
-            });
-        } catch (error) {
-            // Error toast is handled by the hook
-            console.error("Failed to update recipe rating:", error);
+        // Store the pending rating
+        pendingRatingRef.current = newRating;
+
+        // Clear any existing debounce timer
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
         }
+
+        // Debounce the API call - only send after user stops clicking for 800ms
+        debounceTimerRef.current = setTimeout(async () => {
+            const ratingToSend = pendingRatingRef.current;
+            if (ratingToSend === null) return;
+
+            try {
+                await updateRecipeRatingMutation.mutateAsync({
+                    recipeId: recipe.id,
+                    rating: ratingToSend,
+                });
+                pendingRatingRef.current = null;
+            } catch (error) {
+                // Error toast is handled by the hook
+                pendingRatingRef.current = null;
+            }
+        }, 800); // Wait 800ms after last click before sending to server
     };
 
     const handleAction = () => {

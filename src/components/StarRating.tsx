@@ -1,7 +1,7 @@
 import "@/global.css";
 import { View, Pressable, PanResponder } from "react-native";
 import { StarIcon } from "phosphor-react-native";
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 
 interface StarRatingProps {
   rating: number;
@@ -23,6 +23,12 @@ export function StarRating({
   const containerX = useRef(0);
   const containerWidth = useRef(0);
   const lastRating = useRef(rating);
+
+  // Sync displayRating with rating prop when it changes
+  useEffect(() => {
+    setDisplayRating(rating);
+    lastRating.current = rating;
+  }, [rating]);
 
   // Measure container position and size
   const onLayout = () => {
