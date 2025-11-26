@@ -13,6 +13,7 @@ interface UpNextProps {
     currentStep: number;
     totalSteps: number;
     nextStepAnim: SharedValue<number>;
+    directionAnim: SharedValue<number>;
 }
 
 export const UpNext: React.FC<UpNextProps> = ({
@@ -20,6 +21,7 @@ export const UpNext: React.FC<UpNextProps> = ({
     currentStep,
     totalSteps,
     nextStepAnim,
+    directionAnim,
 }) => {
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
@@ -42,8 +44,8 @@ export const UpNext: React.FC<UpNextProps> = ({
             return { opacity: 0, transform: [{ translateY: 10 }] };
         }
 
-        // Animate label out only when moving to the last step
-        if (currentStep === totalSteps - 2 && nextStepAnim.value > 0) {
+        // Animate label out only when moving to the last step AND going forward
+        if (currentStep === totalSteps - 2 && nextStepAnim.value > 0 && directionAnim.value !== -1) {
             return {
                 opacity: interpolate(nextStepAnim.value, [0, 1], [1, 0]),
                 transform: [

@@ -22,6 +22,7 @@ interface StepCardProps {
     currentStep: any;
     totalSteps: number;
     nextStepAnim: SharedValue<number>;
+    directionAnim: SharedValue<number>;
 }
 
 export const StepCard: React.FC<StepCardProps> = ({
@@ -39,6 +40,7 @@ export const StepCard: React.FC<StepCardProps> = ({
     currentStep,
     totalSteps,
     nextStepAnim,
+    directionAnim,
 }) => {
     const { t } = useTranslation();
 
@@ -189,6 +191,7 @@ export const StepCard: React.FC<StepCardProps> = ({
                     currentStep={currentStepIndex}
                     totalSteps={totalSteps}
                     nextStepAnim={nextStepAnim}
+                    directionAnim={directionAnim}
                 />
             </View>
 

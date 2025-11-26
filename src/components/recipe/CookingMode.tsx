@@ -48,6 +48,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
     toggleIngredients,
     getAllGroupedIngredients,
     width,
+    directionAnim,
   } = useCookingController(recipe);
 
   // Gestures
@@ -124,6 +125,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         nextStep={nextStep}
         nextStepAnim={nextStepAnim}
         totalSteps={totalSteps}
+        directionAnim={directionAnim}
       />
 
       <IngredientsDrawer
