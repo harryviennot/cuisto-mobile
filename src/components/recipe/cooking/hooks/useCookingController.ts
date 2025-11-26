@@ -36,6 +36,7 @@ export const useCookingController = (recipe: Recipe) => {
     const ingredientsSheetAnim = useSharedValue(0); // 0 = closed, 1 = open
     const nextStepAnim = useSharedValue(0); // For "Up Next" rotation: 0 -> 1 (next), 0 -> -1 (prev)
     const directionAnim = useSharedValue(0); // 1 = forward, -1 = backward
+    const contentOpacity = useSharedValue(1); // 1 = visible, 0 = hidden
 
     const instructions = recipe.instructions.sort((a, b) => a.step_number - b.step_number);
     const totalSteps = instructions.length;
@@ -151,7 +152,13 @@ export const useCookingController = (recipe: Recipe) => {
                     }
                 });
             } else {
-                setIsFinished(true);
+                // Finish Transition
+                // 1. Swipe out the last card
+                slideAnim.value = withTiming(-1, { duration: 300 });
+                // 2. Fade out the rest of the content
+                contentOpacity.value = withTiming(0, { duration: 300 }, () => {
+                    runOnJS(setIsFinished)(true);
+                });
             }
         } else {
             directionAnim.value = -1;
@@ -170,7 +177,7 @@ export const useCookingController = (recipe: Recipe) => {
                 });
             }
         }
-    }, [currentStep, totalSteps, slideAnim, nextStepAnim, directionAnim]);
+    }, [currentStep, totalSteps, slideAnim, nextStepAnim, directionAnim, contentOpacity]);
 
     // Ingredients Logic
     const getAllGroupedIngredients = useCallback(() => {
@@ -244,5 +251,6 @@ export const useCookingController = (recipe: Recipe) => {
         width,
         height,
         directionAnim,
+        contentOpacity,
     };
 };

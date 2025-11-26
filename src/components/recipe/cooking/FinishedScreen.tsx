@@ -114,18 +114,7 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
     };
 
     return (
-        <View className="flex-1 items-center justify-center bg-stone-900 relative">
-            <StatusBar barStyle="light-content" />
-
-            {/* Background Image with Blur */}
-            <View className="absolute inset-0 opacity-60">
-                <Image
-                    source={{ uri: cachedRecipe.image_url }}
-                    style={{ width: "100%", height: "100%" }}
-                    contentFit="cover"
-                />
-                <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
-            </View>
+        <View className="flex-1 items-center justify-center">
 
             <Animated.View
                 entering={FadeInDown.duration(700).springify()}
