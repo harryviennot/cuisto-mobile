@@ -1,5 +1,6 @@
 import React, { memo } from "react";
-import { View, Text, Image, useWindowDimensions } from "react-native";
+import { View, Text, useWindowDimensions } from "react-native";
+import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import type { Recipe } from "@/types/recipe";
@@ -24,13 +25,14 @@ export const RecipeHeader = memo(function RecipeHeader({
 }: RecipeHeaderProps) {
   const { t } = useTranslation();
   const { isTablet, isTabletLandscape } = useDeviceType();
-  const { width } = useWindowDimensions();
+  const { height: windowHeight } = useWindowDimensions();
 
   return (
     <>
       {/* Hero Image */}
       <View
-        className={`relative w-full ${(isTabletLandscape && !isEditing) ? "flex-1" : "aspect-[3/2]"}`}
+        className={`relative w-full ${(isTabletLandscape && !isEditing) ? "flex-1" : isTablet ? "aspect-[5/3]" : "aspect-[5/4]"}`}
+        style={(isTabletLandscape && !isEditing) ? { maxHeight: windowHeight * 0.5 } : undefined}
         onLayout={(event) => {
           const { height } = event.nativeEvent.layout;
           onImageHeightChange?.(height);
@@ -39,8 +41,8 @@ export const RecipeHeader = memo(function RecipeHeader({
         {recipe?.image_url ? (
           <Image
             source={{ uri: recipe.image_url }}
-            className="h-full w-full"
-            resizeMode="cover"
+            style={{ width: '100%', height: '100%' }}
+            contentFit="cover"
           />
         ) : (
           <View className="h-full w-full items-center justify-center bg-surface-texture-light">
@@ -63,7 +65,7 @@ export const RecipeHeader = memo(function RecipeHeader({
 
 
       {/* Title and Description */}
-      <View className={`${isTablet ? "px-10 py-8" : "px-4 pb-8 pt-6"}`}>
+      <View className={`${isTablet ? "px-10 pt-8 pb-4" : "px-4 pt-6 pb-4"}`}>
         <Text
           className="font-playfair-bold mb-3 text-[32px] leading-tight text-foreground-heading"
           style={{ fontFamily: "PlayfairDisplay_700Bold" }}

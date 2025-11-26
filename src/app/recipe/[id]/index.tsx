@@ -7,10 +7,16 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { recipeService } from "@/api/services";
 import { RecipeDetail } from "@/components/recipe/RecipeDetail";
+import { useDeviceType } from "@/hooks/useDeviceType";
 
 export default function RecipeDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, title, imageUrl } = useLocalSearchParams<{
+    id: string;
+    title?: string;
+    imageUrl?: string;
+  }>();
   const router = useRouter();
+  const { isTablet } = useDeviceType();
 
   const {
     data: recipe,
@@ -33,11 +39,13 @@ export default function RecipeDetailScreen() {
 
   return (
     <RecipeDetail
-      recipe={recipe}
-      isLoading={isLoading}
+      recipe={isTablet ? recipe : recipe}
+      isLoading={isTablet ? isLoading : isLoading}
       error={error as Error | null}
       onBack={() => router.back()}
       onRetry={() => refetch()}
+      optimisticTitle={title}
+      optimisticImageUrl={imageUrl}
     />
   );
 }

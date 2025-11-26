@@ -21,7 +21,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 
 // Import recipe components using barrel exports
-import { CookingMode } from "@/components/recipe/modals";
+import { CookingMode } from "@/components/recipe/CookingMode";
 import {
   RecipeHeader,
   RecipeMetadata,
@@ -40,6 +40,9 @@ interface RecipeDetailProps {
   error?: Error | null;
   onRetry?: () => void;
   showHeader?: boolean;
+  // Optimistic props for immediate display
+  optimisticTitle?: string;
+  optimisticImageUrl?: string;
 }
 
 export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
@@ -53,6 +56,8 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   error = null,
   onRetry,
   showHeader = true,
+  optimisticTitle,
+  optimisticImageUrl,
 }: RecipeDetailProps) {
   // All hooks MUST be called before any conditional returns
   const { user } = useAuth();
@@ -137,41 +142,28 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     );
   }
 
-  // Handle loading state
-  if (isLoading || !recipe) {
-    return (
-      <View className="flex-1 bg-surface">
-        {showHeader && (
-          <AnimatedPageHeader
-            title=""
-            scrollY={scrollY}
-            onBackPress={onBack}
-            animationConfig={{
-              scrollThresholdStart: 200,
-              scrollThresholdEnd: 244,
-              titleTranslateYStart: 16,
-              titleTranslateYEnd: 0,
-            }}
-          />
-        )}
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {/* Loading skeleton */}
-          <View>
-            <Skeleton width="100%" height={300} borderRadius={0} />
-            <View className="px-4 pb-8 pt-6">
-              <Skeleton width={250} height={32} borderRadius={6} style={{ marginBottom: 12 }} />
-              <Skeleton width="100%" height={60} borderRadius={6} style={{ marginBottom: 24 }} />
-              <Skeleton width="100%" height={80} borderRadius={12} style={{ marginBottom: 16 }} />
-              <Skeleton width="100%" height={56} borderRadius={12} style={{ marginBottom: 16 }} />
-            </View>
-          </View>
-        </ScrollView>
-      </View>
-    );
+
+
+  // If we don't have a recipe but have optimistic data, create a minimal recipe object
+  const displayRecipe = recipe || (optimisticTitle || optimisticImageUrl ? {
+    id: '',
+    title: optimisticTitle || '',
+    image_url: optimisticImageUrl || '',
+    created_by: '',
+    rating_count: 0,
+    ingredients: [],
+    instructions: [],
+    created_at: '',
+    updated_at: '',
+  } as Recipe : undefined);
+
+  // If still no recipe data at all, return null
+  if (!displayRecipe) {
+    return null;
   }
 
   // Check ownership
-  const isOwner = user?.id === recipe.created_by;
+  const isOwner = user?.id === displayRecipe.created_by;
 
   // Calculate scroll thresholds for header animation
   const titleAbsoluteY = imageHeight - insets.top - 12;
@@ -197,7 +189,7 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
       >
         <ContentWrapper {...contentWrapperProps}>
           <RecipeHeader
-            recipe={recipe}
+            recipe={displayRecipe}
             isLoading={isLoading}
             isDraft={isDraft}
             isEditing={isEditing}
@@ -205,50 +197,87 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
             onTitleLayout={setTitleLayout}
           />
 
-          {/* Only show RecipeEditManager wrapper for non-drafts */}
-          {!isDraft && !isEditing ? (
-            <RecipeEditManager recipe={recipe}>
-              {({
-                userRating,
-                displayPrepTime,
-                displayCookTime,
-                handleRatingChange,
-                handleOpenTimeEdit,
-                isTimeEditVisible,
-                setIsTimeEditVisible,
-              }) => (
+          {/* Only show metadata if we have full recipe data, otherwise show skeleton */}
+          {recipe ? (
+            <>
+              {/* Only show RecipeEditManager wrapper for non-drafts */}
+              {!isDraft && !isEditing ? (
+                <RecipeEditManager recipe={recipe}>
+                  {({
+                    userRating,
+                    displayPrepTime,
+                    displayCookTime,
+                    handleRatingChange,
+                    handleOpenTimeEdit,
+                    isTimeEditVisible,
+                    setIsTimeEditVisible,
+                  }) => (
+                    <View className={`${isTablet ? "px-10 pb-8" : "px-4 pb-8"}`}>
+                      <RecipeMetadata
+                        recipe={recipe}
+                        userRating={userRating}
+                        isOwner={isOwner}
+                        isDraft={isDraft}
+                        isEditing={isEditing}
+                        totalTime={displayPrepTime + displayCookTime}
+                        onRatingChange={handleRatingChange}
+                        onTimePress={handleOpenTimeEdit}
+                        onSave={onSave}
+                        onDiscard={onDiscard}
+                        onStartCooking={() => setIsCooking(true)}
+                      />
+                    </View>
+                  )}
+                </RecipeEditManager>
+              ) : (
                 <View className={`${isTablet ? "px-10 pb-8" : "px-4 pb-8"}`}>
                   <RecipeMetadata
                     recipe={recipe}
-                    userRating={userRating}
+                    userRating={0}
                     isOwner={isOwner}
                     isDraft={isDraft}
                     isEditing={isEditing}
-                    totalTime={displayPrepTime + displayCookTime}
-                    onRatingChange={handleRatingChange}
-                    onTimePress={handleOpenTimeEdit}
+                    totalTime={(recipe.timings?.prep_time_minutes ?? 0) + (recipe.timings?.cook_time_minutes ?? 0)}
+                    onRatingChange={() => { }}
+                    onTimePress={() => { }}
                     onSave={onSave}
                     onDiscard={onDiscard}
                     onStartCooking={() => setIsCooking(true)}
                   />
                 </View>
               )}
-            </RecipeEditManager>
+            </>
           ) : (
             <View className={`${isTablet ? "px-10 pb-8" : "px-4 pb-8"}`}>
-              <RecipeMetadata
-                recipe={recipe}
-                userRating={0}
-                isOwner={isOwner}
-                isDraft={isDraft}
-                isEditing={isEditing}
-                totalTime={(recipe.timings?.prep_time_minutes ?? 0) + (recipe.timings?.cook_time_minutes ?? 0)}
-                onRatingChange={() => { }}
-                onTimePress={() => { }}
-                onSave={onSave}
-                onDiscard={onDiscard}
-                onStartCooking={() => setIsCooking(true)}
-              />
+              <Skeleton width="100%" height={16} borderRadius={4} style={{ marginBottom: 4 }} />
+              <Skeleton width="100%" height={16} borderRadius={4} style={{ marginBottom: 4 }} />
+              <Skeleton width="65%" height={16} borderRadius={4} style={{ marginBottom: 24 }} />
+              <View className="flex-row justify-between">
+                <View className="flex-1">
+                  <Skeleton width="50%" height={16} borderRadius={4} style={{ marginBottom: 8 }} />
+                  <Skeleton width="90%" height={40} borderRadius={4} style={{ marginBottom: 4 }} />
+                </View>
+                <View className="flex-1 items-end">
+                  <Skeleton width="50%" height={16} borderRadius={4} style={{ marginBottom: 8 }} />
+                  <Skeleton width="65%" height={40} borderRadius={4} style={{ marginBottom: 4 }} />
+                </View>
+              </View>
+              <Skeleton width="100%" height={64} borderRadius={4} style={{ marginBottom: 4, marginTop: 24 }} />
+              <View className="flex-row gap-4 my-4">
+                <Skeleton height={24} borderRadius={16} width={100} />
+                <Skeleton height={24} borderRadius={16} width={100} />
+                <Skeleton height={24} borderRadius={16} width={100} />
+                <Skeleton height={24} borderRadius={16} width={100} />
+              </View>
+              {!isTabletLandscape && (
+                <>
+                  <Skeleton width="45%" height={32} borderRadius={4} style={{ marginBottom: 4, marginTop: 24 }} />
+                  <Skeleton width="85%" height={20} borderRadius={4} style={{ marginBottom: 4, marginTop: 8 }} />
+                </>
+              )}
+
+
+
             </View>
           )}
         </ContentWrapper>
@@ -262,7 +291,7 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
       <Animated.View className="flex-1 bg-surface" style={detailAnimatedStyle}>
         {showHeader && (
           <AnimatedPageHeader
-            title={recipe.title}
+            title={displayRecipe.title}
             scrollY={scrollY}
             onBackPress={!isDraft ? onBack : undefined}
             onMenuPress={!isDraft ? () => { } : undefined}
@@ -278,18 +307,18 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         {isTabletLandscape ? (
           <View className="flex-1 flex-row">
             {renderLeftColumn()}
-            <RecipeContent recipe={recipe} isTabletLandscape={true} />
+            {recipe && <RecipeContent recipe={recipe} isTabletLandscape={true} />}
           </View>
         ) : (
           <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler}>
             {renderLeftColumn()}
-            <RecipeContent recipe={recipe} isTabletLandscape={false} />
+            {recipe && <RecipeContent recipe={recipe} isTabletLandscape={false} />}
           </Animated.ScrollView>
         )}
       </Animated.View>
 
       {/* Cooking Mode Overlay */}
-      {isCooking && (
+      {isCooking && recipe && (
         <Animated.View
           style={[
             { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },

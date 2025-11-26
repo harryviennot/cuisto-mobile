@@ -16,6 +16,7 @@
     "tryAgain": "Try Again",
     "of": "of",
     "previous": "Previous",
+    "next": "Next",
     "finish": "Finish",
     "minutes": "minutes",
     "min": "min",
@@ -27,7 +28,9 @@
     "leave": "Leave",
     "discard": "Discard",
     "reset": "Reset",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "bonAppetit": "Bon Appétit!",
+    "upNext": "Up Next"
   },
   "app": {
     "title": "CuiStudio",
@@ -83,6 +86,7 @@
     "cook": "Cook",
     "minutes": "min",
     "saveRecipe": "Save Recipe",
+    "rateRecipe": "Rate Recipe",
     "discard": "Discard",
     "discardRecipe": "Discard Recipe",
     "discardConfirm": "Are you sure you want to discard this recipe? This action cannot be undone.",
@@ -103,7 +107,14 @@
       "percentComplete": "% Complete",
       "stepCompleted": "Step Completed",
       "markAsComplete": "Mark as Complete",
-      "nextStep": "Next Step"
+      "nextStep": "Next Step",
+      "timerRunning": "Timer Running",
+      "recommendedTime": "Recommended Time",
+      "thisStep": "This Step",
+      "allItems": "All Items",
+      "noIngredientsForStep": "No ingredients needed for this step",
+      "viewFullList": "View Full List",
+      "finishedMessage": "You've successfully cooked {{title}}!"
     },
     "card": {
       "recipeLabel": "RECIPE",

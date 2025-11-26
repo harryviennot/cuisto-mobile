@@ -22,8 +22,15 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
   const [imageLoading, setImageLoading] = useState(true);
 
   const handlePress = () => {
-    // Navigate to recipe detail page for saved recipes
-    router.push(`/recipe/${recipe.id}`);
+    // Navigate to recipe detail page with optimistic data
+    router.push({
+      pathname: `/recipe/[id]` as const,
+      params: {
+        id: recipe.id,
+        title: recipe.title,
+        ...(recipe.image_url && { imageUrl: recipe.image_url }),
+      },
+    });
   };
 
   // Calculate total time
@@ -92,7 +99,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
                   <Skeleton width="100%" height="100%" borderRadius={0} />
                 </View>
               )}
-              {/* Image - ready for shared element transitions */}
+              {/* Image */}
               <Image
                 source={{ uri: recipe.image_url }}
                 style={{ width: "100%", height: "100%" }}

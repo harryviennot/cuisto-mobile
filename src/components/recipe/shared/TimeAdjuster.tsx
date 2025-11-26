@@ -37,8 +37,8 @@ export function TimeAdjuster({
   const [displayValue, setDisplayValue] = useState(value);
 
   // Long press interval refs
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const delayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const delayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingValueRef = useRef<number | null>(null);
 
   // Sync display value when prop changes from outside
