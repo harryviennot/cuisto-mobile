@@ -229,7 +229,7 @@ export const IngredientsDrawer: React.FC<IngredientsDrawerProps> = ({
                                         >
                                             {viewAllIngredients
                                                 ? t("recipe.cookingMode.allItems").toUpperCase()
-                                                : "REQUIRED FOR THIS STEP"
+                                                : t("recipe.cookingMode.requiredForThisStep").toUpperCase()
                                             }
                                         </Text>
                                     </View>
@@ -319,11 +319,8 @@ export const IngredientsDrawer: React.FC<IngredientsDrawerProps> = ({
                                     >
                                         <Stack size={20} color="#78716c" />
                                     </View>
-                                    <Text className="mb-1 text-center text-sm font-medium" style={{ color: "#a8a29e" }}>
-                                        No ingredients needed
-                                    </Text>
                                     <Text className="text-center text-sm font-medium" style={{ color: "#a8a29e" }}>
-                                        for this specific step.
+                                        {t("recipe.cookingMode.noIngredientsForStep")}
                                     </Text>
                                     <Pressable
                                         onPress={() => handleTabPress(true)}

@@ -16,7 +16,9 @@
     "tryAgain": "Réessayer",
     "of": "de",
     "previous": "Précédent",
+    "next": "Suivant",
     "finish": "Terminer",
+    "upNext": "À venir",
     "minutes": "minutes",
     "min": "min",
     "minAbbr": "min",
@@ -30,7 +32,8 @@
     "saveChanges": "Enregistrer les modifications",
     "bonAppetit": "Bon Appétit !",
     "photo": "Photo",
-    "share": "Partager"
+    "share": "Partager",
+    "warning": "Attention"
   },
   "app": {
     "title": "CuiStudio",
@@ -107,9 +110,18 @@
       "stepCompleted": "Étape terminée",
       "markAsComplete": "Marquer comme terminée",
       "nextStep": "Étape suivante",
+      "timerRunning": "Minuteur en cours",
+      "timerPaused": "En pause",
+      "recommendedTime": "Temps recommandé",
+      "thisStep": "Cette étape",
+      "allItems": "Tous les éléments",
+      "noIngredientsForStep": "Aucun ingrédient nécessaire pour cette étape",
+      "requiredForThisStep": "Requis pour cette étape",
+      "viewFullList": "Voir la liste complète",
       "mastered": "Vous avez maîtrisé",
       "completeSession": "Terminer la session",
-      "finishedMessage": "Félicitations ! Vous avez terminé {{title}}."
+      "finishedMessage": "Félicitations ! Vous avez terminé {{title}}.",
+      "activeTimersWarning": "Vous avez encore des minuteurs actifs. Êtes-vous sûr de vouloir terminer la recette ?"
     },
     "card": {
       "recipeLabel": "RECETTE",
@@ -117,7 +129,12 @@
     },
     "actions": {
       "saveRecipe": "Enregistrer la recette",
-      "startCooking": "Commencer la cuisson"
+      "startCooking": "Commencer la cuisson",
+      "share": "Partager la recette",
+      "shareDescription": "Partager cette recette avec vos amis",
+      "edit": "Modifier la recette",
+      "delete": "Supprimer la recette",
+      "deleteDescription": "Cette action ne peut pas être annulée"
     },
     "quickInfo": {
       "tapToEdit": "Appuyer pour modifier"
@@ -205,7 +222,17 @@
     "errors": {
       "updateTimingFailed": "Échec de la mise à jour du temps. Veuillez réessayer.",
       "invalidRatingFormat": "Veuillez sélectionner une note par incréments de 0,5 (0,5 à 5,0)",
-      "rateRecipeFailed": "Échec de la notation de la recette. Veuillez réessayer."
+      "rateRecipeFailed": "Échec de la notation de la recette. Veuillez réessayer.",
+      "deleteTitle": "Supprimer la recette",
+      "deleteConfirmation": "Êtes-vous sûr de vouloir supprimer cette recette ? Cette action ne peut pas être annulée."
+    },
+    "chefChat": {
+      "mockResponse": {
+        "substitute": "Les substitutions dépendent de l'ingrédient spécifique. Par exemple, vous pouvez souvent utiliser du yaourt grec au lieu de la crème sure, ou du sirop d'érable au lieu du miel. Quel ingrédient spécifique souhaitez-vous remplacer ?",
+        "stepExplanation": "Pour cette étape, vous devez vous concentrer sur l'action en cours. Assurez-vous de surveiller attentivement la chaleur !",
+        "consistency": "Cela devrait avoir l'air lisse et homogène. Si c'est trop épais, ajoutez un peu de liquide. Si c'est trop liquide, laissez mijoter un peu plus longtemps.",
+        "default": "C'est une excellente question ! Bien que je ne sois qu'une IA de démonstration pour le moment, normalement je vous donnerais une réponse culinaire détaillée basée sur le contexte de la recette. Continuez à cuisiner !"
+      }
     }
   },
   "errors": {

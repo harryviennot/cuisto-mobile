@@ -8,13 +8,15 @@ interface StarRatingProps {
   onRatingChange?: (rating: number) => void;
   size?: number;
   editable?: boolean;
+  gap?: number;
 }
 
 export function StarRating({
   rating,
-  onRatingChange = () => {},
+  onRatingChange = () => { },
   size = 32,
   editable = true,
+  gap = 0.5,
 }: StarRatingProps) {
   const [displayRating, setDisplayRating] = useState(rating);
   const containerRef = useRef<View>(null);
@@ -82,7 +84,7 @@ export function StarRating({
   return (
     <View
       ref={containerRef}
-      className="flex-row items-center gap"
+      className={`flex-row items-center gap-${gap}`}
       onLayout={onLayout}
       {...panResponder.panHandlers}
     >

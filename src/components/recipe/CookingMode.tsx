@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, StatusBar } from "react-native";
+import { View, StatusBar, Alert } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Image } from "expo-image";
 import { BlurView } from "expo-blur";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -22,6 +23,7 @@ interface CookingModeProps {
 }
 
 export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => {
+  const { t } = useTranslation();
   const [controlsHeight, setControlsHeight] = useState(120); // Default estimate
   const {
     currentStep,
@@ -53,13 +55,35 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
   } = useCookingController(recipe);
 
   // Gestures
+  const handleStepChange = (direction: "next" | "prev") => {
+    if (direction === "next" && currentStep === totalSteps - 1) {
+      const hasActiveTimers = timers.some((t) => t.isRunning);
+      if (hasActiveTimers) {
+        Alert.alert(
+          t("common.warning"),
+          t("recipe.cookingMode.activeTimersWarning"),
+          [
+            { text: t("common.cancel"), style: "cancel" },
+            {
+              text: t("common.confirm"),
+              style: "destructive",
+              onPress: () => runOnJS(changeStep)("next"),
+            },
+          ]
+        );
+        return;
+      }
+    }
+    runOnJS(changeStep)(direction);
+  };
+
   const panGesture = Gesture.Pan()
     .activeOffsetX([-20, 20])
     .onEnd((e) => {
       if (e.translationX < -50) {
-        runOnJS(changeStep)("next");
+        runOnJS(handleStepChange)("next");
       } else if (e.translationX > 50) {
-        runOnJS(changeStep)("prev");
+        runOnJS(handleStepChange)("prev");
       }
     });
 
@@ -158,7 +182,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         currentStep={currentStep}
         totalSteps={totalSteps}
         isIngredientsOpen={isIngredientsOpen}
-        onChangeStep={changeStep}
+        onChangeStep={handleStepChange}
         onToggleIngredients={toggleIngredients}
         onLayout={setControlsHeight}
       />

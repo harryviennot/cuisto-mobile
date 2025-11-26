@@ -142,8 +142,8 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
           />
         )}
         <ErrorState
-          title="Failed to load recipe"
-          message={error.message || "We couldn't load this recipe. Please try again."}
+          title={t("recipe.failedToLoad")}
+          message={error.message || t("recipe.failedToLoad")}
           onRetry={onRetry}
         />
       </View>
@@ -176,8 +176,8 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   // Handle delete with confirmation
   const handleDelete = () => {
     Alert.alert(
-      "Delete Recipe",
-      "Are you sure you want to delete this recipe? This action cannot be undone.",
+      t("recipe.errors.deleteTitle"),
+      t("recipe.errors.deleteConfirmation"),
       [
         {
           text: t("common.cancel"),
@@ -370,8 +370,8 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         onClose={() => setIsActionsModalVisible(false)}
         actions={[
           {
-            label: "Share Recipe",
-            description: "Share this recipe with your friends",
+            label: t("recipe.actions.share"),
+            description: t("recipe.actions.shareDescription"),
             icon: <ShareNetworkIcon size={24} color="#334d43" />,
             onPress: () => {
               setIsActionsModalVisible(false);
@@ -379,7 +379,7 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
           },
           ...(isOwner ? [
             {
-              label: "Edit Recipe",
+              label: t("recipe.actions.edit"),
               icon: <PencilIcon size={24} color="#334d43" />,
               onPress: () => {
                 if (recipe) {
@@ -389,8 +389,8 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
               },
             },
             {
-              label: "Delete Recipe",
-              description: "This action cannot be undone",
+              label: t("recipe.actions.delete"),
+              description: t("recipe.actions.deleteDescription"),
               icon: <TrashIcon size={24} color="#ef4444" />,
               variant: "destructive" as const,
               onPress: () => {

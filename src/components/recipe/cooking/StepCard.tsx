@@ -160,7 +160,7 @@ export const StepCard: React.FC<StepCardProps> = ({
                                                     onStartTimer(
                                                         currentStepIndex,
                                                         step.timer_minutes,
-                                                        step.title || `Step ${step.step_number} `
+                                                        step.title || `${t("recipe.cookingMode.step")} ${step.step_number}`
                                                     )
                                                 }
                                                 className="h-10 w-10 items-center justify-center rounded-full bg-primary shadow-lg active:scale-90"

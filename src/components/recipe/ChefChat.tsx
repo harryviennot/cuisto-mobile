@@ -85,18 +85,18 @@ export const ChefChat: React.FC<ChefChatProps> = ({ recipe, currentStepIndex, on
         }, 1500);
     };
 
-    const generateMockResponse = (query: string, step: Instruction) => {
+    const generateMockResponse = (query: string, _step: Instruction) => {
         const q = query.toLowerCase();
         if (q.includes('substitute')) {
-            return "Substitutions depend on the specific ingredient. For example, you can often use Greek yogurt instead of sour cream, or maple syrup instead of honey. What specific ingredient are you looking to replace?";
+            return t('recipe.chefChat.mockResponse.substitute');
         }
         if (q.includes('step') || q.includes('explain')) {
-            return `For step ${step.step_number}, you need to focus on "${step.title || 'the current action'}". ${step.description} Make sure to watch the heat carefully!`;
+            return t('recipe.chefChat.mockResponse.stepExplanation');
         }
         if (q.includes('consistency') || q.includes('look like')) {
-            return "It should look smooth and consistent. If it's too thick, add a splash of liquid. If too thin, let it simmer a bit longer.";
+            return t('recipe.chefChat.mockResponse.consistency');
         }
-        return "That's a great question! While I'm just a demo AI right now, normally I'd give you a detailed culinary answer based on the recipe context. Keep cooking!";
+        return t('recipe.chefChat.mockResponse.default');
     };
 
     useEffect(() => {
