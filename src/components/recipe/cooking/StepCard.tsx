@@ -186,7 +186,7 @@ export const StepCard: React.FC<StepCardProps> = ({
 
                 <UpNext
                     nextStep={nextStep}
-                    currentStep={currentStep}
+                    currentStep={currentStepIndex}
                     totalSteps={totalSteps}
                     nextStepAnim={nextStepAnim}
                 />

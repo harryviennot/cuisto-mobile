@@ -25,15 +25,23 @@ export const UpNext: React.FC<UpNextProps> = ({
     const insets = useSafeAreaInsets();
 
     const nextStepAnimatedStyle = useAnimatedStyle(() => {
+        if (currentStep === totalSteps - 1) {
+            return { opacity: 0, transform: [{ translateY: 10 }] };
+        }
         return {
             transform: [
                 { translateY: interpolate(nextStepAnim.value, [-1, 0, 1], [-10, 0, 10]) },
             ],
             opacity: interpolate(nextStepAnim.value, [-1, 0, 1], [0, 1, 0]),
         };
-    });
+    }, [currentStep, totalSteps]);
 
     const labelAnimatedStyle = useAnimatedStyle(() => {
+        // If we are at the last step, force hide
+        if (currentStep === totalSteps - 1) {
+            return { opacity: 0, transform: [{ translateY: 10 }] };
+        }
+
         // Animate label out only when moving to the last step
         if (currentStep === totalSteps - 2 && nextStepAnim.value > 0) {
             return {
@@ -46,12 +54,18 @@ export const UpNext: React.FC<UpNextProps> = ({
         return { opacity: 1, transform: [{ translateY: 0 }] };
     }, [currentStep, totalSteps]);
 
-    if (!nextStep) return null;
+    // Persist the next step to allow exit animation
+    const lastNextStep = React.useRef(nextStep);
+    if (nextStep) {
+        lastNextStep.current = nextStep;
+    }
+    const stepToShow = nextStep || lastNextStep.current;
+
+    if (!stepToShow) return null;
 
     return (
         <View
             className="items-center justify-center px-8 py-4 w-full"
-
         >
             <Animated.Text
                 style={labelAnimatedStyle}
@@ -64,8 +78,7 @@ export const UpNext: React.FC<UpNextProps> = ({
                     className="truncate text-center font-playfair text-base text-white/90"
                     numberOfLines={1}
                 >
-
-                    {nextStep.title}
+                    {stepToShow.title}
                 </Text>
             </Animated.View>
         </View>
