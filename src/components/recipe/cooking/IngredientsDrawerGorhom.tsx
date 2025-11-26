@@ -118,22 +118,30 @@ export const IngredientsDrawerGorhom: React.FC<IngredientsDrawerProps> = ({
 
   // Handle animation start for immediate haptic feedback
   const handleAnimate = useCallback((fromIndex: number, toIndex: number) => {
+    console.log('🎬 onAnimate:', { fromIndex, toIndex, isIngredientsOpen });
+
     if (toIndex === -1 && fromIndex !== -1 && !hasTriggeredHaptic.current) {
       // Starting to close - immediate haptic
+      console.log('✨ Triggering haptic feedback');
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       hasTriggeredHaptic.current = true;
     } else if (toIndex !== -1) {
       // Opening - reset flag
       hasTriggeredHaptic.current = false;
     }
-  }, []);
+  }, [isIngredientsOpen]);
 
   // Sync ingredientsSheetAnim with bottom sheet animation
   const handleSheetChanges = useCallback((index: number) => {
+    console.log('📊 onChange:', { index, isIngredientsOpen });
+
     if (index === -1) {
       // Closed - only update state if currently open (prevent double toggles)
       if (isIngredientsOpen) {
+        console.log('🔄 Calling onToggle from onChange');
         onToggle();
+      } else {
+        console.log('⚠️ Skipped onToggle - already closed');
       }
       // Reset haptic flag
       hasTriggeredHaptic.current = false;
@@ -150,6 +158,17 @@ export const IngredientsDrawerGorhom: React.FC<IngredientsDrawerProps> = ({
       });
     }
   }, [ingredientsSheetAnim, isIngredientsOpen, onToggle]);
+
+  // Handle sheet close
+  const handleClose = useCallback(() => {
+    console.log('🚪 onClose called:', { isIngredientsOpen });
+
+    if (isIngredientsOpen) {
+      console.log('🔄 Calling onToggle from onClose');
+      onToggle();
+    }
+    hasTriggeredHaptic.current = false;
+  }, [isIngredientsOpen, onToggle]);
 
   const handleTabPress = useCallback((viewAll: boolean) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -185,6 +204,7 @@ export const IngredientsDrawerGorhom: React.FC<IngredientsDrawerProps> = ({
       animateOnMount={true}
       onAnimate={handleAnimate}
       onChange={handleSheetChanges}
+      onClose={handleClose}
       backgroundStyle={{
         backgroundColor: 'transparent',
       }}
