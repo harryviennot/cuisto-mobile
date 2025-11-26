@@ -40,11 +40,14 @@ import Animated, {
   interpolate,
   Extrapolation,
   runOnJS,
+  Keyframe,
 } from "react-native-reanimated";
+import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
 import { useKeepAwake } from "expo-keep-awake";
 import { Audio } from "expo-av";
 import type { Recipe, Ingredient } from "@/types/recipe";
+import { ChefChat } from "./ChefChat";
 
 interface CookingModeProps {
   recipe: Recipe;
@@ -71,10 +74,12 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
   const [viewAllIngredients, setViewAllIngredients] = useState(false);
   const [timers, setTimers] = useState<ActiveTimer[]>([]);
   const [isFinished, setIsFinished] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   // Animation values
   const slideAnim = useSharedValue(0); // 0 = center, -1 = left, 1 = right
   const ingredientsSheetAnim = useSharedValue(0); // 0 = closed, 1 = open
+  const nextStepAnim = useSharedValue(0); // For "Up Next" rotation: 0 -> 1 (next), 0 -> -1 (prev)
 
   const instructions = recipe.instructions.sort((a, b) => a.step_number - b.step_number);
   const totalSteps = instructions.length;
@@ -92,12 +97,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
 
   const playTimerDoneSound = async () => {
     try {
-      // Create a simple beep sound or load a file if available. 
-      // For now, we'll rely on Haptics as we don't have a guaranteed asset.
-      // If we had an asset:
-      // const { sound } = await Audio.Sound.createAsync(require('@/assets/sounds/timer_done.mp3'));
-      // setSound(sound);
-      // await sound.playAsync();
+      // Placeholder for sound logic
     } catch (error) {
       console.log('Error playing sound', error);
     }
@@ -123,15 +123,6 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
     return () => clearInterval(interval);
   }, []);
 
-  const parseDuration = (durationStr?: string): number | null => {
-    if (!durationStr) return null;
-    // Try to parse "X min" or just a number
-    const match = durationStr.match(/(\d+)\s*min/i);
-    if (match) return parseInt(match[1]) * 60;
-    const num = parseInt(durationStr);
-    return isNaN(num) ? null : num * 60;
-  };
-
   const startTimer = (stepIndex: number, durationMinutes: number | undefined, title: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const durationSeconds = durationMinutes ? durationMinutes * 60 : 0;
@@ -147,7 +138,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         ...prev,
         {
           stepIndex,
-          label: `Step ${stepIndex + 1}`,
+          label: title, // Use title instead of "Step X"
           duration: durationSeconds,
           timeLeft: durationSeconds,
           isRunning: true,
@@ -180,24 +171,49 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
 
     if (direction === "next") {
       if (currentStep < totalSteps - 1) {
+        // Animate main content
         slideAnim.value = withTiming(-1, { duration: 200 }, () => {
           runOnJS(setCurrentStep)(currentStep + 1);
           slideAnim.value = 1;
           slideAnim.value = withSpring(0);
+        });
+
+        // Animate "Up Next" (rotate down)
+        nextStepAnim.value = withTiming(1, { duration: 200 }, () => {
+          nextStepAnim.value = -1; // Reset to top for next entrance
+          nextStepAnim.value = withSpring(0);
         });
       } else {
         setIsFinished(true);
       }
     } else {
       if (currentStep > 0) {
+        // Animate main content
         slideAnim.value = withTiming(1, { duration: 200 }, () => {
           runOnJS(setCurrentStep)(currentStep - 1);
           slideAnim.value = -1;
           slideAnim.value = withSpring(0);
         });
+
+        // Animate "Up Next" (rotate up)
+        nextStepAnim.value = withTiming(-1, { duration: 200 }, () => {
+          nextStepAnim.value = 1; // Reset to bottom for next entrance
+          nextStepAnim.value = withSpring(0);
+        });
       }
     }
   };
+
+  // Gestures
+  const panGesture = Gesture.Pan()
+    .activeOffsetX([-20, 20])
+    .onEnd((e) => {
+      if (e.translationX < -50) {
+        runOnJS(changeStep)("next");
+      } else if (e.translationX > 50) {
+        runOnJS(changeStep)("prev");
+      }
+    });
 
   // Ingredients Logic
   const getAllGroupedIngredients = () => {
@@ -205,14 +221,11 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
 
     // Annotate with relevance
     const annotated = recipe.ingredients.map(ing => {
-      // Simple heuristic: check if first word of ingredient is in description
       const firstWord = ing.name.toLowerCase().split(' ')[0];
       const isRelevant = text.includes(firstWord);
       return { ...ing, isRelevant };
     });
 
-    // Group (assuming ingredients have a 'group' property, defaulting to Main)
-    // If your Ingredient type doesn't have group, we'll just use 'Main'
     return annotated.reduce((acc, ing) => {
       const group = (ing as any).group || 'Main';
       if (!acc[group]) acc[group] = [];
@@ -241,6 +254,15 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         { scale: interpolate(slideAnim.value, [-1, 0, 1], [0.9, 1, 0.9]) },
       ],
       opacity: interpolate(slideAnim.value, [-1, 0, 1], [0, 1, 0]),
+    };
+  });
+
+  const nextStepAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateY: interpolate(nextStepAnim.value, [-1, 0, 1], [-20, 0, 20]) },
+      ],
+      opacity: interpolate(nextStepAnim.value, [-1, 0, 1], [0, 1, 0]),
     };
   });
 
@@ -339,7 +361,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
               <View
                 key={idx}
                 className={`h-1 rounded-full transition-all ${idx === currentStep ? "w-6 bg-white" :
-                  idx < currentStep ? "w-1.5 bg-white/60" : "w-1.5 bg-white/20"
+                    idx < currentStep ? "w-1.5 bg-white/60" : "w-1.5 bg-white/20"
                   }`}
               />
             ))}
@@ -347,9 +369,10 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         </View>
 
         <Pressable
+          onPress={() => setIsChatOpen(true)}
           className="rounded-full border border-white/10 bg-white/10 p-2 backdrop-blur-md active:bg-white/20"
         >
-          <Sparkle size={20} color="white" />
+          <Sparkle size={20} color="white" weight="fill" />
         </Pressable>
       </View>
 
@@ -382,111 +405,119 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
       )}
 
       {/* Main Content */}
-      <View className="flex-1 justify-center items center px-4 py-4">
-        <Animated.View style={[contentAnimatedStyle, { height: '100%', maxHeight: 450, maxWidth: 650 }]}>
-          <View className="relative flex-1 overflow-hidden rounded-[32px] bg-[#FDFBF7] shadow-2xl">
-            {/* Step Number Watermark */}
-            <Text className="absolute -right-4 -top-4 font-playfair text-[120px] font-bold leading-none text-surface-texture-dark opacity-10">
-              {step.step_number}
-            </Text>
-
-            <ScrollView
-              className="flex-1"
-              contentContainerStyle={{ padding: 32 }}
-              showsVerticalScrollIndicator={false}
-            >
-              {/* Group Header */}
-              {step.group && step.group !== "Main" && (
-                <View className="mb-4 flex-row items-center gap-3">
-                  <View className="h-px w-8 bg-primary/30" />
-                  <Text className="text-xs font-bold uppercase tracking-widest text-primary">
-                    {step.group}
-                  </Text>
-                </View>
-              )}
-              <Text
-                className="mb-6 pr-8 font-playfair text-4xl text-foreground-heading"
-                style={{ fontFamily: "PlayfairDisplay_700Bold" }}
-              >
-                {step.title}
-              </Text>
-              <Text
-                className="mb-6 pr-8  text-2xl text-foreground-text leading-snug"
-              >
-                {step.description}
+      <GestureDetector gesture={panGesture}>
+        <View className="flex-1 justify-center items-center px-4 py-4">
+          <Animated.View style={[contentAnimatedStyle, { height: '100%', maxHeight: 450, maxWidth: 650, width: '100%' }]}>
+            <View className="relative flex-1 overflow-hidden rounded-[32px] bg-[#FDFBF7] shadow-2xl">
+              {/* Step Number Watermark */}
+              <Text className="absolute -right-4 -top-4 font-playfair text-[120px] font-bold leading-none text-surface-texture-dark opacity-10">
+                {step.step_number}
               </Text>
 
-              {/* Timer Control */}
-              {(step.timer_minutes || 0) > 0 && (
-                <View className={`mt-4 flex-row items-center justify-between rounded-2xl border-2 p-4 transition-all ${currentTimer?.isRunning ? "border-primary bg-primary/5" : "border-border bg-surface-elevated"
-                  }`}>
-                  <View className="flex-row items-center gap-4">
-                    <View className={`h-12 w-12 items-center justify-center rounded-full ${currentTimer?.isRunning ? "bg-primary" : "bg-surface-texture-dark"
-                      }`}>
-                      <Clock size={24} color={currentTimer?.isRunning ? "white" : "#a8a29e"} weight={currentTimer?.isRunning ? "fill" : "regular"} />
-                    </View>
-                    <View>
-                      <Text className="text-xs font-bold uppercase tracking-wide text-foreground-muted">
-                        {currentTimer?.isRunning ? t("recipe.cookingMode.timerRunning") : t("recipe.cookingMode.recommendedTime")}
-                      </Text>
-                      <Text className={`font-mono text-2xl font-medium ${currentTimer?.isRunning ? "text-primary" : "text-foreground-heading"}`}>
-                        {formatTime(currentTimer ? currentTimer.timeLeft : stepDurationSeconds)}
-                      </Text>
-                    </View>
+              <ScrollView
+                className="flex-1"
+                contentContainerStyle={{ padding: 32, flexGrow: 1 }}
+                showsVerticalScrollIndicator={false}
+              >
+                {/* Group Header */}
+                {step.group && step.group !== "Main" && (
+                  <View className="mb-4 flex-row items-center gap-3">
+                    <View className="h-px w-8 bg-primary/30" />
+                    <Text className="text-xs font-bold uppercase tracking-widest text-primary">
+                      {step.group}
+                    </Text>
                   </View>
+                )}
 
-                  <View className="flex-row gap-2">
-                    {!currentTimer ? (
-                      <Pressable
-                        onPress={() => startTimer(currentStep, step.timer_minutes || undefined, `Step ${step.step_number}`)}
-                        className="h-10 w-10 items-center justify-center rounded-full bg-primary shadow-lg active:scale-90"
-                      >
-                        <Play size={18} color="white" weight="fill" />
-                      </Pressable>
-                    ) : (
-                      <>
+                <Text
+                  className="mb-6 pr-8 font-playfair text-4xl text-foreground-heading"
+                  style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+                >
+                  {step.title}
+                </Text>
+                <Text
+                  className="mb-6 pr-8 text-2xl text-foreground-text leading-snug"
+                >
+                  {step.description}
+                </Text>
+
+                {/* Spacer to push timer to bottom */}
+                <View className="flex-1" />
+
+                {/* Timer Control */}
+                {(step.timer_minutes || 0) > 0 && (
+                  <View className={`mt-auto flex-row items-center justify-between rounded-2xl border-2 p-4 transition-all ${currentTimer?.isRunning ? "border-primary bg-primary/5" : "border-border bg-surface-elevated"
+                    }`}>
+                    <View className="flex-row items-center gap-4">
+                      <View className={`h-12 w-12 items-center justify-center rounded-full ${currentTimer?.isRunning ? "bg-primary" : "bg-surface-texture-dark"
+                        }`}>
+                        <Clock size={24} color={currentTimer?.isRunning ? "white" : "#a8a29e"} weight={currentTimer?.isRunning ? "fill" : "regular"} />
+                      </View>
+                      <View>
+                        <Text className="text-xs font-bold uppercase tracking-wide text-foreground-muted">
+                          {currentTimer?.isRunning ? t("recipe.cookingMode.timerRunning") : t("recipe.cookingMode.recommendedTime")}
+                        </Text>
+                        <Text className={`font-mono text-2xl font-medium ${currentTimer?.isRunning ? "text-primary" : "text-foreground-heading"}`}>
+                          {formatTime(currentTimer ? currentTimer.timeLeft : stepDurationSeconds)}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View className="flex-row gap-2">
+                      {!currentTimer ? (
                         <Pressable
-                          onPress={() => startTimer(currentStep, step.timer_minutes || undefined, `Step ${step.step_number}`)}
-                          className={`h-10 w-10 items-center justify-center rounded-full active:scale-90 ${currentTimer.isRunning ? "bg-orange-100" : "bg-primary"
-                            }`}
+                          onPress={() => startTimer(currentStep, step.timer_minutes, step.title || `Step ${step.step_number}`)}
+                          className="h-10 w-10 items-center justify-center rounded-full bg-primary shadow-lg active:scale-90"
                         >
-                          {currentTimer.isRunning ? (
-                            <Pause size={18} color="#ea580c" weight="fill" />
-                          ) : (
-                            <Play size={18} color="white" weight="fill" />
-                          )}
+                          <Play size={18} color="white" weight="fill" />
                         </Pressable>
-                        {!currentTimer.isRunning && (
+                      ) : (
+                        <>
                           <Pressable
-                            onPress={() => resetTimer(currentStep)}
-                            className="h-10 w-10 items-center justify-center rounded-full bg-surface-texture-dark active:scale-90"
+                            onPress={() => startTimer(currentStep, step.timer_minutes, step.title || `Step ${step.step_number}`)}
+                            className={`h-10 w-10 items-center justify-center rounded-full active:scale-90 ${currentTimer.isRunning ? "bg-orange-100" : "bg-primary"
+                              }`}
                           >
-                            <ArrowCounterClockwise size={18} color="#78716c" />
+                            {currentTimer.isRunning ? (
+                              <Pause size={18} color="#ea580c" weight="fill" />
+                            ) : (
+                              <Play size={18} color="white" weight="fill" />
+                            )}
                           </Pressable>
-                        )}
-                      </>
-                    )}
+                          {!currentTimer.isRunning && (
+                            <Pressable
+                              onPress={() => resetTimer(currentStep)}
+                              className="h-10 w-10 items-center justify-center rounded-full bg-surface-texture-dark active:scale-90"
+                            >
+                              <ArrowCounterClockwise size={18} color="#78716c" />
+                            </Pressable>
+                          )}
+                        </>
+                      )}
+                    </View>
                   </View>
-                </View>
-              )}
-            </ScrollView>
-          </View>
-
-
-        </Animated.View>
-        {/* Next Step Preview */}
-        {nextStep && (
-          <Animated.View entering={SlideInDown.delay(200)} className="mt-4 px-4">
-            <Text className="mb-1 text-center text-[10px] uppercase tracking-widest text-white/60">
-              {t("common.upNext")}
-            </Text>
-            <Text className="truncate text-center font-playfair text-base text-white/90">
-              {nextStep.group && nextStep.group !== step.group ? `${nextStep.group}: ` : ""}
-              {nextStep.title}
-            </Text>
+                )}
+              </ScrollView>
+            </View>
           </Animated.View>
-        )}
-      </View>
+        </View>
+      </GestureDetector>
+
+      {/* Up Next - Sticky at Bottom */}
+      {nextStep && (
+        <Animated.View
+          style={nextStepAnimatedStyle}
+          className="absolute bottom-[100px] left-0 right-0 z-0 items-center justify-center px-8 pb-4"
+        >
+          <Text className="mb-1 text-center text-[10px] uppercase tracking-widest text-white/60">
+            {t("common.upNext")}
+          </Text>
+          <Text className="truncate text-center font-playfair text-base text-white/90" numberOfLines={1}>
+            {nextStep.group && nextStep.group !== step.group ? `${nextStep.group}: ` : ""}
+            {nextStep.title || nextStep.description}
+          </Text>
+        </Animated.View>
+      )}
 
       {/* Ingredients Drawer */}
       {isIngredientsOpen && (
@@ -600,8 +631,8 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         <Pressable
           onPress={toggleIngredients}
           className={`flex-1 flex-col items-center justify-center gap-1 rounded-2xl border active:scale-95 transition-all ${isIngredientsOpen
-            ? "bg-white border-white"
-            : "bg-transparent border-white/30"
+              ? "bg-white border-white"
+              : "bg-transparent border-white/30"
             }`}
         >
           <Text className={`text-[10px] font-bold uppercase tracking-wider ${isIngredientsOpen ? "text-black" : "text-white"}`}>
@@ -624,6 +655,17 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
           <CaretRight size={24} color="#334d43" weight="bold" />
         </Pressable>
       </View>
+
+      {/* Chef Chat Overlay */}
+      {isChatOpen && (
+        <View className="absolute inset-0 z-[60]">
+          <ChefChat
+            recipe={recipe}
+            currentStepIndex={currentStep}
+            onClose={() => setIsChatOpen(false)}
+          />
+        </View>
+      )}
     </View>
   );
 };
