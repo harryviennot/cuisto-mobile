@@ -40,7 +40,7 @@ export const DrawerTabs: React.FC<DrawerTabsProps> = ({
               position: 'absolute',
               top: 4,
               bottom: 4,
-              left: 4,
+              left: 0,
               width: '50%',
               borderRadius: 8,
               backgroundColor: "#10b981", // emerald-500

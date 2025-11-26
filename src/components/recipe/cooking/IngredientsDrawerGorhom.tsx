@@ -93,8 +93,14 @@ export const IngredientsDrawerGorhom: React.FC<IngredientsDrawerProps> = ({
   }, [viewAllIngredients]);
 
   const tabIndicatorStyle = useAnimatedStyle(() => {
+    const leftPosition = interpolate(
+      tabIndicatorPosition.value,
+      [0, 1],
+      [0, 50]
+    );
     return {
-      left: `${interpolate(tabIndicatorPosition.value, [0, 1], [0, 50])}%`,
+      left: `${leftPosition}%`,
+      marginLeft: 4,
     };
   });
 
@@ -107,10 +113,31 @@ export const IngredientsDrawerGorhom: React.FC<IngredientsDrawerProps> = ({
     }
   }, [isIngredientsOpen]);
 
+  // Track if we've already triggered haptic for this gesture
+  const hasTriggeredHaptic = useRef(false);
+
+  // Handle animation start for immediate haptic feedback
+  const handleAnimate = useCallback((fromIndex: number, toIndex: number) => {
+    if (toIndex === -1 && fromIndex !== -1 && !hasTriggeredHaptic.current) {
+      // Starting to close - immediate haptic
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      hasTriggeredHaptic.current = true;
+    } else if (toIndex !== -1) {
+      // Opening - reset flag
+      hasTriggeredHaptic.current = false;
+    }
+  }, []);
+
   // Sync ingredientsSheetAnim with bottom sheet animation
   const handleSheetChanges = useCallback((index: number) => {
     if (index === -1) {
-      // Closed
+      // Closed - only update state if currently open (prevent double toggles)
+      if (isIngredientsOpen) {
+        onToggle();
+      }
+      // Reset haptic flag
+      hasTriggeredHaptic.current = false;
+
       ingredientsSheetAnim.value = withTiming(0, {
         duration: 250,
         easing: Easing.out(Easing.cubic),
@@ -122,7 +149,7 @@ export const IngredientsDrawerGorhom: React.FC<IngredientsDrawerProps> = ({
         easing: Easing.out(Easing.cubic),
       });
     }
-  }, [ingredientsSheetAnim]);
+  }, [ingredientsSheetAnim, isIngredientsOpen, onToggle]);
 
   const handleTabPress = useCallback((viewAll: boolean) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -137,12 +164,10 @@ export const IngredientsDrawerGorhom: React.FC<IngredientsDrawerProps> = ({
         disappearsOnIndex={-1}
         appearsOnIndex={0}
         opacity={0.6}
-        pressBehavior={() => {
-          onToggle();
-        }}
+        pressBehavior="close"
       />
     ),
-    [onToggle]
+    []
   );
 
   // Dynamic snap points based on content height
@@ -154,13 +179,11 @@ export const IngredientsDrawerGorhom: React.FC<IngredientsDrawerProps> = ({
       index={-1}
       snapPoints={snapPoints}
       enablePanDownToClose={true}
-      onClose={() => {
-        onToggle();
-      }}
       enableDynamicSizing={false}
       backdropComponent={renderBackdrop}
       handleComponent={null}
       animateOnMount={true}
+      onAnimate={handleAnimate}
       onChange={handleSheetChanges}
       backgroundStyle={{
         backgroundColor: 'transparent',
