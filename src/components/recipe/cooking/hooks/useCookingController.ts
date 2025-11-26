@@ -153,6 +153,26 @@ export const useCookingController = (recipe: Recipe) => {
                 });
             } else {
                 // Finish Transition
+
+                // Custom Premium Haptic Pattern (~1s duration)
+                // A "swell" effect inspired by soft haptics
+                const playFinishHaptic = async () => {
+                    // Initial soft taps
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+                    setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), 100);
+                    setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), 200);
+
+                    // Building up to a medium impact
+                    setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 350);
+
+                    // A slightly stronger peak
+                    setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 550);
+
+                    // Fading out
+                    setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), 800);
+                };
+                playFinishHaptic();
+
                 // 1. Swipe out the last card
                 slideAnim.value = withTiming(-1, { duration: 300 });
                 // 2. Fade out the rest of the content
