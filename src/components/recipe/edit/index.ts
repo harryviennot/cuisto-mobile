@@ -1,7 +1,7 @@
 /**
  * Recipe edit components
  */
-export { RecipeEdit } from './RecipeEdit';
+export { RecipeEdit } from '../RecipeEdit';
 export { RecipeMainInfoForm } from './RecipeMainInfoForm';
 export { RecipeMetadataForm } from './RecipeMetadataForm';
 export { RecipeCategoriesTagsForm } from './RecipeCategoriesTagsForm';

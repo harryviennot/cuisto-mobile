@@ -16,12 +16,12 @@ import { DragProvider, useDragContext } from "@/components/DragAndDrop";
 
 import type { Recipe } from "@/types/recipe";
 import { DifficultyLevel } from "@/types/recipe";
-import { RecipeDetail } from "../RecipeDetail";
-import { RecipeMainInfoForm } from "./RecipeMainInfoForm";
-import { RecipeMetadataForm } from "./RecipeMetadataForm";
-import { RecipeCategoriesTagsForm } from "./RecipeCategoriesTagsForm";
-import { RecipeIngredientsForm } from "./RecipeIngredientsForm";
-import { RecipeInstructionsForm } from "./RecipeInstructionsForm";
+import { RecipeDetail } from "./RecipeDetail";
+import { RecipeMainInfoForm } from "./edit/RecipeMainInfoForm";
+import { RecipeMetadataForm } from "./edit/RecipeMetadataForm";
+import { RecipeCategoriesTagsForm } from "./edit/RecipeCategoriesTagsForm";
+import { RecipeIngredientsForm } from "./edit/RecipeIngredientsForm";
+import { RecipeInstructionsForm } from "./edit/RecipeInstructionsForm";
 import { ShadowItem } from "@/components/ShadowedSection";
 import { recipeEditSchema, type RecipeEditFormData } from "@/schemas/recipe.schema";
 

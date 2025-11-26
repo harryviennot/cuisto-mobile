@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StatusBar } from "react-native";
 import { Image } from "expo-image";
 import { BlurView } from "expo-blur";
@@ -22,6 +22,7 @@ interface CookingModeProps {
 }
 
 export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => {
+  const [controlsHeight, setControlsHeight] = useState(120); // Default estimate
   const {
     currentStep,
     totalSteps,
@@ -73,13 +74,27 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
   const stepDurationSeconds = step.timer_minutes ? step.timer_minutes * 60 : 0;
   const selectedTimer = timers.find((t) => t.stepIndex === selectedTimerIndex);
   const allGroupedIngredients = getAllGroupedIngredients();
-  const visibleIngredients = viewAllIngredients
-    ? allGroupedIngredients
-    : Object.entries(allGroupedIngredients).reduce((acc, [group, ings]) => {
-      const relevant = ings.filter((i) => i.isRelevant);
-      if (relevant.length > 0) acc[group] = relevant;
-      return acc;
-    }, {} as typeof allGroupedIngredients);
+
+  // Safe computation of visible ingredients with error handling
+  const visibleIngredients = React.useMemo(() => {
+    try {
+      if (viewAllIngredients) {
+        return allGroupedIngredients;
+      }
+
+      return Object.entries(allGroupedIngredients).reduce((acc, [group, ings]) => {
+        if (Array.isArray(ings)) {
+          const relevant = ings.filter((i) => i?.isRelevant);
+          if (relevant.length > 0) acc[group] = relevant;
+        }
+        return acc;
+      }, {} as typeof allGroupedIngredients);
+    } catch (error) {
+      console.error('Error computing visible ingredients:', error);
+      return {};
+    }
+  }, [allGroupedIngredients, viewAllIngredients]);
+
   const hasRelevantIngredients = Object.keys(visibleIngredients).length > 0;
 
   return (
@@ -136,6 +151,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         visibleIngredients={visibleIngredients}
         hasRelevantIngredients={hasRelevantIngredients}
         onToggle={toggleIngredients}
+        controlsHeight={controlsHeight}
       />
 
       <CookingControls
@@ -144,6 +160,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         isIngredientsOpen={isIngredientsOpen}
         onChangeStep={changeStep}
         onToggleIngredients={toggleIngredients}
+        onLayout={setControlsHeight}
       />
 
       {isChatOpen && (

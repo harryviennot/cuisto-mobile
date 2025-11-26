@@ -10,6 +10,7 @@ interface CookingControlsProps {
     isIngredientsOpen: boolean;
     onChangeStep: (direction: "next" | "prev") => void;
     onToggleIngredients: () => void;
+    onLayout?: (height: number) => void;
 }
 
 export const CookingControls: React.FC<CookingControlsProps> = ({
@@ -18,6 +19,7 @@ export const CookingControls: React.FC<CookingControlsProps> = ({
     isIngredientsOpen,
     onChangeStep,
     onToggleIngredients,
+    onLayout,
 }) => {
     const { t } = useTranslation();
     const insets = useSafeAreaInsets();
@@ -26,6 +28,10 @@ export const CookingControls: React.FC<CookingControlsProps> = ({
         <View
             className="z-50 flex-row items-stretch gap-4 border-t border-white/10 bg-black/80 px-6 pb-8 pt-6 backdrop-blur-lg"
             style={{ paddingBottom: insets.bottom + 16 }}
+            onLayout={(event) => {
+                const { height } = event.nativeEvent.layout;
+                onLayout?.(height);
+            }}
         >
             <Pressable
                 onPress={() => onChangeStep("prev")}

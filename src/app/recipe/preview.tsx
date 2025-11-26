@@ -13,6 +13,7 @@ import { XIcon, ArrowCounterClockwiseIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { recipeService } from "@/api/services/recipe.service";
+import { useDeleteRecipe } from "@/hooks/useRecipes";
 import { useExtractionJob } from "@/hooks/useExtractionJob";
 import { ExtractionProgress } from "@/components/extraction/ExtractionProgress";
 import { ExtractionStatus } from "@/types/extraction";
@@ -26,6 +27,7 @@ export default function UnifiedRecipePreviewScreen() {
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const deleteRecipeMutation = useDeleteRecipe();
 
   // Monitor extraction job with SSE and polling fallback
   const {
@@ -83,11 +85,9 @@ export default function UnifiedRecipePreviewScreen() {
     // Navigate immediately for instant feedback
     router.replace("/");
 
-    // Delete recipe in background
+    // Delete recipe in background using mutation (with proper cache invalidation)
     if (job?.recipe_id) {
-      recipeService.deleteRecipe(job.recipe_id).catch(() => {
-        // Silently handle deletion errors
-      });
+      deleteRecipeMutation.mutate(job.recipe_id);
     }
   };
 

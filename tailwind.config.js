@@ -80,7 +80,7 @@ module.exports = {
         state: {
           success: "#507768", // forest-500
           warning: "#d1c1a5", // brown-300
-          error: "#b5a082", // brown-400
+          error: "#c65d47", // terracotta-500 - proper error/danger color
           info: "#91b5a7", // forest-300
         },
 

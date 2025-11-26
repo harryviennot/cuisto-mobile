@@ -198,6 +198,7 @@ export function useUpdateRecipeTimings() {
 
 /**
  * Hook for updating a recipe's core data (title, description, metadata, etc.)
+ * Includes optimistic updates for immediate UI feedback
  */
 export function useUpdateRecipe() {
   const queryClient = useQueryClient();
@@ -206,24 +207,48 @@ export function useUpdateRecipe() {
     Recipe,
     Error,
     { recipeId: string; data: Partial<Recipe> },
-    { previousRecipe: Recipe | undefined }
+    { previousRecipe: Recipe | undefined; previousRecipesList: any }
   >({
     mutationFn: async ({ recipeId, data }) => {
       return recipeService.updateRecipe(recipeId, data);
     },
-    // Optimistically update the UI
+    // Optimistically update the UI before the API call completes
     onMutate: async ({ recipeId, data }) => {
+      // Cancel any outgoing refetches so they don't overwrite our optimistic update
       await queryClient.cancelQueries({ queryKey: ["recipe", recipeId] });
+      await queryClient.cancelQueries({ queryKey: ["recipes"] });
 
+      // Snapshot the previous values
       const previousRecipe = queryClient.getQueryData<Recipe>(["recipe", recipeId]);
+      const previousRecipesList = queryClient.getQueryData(["recipes"]);
 
+      // Optimistically update the individual recipe query
       queryClient.setQueryData<Recipe>(["recipe", recipeId], (old) => {
         if (!old) return old;
-        return { ...old, ...data };
+        return { ...old, ...data, updated_at: new Date().toISOString() };
       });
 
-      return { previousRecipe };
+      // Optimistically update the recipe in the recipes list
+      queryClient.setQueriesData<{ pages: Recipe[][]; pageParams: any[] }>(
+        { queryKey: ["recipes"] },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) =>
+              page.map((recipe) =>
+                recipe.id === recipeId
+                  ? { ...recipe, ...data, updated_at: new Date().toISOString() }
+                  : recipe
+              )
+            ),
+          };
+        }
+      );
+
+      return { previousRecipe, previousRecipesList };
     },
+    // If the mutation fails, rollback to the previous values
     onError: (_err, variables, context) => {
       Toast.show({
         type: "error",
@@ -233,11 +258,66 @@ export function useUpdateRecipe() {
       if (context?.previousRecipe) {
         queryClient.setQueryData(["recipe", variables.recipeId], context.previousRecipe);
       }
+      if (context?.previousRecipesList) {
+        queryClient.setQueryData(["recipes"], context.previousRecipesList);
+      }
     },
+    // Update with the real values from the server
     onSuccess: (data, variables) => {
+      // Update the individual recipe query with server data
       queryClient.setQueryData<Recipe>(["recipe", variables.recipeId], data);
-      // Invalidate the recipes list to reflect the update
+
+      // Update the recipe in the recipes list with server data
+      queryClient.setQueriesData<{ pages: Recipe[][]; pageParams: any[] }>(
+        { queryKey: ["recipes"] },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) =>
+              page.map((recipe) =>
+                recipe.id === variables.recipeId ? data : recipe
+              )
+            ),
+          };
+        }
+      );
+    },
+  });
+}
+
+/**
+ * Hook for deleting a recipe with cache invalidation
+ */
+export function useDeleteRecipe() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { message: string },
+    Error,
+    string
+  >({
+    mutationFn: async (recipeId: string) => {
+      return recipeService.deleteRecipe(recipeId);
+    },
+    onSuccess: (_, recipeId) => {
+      // Remove the recipe from the cache
+      queryClient.removeQueries({ queryKey: ["recipe", recipeId] });
+      // Invalidate the recipes list to refetch
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
+
+      Toast.show({
+        type: "success",
+        text1: "Recipe deleted",
+        text2: "The recipe has been deleted successfully",
+      });
+    },
+    onError: (error) => {
+      Toast.show({
+        type: "error",
+        text1: "Error deleting recipe",
+        text2: error.message,
+      });
     },
   });
 }

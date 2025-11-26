@@ -7,7 +7,7 @@ import { View, ActivityIndicator, Text, TouchableOpacity } from "react-native";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { recipeService } from "@/api/services";
-import { RecipeEdit, RecipeEditRef } from "@/components/recipe/edit/RecipeEdit";
+import { RecipeEdit, RecipeEditRef } from "@/components/recipe/RecipeEdit";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { FloatingActionButtons } from "@/components/recipe";

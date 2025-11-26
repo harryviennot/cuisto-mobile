@@ -3,7 +3,7 @@
  * Uses split components for better maintainability and performance
  */
 import React, { useState, useEffect, memo } from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedScrollHandler,
@@ -12,13 +12,16 @@ import Animated, {
   useAnimatedStyle,
   withTiming
 } from "react-native-reanimated";
+import { ShareNetworkIcon, PencilIcon, TrashIcon } from "phosphor-react-native";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDeleteRecipe } from "@/hooks/useRecipes";
 
 import type { Recipe } from "@/types/recipe";
 import { AnimatedPageHeader } from "@/components/ui/AnimatedPageHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { ActionSheet } from "@/components/ui/ActionSheet";
 
 // Import recipe components using barrel exports
 import { CookingMode } from "@/components/recipe/CookingMode";
@@ -28,6 +31,8 @@ import {
   RecipeContent,
   RecipeEditManager
 } from "@/components/recipe/detail";
+import { t } from "i18next";
+import { router } from "expo-router";
 
 interface RecipeDetailProps {
   recipe?: Recipe;
@@ -63,11 +68,14 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const { isTablet, isTabletLandscape } = useDeviceType(isEditing);
+  const deleteRecipeMutation = useDeleteRecipe();
 
   // State
   const [isCooking, setIsCooking] = useState(false);
   const [imageHeight, setImageHeight] = useState(0);
   const [titleLayout, setTitleLayout] = useState({ y: 0, height: 0 });
+
+  const [isActionsModalVisible, setIsActionsModalVisible] = useState(false);
 
   // Animation values
   const scrollY = useSharedValue(0);
@@ -164,6 +172,33 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
 
   // Check ownership
   const isOwner = user?.id === displayRecipe.created_by;
+
+  // Handle delete with confirmation
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Recipe",
+      "Are you sure you want to delete this recipe? This action cannot be undone.",
+      [
+        {
+          text: t("common.cancel"),
+          style: "cancel",
+        },
+        {
+          text: t("common.delete"),
+          style: "destructive",
+          onPress: () => {
+            if (recipe) {
+              deleteRecipeMutation.mutate(recipe.id, {
+                onSuccess: () => {
+                  router.back();
+                },
+              });
+            }
+          },
+        },
+      ]
+    );
+  };
 
   // Calculate scroll thresholds for header animation
   const titleAbsoluteY = imageHeight - insets.top - 12;
@@ -294,7 +329,7 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
             title={displayRecipe.title}
             scrollY={scrollY}
             onBackPress={!isDraft ? onBack : undefined}
-            onMenuPress={!isDraft ? () => { } : undefined}
+            onMenuPress={!isDraft ? () => setIsActionsModalVisible(true) : undefined}
             animationConfig={{
               scrollThresholdStart,
               scrollThresholdEnd,
@@ -317,6 +352,7 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         )}
       </Animated.View>
 
+
       {/* Cooking Mode Overlay */}
       {isCooking && recipe && (
         <Animated.View
@@ -328,6 +364,43 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
           <CookingMode recipe={recipe} onClose={() => setIsCooking(false)} />
         </Animated.View>
       )}
+      {/* Actions Modal */}
+      <ActionSheet
+        visible={isActionsModalVisible}
+        onClose={() => setIsActionsModalVisible(false)}
+        actions={[
+          {
+            label: "Share Recipe",
+            description: "Share this recipe with your friends",
+            icon: <ShareNetworkIcon size={24} color="#334d43" />,
+            onPress: () => {
+              setIsActionsModalVisible(false);
+            },
+          },
+          ...(isOwner ? [
+            {
+              label: "Edit Recipe",
+              icon: <PencilIcon size={24} color="#334d43" />,
+              onPress: () => {
+                if (recipe) {
+                  router.push(`/recipe/${recipe?.id}/edit`);
+                  setIsActionsModalVisible(false);
+                }
+              },
+            },
+            {
+              label: "Delete Recipe",
+              description: "This action cannot be undone",
+              icon: <TrashIcon size={24} color="#ef4444" />,
+              variant: "destructive" as const,
+              onPress: () => {
+                setIsActionsModalVisible(false);
+                handleDelete();
+              },
+            }
+          ] : [])
+        ]}
+      />
     </View>
   );
 });

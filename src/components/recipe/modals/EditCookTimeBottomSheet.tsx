@@ -45,22 +45,6 @@ export function EditCookTimeBottomSheet({
     setCookTotalMinutes(initialCookMinutes);
   }, [initialPrepMinutes, initialCookMinutes]);
 
-  const prepPresets = [
-    { label: "5 min", minutes: 5 },
-    { label: "10 min", minutes: 10 },
-    { label: "15 min", minutes: 15 },
-    { label: "30 min", minutes: 30 },
-    { label: "45 min", minutes: 45 },
-  ];
-
-  const cookPresets = [
-    { label: "15 min", minutes: 15 },
-    { label: "30 min", minutes: 30 },
-    { label: "1 hour", minutes: 60 },
-    { label: "1.5 hours", minutes: 90 },
-    { label: "2 hours", minutes: 120 },
-  ];
-
   useEffect(() => {
     if (visible) {
       bottomSheetModalRef.current?.present();

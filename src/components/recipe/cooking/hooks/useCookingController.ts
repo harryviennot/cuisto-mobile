@@ -5,6 +5,7 @@ import {
     withSpring,
     withTiming,
     runOnJS,
+    Easing,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
@@ -173,14 +174,21 @@ export const useCookingController = (recipe: Recipe) => {
 
     // Ingredients Logic
     const getAllGroupedIngredients = useCallback(() => {
-        const text = (step.description + " " + (step.title || "")).toLowerCase();
+        // Defensive checks
+        if (!step || !recipe.ingredients || !Array.isArray(recipe.ingredients)) {
+            return {} as Record<string, (Ingredient & { isRelevant: boolean })[]>;
+        }
+
+        const stepText = ((step.description || "") + " " + (step.title || "")).toLowerCase();
 
         // Annotate with relevance
-        const annotated = recipe.ingredients.map(ing => {
-            const firstWord = ing.name.toLowerCase().split(' ')[0];
-            const isRelevant = text.includes(firstWord);
-            return { ...ing, isRelevant };
-        });
+        const annotated = recipe.ingredients
+            .filter(ing => ing && ing.name) // Filter out invalid ingredients
+            .map(ing => {
+                const firstWord = ing.name.toLowerCase().split(' ')[0] || '';
+                const isRelevant = stepText.includes(firstWord);
+                return { ...ing, isRelevant };
+            });
 
         return annotated.reduce((acc, ing) => {
             const group = (ing as any).group || 'Main';
@@ -193,11 +201,17 @@ export const useCookingController = (recipe: Recipe) => {
     const toggleIngredients = useCallback(() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         if (isIngredientsOpen) {
-            ingredientsSheetAnim.value = withTiming(0);
+            ingredientsSheetAnim.value = withTiming(0, {
+                duration: 250,
+                easing: Easing.out(Easing.cubic),
+            });
             setIsIngredientsOpen(false);
         } else {
             setIsIngredientsOpen(true);
-            ingredientsSheetAnim.value = withSpring(1);
+            ingredientsSheetAnim.value = withTiming(1, {
+                duration: 300,
+                easing: Easing.out(Easing.cubic),
+            });
         }
     }, [isIngredientsOpen, ingredientsSheetAnim]);
 

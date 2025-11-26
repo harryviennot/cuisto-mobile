@@ -5,6 +5,7 @@ import { Stack } from "expo-router";
 import { Dimensions } from "react-native";
 
 export default function RecipeLayout() {
+
   return (
     <Stack
       screenOptions={{
