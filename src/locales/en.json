@@ -107,8 +107,6 @@
       "title": "Cooking Mode",
       "step": "Step",
       "percentComplete": "% Complete",
-      "stepCompleted": "Step Completed",
-      "markAsComplete": "Mark as Complete",
       "nextStep": "Next Step",
       "timerRunning": "Timer Running",
       "timerPaused": "Paused",
@@ -120,7 +118,7 @@
       "viewFullList": "View Full List",
       "finishedMessage": "You've successfully cooked {{title}}!",
       "mastered": "You've mastered",
-      "completeSession": "Complete Session"
+      "completeSession": "Dinner's ready!"
     },
     "card": {
       "recipeLabel": "RECIPE",

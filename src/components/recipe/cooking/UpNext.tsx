@@ -85,13 +85,13 @@ export const UpNext: React.FC<UpNextProps> = ({
         >
             <Animated.Text
                 style={labelAnimatedStyle}
-                className="mb-1 text-center text-[10px] uppercase tracking-widest text-white/60"
+                className="mb-1 text-center text-[10px] font-bold uppercase tracking-widest text-white/60"
             >
                 {t("common.upNext")}
             </Animated.Text>
             <Animated.View style={nextStepAnimatedStyle}>
                 <Text
-                    className="truncate text-center font-playfair text-base text-white/90"
+                    className="truncate text-center font-playfair text-xl text-white/90"
                     numberOfLines={1}
                 >
                     {stepToShow.title}
