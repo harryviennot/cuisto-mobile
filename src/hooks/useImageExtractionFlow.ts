@@ -3,7 +3,7 @@
  * Encapsulates image picking, confirmation, and submission logic
  */
 import { useState } from "react";
-import { Alert } from "react-native";
+
 import Toast from "react-native-toast-message";
 import { useRouter } from "expo-router";
 import { useImagePicker, type PickedImage } from "./useImagePicker";

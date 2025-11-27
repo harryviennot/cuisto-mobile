@@ -50,7 +50,7 @@ export function useCookingMode(instructions: Instruction[]) {
    */
   const goToNextStep = useCallback(() => {
     if (!isLastStep) {
-      setCurrentStepIndex(prev => prev + 1);
+      setCurrentStepIndex((prev) => prev + 1);
     }
   }, [isLastStep]);
 
@@ -59,24 +59,27 @@ export function useCookingMode(instructions: Instruction[]) {
    */
   const goToPreviousStep = useCallback(() => {
     if (!isFirstStep) {
-      setCurrentStepIndex(prev => prev - 1);
+      setCurrentStepIndex((prev) => prev - 1);
     }
   }, [isFirstStep]);
 
   /**
    * Jump to a specific step
    */
-  const goToStep = useCallback((index: number) => {
-    if (index >= 0 && index < instructions.length) {
-      setCurrentStepIndex(index);
-    }
-  }, [instructions.length]);
+  const goToStep = useCallback(
+    (index: number) => {
+      if (index >= 0 && index < instructions.length) {
+        setCurrentStepIndex(index);
+      }
+    },
+    [instructions.length]
+  );
 
   /**
    * Mark current step as completed
    */
   const markStepCompleted = useCallback(() => {
-    setCompletedSteps(prev => new Set(prev).add(currentStepIndex));
+    setCompletedSteps((prev) => new Set(prev).add(currentStepIndex));
 
     // Auto-advance to next step if not the last one
     if (!isLastStep) {
@@ -88,7 +91,7 @@ export function useCookingMode(instructions: Instruction[]) {
    * Mark a step as incomplete
    */
   const markStepIncomplete = useCallback((index: number) => {
-    setCompletedSteps(prev => {
+    setCompletedSteps((prev) => {
       const next = new Set(prev);
       next.delete(index);
       return next;
@@ -98,37 +101,43 @@ export function useCookingMode(instructions: Instruction[]) {
   /**
    * Toggle step completion
    */
-  const toggleStepCompletion = useCallback((index: number) => {
-    if (completedSteps.has(index)) {
-      markStepIncomplete(index);
-    } else {
-      setCompletedSteps(prev => new Set(prev).add(index));
-    }
-  }, [completedSteps, markStepIncomplete]);
+  const toggleStepCompletion = useCallback(
+    (index: number) => {
+      if (completedSteps.has(index)) {
+        markStepIncomplete(index);
+      } else {
+        setCompletedSteps((prev) => new Set(prev).add(index));
+      }
+    },
+    [completedSteps, markStepIncomplete]
+  );
 
   /**
    * Create a timer for the current step
    */
-  const createTimer = useCallback((minutes: number, label?: string) => {
-    const timerId = `timer-${Date.now()}`;
-    const timer: Timer = {
-      id: timerId,
-      instructionIndex: currentStepIndex,
-      duration: minutes * 60,
-      remaining: minutes * 60,
-      isRunning: false,
-      label: label || `Step ${currentStepIndex + 1} Timer`,
-    };
+  const createTimer = useCallback(
+    (minutes: number, label?: string) => {
+      const timerId = `timer-${Date.now()}`;
+      const timer: Timer = {
+        id: timerId,
+        instructionIndex: currentStepIndex,
+        duration: minutes * 60,
+        remaining: minutes * 60,
+        isRunning: false,
+        label: label || `Step ${currentStepIndex + 1} Timer`,
+      };
 
-    setTimers(prev => new Map(prev).set(timerId, timer));
-    return timerId;
-  }, [currentStepIndex]);
+      setTimers((prev) => new Map(prev).set(timerId, timer));
+      return timerId;
+    },
+    [currentStepIndex]
+  );
 
   /**
    * Start a timer
    */
   const startTimer = useCallback((timerId: string) => {
-    setTimers(prev => {
+    setTimers((prev) => {
       const next = new Map(prev);
       const timer = next.get(timerId);
       if (timer) {
@@ -140,7 +149,7 @@ export function useCookingMode(instructions: Instruction[]) {
 
     // Start the interval
     const interval = setInterval(() => {
-      setTimers(prev => {
+      setTimers((prev) => {
         const next = new Map(prev);
         const timer = next.get(timerId);
 
@@ -169,7 +178,7 @@ export function useCookingMode(instructions: Instruction[]) {
    * Pause a timer
    */
   const pauseTimer = useCallback((timerId: string) => {
-    setTimers(prev => {
+    setTimers((prev) => {
       const next = new Map(prev);
       const timer = next.get(timerId);
       if (timer) {
@@ -190,39 +199,42 @@ export function useCookingMode(instructions: Instruction[]) {
   /**
    * Reset a timer
    */
-  const resetTimer = useCallback((timerId: string) => {
-    const timer = timers.get(timerId);
-    if (timer) {
-      pauseTimer(timerId);
-      setTimers(prev => {
-        const next = new Map(prev);
-        next.set(timerId, { ...timer, remaining: timer.duration, isRunning: false });
-        return next;
-      });
-    }
-  }, [timers, pauseTimer]);
+  const resetTimer = useCallback(
+    (timerId: string) => {
+      const timer = timers.get(timerId);
+      if (timer) {
+        pauseTimer(timerId);
+        setTimers((prev) => {
+          const next = new Map(prev);
+          next.set(timerId, { ...timer, remaining: timer.duration, isRunning: false });
+          return next;
+        });
+      }
+    },
+    [timers, pauseTimer]
+  );
 
   /**
    * Delete a timer
    */
-  const deleteTimer = useCallback((timerId: string) => {
-    pauseTimer(timerId);
-    setTimers(prev => {
-      const next = new Map(prev);
-      next.delete(timerId);
-      return next;
-    });
-  }, [pauseTimer]);
+  const deleteTimer = useCallback(
+    (timerId: string) => {
+      pauseTimer(timerId);
+      setTimers((prev) => {
+        const next = new Map(prev);
+        next.delete(timerId);
+        return next;
+      });
+    },
+    [pauseTimer]
+  );
 
   /**
    * Create and start a timer for current instruction if it has one
    */
   const startInstructionTimer = useCallback(() => {
     if (currentInstruction?.timer_minutes) {
-      const timerId = createTimer(
-        currentInstruction.timer_minutes,
-        currentInstruction.title
-      );
+      const timerId = createTimer(currentInstruction.timer_minutes, currentInstruction.title);
       startTimer(timerId);
       return timerId;
     }
@@ -233,7 +245,7 @@ export function useCookingMode(instructions: Instruction[]) {
    * Toggle screen lock (keep screen on during cooking)
    */
   const toggleScreenLock = useCallback(() => {
-    setIsScreenLocked(prev => !prev);
+    setIsScreenLocked((prev) => !prev);
     // In a real app, you'd use expo-keep-awake here
   }, []);
 
@@ -256,10 +268,7 @@ export function useCookingMode(instructions: Instruction[]) {
    */
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (
-        appStateRef.current.match(/active/) &&
-        nextAppState.match(/inactive|background/)
-      ) {
+      if (appStateRef.current.match(/active/) && nextAppState.match(/inactive|background/)) {
         // App is going to background, pause all timers
         timers.forEach((timer) => {
           if (timer.isRunning) {
@@ -279,8 +288,9 @@ export function useCookingMode(instructions: Instruction[]) {
    * Cleanup timers on unmount
    */
   useEffect(() => {
+    const refs = intervalRefs.current;
     return () => {
-      intervalRefs.current.forEach(interval => clearInterval(interval));
+      refs.forEach((interval) => clearInterval(interval));
     };
   }, []);
 

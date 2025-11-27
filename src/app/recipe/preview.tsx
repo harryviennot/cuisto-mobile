@@ -4,7 +4,7 @@
  * Accepts jobId as parameter, polls for completion, then shows recipe with animations
  */
 import { useState } from "react";
-import { View, Text, Pressable, ActivityIndicator, Alert } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import Toast from "react-native-toast-message";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -42,9 +42,9 @@ export default function UnifiedRecipePreviewScreen() {
         await loadRecipe(job.recipe_id);
       }
     },
-    onError: (error) => {
-      // Connection errors are handled by the retry mechanism
-    },
+    //onError: (error) => {
+    // Connection errors are handled by the retry mechanism
+    //},
     enableSSE: true, // Re-enabled with fixes - test carefully
   });
 
@@ -52,7 +52,7 @@ export default function UnifiedRecipePreviewScreen() {
     try {
       const data = await recipeService.getRecipe(recipeId);
       setRecipe(data);
-    } catch (error) {
+    } catch {
       Toast.show({
         type: "error",
         text1: t("common.error"),
@@ -161,7 +161,7 @@ export default function UnifiedRecipePreviewScreen() {
     return (
       <RecipeDetail
         recipe={recipe}
-        onBack={() => { }}
+        onBack={() => {}}
         isDraft={true}
         onDiscard={handleDiscard}
         onSave={handleSave}

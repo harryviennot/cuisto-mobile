@@ -13,7 +13,7 @@ interface StarRatingProps {
 
 export function StarRating({
   rating,
-  onRatingChange = () => { },
+  onRatingChange = () => {},
   size = 32,
   editable = true,
   gap = 0.5,

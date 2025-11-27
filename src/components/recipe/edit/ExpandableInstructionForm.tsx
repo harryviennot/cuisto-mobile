@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, TextInput as RNTextInput } from "react-native";
-import { PlusIcon, CheckIcon, ClockIcon, AlarmIcon } from "phosphor-react-native";
+import { PlusIcon, CheckIcon, AlarmIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
 import { useDeviceType } from "@/hooks/useDeviceType";
@@ -30,9 +30,7 @@ export function ExpandableInstructionForm({
   const { isTablet } = useDeviceType();
   const [title, setTitle] = useState(instruction?.title || "");
   const [description, setDescription] = useState(instruction?.description || "");
-  const [timerMinutes, setTimerMinutes] = useState(
-    instruction?.timer_minutes?.toString() || ""
-  );
+  const [timerMinutes, setTimerMinutes] = useState(instruction?.timer_minutes?.toString() || "");
 
   const handleSave = () => {
     if (!title.trim() || !description.trim()) return;
@@ -60,9 +58,7 @@ export function ExpandableInstructionForm({
   };
 
   const displayTitle =
-    mode === "add"
-      ? `Step ${nextStepNumber}`
-      : `Edit Step ${instruction?.step_number}`;
+    mode === "add" ? `Step ${nextStepNumber}` : `Edit Step ${instruction?.step_number}`;
 
   return (
     <View className="mb-3 w-full">
@@ -90,9 +86,7 @@ export function ExpandableInstructionForm({
                 <View className="h-8 w-8 items-center justify-center rounded-full bg-primary">
                   <Text className="text-sm font-bold text-white">{nextStepNumber}</Text>
                 </View>
-                <Text className="text-base font-bold text-foreground-heading">
-                  {displayTitle}
-                </Text>
+                <Text className="text-base font-bold text-foreground-heading">{displayTitle}</Text>
               </View>
 
               {/* Timer Input (Optional) - Top Right */}
@@ -154,7 +148,9 @@ export function ExpandableInstructionForm({
             <View className={`w-full flex-row ${isTablet ? "gap-3" : "gap-3"}`}>
               <Pressable onPress={onToggle} className="flex-1">
                 <ShadowItem className="items-center rounded-xl border border-border-button bg-white py-3.5">
-                  <Text className="text-base font-semibold text-foreground">{t("common.cancel")}</Text>
+                  <Text className="text-base font-semibold text-foreground">
+                    {t("common.cancel")}
+                  </Text>
                 </ShadowItem>
               </Pressable>
               <Pressable
@@ -164,8 +160,9 @@ export function ExpandableInstructionForm({
               >
                 <ShadowItem
                   variant="primary"
-                  className={`flex-row items-center justify-center gap-2 rounded-xl py-3.5 ${!title.trim() || !description.trim() ? "opacity-50" : ""
-                    }`}
+                  className={`flex-row items-center justify-center gap-2 rounded-xl py-3.5 ${
+                    !title.trim() || !description.trim() ? "opacity-50" : ""
+                  }`}
                 >
                   <CheckIcon size={18} color="#FFFFFF" weight="bold" />
                   <Text className="text-base font-semibold text-white">

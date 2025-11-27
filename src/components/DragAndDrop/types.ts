@@ -1,5 +1,4 @@
 import { ReactElement } from "react";
-import { ScrollView } from "react-native";
 
 export interface DragEndParams<T> {
   data: T[];

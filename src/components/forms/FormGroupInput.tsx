@@ -61,8 +61,9 @@ export function FormGroupInput({
 
         <ShadowItem
           variant="primary"
-          className={`items-center justify-center rounded-xl px-4 ${isDisabled ? "opacity-50" : ""
-            }`}
+          className={`items-center justify-center rounded-xl px-4 ${
+            isDisabled ? "opacity-50" : ""
+          }`}
           onPress={onAddItem}
           disabled={isDisabled}
         >

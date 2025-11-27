@@ -1,9 +1,7 @@
 import "@/global.css";
 import { View, Text, Pressable } from "react-native";
 import { useRef, useCallback, useEffect } from "react";
-import { useTranslation } from "react-i18next";
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from "@gorhom/bottom-sheet";
-import { useDeviceType } from "@/hooks/useDeviceType";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ActionSheetProps {
@@ -18,15 +16,9 @@ interface ActionSheetProps {
   onClose: () => void;
 }
 
-export function ActionSheet({
-  visible,
-  actions,
-  onClose,
-}: ActionSheetProps) {
-  const { t } = useTranslation();
+export function ActionSheet({ visible, actions, onClose }: ActionSheetProps) {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const { isTabletLandscape, isTablet } = useDeviceType();
   const { bottom } = useSafeAreaInsets();
 
   useEffect(() => {
@@ -76,8 +68,6 @@ export function ActionSheet({
         className="flex-1 bg-surface-elevated px-4 pt-4"
         style={{ paddingBottom: bottom + 16 }}
       >
-
-
         <View className="gap-4">
           {actions.filter(Boolean).map((action) => (
             <Pressable
@@ -85,22 +75,29 @@ export function ActionSheet({
               onPress={() => {
                 action.onPress();
               }}
-              className={`flex-row items-center gap-4 rounded-2xl border-2 p-6 active:bg-surface ${action.variant === "destructive"
-                ? "border-state-error/50 bg-state-error/15"
-                : "border-border bg-surface-elevated"
-                }`}
+              className={`flex-row items-center gap-4 rounded-2xl border-2 p-6 active:bg-surface ${
+                action.variant === "destructive"
+                  ? "border-state-error/50 bg-state-error/15"
+                  : "border-border bg-surface-elevated"
+              }`}
             >
-              <View className={`h-12 w-12 items-center justify-center rounded-xl ${action.variant === "destructive" ? "bg-state-error/15" : "bg-primary/10"
-                }`}>
+              <View
+                className={`h-12 w-12 items-center justify-center rounded-xl ${
+                  action.variant === "destructive" ? "bg-state-error/15" : "bg-primary/10"
+                }`}
+              >
                 {action.icon}
               </View>
               <View className="flex-1 justify-center">
-                <Text className="text-lg font-medium text-foreground-heading">
-                  {action.label}
-                </Text>
+                <Text className="text-lg font-medium text-foreground-heading">{action.label}</Text>
                 {action.description && (
-                  <Text className={`text-sm mt-0.5 ${action.variant === "destructive" ? "text-state-error" : "text-foreground-muted"
-                    }`}>
+                  <Text
+                    className={`text-sm mt-0.5 ${
+                      action.variant === "destructive"
+                        ? "text-state-error"
+                        : "text-foreground-muted"
+                    }`}
+                  >
                     {action.description}
                   </Text>
                 )}

@@ -139,7 +139,9 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
 
         {/* Total Time Display */}
         <ShadowItem variant="primary" className="mb-6 items-start rounded-xl p-4">
-          <Text className="mb-1 text-sm uppercase tracking-wide text-white/80">{t("recipe.edit.totalTime")}</Text>
+          <Text className="mb-1 text-sm uppercase tracking-wide text-white/80">
+            {t("recipe.edit.totalTime")}
+          </Text>
           <Text className="text-3xl text-white" style={{ fontFamily: "PlayfairDisplay_700Bold" }}>
             {formatTime(prepTime + cookTime)}
           </Text>

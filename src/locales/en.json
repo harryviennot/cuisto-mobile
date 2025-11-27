@@ -32,7 +32,8 @@
     "bonAppetit": "Bon Appétit!",
     "upNext": "Up Next",
     "photo": "Photo",
-    "share": "Share"
+    "share": "Share",
+    "warning": "Warning"
   },
   "app": {
     "title": "CuiStudio",
@@ -118,7 +119,8 @@
       "viewFullList": "View Full List",
       "finishedMessage": "You've successfully cooked {{title}}!",
       "mastered": "You've mastered",
-      "completeSession": "Dinner's ready!"
+      "completeSession": "Dinner's ready!",
+      "activeTimersWarning": "You have active timers running. Are you sure you want to finish?"
     },
     "card": {
       "recipeLabel": "RECIPE",

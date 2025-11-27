@@ -40,8 +40,9 @@ export function InstructionItem({
     <DraggableItem isActive={isActive} {...draggableProps}>
       <View className="mb-3" style={{ minHeight: 120 }}>
         <ShadowItem
-          className={`rounded-2xl border bg-white ${isActive ? "border-2 border-primary bg-primary/5" : "border-border-light"
-            }`}
+          className={`rounded-2xl border bg-white ${
+            isActive ? "border-2 border-primary bg-primary/5" : "border-border-light"
+          }`}
         >
           <View className="flex-row items-start gap-3 p-3" style={{ minHeight: 120 }}>
             {/* Left side: Drag Handle */}
@@ -58,13 +59,15 @@ export function InstructionItem({
             </View>
             {/* Step Number Badge */}
 
-
             {/* Content - clickable to edit */}
             <Pressable onPress={onEdit} className="flex-1 h-full ">
               <View className="gap-2 mt-1">
                 {/* Title and Timer Row */}
                 <View className="flex-row gap-4">
-                  <Text className="flex-1 text-base font-semibold leading-6 text-foreground-heading" numberOfLines={2}>
+                  <Text
+                    className="flex-1 text-base font-semibold leading-6 text-foreground-heading"
+                    numberOfLines={2}
+                  >
                     {instruction.title}
                   </Text>
                   {instruction.timer_minutes && instruction.timer_minutes > 0 && (
@@ -86,7 +89,7 @@ export function InstructionItem({
 
             {/* Center: Delete Button */}
             <View className="flex-col">
-              <View className="flex-1 items-center justify-center" >
+              <View className="flex-1 items-center justify-center">
                 <Pressable
                   onPress={onDelete}
                   className="p-2"

@@ -77,26 +77,32 @@ export function RecipeProvider({ children }: RecipeProviderProps) {
 
   // Recipe management
   const updateCurrentRecipe = useCallback((updates: Partial<Recipe>) => {
-    setCurrentRecipe(prev => {
+    setCurrentRecipe((prev) => {
       if (!prev) return prev;
       return { ...prev, ...updates };
     });
   }, []);
 
   // User data management
-  const setUserRecipeDataCallback = useCallback((recipeId: string, data: any) => {
-    userRecipeData.set(recipeId, data);
-  }, [userRecipeData]);
+  const setUserRecipeDataCallback = useCallback(
+    (recipeId: string, data: any) => {
+      userRecipeData.set(recipeId, data);
+    },
+    [userRecipeData]
+  );
 
-  const getUserRecipeDataCallback = useCallback((recipeId: string) => {
-    return userRecipeData.get(recipeId);
-  }, [userRecipeData]);
+  const getUserRecipeDataCallback = useCallback(
+    (recipeId: string) => {
+      return userRecipeData.get(recipeId);
+    },
+    [userRecipeData]
+  );
 
   // Recent recipes management
   const addToRecentRecipes = useCallback((recipe: Recipe) => {
-    setRecentRecipes(prev => {
+    setRecentRecipes((prev) => {
       // Remove if already exists to avoid duplicates
-      const filtered = prev.filter(r => r.id !== recipe.id);
+      const filtered = prev.filter((r) => r.id !== recipe.id);
       // Add to beginning and limit to 10 recent recipes
       return [recipe, ...filtered].slice(0, 10);
     });
@@ -108,7 +114,7 @@ export function RecipeProvider({ children }: RecipeProviderProps) {
 
   // Favorites management
   const toggleFavorite = useCallback((recipeId: string) => {
-    setFavoriteRecipeIds(prev => {
+    setFavoriteRecipeIds((prev) => {
       const next = new Set(prev);
       if (next.has(recipeId)) {
         next.delete(recipeId);
@@ -119,24 +125,27 @@ export function RecipeProvider({ children }: RecipeProviderProps) {
     });
   }, []);
 
-  const isFavorite = useCallback((recipeId: string) => {
-    return favoriteRecipeIds.has(recipeId);
-  }, [favoriteRecipeIds]);
+  const isFavorite = useCallback(
+    (recipeId: string) => {
+      return favoriteRecipeIds.has(recipeId);
+    },
+    [favoriteRecipeIds]
+  );
 
   // Filter management
   const toggleCategory = useCallback((category: string) => {
-    setSelectedCategories(prev => {
+    setSelectedCategories((prev) => {
       if (prev.includes(category)) {
-        return prev.filter(c => c !== category);
+        return prev.filter((c) => c !== category);
       }
       return [...prev, category];
     });
   }, []);
 
   const toggleTag = useCallback((tag: string) => {
-    setSelectedTags(prev => {
+    setSelectedTags((prev) => {
       if (prev.includes(tag)) {
-        return prev.filter(t => t !== tag);
+        return prev.filter((t) => t !== tag);
       }
       return [...prev, tag];
     });
@@ -151,7 +160,7 @@ export function RecipeProvider({ children }: RecipeProviderProps) {
 
   // UI preferences
   const toggleViewMode = useCallback(() => {
-    setIsGridView(prev => !prev);
+    setIsGridView((prev) => !prev);
   }, []);
 
   const value: RecipeContextValue = {
@@ -185,11 +194,7 @@ export function RecipeProvider({ children }: RecipeProviderProps) {
     setSortBy,
   };
 
-  return (
-    <RecipeContext.Provider value={value}>
-      {children}
-    </RecipeContext.Provider>
-  );
+  return <RecipeContext.Provider value={value}>{children}</RecipeContext.Provider>;
 }
 
 /**
@@ -245,6 +250,7 @@ export function useRecipeFilters() {
     toggleTag,
     setDifficultyFilter,
     clearFilters,
-    hasActiveFilters: searchQuery || selectedCategories.length > 0 || selectedTags.length > 0 || difficultyFilter,
+    hasActiveFilters:
+      searchQuery || selectedCategories.length > 0 || selectedTags.length > 0 || difficultyFilter,
   };
 }

@@ -130,7 +130,9 @@ export function EditCookTimeBottomSheet({
         <View className={`${isTablet ? "px-10" : "px-4"}`}>
           {/* Total Time Summary */}
           <ShadowItem className="items-start rounded-xl p-4 mb-8" variant="primary">
-            <Text className="text-sm text-white/80 mb-1 uppercase tracking-wide">{t("recipe.editCookTime.totalTime")}</Text>
+            <Text className="text-sm text-white/80 mb-1 uppercase tracking-wide">
+              {t("recipe.editCookTime.totalTime")}
+            </Text>
             <Text className="text-4xl text-white" style={{ fontFamily: "PlayfairDisplay_700Bold" }}>
               {formatTime(prepTotalMinutes + cookTotalMinutes)}
             </Text>
@@ -168,7 +170,9 @@ export function EditCookTimeBottomSheet({
               onPress={handleReset}
               className="flex-1 rounded-xl py-4 bg-white  border-border-dark items-center"
             >
-              <Text className="text-base font-semibold text-foreground-heading">{t("common.reset")}</Text>
+              <Text className="text-base font-semibold text-foreground-heading">
+                {t("common.reset")}
+              </Text>
             </ShadowItem>
 
             <ShadowItem onPress={handleSave} className="flex-1 py-4 rounded-xl" variant="primary">

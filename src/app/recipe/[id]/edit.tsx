@@ -10,7 +10,6 @@ import { recipeService } from "@/api/services";
 import { RecipeEdit, RecipeEditRef } from "@/components/recipe/RecipeEdit";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDeviceType } from "@/hooks/useDeviceType";
-import { FloatingActionButtons } from "@/components/recipe";
 
 export default function RecipeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -63,20 +62,17 @@ export default function RecipeDetailScreen() {
           headerShown: true,
           header(props) {
             return (
-              <View className="flex-row items-center justify-between border-b border-border-light bg-surface-elevated px-4 pb-4" style={{ paddingTop: isTablet ? insets.top : 16 }}>
-                <TouchableOpacity
-                  onPress={() => recipeEditRef.current?.discard()}
-                  className="p-2"
-                >
+              <View
+                className="flex-row items-center justify-between border-b border-border-light bg-surface-elevated px-4 pb-4"
+                style={{ paddingTop: isTablet ? insets.top : 16 }}
+              >
+                <TouchableOpacity onPress={() => recipeEditRef.current?.discard()} className="p-2">
                   <Text className="text-xl text-foreground-secondary">Cancel</Text>
                 </TouchableOpacity>
 
                 <Text className="text-xl text-foreground-heading">Edit Recipe</Text>
 
-                <TouchableOpacity
-                  onPress={() => recipeEditRef.current?.save()}
-                  className="p-2"
-                >
+                <TouchableOpacity onPress={() => recipeEditRef.current?.save()} className="p-2">
                   <Text className="text-xl text-primary">Save</Text>
                 </TouchableOpacity>
               </View>

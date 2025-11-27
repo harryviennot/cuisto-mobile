@@ -2,12 +2,11 @@ import { useTranslation } from "react-i18next";
 import { View, Text, ActivityIndicator, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRef, useCallback } from "react";
-import { Camera, Image as ImageIcon, Plus, Warning } from "phosphor-react-native";
+import { CameraIcon, ImageIcon, PlusIcon, WarningIcon } from "phosphor-react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { BlurView } from "expo-blur";
 import { FAB } from "@/components/extraction/FAB";
-import Toast from "react-native-toast-message";
 import {
   ExtractionMethodBottomSheet,
   type ExtractionMethodBottomSheetRef,
@@ -62,7 +61,7 @@ export default function Index() {
     if (bottomSheetRef.current) {
       try {
         bottomSheetRef.current.present();
-      } catch (error) {
+      } catch {
         console.error("Error calling present():", error);
       }
     } else {
@@ -90,7 +89,7 @@ export default function Index() {
         : t("extraction.methods.chooseGallery"),
     icon:
       method.id === "camera" ? (
-        <Camera size={32} color="#334d43" weight="duotone" />
+        <CameraIcon size={32} color="#334d43" weight="duotone" />
       ) : (
         <ImageIcon size={32} color="#334d43" weight="duotone" />
       ),
@@ -145,7 +144,7 @@ export default function Index() {
         className="flex-1 items-center justify-center bg-surface p-6 gap-4"
         style={{ paddingTop: insets.top }}
       >
-        <Warning size={64} color="#ef4444" weight="duotone" />
+        <WarningIcon size={64} color="#ef4444" weight="duotone" />
         <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
           Oops! Something went wrong
         </Text>
@@ -165,7 +164,7 @@ export default function Index() {
   // Empty state component for MasonryGrid
   const EmptyComponent = (
     <View className="flex-1 items-center justify-center p-6 gap-4">
-      <Plus size={64} color="#334d43" weight="duotone" />
+      <PlusIcon size={64} color="#334d43" weight="duotone" />
       <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
         No recipes yet!
       </Text>

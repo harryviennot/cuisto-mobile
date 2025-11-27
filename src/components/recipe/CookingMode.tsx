@@ -3,7 +3,7 @@ import { View, StatusBar, Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Image } from "expo-image";
 import { BlurView } from "expo-blur";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { Gesture } from "react-native-gesture-handler";
 import Animated, { runOnJS, useAnimatedStyle } from "react-native-reanimated";
 import type { Recipe } from "@/types/recipe";
 import { ChefChat } from "./ChefChat";
@@ -11,9 +11,7 @@ import { useCookingController } from "./cooking/hooks/useCookingController";
 import { CookingHeader } from "./cooking/CookingHeader";
 import { TimerDock } from "./cooking/TimerDock";
 import { StepCard } from "./cooking/StepCard";
-import { UpNext } from "./cooking/UpNext";
-// import { IngredientsDrawer } from "./cooking/IngredientsDrawer";
-import { IngredientsDrawerGorhom as IngredientsDrawer } from "./cooking/IngredientsDrawerGorhom";
+import { IngredientsDrawer } from "./cooking/IngredientsDrawer";
 import { CookingControls } from "./cooking/CookingControls";
 import { FinishedScreen } from "./cooking/FinishedScreen";
 import { TimerControlModal } from "./cooking/TimerControlModal";
@@ -61,18 +59,14 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
     if (direction === "next" && currentStep === totalSteps - 1) {
       const hasActiveTimers = timers.some((t) => t.isRunning);
       if (hasActiveTimers) {
-        Alert.alert(
-          t("common.warning"),
-          t("recipe.cookingMode.activeTimersWarning"),
-          [
-            { text: t("common.cancel"), style: "cancel" },
-            {
-              text: t("common.confirm"),
-              style: "destructive",
-              onPress: () => runOnJS(changeStep)("next"),
-            },
-          ]
-        );
+        Alert.alert(t("common.warning"), t("recipe.cookingMode.activeTimersWarning"), [
+          { text: t("common.cancel"), style: "cancel" },
+          {
+            text: t("common.confirm"),
+            style: "destructive",
+            onPress: () => runOnJS(changeStep)("next"),
+          },
+        ]);
         return;
       }
     }
@@ -89,8 +83,6 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
       }
     });
 
-
-
   const currentTimer = timers.find((t) => t.stepIndex === currentStep);
   const otherTimers = timers
     .filter((t) => t.stepIndex !== currentStep)
@@ -106,15 +98,18 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         return allGroupedIngredients;
       }
 
-      return Object.entries(allGroupedIngredients).reduce((acc, [group, ings]) => {
-        if (Array.isArray(ings)) {
-          const relevant = ings.filter((i) => i?.isRelevant);
-          if (relevant.length > 0) acc[group] = relevant;
-        }
-        return acc;
-      }, {} as typeof allGroupedIngredients);
+      return Object.entries(allGroupedIngredients).reduce(
+        (acc, [group, ings]) => {
+          if (Array.isArray(ings)) {
+            const relevant = ings.filter((i) => i?.isRelevant);
+            if (relevant.length > 0) acc[group] = relevant;
+          }
+          return acc;
+        },
+        {} as typeof allGroupedIngredients
+      );
     } catch (error) {
-      console.error('Error computing visible ingredients:', error);
+      console.error("Error computing visible ingredients:", error);
       return {};
     }
   }, [allGroupedIngredients, viewAllIngredients]);
@@ -127,8 +122,6 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
       opacity: contentOpacity.value,
     };
   });
-
-
 
   return (
     <View className="flex-1 bg-black">
@@ -144,84 +137,84 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         <BlurView intensity={30} tint="dark" style={{ position: "absolute", inset: 0 }} />
       </View>
 
-      {isFinished ?
-        (<FinishedScreen recipe={recipe} onClose={onClose} />)
-        : (
-          <>
-            <Animated.View style={[{ flex: 1 }, contentStyle]}>
-              <CookingHeader
-                currentStep={currentStep}
-                totalSteps={totalSteps}
-                onClose={onClose}
-                onToggleChat={() => setIsChatOpen(true)}
-              />
+      {isFinished ? (
+        <FinishedScreen recipe={recipe} onClose={onClose} />
+      ) : (
+        <>
+          <Animated.View style={[{ flex: 1 }, contentStyle]}>
+            <CookingHeader
+              currentStep={currentStep}
+              totalSteps={totalSteps}
+              onClose={onClose}
+              onToggleChat={() => setIsChatOpen(true)}
+            />
 
-              <TimerDock
-                timers={otherTimers}
-                onStopTimer={stopTimer}
-                onSelectTimer={setSelectedTimerIndex}
-                formatTime={formatTime}
-              />
-
-              <StepCard
-                step={step}
-                currentTimer={currentTimer}
-                stepDurationSeconds={stepDurationSeconds}
-                slideAnim={slideAnim}
-                width={width}
-                panGesture={panGesture}
-                onStartTimer={startTimer}
-                onResetTimer={resetTimer}
-                formatTime={formatTime}
-                currentStepIndex={currentStep}
-                currentStep={step}
-                nextStep={nextStep}
-                nextStepAnim={nextStepAnim}
-                totalSteps={totalSteps}
-                directionAnim={directionAnim}
-              />
-
-              <IngredientsDrawer
-                isIngredientsOpen={isIngredientsOpen}
-                ingredientsSheetAnim={ingredientsSheetAnim}
-                viewAllIngredients={viewAllIngredients}
-                setViewAllIngredients={setViewAllIngredients}
-                visibleIngredients={visibleIngredients}
-                hasRelevantIngredients={hasRelevantIngredients}
-                onToggle={toggleIngredients}
-                controlsHeight={controlsHeight}
-              />
-
-              <CookingControls
-                currentStep={currentStep}
-                totalSteps={totalSteps}
-                isIngredientsOpen={isIngredientsOpen}
-                onChangeStep={handleStepChange}
-                onToggleIngredients={toggleIngredients}
-                onLayout={setControlsHeight}
-              />
-            </Animated.View>
-
-            {isChatOpen && (
-              <View className="absolute inset-0 z-[60]">
-                <ChefChat
-                  recipe={recipe}
-                  currentStepIndex={currentStep}
-                  onClose={() => setIsChatOpen(false)}
-                />
-              </View>
-            )}
-
-            <TimerControlModal
-              selectedTimer={selectedTimer}
-              onClose={() => setSelectedTimerIndex(null)}
-              onReset={resetTimer}
-              onToggle={toggleTimer}
-              onStop={stopTimer}
+            <TimerDock
+              timers={otherTimers}
+              onStopTimer={stopTimer}
+              onSelectTimer={setSelectedTimerIndex}
               formatTime={formatTime}
             />
-          </>
-        )}
+
+            <StepCard
+              step={step}
+              currentTimer={currentTimer}
+              stepDurationSeconds={stepDurationSeconds}
+              slideAnim={slideAnim}
+              width={width}
+              panGesture={panGesture}
+              onStartTimer={startTimer}
+              onResetTimer={resetTimer}
+              formatTime={formatTime}
+              currentStepIndex={currentStep}
+              currentStep={step}
+              nextStep={nextStep}
+              nextStepAnim={nextStepAnim}
+              totalSteps={totalSteps}
+              directionAnim={directionAnim}
+            />
+
+            <IngredientsDrawer
+              isIngredientsOpen={isIngredientsOpen}
+              ingredientsSheetAnim={ingredientsSheetAnim}
+              viewAllIngredients={viewAllIngredients}
+              setViewAllIngredients={setViewAllIngredients}
+              visibleIngredients={visibleIngredients}
+              hasRelevantIngredients={hasRelevantIngredients}
+              onToggle={toggleIngredients}
+              controlsHeight={controlsHeight}
+            />
+
+            <CookingControls
+              currentStep={currentStep}
+              totalSteps={totalSteps}
+              isIngredientsOpen={isIngredientsOpen}
+              onChangeStep={handleStepChange}
+              onToggleIngredients={toggleIngredients}
+              onLayout={setControlsHeight}
+            />
+          </Animated.View>
+
+          {isChatOpen && (
+            <View className="absolute inset-0 z-[60]">
+              <ChefChat
+                recipe={recipe}
+                currentStepIndex={currentStep}
+                onClose={() => setIsChatOpen(false)}
+              />
+            </View>
+          )}
+
+          <TimerControlModal
+            selectedTimer={selectedTimer}
+            onClose={() => setSelectedTimerIndex(null)}
+            onReset={resetTimer}
+            onToggle={toggleTimer}
+            onStop={stopTimer}
+            formatTime={formatTime}
+          />
+        </>
+      )}
     </View>
   );
 };

@@ -29,34 +29,37 @@ export function useDragAndDrop<T>(data: T[]) {
     setCurrentDestIndex(index);
   }, []);
 
-  const updateDragPosition = useCallback((offsetY: number) => {
-    setDragState((prev) => {
-      // Calculate new dest index based on current offset
-      if (prev.activeIndex !== null) {
-        const activeLayout = itemLayouts.current.get(prev.activeIndex);
-        if (activeLayout) {
-          // Current absolute Y of the dragged item center
-          const currentY = activeLayout.y + activeLayout.height / 2 + offsetY;
+  const updateDragPosition = useCallback(
+    (offsetY: number) => {
+      setDragState((prev) => {
+        // Calculate new dest index based on current offset
+        if (prev.activeIndex !== null) {
+          const activeLayout = itemLayouts.current.get(prev.activeIndex);
+          if (activeLayout) {
+            // Current absolute Y of the dragged item center
+            const currentY = activeLayout.y + activeLayout.height / 2 + offsetY;
 
-          const newDestIndex = calculateDropIndex(
-            currentY,
-            itemLayouts.current,
-            orderedData.length
-          );
+            const newDestIndex = calculateDropIndex(
+              currentY,
+              itemLayouts.current,
+              orderedData.length
+            );
 
-          if (newDestIndex !== currentDestIndex) {
-            setCurrentDestIndex(newDestIndex);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            if (newDestIndex !== currentDestIndex) {
+              setCurrentDestIndex(newDestIndex);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }
           }
         }
-      }
 
-      return {
-        ...prev,
-        offsetY,
-      };
-    });
-  }, [orderedData.length, currentDestIndex]);
+        return {
+          ...prev,
+          offsetY,
+        };
+      });
+    },
+    [orderedData.length, currentDestIndex]
+  );
 
   const endDrag = useCallback(
     (onDragEnd: (from: number, to: number, newData: T[]) => void) => {
@@ -70,12 +73,10 @@ export function useDragAndDrop<T>(data: T[]) {
 
       if (toIndex === null) {
         const activeLayout = itemLayouts.current.get(fromIndex);
-        const currentY = activeLayout ? activeLayout.y + activeLayout.height / 2 + dragState.offsetY : 0;
-        toIndex = calculateDropIndex(
-          currentY,
-          itemLayouts.current,
-          orderedData.length
-        );
+        const currentY = activeLayout
+          ? activeLayout.y + activeLayout.height / 2 + dragState.offsetY
+          : 0;
+        toIndex = calculateDropIndex(currentY, itemLayouts.current, orderedData.length);
       }
 
       if (fromIndex !== toIndex) {
@@ -105,9 +106,10 @@ export function useDragAndDrop<T>(data: T[]) {
     itemLayouts.current.set(index, layout);
   }, []);
 
-  const activeItemHeight = dragState.activeIndex !== null
-    ? itemLayouts.current.get(dragState.activeIndex)?.height || 0
-    : 0;
+  const activeItemHeight =
+    dragState.activeIndex !== null
+      ? itemLayouts.current.get(dragState.activeIndex)?.height || 0
+      : 0;
 
   return {
     dragState,

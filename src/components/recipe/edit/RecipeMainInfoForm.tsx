@@ -52,7 +52,9 @@ export function RecipeMainInfoForm({ control }: RecipeMainInfoFormProps) {
                   <Image source={{ uri: value }} className="h-full w-full" resizeMode="cover" />
                   <View className="absolute inset-0 items-center justify-center bg-black/40">
                     <Camera size={32} color="#FFFFFF" weight="bold" />
-                    <Text className="mt-2 text-sm font-semibold text-white">{t("recipe.edit.changePhoto")}</Text>
+                    <Text className="mt-2 text-sm font-semibold text-white">
+                      {t("recipe.edit.changePhoto")}
+                    </Text>
                   </View>
                 </View>
               ) : (

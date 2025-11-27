@@ -2,7 +2,7 @@
  * Zod validation schemas for recipe editing
  */
 import { z } from "zod";
-import { DifficultyLevel, RecipeCategory } from "@/types/recipe";
+import { DifficultyLevel } from "@/types/recipe";
 
 // Main info schema
 export const recipeMainInfoSchema = z.object({
@@ -69,11 +69,32 @@ export type IngredientFormData = z.infer<typeof ingredientSchema>;
 
 // Instruction schema
 export const instructionSchema = z.object({
-  step_number: z.number().int("Step number must be a whole number").min(1, "Step number must be at least 1"),
-  title: z.string().min(1, "Instruction title is required").max(200, "Title must be less than 200 characters"),
-  description: z.string().min(1, "Instruction description is required").max(2000, "Description must be less than 2000 characters"),
-  timer_minutes: z.union([z.number().int("Timer must be a whole number").min(0, "Timer cannot be negative").max(1440, "Timer must be less than 24 hours"), z.null(), z.undefined()]).optional(),
-  image_url: z.union([z.string().url("Invalid image URL"), z.literal(""), z.null(), z.undefined()]).optional(),
+  step_number: z
+    .number()
+    .int("Step number must be a whole number")
+    .min(1, "Step number must be at least 1"),
+  title: z
+    .string()
+    .min(1, "Instruction title is required")
+    .max(200, "Title must be less than 200 characters"),
+  description: z
+    .string()
+    .min(1, "Instruction description is required")
+    .max(2000, "Description must be less than 2000 characters"),
+  timer_minutes: z
+    .union([
+      z
+        .number()
+        .int("Timer must be a whole number")
+        .min(0, "Timer cannot be negative")
+        .max(1440, "Timer must be less than 24 hours"),
+      z.null(),
+      z.undefined(),
+    ])
+    .optional(),
+  image_url: z
+    .union([z.string().url("Invalid image URL"), z.literal(""), z.null(), z.undefined()])
+    .optional(),
   group: z.union([z.string(), z.null(), z.undefined()]).optional(),
 });
 

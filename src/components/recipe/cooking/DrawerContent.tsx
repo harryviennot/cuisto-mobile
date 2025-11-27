@@ -19,17 +19,19 @@ export const DrawerContent: React.FC<DrawerContentProps> = ({
   viewAllIngredients,
   hasRelevantIngredients,
   visibleIngredients,
-  controlsHeight
+  controlsHeight,
 }) => {
   const { t } = useTranslation();
 
   // Transform visibleIngredients object into sections array for SectionList
   const sections = useMemo(() => {
     if (!visibleIngredients) return [];
-    return Object.entries(visibleIngredients).map(([title, data]) => ({
-      title,
-      data: data || [],
-    })).filter(section => section.data.length > 0);
+    return Object.entries(visibleIngredients)
+      .map(([title, data]) => ({
+        title,
+        data: data || [],
+      }))
+      .filter((section) => section.data.length > 0);
   }, [visibleIngredients]);
 
   if (!viewAllIngredients && !hasRelevantIngredients) {
@@ -75,12 +77,12 @@ export const DrawerContent: React.FC<DrawerContentProps> = ({
               marginHorizontal: -24,
               paddingHorizontal: 24,
               paddingVertical: 12,
-              overflow: 'hidden',
+              overflow: "hidden",
             }}
           >
             <View
               style={{
-                position: 'absolute',
+                position: "absolute",
                 top: 0,
                 left: 0,
                 right: 0,
@@ -91,7 +93,7 @@ export const DrawerContent: React.FC<DrawerContentProps> = ({
             <Text
               className="text-[10px] font-bold uppercase text-emerald-500"
               style={{
-                letterSpacing: 3.2
+                letterSpacing: 3.2,
               }}
             >
               {section.title}
@@ -120,11 +122,7 @@ export const DrawerContent: React.FC<DrawerContentProps> = ({
         >
           <View className="mt-0.5">
             {ing.isRelevant ? (
-              <CheckCircle
-                size={18}
-                color="#34d399"
-                weight="fill"
-              />
+              <CheckCircle size={18} color="#34d399" weight="fill" />
             ) : (
               <View
                 style={{
@@ -132,7 +130,7 @@ export const DrawerContent: React.FC<DrawerContentProps> = ({
                   height: 18,
                   borderRadius: 9,
                   borderWidth: 2,
-                  borderColor: "#57534e"
+                  borderColor: "#57534e",
                 }}
               />
             )}
@@ -151,7 +149,7 @@ export const DrawerContent: React.FC<DrawerContentProps> = ({
                 className="text-sm font-bold"
                 style={{
                   color: ing.isRelevant ? "#6ee7b7" : "#57534e",
-                  fontVariant: ["tabular-nums"]
+                  fontVariant: ["tabular-nums"],
                 }}
               >
                 {ing.quantity} {ing.unit}

@@ -13,7 +13,6 @@ import { useAutoScroll } from "./useAutoScroll";
 import { DraggableListProps } from "./types";
 import { useDragContext } from "./DragContext";
 
-
 export function DraggableList<T>({
   data,
   renderItem,
@@ -107,64 +106,67 @@ export function DraggableList<T>({
 
   // Helper function to calculate and animate to ghost offset
   // Called from JS thread so it has access to current itemLayouts
-  const animateToGhostPosition = useCallback((fromIndex: number, toIndex: number) => {
-    const layouts = itemLayoutsRef.current;
+  const animateToGhostPosition = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      const layouts = itemLayoutsRef.current;
 
-    // Get the active item's actual measured height
-    const activeItemLayout = layouts.get(fromIndex);
-    const activeItemHeight = activeItemLayout?.height || 0;
+      // Note: Layout measurements do NOT include margins
+      // We need to apply a small correction factor per item to account for
+      // spacing/overlap between the ghost space and final position
+      // Instructions use 0.75px correction, headers may need different
+      const INSTRUCTION_CORRECTION = 0.75;
+      const HEADER_CORRECTION = 2.0; // Headers have more spacing (mt-2)
 
-    // Note: Layout measurements do NOT include margins
-    // We need to apply a small correction factor per item to account for
-    // spacing/overlap between the ghost space and final position
-    // Instructions use 0.75px correction, headers may need different
-    const INSTRUCTION_CORRECTION = 0.75;
-    const HEADER_CORRECTION = 2.0; // Headers have more spacing (mt-2)
+      // Helper to determine if an item is a header by checking its height
+      const isHeader = (index: number) => {
+        const height = layouts.get(index)?.height || 0;
+        return height < 50; // Headers are ~34px, instructions are ~132px
+      };
 
-    // Helper to determine if an item is a header by checking its height
-    const isHeader = (index: number) => {
-      const height = layouts.get(index)?.height || 0;
-      return height < 50; // Headers are ~34px, instructions are ~132px
-    };
+      let offset = 0;
+      let itemCount = 0;
+      let totalCorrection = 0;
 
-    let offset = 0;
-    let itemCount = 0;
-    let totalCorrection = 0;
-
-    if (fromIndex < toIndex) {
-      for (let i = fromIndex + 1; i <= toIndex; i++) {
-        const itemHeight = layouts.get(i)?.height || 0;
-        const correction = isHeader(i) ? HEADER_CORRECTION : INSTRUCTION_CORRECTION;
-        itemCount++;
-        totalCorrection += correction * itemCount;
-        offset += itemHeight;
+      if (fromIndex < toIndex) {
+        for (let i = fromIndex + 1; i <= toIndex; i++) {
+          const itemHeight = layouts.get(i)?.height || 0;
+          const correction = isHeader(i) ? HEADER_CORRECTION : INSTRUCTION_CORRECTION;
+          itemCount++;
+          totalCorrection += correction * itemCount;
+          offset += itemHeight;
+        }
+        offset -= totalCorrection;
+      } else {
+        for (let i = toIndex; i < fromIndex; i++) {
+          const itemHeight = layouts.get(i)?.height || 0;
+          const correction = isHeader(i) ? HEADER_CORRECTION : INSTRUCTION_CORRECTION;
+          itemCount++;
+          totalCorrection += correction * itemCount;
+          offset -= itemHeight;
+        }
+        offset += totalCorrection; // Add because we're going negative
       }
-      offset -= totalCorrection;
-    } else {
-      for (let i = toIndex; i < fromIndex; i++) {
-        const itemHeight = layouts.get(i)?.height || 0;
-        const correction = isHeader(i) ? HEADER_CORRECTION : INSTRUCTION_CORRECTION;
-        itemCount++;
-        totalCorrection += correction * itemCount;
-        offset -= itemHeight;
-      }
-      offset += totalCorrection; // Add because we're going negative
-    }
 
-    // Keep sub-pixel precision - don't round
-    const ghostOffset = offset;
+      // Keep sub-pixel precision - don't round
+      const ghostOffset = offset;
 
-    // Start the animation
-    gestureTranslationY.value = withSpring(ghostOffset, {
-      damping: 20,
-      stiffness: 200,
-      mass: 0.5
-    }, (finished) => {
-      if (finished) {
-        runOnJS(handleDragEnd)();
-      }
-    });
-  }, [gestureTranslationY, handleDragEnd]);
+      // Start the animation
+      gestureTranslationY.value = withSpring(
+        ghostOffset,
+        {
+          damping: 20,
+          stiffness: 200,
+          mass: 0.5,
+        },
+        (finished) => {
+          if (finished) {
+            runOnJS(handleDragEnd)();
+          }
+        }
+      );
+    },
+    [gestureTranslationY, handleDragEnd]
+  );
 
   return (
     <View style={styles.container}>
@@ -197,15 +199,19 @@ export function DraggableList<T>({
               runOnJS(animateToGhostPosition)(index, destIndex);
             } else {
               // No movement or invalid destination, just end the drag
-              gestureTranslationY.value = withSpring(0, {
-                damping: 45,
-                stiffness: 200,
-                mass: 0.5
-              }, (finished) => {
-                if (finished) {
-                  runOnJS(handleDragEnd)();
+              gestureTranslationY.value = withSpring(
+                0,
+                {
+                  damping: 45,
+                  stiffness: 200,
+                  mass: 0.5,
+                },
+                (finished) => {
+                  if (finished) {
+                    runOnJS(handleDragEnd)();
+                  }
                 }
-              });
+              );
             }
           })
           .onTouchesUp(() => {
@@ -222,7 +228,7 @@ export function DraggableList<T>({
             {renderItem({
               item,
               index,
-              drag: () => { }, // No-op, gesture is now attached to item
+              drag: () => {}, // No-op, gesture is now attached to item
               isActive,
               // Pass internal props to the DraggableItem component
               // @ts-ignore - We are passing extra props that the renderItem might not expose directly
@@ -235,7 +241,7 @@ export function DraggableList<T>({
                 dragTranslationY: totalTranslateY,
                 onLayout: (event: any) => handleItemLayout(index, event),
                 itemLayouts,
-              }
+              },
             })}
           </React.Fragment>
         );

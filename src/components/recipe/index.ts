@@ -3,17 +3,17 @@
  */
 
 // Main components
-export { RecipeDetail } from './RecipeDetail';
-export { RecipeCard } from './RecipeCard';
+export { RecipeDetail } from "./RecipeDetail";
+export { RecipeCard } from "./RecipeCard";
 
 // Detail components
-export * from './detail';
+export * from "./detail";
 
 // Shared components
-export * from './shared';
+export * from "./shared";
 
 // Modal components
-export * from './modals';
+export * from "./modals";
 
 // Edit components
-export * from './edit';
+export * from "./edit";

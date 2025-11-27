@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  View,
-  Text,
-  LayoutAnimation,
-  Platform,
-  UIManager,
-} from "react-native";
+import { View, Text, LayoutAnimation, Platform, UIManager } from "react-native";
 import { Control, useController } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { DraggableList } from "../../DragAndDrop/DraggableList";
@@ -267,7 +261,12 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
   };
 
   // Render individual item in the draggable list
-  const renderDraggableItem = ({ item, drag, isActive, ...rest }: RenderItemParams<FlatListItem>) => {
+  const renderDraggableItem = ({
+    item,
+    drag,
+    isActive,
+    ...rest
+  }: RenderItemParams<FlatListItem>) => {
     // Extract internal props passed from DraggableList
     const { internalProps } = rest;
 
@@ -361,7 +360,6 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
             activationDelay={500}
             autoscrollThreshold={50}
             autoscrollSpeed={10}
-
           />
         ) : (
           <View className="rounded-xl border border-dashed border-border-light bg-surface-elevated p-4">
@@ -394,11 +392,11 @@ export function RecipeIngredientsForm({ control }: RecipeIngredientsFormProps) {
             }
           />
         </View>
-      </View >
+      </View>
 
       {ingredientsError && (
         <Text className="mt-1.5 text-sm text-red-600">{ingredientsError.message}</Text>
       )}
-    </View >
+    </View>
   );
 }

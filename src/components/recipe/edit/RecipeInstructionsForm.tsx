@@ -1,11 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  View,
-  Text,
-  LayoutAnimation,
-  Platform,
-  UIManager,
-} from "react-native";
+import { View, Text, LayoutAnimation, Platform, UIManager } from "react-native";
 import { Control, useController } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { DraggableList } from "../../DragAndDrop/DraggableList";
@@ -42,7 +36,10 @@ export function RecipeInstructionsForm({ control }: RecipeInstructionsFormProps)
   } = useController({ control, name: "instructions" });
 
   // Safety check: ensure instructions is always an array
-  const instructionsList = Array.isArray(instructions) ? instructions : [];
+  const instructionsList = useMemo(
+    () => (Array.isArray(instructions) ? instructions : []),
+    [instructions]
+  );
 
   const [newGroupName, setNewGroupName] = useState("");
   const [groupNames, setGroupNames] = useState<string[]>([]);
@@ -237,10 +234,7 @@ export function RecipeInstructionsForm({ control }: RecipeInstructionsFormProps)
   };
 
   // Add a new instruction to a specific group
-  const addInstruction = (
-    instructionData: Omit<Instruction, "step_number">,
-    groupName: string
-  ) => {
+  const addInstruction = (instructionData: Omit<Instruction, "step_number">, groupName: string) => {
     // Find the last instruction in this group to insert after it
     const groupInstructions = instructionsList.filter(
       (inst: Instruction) => (inst.group || "Main") === groupName

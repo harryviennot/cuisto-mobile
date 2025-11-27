@@ -1,14 +1,9 @@
 import "@/global.css";
 import { View, Text, Pressable } from "react-native";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Minus, Plus } from "phosphor-react-native";
 import { ShadowItem } from "@/components/ShadowedSection";
-
-interface Preset {
-  label: string;
-  minutes: number;
-}
 
 interface TimeAdjusterProps {
   label: string;
@@ -57,7 +52,7 @@ export function TimeAdjuster({
   };
 
   // Clear any running interval and delay timeout
-  const clearAutoIncrement = () => {
+  const clearAutoIncrement = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -72,14 +67,14 @@ export function TimeAdjuster({
       onChange(pendingValueRef.current);
     }
     pendingValueRef.current = null;
-  };
+  }, [onChange]);
 
   // Clean up on unmount
   useEffect(() => {
     return () => {
       clearAutoIncrement();
     };
-  }, []);
+  }, [clearAutoIncrement]);
 
   // Start auto-increment on long press with delay
   const startAutoIncrement = (incrementAmount: number) => {
@@ -130,7 +125,9 @@ export function TimeAdjuster({
         </Text>
         {isModified && (
           <View className="bg-primary-main px-2 py-0.5 rounded-full">
-            <Text className="text-white text-xs font-semibold">{t("recipe.timeAdjuster.modified")}</Text>
+            <Text className="text-white text-xs font-semibold">
+              {t("recipe.timeAdjuster.modified")}
+            </Text>
           </View>
         )}
       </View>

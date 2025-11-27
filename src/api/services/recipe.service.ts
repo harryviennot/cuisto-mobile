@@ -87,14 +87,8 @@ export const recipeService = {
    * @param rating - Rating value (must be 0.5, 1.0, 1.5, ..., 5.0)
    * @returns Complete updated recipe with new rating and aggregate statistics
    */
-  updateRecipeRating: async (
-    recipeId: string,
-    rating: number
-  ): Promise<Recipe> => {
-    const response = await api.patch<Recipe>(
-      `/recipes/${recipeId}/rating`,
-      { rating }
-    );
+  updateRecipeRating: async (recipeId: string, rating: number): Promise<Recipe> => {
+    const response = await api.patch<Recipe>(`/recipes/${recipeId}/rating`, { rating });
     return response.data;
   },
 
@@ -126,9 +120,7 @@ export const recipeService = {
    * @returns Success message
    */
   markRecipeAsCooked: async (recipeId: string): Promise<{ message: string }> => {
-    const response = await api.post<{ message: string }>(
-      `/recipes/${recipeId}/cooked`
-    );
+    const response = await api.post<{ message: string }>(`/recipes/${recipeId}/cooked`);
     return response.data;
   },
 };

@@ -6,7 +6,7 @@ import Animated, {
   withTiming,
   useSharedValue,
   SharedValue,
-  LinearTransition
+  LinearTransition,
 } from "react-native-reanimated";
 
 interface DraggableItemProps {
@@ -86,7 +86,7 @@ export function DraggableItem({
     return {
       transform: [
         { scale: scaleAnim.value },
-        { translateY: isActive ? dragTranslationY.value : shiftY.value }
+        { translateY: isActive ? dragTranslationY.value : shiftY.value },
       ],
       opacity: opacityAnim.value,
       // Ensure active item is always on top

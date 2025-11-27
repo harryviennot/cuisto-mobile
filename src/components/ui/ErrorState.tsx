@@ -1,7 +1,7 @@
 import "@/global.css";
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { WarningCircleIcon, ArrowCounterClockwiseIcon } from 'phosphor-react-native';
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { WarningCircleIcon, ArrowCounterClockwiseIcon } from "phosphor-react-native";
 
 interface ErrorStateProps {
   title?: string;
@@ -12,10 +12,10 @@ interface ErrorStateProps {
 }
 
 export const ErrorState: React.FC<ErrorStateProps> = ({
-  title = 'Something went wrong',
-  message = 'We encountered an error loading this content.',
+  title = "Something went wrong",
+  message = "We encountered an error loading this content.",
   onRetry,
-  retryLabel = 'Try again',
+  retryLabel = "Try again",
   showIcon = true,
 }) => {
   return (
@@ -26,14 +26,10 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
         </View>
       )}
 
-      <Text className="text-xl font-semibold text-gray-800 text-center mb-2">
-        {title}
-      </Text>
+      <Text className="text-xl font-semibold text-gray-800 text-center mb-2">{title}</Text>
 
       {message && (
-        <Text className="text-base text-gray-600 text-center leading-6 mb-6">
-          {message}
-        </Text>
+        <Text className="text-base text-gray-600 text-center leading-6 mb-6">{message}</Text>
       )}
 
       {onRetry && (
@@ -43,9 +39,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
           activeOpacity={0.7}
         >
           <ArrowCounterClockwiseIcon size={20} weight="bold" color="#FFFFFF" />
-          <Text className="text-base font-semibold text-white">
-            {retryLabel}
-          </Text>
+          <Text className="text-base font-semibold text-white">{retryLabel}</Text>
         </TouchableOpacity>
       )}
     </View>

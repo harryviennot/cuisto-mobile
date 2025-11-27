@@ -39,9 +39,8 @@ export const RecipeContent = memo(function RecipeContent({
         <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 16 }} />
         <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 16 }} />
         <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 16 }} />
-
       </View>
-    )
+    );
   }
 
   return (

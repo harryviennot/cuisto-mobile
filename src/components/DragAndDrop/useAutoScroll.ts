@@ -1,6 +1,5 @@
 import { useRef, useCallback } from "react";
 import { ScrollView, Dimensions } from "react-native";
-import { useSharedValue } from "react-native-reanimated";
 
 interface UseAutoScrollProps {
   scrollViewRef: React.RefObject<ScrollView | null>;
@@ -69,7 +68,7 @@ export function useAutoScroll({
           const intensity = Math.max(0, (absoluteY - bottomZone) / threshold);
           const scrollAmount = Math.max(2, speed * intensity);
 
-          // We don't know max scroll height easily without layout measurement, 
+          // We don't know max scroll height easily without layout measurement,
           // so we just scroll down. ScrollView handles bounds.
           const newOffset = currentScrollOffsetRef.current + scrollAmount;
 

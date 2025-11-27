@@ -5,7 +5,6 @@ import { useWindowDimensions } from "react-native";
  * Values automatically update when device orientation changes
  */
 
-
 export function useDeviceType(forcePortraitDisplay: boolean = false) {
   const { width, height } = useWindowDimensions();
 

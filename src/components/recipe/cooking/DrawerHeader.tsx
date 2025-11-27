@@ -8,10 +8,7 @@ interface DrawerHeaderProps {
   onToggle: () => void;
 }
 
-export const DrawerHeader: React.FC<DrawerHeaderProps> = ({
-  viewAllIngredients,
-  onToggle,
-}) => {
+export const DrawerHeader: React.FC<DrawerHeaderProps> = ({ viewAllIngredients, onToggle }) => {
   const { t } = useTranslation();
 
   return (
@@ -26,13 +23,10 @@ export const DrawerHeader: React.FC<DrawerHeaderProps> = ({
           <Text className="font-playfair-bold text-3xl tracking-tight text-stone-50">
             {t("recipe.ingredients")}
           </Text>
-          <Text
-            className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-400/60"
-          >
+          <Text className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-400/60">
             {viewAllIngredients
               ? t("recipe.cookingMode.allItems").toUpperCase()
-              : t("recipe.cookingMode.requiredForThisStep").toUpperCase()
-            }
+              : t("recipe.cookingMode.requiredForThisStep").toUpperCase()}
           </Text>
         </View>
         <Pressable

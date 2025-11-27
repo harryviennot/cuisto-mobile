@@ -10,7 +10,10 @@ interface RecipeInstructionsProps {
   isLoading?: boolean;
 }
 
-export const RecipeInstructions = memo(function RecipeInstructions({ instructions, isLoading = false }: RecipeInstructionsProps) {
+export const RecipeInstructions = memo(function RecipeInstructions({
+  instructions,
+  isLoading = false,
+}: RecipeInstructionsProps) {
   const { t } = useTranslation();
 
   if (isLoading) {

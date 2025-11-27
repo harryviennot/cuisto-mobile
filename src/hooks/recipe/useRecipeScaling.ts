@@ -5,10 +5,7 @@ import type { Ingredient } from "@/types/recipe";
  * Hook for managing recipe serving size scaling
  * Handles ingredient amount calculations based on serving adjustments
  */
-export function useRecipeScaling(
-  baseServings: number,
-  initialServings?: number
-) {
+export function useRecipeScaling(baseServings: number, initialServings?: number) {
   const [servings, setServings] = useState(initialServings || baseServings);
 
   /**
@@ -52,9 +49,7 @@ export function useRecipeScaling(
       const whole = Math.floor(rounded);
 
       if (fractionMap[decimal]) {
-        return whole > 0
-          ? `${whole} ${fractionMap[decimal]}`
-          : fractionMap[decimal];
+        return whole > 0 ? `${whole} ${fractionMap[decimal]}` : fractionMap[decimal];
       }
 
       return rounded.toFixed(2).replace(/\.?0+$/, "");
@@ -67,7 +62,7 @@ export function useRecipeScaling(
    */
   const scaleIngredients = useCallback(
     (ingredients: Ingredient[]): Ingredient[] => {
-      return ingredients.map(ingredient => ({
+      return ingredients.map((ingredient) => ({
         ...ingredient,
         quantity: scaleIngredientAmount(ingredient) || ingredient.quantity,
       }));
@@ -79,14 +74,14 @@ export function useRecipeScaling(
    * Increment servings by 1
    */
   const incrementServings = useCallback(() => {
-    setServings(prev => Math.min(prev + 1, 50)); // Cap at 50 servings
+    setServings((prev) => Math.min(prev + 1, 50)); // Cap at 50 servings
   }, []);
 
   /**
    * Decrement servings by 1
    */
   const decrementServings = useCallback(() => {
-    setServings(prev => Math.max(prev - 1, 1)); // Minimum 1 serving
+    setServings((prev) => Math.max(prev - 1, 1)); // Minimum 1 serving
   }, []);
 
   /**

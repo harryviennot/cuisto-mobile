@@ -47,8 +47,10 @@ export const RecipeEditManager = memo(function RecipeEditManager({
 
   // Get user's custom data or fallback to recipe defaults
   const userRating = recipe.user_data?.rating;
-  const displayPrepTime = recipe.user_data?.custom_prep_time_minutes ?? recipe.timings?.prep_time_minutes ?? 0;
-  const displayCookTime = recipe.user_data?.custom_cook_time_minutes ?? recipe.timings?.cook_time_minutes ?? 0;
+  const displayPrepTime =
+    recipe.user_data?.custom_prep_time_minutes ?? recipe.timings?.prep_time_minutes ?? 0;
+  const displayCookTime =
+    recipe.user_data?.custom_cook_time_minutes ?? recipe.timings?.cook_time_minutes ?? 0;
 
   // Handler for opening the time edit bottom sheet
   const handleOpenTimeEdit = () => {
@@ -71,7 +73,7 @@ export const RecipeEditManager = memo(function RecipeEditManager({
       });
 
       setIsTimeEditVisible(false);
-    } catch (error) {
+    } catch {
       Toast.show({
         type: "error",
         text1: t("common.error"),
@@ -111,7 +113,7 @@ export const RecipeEditManager = memo(function RecipeEditManager({
           rating: ratingToSend,
         });
         pendingRatingRef.current = null;
-      } catch (error) {
+      } catch {
         Toast.show({
           type: "error",
           text1: t("common.error"),

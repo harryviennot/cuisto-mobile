@@ -4,7 +4,6 @@ import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import type { Recipe } from "@/types/recipe";
-import { Skeleton, SkeletonGroup } from "@/components/ui/Skeleton";
 
 interface RecipeHeaderProps {
   recipe: Recipe;
@@ -31,8 +30,8 @@ export const RecipeHeader = memo(function RecipeHeader({
     <>
       {/* Hero Image */}
       <View
-        className={`relative w-full ${(isTabletLandscape && !isEditing) ? "flex-1" : isTablet ? "aspect-[5/3]" : "aspect-[5/4]"}`}
-        style={(isTabletLandscape && !isEditing) ? { maxHeight: windowHeight * 0.5 } : undefined}
+        className={`relative w-full ${isTabletLandscape && !isEditing ? "flex-1" : isTablet ? "aspect-[5/3]" : "aspect-[5/4]"}`}
+        style={isTabletLandscape && !isEditing ? { maxHeight: windowHeight * 0.5 } : undefined}
         onLayout={(event) => {
           const { height } = event.nativeEvent.layout;
           onImageHeightChange?.(height);
@@ -41,7 +40,7 @@ export const RecipeHeader = memo(function RecipeHeader({
         {recipe?.image_url ? (
           <Image
             source={{ uri: recipe.image_url }}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: "100%", height: "100%" }}
             contentFit="cover"
           />
         ) : (
@@ -61,8 +60,6 @@ export const RecipeHeader = memo(function RecipeHeader({
           </View>
         )}
       </View>
-
-
 
       {/* Title and Description */}
       <View className={`${isTablet ? "px-10 pt-8 pb-4" : "px-4 pt-6 pb-4"}`}>

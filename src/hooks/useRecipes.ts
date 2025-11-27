@@ -271,9 +271,7 @@ export function useUpdateRecipe() {
           return {
             ...old,
             pages: old.pages.map((page) =>
-              page.map((recipe) =>
-                recipe.id === variables.recipeId ? data : recipe
-              )
+              page.map((recipe) => (recipe.id === variables.recipeId ? data : recipe))
             ),
           };
         }
@@ -288,11 +286,7 @@ export function useUpdateRecipe() {
 export function useDeleteRecipe() {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    { message: string },
-    Error,
-    string
-  >({
+  return useMutation<{ message: string }, Error, string>({
     mutationFn: async (recipeId: string) => {
       return recipeService.deleteRecipe(recipeId);
     },

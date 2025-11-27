@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, ViewStyle } from 'react-native';
+import React, { useEffect } from "react";
+import { View, ViewStyle } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -7,7 +7,7 @@ import Animated, {
   withSequence,
   withTiming,
   Easing,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 
 interface SkeletonProps {
   width?: number | string;
@@ -17,7 +17,7 @@ interface SkeletonProps {
 }
 
 export const Skeleton: React.FC<SkeletonProps> = ({
-  width = '100%',
+  width = "100%",
   height = 20,
   borderRadius = 8,
   style,
@@ -39,7 +39,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       -1,
       false
     );
-  }, []);
+  }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -52,7 +52,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
           width: width as any,
           height: height as any,
           borderRadius,
-          backgroundColor: '#E1E4E8',
+          backgroundColor: "#E1E4E8",
         },
         animatedStyle,
         style,
@@ -72,7 +72,7 @@ interface SkeletonGroupProps {
 
 export const SkeletonGroup: React.FC<SkeletonGroupProps> = ({
   count = 3,
-  width = '100%',
+  width = "100%",
   height = 20,
   borderRadius = 8,
   spacing = 12,

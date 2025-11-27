@@ -49,26 +49,18 @@ const variationStyles: Record<
   },
 };
 
-export function ShadowItem({
-  children,
-  className,
-  variant = "default",
-  ...rest
-}: ShadowItemProps) {
+export function ShadowItem({ children, className, variant = "default", ...rest }: ShadowItemProps) {
   const variantClassName = variants[variant];
   const variantStyles = variationStyles[variant];
 
-  if ('onPress' in rest && rest.onPress) {
+  if ("onPress" in rest && rest.onPress) {
     const { onPress, style, ...pressableProps } = rest;
     return (
       <Pressable
         onPress={onPress}
         {...pressableProps}
         className={cn(variantClassName, className)}
-        style={(state) => [
-          variantStyles,
-          typeof style === 'function' ? style(state) : style,
-        ]}
+        style={(state) => [variantStyles, typeof style === "function" ? style(state) : style]}
       >
         {children}
       </Pressable>
@@ -77,11 +69,7 @@ export function ShadowItem({
 
   const { style, ...viewProps } = rest as ViewProps;
   return (
-    <View
-      {...viewProps}
-      className={cn(variantClassName, className)}
-      style={[variantStyles, style]}
-    >
+    <View {...viewProps} className={cn(variantClassName, className)} style={[variantStyles, style]}>
       {children}
     </View>
   );

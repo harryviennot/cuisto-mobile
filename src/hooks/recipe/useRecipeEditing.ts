@@ -61,17 +61,14 @@ export function useRecipeEditing(
   /**
    * Update a specific field in the draft recipe
    */
-  const updateField = useCallback(<K extends keyof Recipe>(
-    field: K,
-    value: Recipe[K]
-  ) => {
-    setDraftRecipe(prev => {
+  const updateField = useCallback(<K extends keyof Recipe>(field: K, value: Recipe[K]) => {
+    setDraftRecipe((prev) => {
       if (!prev) return prev;
       return { ...prev, [field]: value };
     });
 
     // Clear validation error for this field
-    setValidationErrors(prev => {
+    setValidationErrors((prev) => {
       const next = { ...prev };
       delete next[field];
       return next;
@@ -81,22 +78,21 @@ export function useRecipeEditing(
   /**
    * Update nested fields (like timings)
    */
-  const updateNestedField = useCallback(<K extends keyof Recipe>(
-    field: K,
-    nestedField: string,
-    value: any
-  ) => {
-    setDraftRecipe(prev => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        [field]: {
-          ...(prev[field] as any),
-          [nestedField]: value,
-        },
-      };
-    });
-  }, []);
+  const updateNestedField = useCallback(
+    <K extends keyof Recipe>(field: K, nestedField: string, value: any) => {
+      setDraftRecipe((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          [field]: {
+            ...(prev[field] as any),
+            [nestedField]: value,
+          },
+        };
+      });
+    },
+    []
+  );
 
   /**
    * Validate recipe before saving

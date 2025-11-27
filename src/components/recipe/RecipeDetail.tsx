@@ -10,7 +10,7 @@ import Animated, {
   useSharedValue,
   interpolate,
   useAnimatedStyle,
-  withTiming
+  withTiming,
 } from "react-native-reanimated";
 import { ShareNetworkIcon, PencilIcon, TrashIcon } from "phosphor-react-native";
 import { useDeviceType } from "@/hooks/useDeviceType";
@@ -29,7 +29,7 @@ import {
   RecipeHeader,
   RecipeMetadata,
   RecipeContent,
-  RecipeEditManager
+  RecipeEditManager,
 } from "@/components/recipe/detail";
 import { t } from "i18next";
 import { router } from "expo-router";
@@ -52,7 +52,7 @@ interface RecipeDetailProps {
 
 export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   recipe,
-  onBack = () => { },
+  onBack = () => {},
   isDraft = false,
   isEditing = false,
   onSave,
@@ -90,39 +90,35 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
 
   const detailAnimatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [
-        { scale: interpolate(transitionProgress.value, [0, 1], [1, 0.9]) },
-      ],
+      transform: [{ scale: interpolate(transitionProgress.value, [0, 1], [1, 0.9]) }],
       opacity: interpolate(transitionProgress.value, [0, 1], [1, 0]),
       borderRadius: interpolate(transitionProgress.value, [0, 1], [0, 20]),
-      overflow: 'hidden',
+      overflow: "hidden",
     };
   });
 
   const cookingModeStyle = useAnimatedStyle(() => {
     return {
       opacity: interpolate(transitionProgress.value, [0, 0.3, 1], [0, 0, 1]),
-      transform: [
-        { scale: interpolate(transitionProgress.value, [0, 1], [1.1, 1]) },
-      ],
-      pointerEvents: isCooking ? 'auto' : 'none',
+      transform: [{ scale: interpolate(transitionProgress.value, [0, 1], [1.1, 1]) }],
+      pointerEvents: isCooking ? "auto" : "none",
     };
   });
 
   // Effects
   useEffect(() => {
     transitionProgress.value = withTiming(isCooking ? 1 : 0, { duration: 800 });
-  }, [isCooking]);
+  }, [isCooking, transitionProgress]);
 
   useEffect(() => {
     scrollY.value = 0;
-  }, []);
+  }, [scrollY]);
 
   useEffect(() => {
     if (isTabletLandscape) {
       scrollY.value = 0;
     }
-  }, [isTabletLandscape]);
+  }, [isTabletLandscape, scrollY]);
 
   // Handle error state
   if (error) {
@@ -150,20 +146,23 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     );
   }
 
-
-
   // If we don't have a recipe but have optimistic data, create a minimal recipe object
-  const displayRecipe = recipe || (optimisticTitle || optimisticImageUrl ? {
-    id: '',
-    title: optimisticTitle || '',
-    image_url: optimisticImageUrl || '',
-    created_by: '',
-    rating_count: 0,
-    ingredients: [],
-    instructions: [],
-    created_at: '',
-    updated_at: '',
-  } as Recipe : undefined);
+  const displayRecipe =
+    recipe ||
+    (optimisticTitle || optimisticImageUrl
+      ? ({
+          id: "",
+          title: optimisticTitle || "",
+          image_url: optimisticImageUrl || "",
+          created_by: "",
+          rating_count: 0,
+          total_times_cooked: 0,
+          ingredients: [],
+          instructions: [],
+          created_at: "",
+          updated_at: "",
+        } as Recipe)
+      : undefined);
 
   // If still no recipe data at all, return null
   if (!displayRecipe) {
@@ -175,29 +174,25 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
 
   // Handle delete with confirmation
   const handleDelete = () => {
-    Alert.alert(
-      t("recipe.errors.deleteTitle"),
-      t("recipe.errors.deleteConfirmation"),
-      [
-        {
-          text: t("common.cancel"),
-          style: "cancel",
+    Alert.alert(t("recipe.errors.deleteTitle"), t("recipe.errors.deleteConfirmation"), [
+      {
+        text: t("common.cancel"),
+        style: "cancel",
+      },
+      {
+        text: t("common.delete"),
+        style: "destructive",
+        onPress: () => {
+          if (recipe) {
+            deleteRecipeMutation.mutate(recipe.id, {
+              onSuccess: () => {
+                router.back();
+              },
+            });
+          }
         },
-        {
-          text: t("common.delete"),
-          style: "destructive",
-          onPress: () => {
-            if (recipe) {
-              deleteRecipeMutation.mutate(recipe.id, {
-                onSuccess: () => {
-                  router.back();
-                },
-              });
-            }
-          },
-        },
-      ]
-    );
+      },
+    ]);
   };
 
   // Calculate scroll thresholds for header animation
@@ -212,15 +207,16 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     const contentWrapperProps = isTabletLandscape
       ? { className: "flex-1" }
       : {
-        showsVerticalScrollIndicator: false,
-        className: "flex-1",
-        contentContainerStyle: { paddingBottom: 0 },
-      };
+          showsVerticalScrollIndicator: false,
+          className: "flex-1",
+          contentContainerStyle: { paddingBottom: 0 },
+        };
 
     return (
       <View
-        className={`${isTabletLandscape ? "w-[45%] border-r border-border-light bg-surface" : "w-full"
-          } ${isTabletLandscape ? "" : "flex-1"}`}
+        className={`${
+          isTabletLandscape ? "w-[45%] border-r border-border-light bg-surface" : "w-full"
+        } ${isTabletLandscape ? "" : "flex-1"}`}
       >
         <ContentWrapper {...contentWrapperProps}>
           <RecipeHeader
@@ -272,9 +268,12 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
                     isOwner={isOwner}
                     isDraft={isDraft}
                     isEditing={isEditing}
-                    totalTime={(recipe.timings?.prep_time_minutes ?? 0) + (recipe.timings?.cook_time_minutes ?? 0)}
-                    onRatingChange={() => { }}
-                    onTimePress={() => { }}
+                    totalTime={
+                      (recipe.timings?.prep_time_minutes ?? 0) +
+                      (recipe.timings?.cook_time_minutes ?? 0)
+                    }
+                    onRatingChange={() => {}}
+                    onTimePress={() => {}}
                     onSave={onSave}
                     onDiscard={onDiscard}
                     onStartCooking={() => setIsCooking(true)}
@@ -297,7 +296,12 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
                   <Skeleton width="65%" height={40} borderRadius={4} style={{ marginBottom: 4 }} />
                 </View>
               </View>
-              <Skeleton width="100%" height={64} borderRadius={4} style={{ marginBottom: 4, marginTop: 24 }} />
+              <Skeleton
+                width="100%"
+                height={64}
+                borderRadius={4}
+                style={{ marginBottom: 4, marginTop: 24 }}
+              />
               <View className="flex-row gap-4 my-4">
                 <Skeleton height={24} borderRadius={16} width={100} />
                 <Skeleton height={24} borderRadius={16} width={100} />
@@ -306,13 +310,20 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
               </View>
               {!isTabletLandscape && (
                 <>
-                  <Skeleton width="45%" height={32} borderRadius={4} style={{ marginBottom: 4, marginTop: 24 }} />
-                  <Skeleton width="85%" height={20} borderRadius={4} style={{ marginBottom: 4, marginTop: 8 }} />
+                  <Skeleton
+                    width="45%"
+                    height={32}
+                    borderRadius={4}
+                    style={{ marginBottom: 4, marginTop: 24 }}
+                  />
+                  <Skeleton
+                    width="85%"
+                    height={20}
+                    borderRadius={4}
+                    style={{ marginBottom: 4, marginTop: 8 }}
+                  />
                 </>
               )}
-
-
-
             </View>
           )}
         </ContentWrapper>
@@ -352,14 +363,10 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         )}
       </Animated.View>
 
-
       {/* Cooking Mode Overlay */}
       {isCooking && recipe && (
         <Animated.View
-          style={[
-            { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
-            cookingModeStyle,
-          ]}
+          style={[{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }, cookingModeStyle]}
         >
           <CookingMode recipe={recipe} onClose={() => setIsCooking(false)} />
         </Animated.View>
@@ -377,28 +384,30 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
               setIsActionsModalVisible(false);
             },
           },
-          ...(isOwner ? [
-            {
-              label: t("recipe.actions.edit"),
-              icon: <PencilIcon size={24} color="#334d43" />,
-              onPress: () => {
-                if (recipe) {
-                  router.push(`/recipe/${recipe?.id}/edit`);
-                  setIsActionsModalVisible(false);
-                }
-              },
-            },
-            {
-              label: t("recipe.actions.delete"),
-              description: t("recipe.actions.deleteDescription"),
-              icon: <TrashIcon size={24} color="#ef4444" />,
-              variant: "destructive" as const,
-              onPress: () => {
-                setIsActionsModalVisible(false);
-                handleDelete();
-              },
-            }
-          ] : [])
+          ...(isOwner
+            ? [
+                {
+                  label: t("recipe.actions.edit"),
+                  icon: <PencilIcon size={24} color="#334d43" />,
+                  onPress: () => {
+                    if (recipe) {
+                      router.push(`/recipe/${recipe?.id}/edit`);
+                      setIsActionsModalVisible(false);
+                    }
+                  },
+                },
+                {
+                  label: t("recipe.actions.delete"),
+                  description: t("recipe.actions.deleteDescription"),
+                  icon: <TrashIcon size={24} color="#ef4444" />,
+                  variant: "destructive" as const,
+                  onPress: () => {
+                    setIsActionsModalVisible(false);
+                    handleDelete();
+                  },
+                },
+              ]
+            : []),
         ]}
       />
     </View>

@@ -20,8 +20,8 @@ export function DragProvider({
 }) {
   const [isDragging, setIsDragging] = useState(false);
   const scrollY = useSharedValue(0);
-  
-  // If no ref provided, create a dummy one to avoid crashes, 
+
+  // If no ref provided, create a dummy one to avoid crashes,
   // though functionality will be limited
   const internalRef = useRef<ScrollView>(null);
   const activeRef = rootScrollViewRef || internalRef;

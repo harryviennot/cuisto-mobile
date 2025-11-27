@@ -78,14 +78,16 @@ export function RecipeCategoriesTagsForm({ control }: RecipeCategoriesTagsFormPr
             return (
               <Pressable key={option.value} onPress={() => toggleCategory(option.value)}>
                 <ShadowItem
-                  className={`rounded-full px-4 py-2.5 ${isSelected
-                    ? "border border-primary bg-primary/10"
-                    : "border border-border-button opacity-60"
-                    }`}
+                  className={`rounded-full px-4 py-2.5 ${
+                    isSelected
+                      ? "border border-primary bg-primary/10"
+                      : "border border-border-button opacity-60"
+                  }`}
                 >
                   <Text
-                    className={`text-sm font-semibold ${isSelected ? "text-primary" : "text-foreground"
-                      }`}
+                    className={`text-sm font-semibold ${
+                      isSelected ? "text-primary" : "text-foreground"
+                    }`}
                   >
                     {option.label}
                   </Text>
