@@ -10,6 +10,7 @@ import {
 import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
 import type { Recipe, Ingredient } from "@/types/recipe";
+import { recipeService } from "@/api/services";
 
 export interface ActiveTimer {
     stepIndex: number;
@@ -153,6 +154,18 @@ export const useCookingController = (recipe: Recipe) => {
                 });
             } else {
                 // Finish Transition
+
+                // Mark recipe as cooked
+                const markAsCooked = async () => {
+                    try {
+                        await recipeService.markRecipeAsCooked(recipe.id);
+                        console.log('Recipe marked as cooked successfully');
+                    } catch (error) {
+                        console.error('Failed to mark recipe as cooked:', error);
+                        // Silent fail - don't interrupt the user's celebration
+                    }
+                };
+                markAsCooked();
 
                 // Custom Premium Haptic Pattern (~1s duration)
                 // A "swell" effect inspired by soft haptics

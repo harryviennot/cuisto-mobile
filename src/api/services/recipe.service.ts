@@ -117,4 +117,18 @@ export const recipeService = {
     );
     return response.data;
   },
+
+  /**
+   * Mark a recipe as cooked (increments cooked count)
+   * Updates the user's times_cooked counter and last_cooked_at timestamp
+   *
+   * @param recipeId - The recipe ID
+   * @returns Success message
+   */
+  markRecipeAsCooked: async (recipeId: string): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>(
+      `/recipes/${recipeId}/cooked`
+    );
+    return response.data;
+  },
 };

@@ -91,6 +91,9 @@ export interface Recipe {
   rating_count: number;
   rating_distribution?: RatingDistribution;
 
+  // Cooking count aggregation
+  total_times_cooked: number;
+
   // User's personal data
   user_data?: UserRecipeData;
 }
