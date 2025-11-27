@@ -44,15 +44,18 @@ export const useCookingController = (recipe: Recipe) => {
         if (navigation.currentStep < navigation.totalSteps - 1) {
           // Animate main content
           animations.slideAnim.value = withTiming(-1, { duration: ANIMATION_DURATION_MS }, () => {
+            'worklet';
             runOnJS(navigation.goToNextStep)();
             animations.slideAnim.value = 1;
             animations.slideAnim.value = withSpring(0);
           });
 
           // Animate "Up Next" (rotate down)
-          animations.nextStepAnim.value = withTiming(1, { duration: ANIMATION_DURATION_MS }, () => {
+          const isGoingToLastStep = navigation.currentStep >= navigation.totalSteps - 2;
+          animations.nextStepAnim.value = withTiming(1, { duration: ANIMATION_DURATION_MS }, (finished) => {
+            'worklet';
             // Only reset if we are NOT going to the last step (where Up Next disappears)
-            if (navigation.currentStep < navigation.totalSteps - 2) {
+            if (finished && !isGoingToLastStep) {
               animations.nextStepAnim.value = -1; // Reset to top for next entrance
               animations.nextStepAnim.value = withSpring(0);
             }
@@ -69,7 +72,7 @@ export const useCookingController = (recipe: Recipe) => {
               console.error("Failed to mark recipe as cooked:", error);
             }
           };
-          markAsCooked();
+          runOnJS(markAsCooked)();
 
           // Custom Premium Haptic Pattern (~1s duration)
           // A "swell" effect inspired by soft haptics
@@ -88,12 +91,13 @@ export const useCookingController = (recipe: Recipe) => {
             // Fading out
             setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), FINISH_HAPTIC_DELAYS_MS[5]);
           };
-          playFinishHaptic();
+          runOnJS(playFinishHaptic)();
 
           // 1. Swipe out the last card
           animations.slideAnim.value = withTiming(-1, { duration: ANIMATION_DURATION_LONG_MS });
           // 2. Fade out the rest of the content
           animations.contentOpacity.value = withTiming(0, { duration: ANIMATION_DURATION_LONG_MS }, () => {
+            'worklet';
             runOnJS(navigation.finishCooking)();
           });
         }
@@ -102,6 +106,7 @@ export const useCookingController = (recipe: Recipe) => {
         if (navigation.currentStep > 0) {
           // Animate main content
           animations.slideAnim.value = withTiming(1, { duration: ANIMATION_DURATION_MS }, () => {
+            'worklet';
             runOnJS(navigation.goToPrevStep)();
             animations.slideAnim.value = -1;
             animations.slideAnim.value = withSpring(0);
@@ -109,6 +114,7 @@ export const useCookingController = (recipe: Recipe) => {
 
           // Animate "Up Next" (rotate up)
           animations.nextStepAnim.value = withTiming(-1, { duration: ANIMATION_DURATION_MS }, () => {
+            'worklet';
             animations.nextStepAnim.value = 1; // Reset to bottom for next entrance
             animations.nextStepAnim.value = withSpring(0);
           });

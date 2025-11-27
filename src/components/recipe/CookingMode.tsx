@@ -45,6 +45,7 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
     startTimer,
     stopTimer,
     resetTimer,
+    toggleTimer,
     formatTime,
     slideAnim,
     ingredientsSheetAnim,
@@ -196,6 +197,11 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
 
           <TimerControlModal
             selectedTimerIndex={selectedTimerIndex}
+            timers={timers}
+            resetTimer={resetTimer}
+            toggleTimer={toggleTimer}
+            stopTimer={stopTimer}
+            formatTime={formatTime}
             onClose={() => setSelectedTimerIndex(null)}
           />
         </>
