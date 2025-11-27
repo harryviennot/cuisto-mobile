@@ -80,7 +80,7 @@ export function RecipeActionButtons({
       )}
 
       {source_url && (
-        <ShadowItem onPress={() => Linking.openURL(source_url)} className="w-14 h-14">
+        <ShadowItem onPress={() => Linking.openURL(source_url)} className="w-14 h-14" disabled={!source_url || isEditing || isDraft}>
           {platform === "tiktok" && <TiktokLogoIcon size={20} color="#334d43" weight="regular" />}
           {platform === "instagram" && <InstagramLogoIcon size={20} color="#334d43" weight="regular" />}
           {platform === "youtube" && <YoutubeLogoIcon size={20} color="#334d43" weight="regular" />}
