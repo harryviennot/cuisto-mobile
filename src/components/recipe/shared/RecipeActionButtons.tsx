@@ -1,11 +1,15 @@
 import "@/global.css";
-import { View, Text } from "react-native";
+import { View, Text, Linking } from "react-native";
 import {
   CheckIcon,
   TrashIcon,
   ShareNetworkIcon,
   PencilIcon,
   PlayIcon,
+  TiktokLogoIcon,
+  InstagramLogoIcon,
+  YoutubeLogoIcon,
+  LinkIcon
 } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
@@ -21,6 +25,8 @@ interface RecipeActionButtonsProps {
   isOwner: boolean;
   isEditing?: boolean;
   isLoading?: boolean;
+  platform?: string;
+  source_url?: string;
 }
 
 export function RecipeActionButtons({
@@ -33,6 +39,8 @@ export function RecipeActionButtons({
   isOwner,
   isEditing = false,
   isLoading = false,
+  platform = undefined,
+  source_url,
 }: RecipeActionButtonsProps) {
   const { t } = useTranslation();
 
@@ -71,12 +79,22 @@ export function RecipeActionButtons({
         </ShadowItem>
       )}
 
-      {/* Edit Button */}
+      {source_url && (
+        <ShadowItem onPress={() => Linking.openURL(source_url)} className="w-14 h-14">
+          {platform === "tiktok" && <TiktokLogoIcon size={20} color="#334d43" weight="regular" />}
+          {platform === "instagram" && <InstagramLogoIcon size={20} color="#334d43" weight="regular" />}
+          {platform === "youtube" && <YoutubeLogoIcon size={20} color="#334d43" weight="regular" />}
+          {platform === undefined && <LinkIcon size={20} color="#334d43" weight="regular" />}
+        </ShadowItem>
+      )
+      }
+
+      {/* Edit Button
       {isOwner && !isEditing && (
         <ShadowItem onPress={onEdit} className="w-14 h-14 bg-white">
           <PencilIcon size={20} color="#334d43" weight="regular" />
         </ShadowItem>
-      )}
+      )} */}
 
       {/* Share Button */}
       {isDraft ? (

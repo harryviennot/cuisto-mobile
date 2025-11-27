@@ -177,6 +177,8 @@ export default function UnifiedRecipePreviewScreen() {
     router.replace("/");
   };
 
+  console.log(job?.progress_percentage);
+
   // Validate jobId
   if (!jobId) {
     return (
@@ -242,42 +244,42 @@ export default function UnifiedRecipePreviewScreen() {
     );
   }
 
-  // Duplicate video detected - show existing recipe with option to add to collection
-  if (recipe && isDuplicate) {
-    return (
-      <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
-        {/* Duplicate notice banner */}
-        <Animated.View
-          entering={FadeIn.delay(100)}
-          className="mx-4 mb-4 mt-2 flex-row items-center gap-3 rounded-xl bg-primary/10 p-4"
-        >
-          <UsersThreeIcon size={24} color="#6366f1" weight="fill" />
-          <View className="flex-1">
-            <Text className="font-semibold text-foreground">Recipe Already Exists</Text>
-            <Text className="text-sm text-foreground-secondary">
-              This video was already extracted. Add it to your collection?
-            </Text>
-          </View>
-        </Animated.View>
+  // // Duplicate video detected - show existing recipe with option to add to collection
+  // if (recipe && isDuplicate) {
+  //   return (
+  //     <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
+  //       {/* Duplicate notice banner */}
+  //       <Animated.View
+  //         entering={FadeIn.delay(100)}
+  //         className="mx-4 mb-4 mt-2 flex-row items-center gap-3 rounded-xl bg-primary/10 p-4"
+  //       >
+  //         <UsersThreeIcon size={24} color="#6366f1" weight="fill" />
+  //         <View className="flex-1">
+  //           <Text className="font-semibold text-foreground">Recipe Already Exists</Text>
+  //           <Text className="text-sm text-foreground-secondary">
+  //             This video was already extracted. Add it to your collection?
+  //           </Text>
+  //         </View>
+  //       </Animated.View>
 
-        <RecipeDetail
-          recipe={recipe}
-          onBack={handleDiscard}
-          isDraft={true}
-          onDiscard={handleDiscard}
-          onSave={isSaving ? undefined : handleSave}
-          showHeader={false}
-        />
-      </View>
-    );
-  }
+  //       <RecipeDetail
+  //         recipe={recipe}
+  //         onBack={handleDiscard}
+  //         isDraft={true}
+  //         onDiscard={handleDiscard}
+  //         onSave={isSaving ? undefined : handleSave}
+  //         showHeader={false}
+  //       />
+  //     </View>
+  //   );
+  // }
 
   // Recipe loaded - show with animations
   if (recipe) {
     return (
       <RecipeDetail
         recipe={recipe}
-        onBack={() => {}}
+        onBack={() => { }}
         isDraft={true}
         onDiscard={isDeleting ? undefined : handleDiscard}
         onSave={isSaving ? undefined : handleSave}
