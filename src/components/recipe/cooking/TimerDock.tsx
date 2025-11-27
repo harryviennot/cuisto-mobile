@@ -1,24 +1,36 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { X } from "phosphor-react-native";
 import Animated, { SlideInUp, FadeOut } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import type { ActiveTimer } from "./hooks/useCookingController";
+import type { ActiveTimer } from "./hooks/useTimerManager";
 
 interface TimerDockProps {
+  currentStep: number;
   timers: ActiveTimer[];
-  onStopTimer: (stepIndex: number) => void;
-  onSelectTimer: (stepIndex: number) => void;
+  stopTimer: (stepIndex: number) => void;
   formatTime: (seconds: number) => string;
+  onSelectTimer: (stepIndex: number) => void;
 }
 
+/**
+ * TimerDock - Horizontal scrollable list of active timers
+ * Receives all state as props to ensure single source of truth
+ */
 export const TimerDock: React.FC<TimerDockProps> = ({
+  currentStep,
   timers,
-  onStopTimer,
-  onSelectTimer,
+  stopTimer,
   formatTime,
+  onSelectTimer,
 }) => {
-  if (timers.length === 0) return <View className="h-[50px]" />;
+  // Filter to show only "other" timers (not for current step)
+  const otherTimers = useMemo(
+    () => timers.filter((t) => t.stepIndex !== currentStep).sort((a, b) => a.timeLeft - b.timeLeft),
+    [timers, currentStep]
+  );
+
+  if (otherTimers.length === 0) return <View className="h-[50px]" />;
 
   return (
     <View className="z-10 py-2 h-[50px]">
@@ -27,7 +39,7 @@ export const TimerDock: React.FC<TimerDockProps> = ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 24, gap: 8 }}
       >
-        {timers.map((t) => (
+        {otherTimers.map((t) => (
           <Pressable
             key={t.stepIndex}
             onLongPress={() => {
@@ -51,7 +63,7 @@ export const TimerDock: React.FC<TimerDockProps> = ({
               >
                 {formatTime(t.timeLeft)}
               </Text>
-              <Pressable onPress={() => onStopTimer(t.stepIndex)} className="ml-1">
+              <Pressable onPress={() => stopTimer(t.stepIndex)} className="ml-1">
                 <X size={12} color="#a8a29e" />
               </Pressable>
             </Animated.View>

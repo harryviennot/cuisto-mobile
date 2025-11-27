@@ -7,15 +7,20 @@ import Animated, {
   interpolate,
   useDerivedValue,
 } from "react-native-reanimated";
+import type { Instruction } from "@/types/recipe";
 
 interface UpNextProps {
-  nextStep: any;
+  nextStep: Instruction | undefined;
   currentStep: number;
   totalSteps: number;
   nextStepAnim: SharedValue<number>;
   directionAnim: SharedValue<number>;
 }
 
+/**
+ * UpNext - Preview of the next cooking step
+ * Receives navigation state as props to ensure single source of truth
+ */
 export const UpNext: React.FC<UpNextProps> = ({
   nextStep,
   currentStep,

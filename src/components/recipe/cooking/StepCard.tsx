@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, useWindowDimensions } from "react-native";
 import { Clock, Play, Pause, ArrowCounterClockwise } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import Animated, {
@@ -9,45 +9,49 @@ import Animated, {
   useDerivedValue,
 } from "react-native-reanimated";
 import { GestureDetector, GestureType } from "react-native-gesture-handler";
-import type { ActiveTimer } from "./hooks/useCookingController";
+import type { Recipe, Instruction } from "@/types/recipe";
+import type { ActiveTimer } from "./hooks/useTimerManager";
+import { useStepCardData } from "./hooks/useStepCardData";
 import { UpNext } from "./UpNext";
 
 interface StepCardProps {
-  step: any;
-  currentTimer?: ActiveTimer;
-  stepDurationSeconds: number;
-  slideAnim: SharedValue<number>;
-  width: number;
-  panGesture: GestureType;
-  onStartTimer: (stepIndex: number, duration: number, title: string) => void;
-  onResetTimer: (stepIndex: number) => void;
-  formatTime: (seconds: number) => string;
-  currentStepIndex: number;
-  nextStep: any;
-  currentStep: any;
+  recipe: Recipe;
+  currentStep: number;
+  step: Instruction | undefined;
+  nextStep: Instruction | undefined;
   totalSteps: number;
+  timers: ActiveTimer[];
+  startTimer: (stepIndex: number, durationMinutes: number | undefined, title: string) => void;
+  resetTimer: (stepIndex: number) => void;
+  formatTime: (seconds: number) => string;
+  slideAnim: SharedValue<number>;
+  panGesture: GestureType;
   nextStepAnim: SharedValue<number>;
   directionAnim: SharedValue<number>;
 }
 
+/**
+ * StepCard - Main step display card with timer controls
+ * Receives all state as props to ensure single source of truth
+ */
 export const StepCard: React.FC<StepCardProps> = ({
+  recipe,
+  currentStep: currentStepIndex,
   step,
-  currentTimer,
-  stepDurationSeconds,
-  slideAnim,
-  width,
-  panGesture,
-  onStartTimer,
-  onResetTimer,
-  formatTime,
-  currentStepIndex,
   nextStep,
-  currentStep,
   totalSteps,
+  timers,
+  startTimer,
+  resetTimer,
+  formatTime,
+  slideAnim,
+  panGesture,
   nextStepAnim,
   directionAnim,
 }) => {
   const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+  const { currentTimer, stepDurationSeconds } = useStepCardData(currentStepIndex, step, timers);
 
   const contentTranslateX = useDerivedValue(() => {
     return interpolate(slideAnim.value, [-1, 0, 1], [-width, 0, width]);
@@ -67,6 +71,9 @@ export const StepCard: React.FC<StepCardProps> = ({
       opacity: contentOpacity.value,
     };
   });
+
+  // Guard against undefined step
+  if (!step) return null;
 
   return (
     <GestureDetector gesture={panGesture}>
@@ -152,9 +159,9 @@ export const StepCard: React.FC<StepCardProps> = ({
                     {!currentTimer ? (
                       <Pressable
                         onPress={() =>
-                          onStartTimer(
+                          startTimer(
                             currentStepIndex,
-                            step.timer_minutes,
+                            step.timer_minutes ?? undefined,
                             step.title || `${t("recipe.cookingMode.step")} ${step.step_number}`
                           )
                         }
@@ -166,7 +173,7 @@ export const StepCard: React.FC<StepCardProps> = ({
                       <>
                         {!currentTimer.isRunning && (
                           <Pressable
-                            onPress={() => onResetTimer(currentStepIndex)}
+                            onPress={() => resetTimer(currentStepIndex)}
                             className="h-10 w-10 items-center justify-center rounded-full bg-surface-texture-dark active:scale-90"
                           >
                             <ArrowCounterClockwise size={18} color="#78716c" />
@@ -174,9 +181,9 @@ export const StepCard: React.FC<StepCardProps> = ({
                         )}
                         <Pressable
                           onPress={() =>
-                            onStartTimer(
+                            startTimer(
                               currentStepIndex,
-                              step.timer_minutes,
+                              step.timer_minutes ?? undefined,
                               step.title || `Step ${step.step_number}`
                             )
                           }

@@ -10,6 +10,7 @@ interface RecipeRatingProps {
   ratingCount: number;
   onRatingChange: (rating: number) => void;
   isLoading?: boolean;
+  showAverageRating?: boolean;
 }
 
 /**
@@ -23,6 +24,7 @@ export function RecipeRating({
   ratingCount,
   onRatingChange,
   isLoading = false,
+  showAverageRating = true,
 }: RecipeRatingProps) {
   const { t } = useTranslation();
 
@@ -75,38 +77,40 @@ export function RecipeRating({
       </View>
 
       {/* Community Rating - Static */}
-      <View className="flex  flex-col items-end justify-between gap-2">
-        <Text className="text-[10px] font-bold uppercase tracking-widest text-foreground-muted">
-          {t("recipe.rating.average")}
-        </Text>
-        <View className="flex-row items-center gap-2">
-          {/* Rating Number with superscript decimal */}
-          <View className="flex-row items-end">
-            <Text
-              className="font-playfair-bold text-3xl text-foreground-heading leading-none"
-              style={{ fontFamily: "PlayfairDisplay_700Bold" }}
-            >
-              {integerPart}
-            </Text>
-            {decimalPart && (
+      {showAverageRating && (
+        <View className="flex  flex-col items-end justify-between gap-2">
+          <Text className="text-[10px] font-bold uppercase tracking-widest text-foreground-muted">
+            {t("recipe.rating.average")}
+          </Text>
+          <View className="flex-row items-center gap-2">
+            {/* Rating Number with superscript decimal */}
+            <View className="flex-row items-end">
               <Text
-                className="font-playfair-bold text-3xl text-foreground-heading leading-none mb-1"
+                className="font-playfair-bold text-3xl text-foreground-heading leading-none"
                 style={{ fontFamily: "PlayfairDisplay_700Bold" }}
               >
-                .{decimalPart}
+                {integerPart}
               </Text>
-            )}
-          </View>
-          <View className="flex flex-col items-center leading-none ">
-            <StarRating rating={Math.round(averageRating || 0)} size={12} editable={false} />
-            <Text className="text-[10px] text-foreground-tertiary font-medium mt-1">
-              {ratingCount > 0
-                ? `${ratingCount} ${ratingCount === 1 ? t("recipe.rating.review") : t("recipe.rating.reviews")}`
-                : t("recipe.rating.noReviews")}
-            </Text>
+              {decimalPart && (
+                <Text
+                  className="font-playfair-bold text-3xl text-foreground-heading leading-none mb-1"
+                  style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+                >
+                  .{decimalPart}
+                </Text>
+              )}
+            </View>
+            <View className="flex flex-col items-center leading-none ">
+              <StarRating rating={Math.round(averageRating || 0)} size={12} editable={false} />
+              <Text className="text-[10px] text-foreground-tertiary font-medium mt-1">
+                {ratingCount > 0
+                  ? `${ratingCount} ${ratingCount === 1 ? t("recipe.rating.review") : t("recipe.rating.reviews")}`
+                  : t("recipe.rating.noReviews")}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
+      )}
     </View>
   );
 }

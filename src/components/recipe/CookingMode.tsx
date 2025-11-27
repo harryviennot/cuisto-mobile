@@ -6,7 +6,6 @@ import { BlurView } from "expo-blur";
 import { Gesture } from "react-native-gesture-handler";
 import Animated, { runOnJS, useAnimatedStyle } from "react-native-reanimated";
 import type { Recipe } from "@/types/recipe";
-import { ChefChat } from "./ChefChat";
 import { useCookingController } from "./cooking/hooks/useCookingController";
 import { CookingHeader } from "./cooking/CookingHeader";
 import { TimerDock } from "./cooking/TimerDock";
@@ -15,15 +14,22 @@ import { IngredientsDrawer } from "./cooking/IngredientsDrawer";
 import { CookingControls } from "./cooking/CookingControls";
 import { FinishedScreen } from "./cooking/FinishedScreen";
 import { TimerControlModal } from "./cooking/TimerControlModal";
+import Toast from "react-native-toast-message";
 
 interface CookingModeProps {
   recipe: Recipe;
   onClose: () => void;
 }
 
+/**
+ * CookingMode - Main cooking mode orchestrator
+ * Components now use focused hooks directly, reducing prop drilling
+ */
 export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => {
   const { t } = useTranslation();
   const [controlsHeight, setControlsHeight] = useState(120); // Default estimate
+
+  // Main controller provides orchestration and complex interactions
   const {
     currentStep,
     totalSteps,
@@ -32,24 +38,20 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
     isIngredientsOpen,
     viewAllIngredients,
     setViewAllIngredients,
-    timers,
     isFinished,
-    isChatOpen,
-    setIsChatOpen,
     selectedTimerIndex,
     setSelectedTimerIndex,
-    slideAnim,
-    ingredientsSheetAnim,
-    nextStepAnim,
+    timers,
     startTimer,
     stopTimer,
     resetTimer,
-    toggleTimer,
     formatTime,
+    slideAnim,
+    ingredientsSheetAnim,
+    nextStepAnim,
     changeStep,
     toggleIngredients,
-    getAllGroupedIngredients,
-    width,
+    allGroupedIngredients,
     directionAnim,
     contentOpacity,
   } = useCookingController(recipe);
@@ -82,14 +84,6 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
         runOnJS(handleStepChange)("prev");
       }
     });
-
-  const currentTimer = timers.find((t) => t.stepIndex === currentStep);
-  const otherTimers = timers
-    .filter((t) => t.stepIndex !== currentStep)
-    .sort((a, b) => a.timeLeft - b.timeLeft);
-  const stepDurationSeconds = step.timer_minutes ? step.timer_minutes * 60 : 0;
-  const selectedTimer = timers.find((t) => t.stepIndex === selectedTimerIndex);
-  const allGroupedIngredients = getAllGroupedIngredients();
 
   // Safe computation of visible ingredients with error handling
   const visibleIngredients = React.useMemo(() => {
@@ -146,31 +140,36 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
               currentStep={currentStep}
               totalSteps={totalSteps}
               onClose={onClose}
-              onToggleChat={() => setIsChatOpen(true)}
+              onToggleChat={() =>
+                Toast.show({
+                  type: "info",
+                  text1: "Coming soon!",
+                  text2: "Chat is not yet available in cooking mode",
+                })
+              }
             />
 
             <TimerDock
-              timers={otherTimers}
-              onStopTimer={stopTimer}
-              onSelectTimer={setSelectedTimerIndex}
+              currentStep={currentStep}
+              timers={timers}
+              stopTimer={stopTimer}
               formatTime={formatTime}
+              onSelectTimer={setSelectedTimerIndex}
             />
 
             <StepCard
+              recipe={recipe}
+              currentStep={currentStep}
               step={step}
-              currentTimer={currentTimer}
-              stepDurationSeconds={stepDurationSeconds}
-              slideAnim={slideAnim}
-              width={width}
-              panGesture={panGesture}
-              onStartTimer={startTimer}
-              onResetTimer={resetTimer}
-              formatTime={formatTime}
-              currentStepIndex={currentStep}
-              currentStep={step}
               nextStep={nextStep}
-              nextStepAnim={nextStepAnim}
               totalSteps={totalSteps}
+              timers={timers}
+              startTimer={startTimer}
+              resetTimer={resetTimer}
+              formatTime={formatTime}
+              slideAnim={slideAnim}
+              panGesture={panGesture}
+              nextStepAnim={nextStepAnim}
               directionAnim={directionAnim}
             />
 
@@ -195,23 +194,9 @@ export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => 
             />
           </Animated.View>
 
-          {isChatOpen && (
-            <View className="absolute inset-0 z-[60]">
-              <ChefChat
-                recipe={recipe}
-                currentStepIndex={currentStep}
-                onClose={() => setIsChatOpen(false)}
-              />
-            </View>
-          )}
-
           <TimerControlModal
-            selectedTimer={selectedTimer}
+            selectedTimerIndex={selectedTimerIndex}
             onClose={() => setSelectedTimerIndex(null)}
-            onReset={resetTimer}
-            onToggle={toggleTimer}
-            onStop={stopTimer}
-            formatTime={formatTime}
           />
         </>
       )}

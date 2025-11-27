@@ -1,158 +1,60 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useWindowDimensions } from "react-native";
-import { useSharedValue, withSpring, withTiming, runOnJS, Easing } from "react-native-reanimated";
+import { withSpring, withTiming, runOnJS } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { Audio } from "expo-av";
-import type { Recipe, Ingredient } from "@/types/recipe";
+import type { Recipe } from "@/types/recipe";
 import { recipeService } from "@/api/services";
+import { useTimerManager } from "./useTimerManager";
+import { useStepNavigation } from "./useStepNavigation";
+import { useIngredientFiltering } from "./useIngredientFiltering";
+import { useCookingAnimations } from "./useCookingAnimations";
+import { useIngredientsDrawer } from "./useIngredientsDrawer";
 
-export interface ActiveTimer {
-  stepIndex: number;
-  label: string;
-  duration: number;
-  timeLeft: number;
-  isRunning: boolean;
-}
+// Animation and timing constants
+const ANIMATION_DURATION_MS = 200;
+const ANIMATION_DURATION_LONG_MS = 300;
+const FINISH_HAPTIC_DELAYS_MS = [0, 100, 200, 350, 550, 800];
 
+// Re-export ActiveTimer type for backward compatibility
+export type { ActiveTimer } from "./useTimerManager";
+
+/**
+ * Main cooking controller hook - Composes all cooking-related hooks
+ * This is a facade that maintains backward compatibility while internally
+ * using focused, single-responsibility hooks
+ */
 export const useCookingController = (recipe: Recipe) => {
   const { width, height } = useWindowDimensions();
-
-  // State
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isIngredientsOpen, setIsIngredientsOpen] = useState(false);
-  const [viewAllIngredients, setViewAllIngredients] = useState(false);
-  const [timers, setTimers] = useState<ActiveTimer[]>([]);
-  const [isFinished, setIsFinished] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedTimerIndex, setSelectedTimerIndex] = useState<number | null>(null);
 
-  // Animation values
-  const slideAnim = useSharedValue(0); // 0 = center, -1 = left, 1 = right
-  const ingredientsSheetAnim = useSharedValue(0); // 0 = closed, 1 = open
-  const nextStepAnim = useSharedValue(0); // For "Up Next" rotation: 0 -> 1 (next), 0 -> -1 (prev)
-  const directionAnim = useSharedValue(0); // 1 = forward, -1 = backward
-  const contentOpacity = useSharedValue(1); // 1 = visible, 0 = hidden
+  // Compose focused hooks
+  const timerManager = useTimerManager();
+  const navigation = useStepNavigation(recipe);
+  const animations = useCookingAnimations();
+  const ingredientFiltering = useIngredientFiltering(recipe, navigation.step);
+  const ingredientsDrawer = useIngredientsDrawer(animations.ingredientsSheetAnim);
 
-  const instructions = recipe.instructions.sort((a, b) => a.step_number - b.step_number);
-  const totalSteps = instructions.length;
-  const step = instructions[currentStep];
-  const nextStep = instructions[currentStep + 1];
-
-  // Sound
-  const [sound] = useState<Audio.Sound>();
-
-  useEffect(() => {
-    return () => {
-      sound?.unloadAsync();
-    };
-  }, [sound]);
-
-  const playTimerDoneSound = async () => {
-    try {
-      // Placeholder for sound logic
-    } catch {
-      // Silent fail for sound errors
-    }
-  };
-
-  // Timer Logic
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimers((prevTimers) =>
-        prevTimers.map((t) => {
-          if (!t.isRunning) return t;
-          if (t.timeLeft <= 0) return t;
-
-          const newTime = t.timeLeft - 1;
-          if (newTime === 0) {
-            playTimerDoneSound();
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          }
-          return { ...t, timeLeft: newTime };
-        })
-      );
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const startTimer = useCallback(
-    (stepIndex: number, durationMinutes: number | undefined, title: string) => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      const durationSeconds = durationMinutes ? durationMinutes * 60 : 0;
-      if (!durationSeconds) return;
-
-      setTimers((prev) => {
-        const exists = prev.find((t) => t.stepIndex === stepIndex);
-        if (exists) {
-          return prev.map((t) =>
-            t.stepIndex === stepIndex ? { ...t, isRunning: !t.isRunning } : t
-          );
-        } else {
-          return [
-            ...prev,
-            {
-              stepIndex,
-              label: title,
-              duration: durationSeconds,
-              timeLeft: durationSeconds,
-              isRunning: true,
-            },
-          ];
-        }
-      });
-    },
-    []
-  );
-
-  const stopTimer = useCallback(
-    (stepIndex: number) => {
-      setTimers((prev) => prev.filter((t) => t.stepIndex !== stepIndex));
-      if (selectedTimerIndex === stepIndex) setSelectedTimerIndex(null);
-    },
-    [selectedTimerIndex]
-  );
-
-  const resetTimer = useCallback((stepIndex: number) => {
-    setTimers((prev) =>
-      prev.map((t) =>
-        t.stepIndex === stepIndex ? { ...t, timeLeft: t.duration, isRunning: false } : t
-      )
-    );
-  }, []);
-
-  const toggleTimer = useCallback((stepIndex: number) => {
-    setTimers((prev) =>
-      prev.map((t) => (t.stepIndex === stepIndex ? { ...t, isRunning: !t.isRunning } : t))
-    );
-  }, []);
-
-  const formatTime = useCallback((seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s < 10 ? "0" : ""}${s}`;
-  }, []);
-
-  // Navigation
+  // Navigation with animation orchestration
   const changeStep = useCallback(
     (direction: "next" | "prev") => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
 
       if (direction === "next") {
-        directionAnim.value = 1;
-        if (currentStep < totalSteps - 1) {
+        animations.directionAnim.value = 1;
+        if (navigation.currentStep < navigation.totalSteps - 1) {
           // Animate main content
-          slideAnim.value = withTiming(-1, { duration: 200 }, () => {
-            runOnJS(setCurrentStep)(currentStep + 1);
-            slideAnim.value = 1;
-            slideAnim.value = withSpring(0);
+          animations.slideAnim.value = withTiming(-1, { duration: ANIMATION_DURATION_MS }, () => {
+            runOnJS(navigation.goToNextStep)();
+            animations.slideAnim.value = 1;
+            animations.slideAnim.value = withSpring(0);
           });
 
           // Animate "Up Next" (rotate down)
-          nextStepAnim.value = withTiming(1, { duration: 200 }, () => {
+          animations.nextStepAnim.value = withTiming(1, { duration: ANIMATION_DURATION_MS }, () => {
             // Only reset if we are NOT going to the last step (where Up Next disappears)
-            if (currentStep < totalSteps - 2) {
-              nextStepAnim.value = -1; // Reset to top for next entrance
-              nextStepAnim.value = withSpring(0);
+            if (navigation.currentStep < navigation.totalSteps - 2) {
+              animations.nextStepAnim.value = -1; // Reset to top for next entrance
+              animations.nextStepAnim.value = withSpring(0);
             }
           });
         } else {
@@ -162,8 +64,9 @@ export const useCookingController = (recipe: Recipe) => {
           const markAsCooked = async () => {
             try {
               await recipeService.markRecipeAsCooked(recipe.id);
-            } catch {
-              // Silent fail - don't interrupt the user's celebration
+            } catch (error) {
+              // Log error but don't interrupt the user's celebration
+              console.error("Failed to mark recipe as cooked:", error);
             }
           };
           markAsCooked();
@@ -173,123 +76,98 @@ export const useCookingController = (recipe: Recipe) => {
           const playFinishHaptic = async () => {
             // Initial soft taps
             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), 100);
-            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), 200);
+            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), FINISH_HAPTIC_DELAYS_MS[1]);
+            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), FINISH_HAPTIC_DELAYS_MS[2]);
 
             // Building up to a medium impact
-            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 350);
+            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), FINISH_HAPTIC_DELAYS_MS[3]);
 
             // A slightly stronger peak
-            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), 550);
+            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), FINISH_HAPTIC_DELAYS_MS[4]);
 
             // Fading out
-            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), 800);
+            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), FINISH_HAPTIC_DELAYS_MS[5]);
           };
           playFinishHaptic();
 
           // 1. Swipe out the last card
-          slideAnim.value = withTiming(-1, { duration: 300 });
+          animations.slideAnim.value = withTiming(-1, { duration: ANIMATION_DURATION_LONG_MS });
           // 2. Fade out the rest of the content
-          contentOpacity.value = withTiming(0, { duration: 300 }, () => {
-            runOnJS(setIsFinished)(true);
+          animations.contentOpacity.value = withTiming(0, { duration: ANIMATION_DURATION_LONG_MS }, () => {
+            runOnJS(navigation.finishCooking)();
           });
         }
       } else {
-        directionAnim.value = -1;
-        if (currentStep > 0) {
+        animations.directionAnim.value = -1;
+        if (navigation.currentStep > 0) {
           // Animate main content
-          slideAnim.value = withTiming(1, { duration: 200 }, () => {
-            runOnJS(setCurrentStep)(currentStep - 1);
-            slideAnim.value = -1;
-            slideAnim.value = withSpring(0);
+          animations.slideAnim.value = withTiming(1, { duration: ANIMATION_DURATION_MS }, () => {
+            runOnJS(navigation.goToPrevStep)();
+            animations.slideAnim.value = -1;
+            animations.slideAnim.value = withSpring(0);
           });
 
           // Animate "Up Next" (rotate up)
-          nextStepAnim.value = withTiming(-1, { duration: 200 }, () => {
-            nextStepAnim.value = 1; // Reset to bottom for next entrance
-            nextStepAnim.value = withSpring(0);
+          animations.nextStepAnim.value = withTiming(-1, { duration: ANIMATION_DURATION_MS }, () => {
+            animations.nextStepAnim.value = 1; // Reset to bottom for next entrance
+            animations.nextStepAnim.value = withSpring(0);
           });
         }
       }
     },
-    [currentStep, totalSteps, slideAnim, nextStepAnim, directionAnim, contentOpacity, recipe.id]
+    [
+      navigation.currentStep,
+      navigation.totalSteps,
+      navigation.goToNextStep,
+      navigation.goToPrevStep,
+      navigation.finishCooking,
+      animations.slideAnim,
+      animations.nextStepAnim,
+      animations.directionAnim,
+      animations.contentOpacity,
+      recipe.id,
+    ]
   );
 
-  // Ingredients Logic
-  const getAllGroupedIngredients = useCallback(() => {
-    // Defensive checks
-    if (!step || !recipe.ingredients || !Array.isArray(recipe.ingredients)) {
-      return {} as Record<string, (Ingredient & { isRelevant: boolean })[]>;
-    }
-
-    const stepText = ((step.description || "") + " " + (step.title || "")).toLowerCase();
-
-    // Annotate with relevance
-    const annotated = recipe.ingredients
-      .filter((ing) => ing && ing.name) // Filter out invalid ingredients
-      .map((ing) => {
-        const firstWord = ing.name.toLowerCase().split(" ")[0] || "";
-        const isRelevant = stepText.includes(firstWord);
-        return { ...ing, isRelevant };
-      });
-
-    return annotated.reduce(
-      (acc, ing) => {
-        const group = (ing as any).group || "Main";
-        if (!acc[group]) acc[group] = [];
-        acc[group].push(ing);
-        return acc;
-      },
-      {} as Record<string, (Ingredient & { isRelevant: boolean })[]>
-    );
-  }, [recipe.ingredients, step]);
-
-  const toggleIngredients = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (isIngredientsOpen) {
-      ingredientsSheetAnim.value = withTiming(0, {
-        duration: 250,
-        easing: Easing.out(Easing.cubic),
-      });
-      setIsIngredientsOpen(false);
-    } else {
-      setIsIngredientsOpen(true);
-      ingredientsSheetAnim.value = withTiming(1, {
-        duration: 300,
-        easing: Easing.out(Easing.cubic),
-      });
-    }
-  }, [isIngredientsOpen, ingredientsSheetAnim]);
-
+  // Return unified interface (maintains backward compatibility)
   return {
-    currentStep,
-    totalSteps,
-    step,
-    nextStep,
-    instructions,
-    isIngredientsOpen,
-    viewAllIngredients,
-    setViewAllIngredients,
-    timers,
-    isFinished,
-    isChatOpen,
-    setIsChatOpen,
+    // Navigation state
+    currentStep: navigation.currentStep,
+    totalSteps: navigation.totalSteps,
+    step: navigation.step,
+    nextStep: navigation.nextStep,
+    instructions: navigation.instructions,
+    isFinished: navigation.isFinished,
+
+    // Timer state and functions
+    timers: timerManager.timers,
+    startTimer: timerManager.startTimer,
+    stopTimer: timerManager.stopTimer,
+    resetTimer: timerManager.resetTimer,
+    toggleTimer: timerManager.toggleTimer,
+    formatTime: timerManager.formatTime,
     selectedTimerIndex,
     setSelectedTimerIndex,
-    slideAnim,
-    ingredientsSheetAnim,
-    nextStepAnim,
-    startTimer,
-    stopTimer,
-    resetTimer,
-    toggleTimer,
-    formatTime,
+
+    // Ingredients state and functions
+    isIngredientsOpen: ingredientsDrawer.isIngredientsOpen,
+    viewAllIngredients: ingredientsDrawer.viewAllIngredients,
+    setViewAllIngredients: ingredientsDrawer.setViewAllIngredients,
+    toggleIngredients: ingredientsDrawer.toggleIngredients,
+    allGroupedIngredients: ingredientFiltering.allGroupedIngredients,
+
+    // Animation values
+    slideAnim: animations.slideAnim,
+    ingredientsSheetAnim: animations.ingredientsSheetAnim,
+    nextStepAnim: animations.nextStepAnim,
+    directionAnim: animations.directionAnim,
+    contentOpacity: animations.contentOpacity,
+
+    // Navigation function
     changeStep,
-    toggleIngredients,
-    getAllGroupedIngredients,
+
+    // Window dimensions
     width,
     height,
-    directionAnim,
-    contentOpacity,
   };
 };

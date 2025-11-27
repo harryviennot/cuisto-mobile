@@ -1,29 +1,32 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, Pressable, Modal } from "react-native";
 import { X, Pause, Play, ArrowCounterClockwise, Trash } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import Animated, { ZoomIn, ZoomOut } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
-import type { ActiveTimer } from "./hooks/useCookingController";
+import { useTimerManager } from "./hooks/useTimerManager";
 
 interface TimerControlModalProps {
-  selectedTimer: ActiveTimer | undefined;
+  selectedTimerIndex: number | null;
   onClose: () => void;
-  onReset: (stepIndex: number) => void;
-  onToggle: (stepIndex: number) => void;
-  onStop: (stepIndex: number) => void;
-  formatTime: (seconds: number) => string;
 }
 
+/**
+ * TimerControlModal - Modal for controlling individual timers
+ * Now uses useTimerManager directly instead of prop drilling
+ */
 export const TimerControlModal: React.FC<TimerControlModalProps> = ({
-  selectedTimer,
+  selectedTimerIndex,
   onClose,
-  onReset,
-  onToggle,
-  onStop,
-  formatTime,
 }) => {
   const { t } = useTranslation();
+  const { timers, resetTimer, toggleTimer, stopTimer, formatTime } = useTimerManager();
+
+  // Derive selected timer from index
+  const selectedTimer = useMemo(
+    () => (selectedTimerIndex !== null ? timers.find((t) => t.stepIndex === selectedTimerIndex) : undefined),
+    [timers, selectedTimerIndex]
+  );
 
   return (
     <Modal visible={!!selectedTimer} transparent animationType="fade" onRequestClose={onClose}>
@@ -66,14 +69,14 @@ export const TimerControlModal: React.FC<TimerControlModalProps> = ({
 
             <View className="flex-row justify-center gap-6">
               <Pressable
-                onPress={() => onReset(selectedTimer.stepIndex)}
+                onPress={() => resetTimer(selectedTimer.stepIndex)}
                 className="h-16 w-16 items-center justify-center rounded-full bg-surface-texture-dark active:scale-90"
               >
                 <ArrowCounterClockwise size={24} color="#78716c" />
               </Pressable>
 
               <Pressable
-                onPress={() => onToggle(selectedTimer.stepIndex)}
+                onPress={() => toggleTimer(selectedTimer.stepIndex)}
                 className={`h-20 w-20 items-center justify-center rounded-full shadow-lg active:scale-90 ${
                   selectedTimer.isRunning ? "bg-orange-100" : "bg-primary"
                 }`}
@@ -86,7 +89,7 @@ export const TimerControlModal: React.FC<TimerControlModalProps> = ({
               </Pressable>
 
               <Pressable
-                onPress={() => onStop(selectedTimer.stepIndex)}
+                onPress={() => stopTimer(selectedTimer.stepIndex)}
                 className="h-16 w-16 items-center justify-center rounded-full bg-red-50 active:scale-90"
               >
                 <Trash size={24} color="#ef4444" />
