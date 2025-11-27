@@ -33,30 +33,21 @@ export const TimerControlModal: React.FC<TimerControlModalProps> = ({
 
   // Derive selected timer from index
   const selectedTimer = useMemo(
-    () => (selectedTimerIndex !== null ? timers.find((t) => t.stepIndex === selectedTimerIndex) : undefined),
+    () =>
+      selectedTimerIndex !== null
+        ? timers.find((t) => t.stepIndex === selectedTimerIndex)
+        : undefined,
     [timers, selectedTimerIndex]
   );
 
   return (
     <Modal visible={!!selectedTimer} transparent animationType="fade" onRequestClose={onClose}>
-      <BlurView
-        intensity={70}
-        tint="dark"
-        className="flex-1 items-center justify-center bg-black"
-      >
+      <BlurView intensity={70} tint="dark" className="flex-1 items-center justify-center bg-black">
         <Pressable className="absolute inset-0" onPress={onClose} />
 
         {selectedTimer && (
-          <Animated.View
-            entering={ZoomIn}
-            exiting={ZoomOut}
-            className="w-[90%] max-w-[450px]"
-          >
-            <BlurView
-              intensity={90}
-              tint="dark"
-              className="rounded-3xl overflow-hidden"
-            >
+          <Animated.View entering={ZoomIn} exiting={ZoomOut} className="w-[90%] max-w-[450px]">
+            <BlurView intensity={90} tint="dark" className="rounded-3xl overflow-hidden">
               <View
                 style={{
                   shadowColor: "#000",
@@ -83,7 +74,7 @@ export const TimerControlModal: React.FC<TimerControlModalProps> = ({
                   <Text
                     className="font-mono text-6xl font-medium"
                     style={{
-                      color: selectedTimer.isRunning ? "#34d399" : "#f5f5f4"
+                      color: selectedTimer.isRunning ? "#34d399" : "#f5f5f4",
                     }}
                   >
                     {formatTime(selectedTimer.timeLeft)}
@@ -109,8 +100,9 @@ export const TimerControlModal: React.FC<TimerControlModalProps> = ({
 
                   <Pressable
                     onPress={() => toggleTimer(selectedTimer.stepIndex)}
-                    className={`h-20 w-20 items-center justify-center rounded-full shadow-lg active:scale-90 ${selectedTimer.isRunning ? "bg-orange-100" : "bg-emerald-500"
-                      }`}
+                    className={`h-20 w-20 items-center justify-center rounded-full shadow-lg active:scale-90 ${
+                      selectedTimer.isRunning ? "bg-orange-100" : "bg-emerald-500"
+                    }`}
                   >
                     {selectedTimer.isRunning ? (
                       <Pause size={32} color="#ea580c" weight="fill" />

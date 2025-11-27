@@ -44,7 +44,7 @@ export const useCookingController = (recipe: Recipe) => {
         if (navigation.currentStep < navigation.totalSteps - 1) {
           // Animate main content
           animations.slideAnim.value = withTiming(-1, { duration: ANIMATION_DURATION_MS }, () => {
-            'worklet';
+            "worklet";
             runOnJS(navigation.goToNextStep)();
             animations.slideAnim.value = 1;
             animations.slideAnim.value = withSpring(0);
@@ -52,14 +52,18 @@ export const useCookingController = (recipe: Recipe) => {
 
           // Animate "Up Next" (rotate down)
           const isGoingToLastStep = navigation.currentStep >= navigation.totalSteps - 2;
-          animations.nextStepAnim.value = withTiming(1, { duration: ANIMATION_DURATION_MS }, (finished) => {
-            'worklet';
-            // Only reset if we are NOT going to the last step (where Up Next disappears)
-            if (finished && !isGoingToLastStep) {
-              animations.nextStepAnim.value = -1; // Reset to top for next entrance
-              animations.nextStepAnim.value = withSpring(0);
+          animations.nextStepAnim.value = withTiming(
+            1,
+            { duration: ANIMATION_DURATION_MS },
+            (finished) => {
+              "worklet";
+              // Only reset if we are NOT going to the last step (where Up Next disappears)
+              if (finished && !isGoingToLastStep) {
+                animations.nextStepAnim.value = -1; // Reset to top for next entrance
+                animations.nextStepAnim.value = withSpring(0);
+              }
             }
-          });
+          );
         } else {
           // Finish Transition
 
@@ -79,45 +83,68 @@ export const useCookingController = (recipe: Recipe) => {
           const playFinishHaptic = async () => {
             // Initial soft taps
             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), FINISH_HAPTIC_DELAYS_MS[1]);
-            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), FINISH_HAPTIC_DELAYS_MS[2]);
+            setTimeout(
+              () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft),
+              FINISH_HAPTIC_DELAYS_MS[1]
+            );
+            setTimeout(
+              () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft),
+              FINISH_HAPTIC_DELAYS_MS[2]
+            );
 
             // Building up to a medium impact
-            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), FINISH_HAPTIC_DELAYS_MS[3]);
+            setTimeout(
+              () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium),
+              FINISH_HAPTIC_DELAYS_MS[3]
+            );
 
             // A slightly stronger peak
-            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium), FINISH_HAPTIC_DELAYS_MS[4]);
+            setTimeout(
+              () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium),
+              FINISH_HAPTIC_DELAYS_MS[4]
+            );
 
             // Fading out
-            setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft), FINISH_HAPTIC_DELAYS_MS[5]);
+            setTimeout(
+              () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft),
+              FINISH_HAPTIC_DELAYS_MS[5]
+            );
           };
           runOnJS(playFinishHaptic)();
 
           // 1. Swipe out the last card
           animations.slideAnim.value = withTiming(-1, { duration: ANIMATION_DURATION_LONG_MS });
           // 2. Fade out the rest of the content
-          animations.contentOpacity.value = withTiming(0, { duration: ANIMATION_DURATION_LONG_MS }, () => {
-            'worklet';
-            runOnJS(navigation.finishCooking)();
-          });
+          animations.contentOpacity.value = withTiming(
+            0,
+            { duration: ANIMATION_DURATION_LONG_MS },
+            () => {
+              "worklet";
+              runOnJS(navigation.finishCooking)();
+            }
+          );
         }
       } else {
         animations.directionAnim.value = -1;
         if (navigation.currentStep > 0) {
           // Animate main content
           animations.slideAnim.value = withTiming(1, { duration: ANIMATION_DURATION_MS }, () => {
-            'worklet';
+            "worklet";
             runOnJS(navigation.goToPrevStep)();
             animations.slideAnim.value = -1;
             animations.slideAnim.value = withSpring(0);
           });
 
           // Animate "Up Next" (rotate up)
-          animations.nextStepAnim.value = withTiming(-1, { duration: ANIMATION_DURATION_MS }, () => {
-            'worklet';
-            animations.nextStepAnim.value = 1; // Reset to bottom for next entrance
-            animations.nextStepAnim.value = withSpring(0);
-          });
+          animations.nextStepAnim.value = withTiming(
+            -1,
+            { duration: ANIMATION_DURATION_MS },
+            () => {
+              "worklet";
+              animations.nextStepAnim.value = 1; // Reset to bottom for next entrance
+              animations.nextStepAnim.value = withSpring(0);
+            }
+          );
         }
       }
     },

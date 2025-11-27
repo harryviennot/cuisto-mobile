@@ -1,10 +1,7 @@
 import { useMemo } from "react";
 import type { Recipe, Ingredient, Instruction } from "@/types/recipe";
 
-export const useIngredientFiltering = (
-  recipe: Recipe,
-  step: Instruction | undefined
-) => {
+export const useIngredientFiltering = (recipe: Recipe, step: Instruction | undefined) => {
   // Ingredients Logic - Memoize expensive filtering and grouping computation
   const allGroupedIngredients = useMemo(() => {
     // Defensive checks
