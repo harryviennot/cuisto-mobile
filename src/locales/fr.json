@@ -58,8 +58,11 @@
     "selectedCount_other": "{{count}} images sélectionnées",
     "methods": {
       "takePhotos": "Prendre des photos",
-      "chooseGallery": "Choisir dans la galerie"
+      "chooseGallery": "Choisir dans la galerie",
+      "importVideoLink": "Importer depuis un lien vidéo"
     },
+    "videoUrlPlaceholder": "Collez un lien TikTok, Instagram ou YouTube",
+    "extractFromVideo": "Extraire de la vidéo",
     "funMessages": {
       "0": "Lecture des notes secrètes de grand-mère...",
       "1": "Traduction des murmures du chef...",

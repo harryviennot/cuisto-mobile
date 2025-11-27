@@ -5,7 +5,7 @@
 import React from "react";
 
 export type ExtractionMethodType = "image" | "video" | "url" | "voice" | "paste";
-export type ExtractionSourceType = "camera" | "gallery" | "url" | "voice" | "paste";
+export type ExtractionSourceType = "camera" | "gallery" | "url" | "voice" | "paste" | "video";
 
 export interface ExtractionMethodConfig {
   id: ExtractionSourceType;
@@ -50,9 +50,16 @@ export const IMAGE_EXTRACTION_CONFIG = {
 };
 
 /**
- * Future: Video extraction methods
+ * Configuration for video extraction methods
  */
-export const VIDEO_EXTRACTION_METHODS: ExtractionMethodConfig[] = [];
+export const VIDEO_EXTRACTION_METHODS: ExtractionMethodConfig[] = [
+  {
+    id: "video",
+    type: "video",
+    label: "Import from Video Link",
+    icon: null, // Will be set in component with proper icon
+  },
+];
 
 /**
  * Future: URL extraction methods

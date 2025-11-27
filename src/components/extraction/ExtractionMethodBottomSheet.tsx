@@ -172,6 +172,9 @@ export const ExtractionMethodBottomSheet = forwardRef<
       onChange={handleSheetChanges}
       backgroundStyle={{ backgroundColor: "#fefdfb" }}
       handleIndicatorStyle={{ backgroundColor: "#334d43", width: 40 }}
+      keyboardBehavior="interactive"
+      keyboardBlurBehavior="restore"
+      android_keyboardInputMode="adjustResize"
     >
       {view === "method" ? (
         /* METHOD SELECTION VIEW */

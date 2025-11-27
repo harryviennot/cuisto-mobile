@@ -16,22 +16,26 @@ export function useImageExtraction() {
     setError(null);
 
     try {
+      console.log("[useImageExtraction] Starting image submission with", images.length, "images");
       const formData = new FormData();
 
       // Append each image to FormData
-      images.forEach((image) => {
+      images.forEach((image, index) => {
         const file: any = {
           uri: Platform.OS === "android" ? image.uri : image.uri.replace("file://", ""),
           type: image.type,
           name: image.name,
         };
-
+        console.log(`[useImageExtraction] Adding image ${index}:`, file.name, file.type);
         formData.append("files", file);
       });
 
+      console.log("[useImageExtraction] Calling extractionService.submitImages...");
       const response = await extractionService.submitImages(formData);
+      console.log("[useImageExtraction] Response received:", response);
       return response;
     } catch (err) {
+      console.error("[useImageExtraction] Error submitting images:", err);
       const error = err instanceof Error ? err : new Error(String(err));
       setError(error);
       return null;

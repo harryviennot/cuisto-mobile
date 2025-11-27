@@ -14,7 +14,7 @@ export default function RecipeLayout() {
         headerShown: false,
       }}
     >
-      <Stack.Screen name="preview" options={{ headerShown: false }} />
+      <Stack.Screen name="preview" options={{ headerShown: false, presentation: "fullScreenModal", animation: "slide_from_bottom", gestureEnabled: false }} />
       <Stack.Screen name="[id]/index" options={{ headerShown: false }} />
       <Stack.Screen
         name="[id]/edit"

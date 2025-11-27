@@ -58,8 +58,11 @@
     "selectedCount_other": "{{count}} images selected",
     "methods": {
       "takePhotos": "Take Photos",
-      "chooseGallery": "Choose from Gallery"
+      "chooseGallery": "Choose from Gallery",
+      "importVideoLink": "Import from Video Link"
     },
+    "videoUrlPlaceholder": "Paste TikTok, Instagram, or YouTube link",
+    "extractFromVideo": "Extract from Video",
     "funMessages": {
       "0": "Reading grandma's secret notes...",
       "1": "Translating chef whispers...",

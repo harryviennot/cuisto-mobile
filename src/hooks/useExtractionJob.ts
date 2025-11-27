@@ -57,11 +57,13 @@ export function useExtractionJob(config: UseExtractionJobConfig): UseExtractionJ
     loadToken();
   }, []);
 
-  // Check if job is complete
+  // Check if job is complete (includes duplicate status)
   const isJobComplete = useCallback((jobData: ExtractionJob | null): boolean => {
     if (!jobData) return false;
     return (
-      jobData.status === ExtractionStatus.COMPLETED || jobData.status === ExtractionStatus.FAILED
+      jobData.status === ExtractionStatus.COMPLETED ||
+      jobData.status === ExtractionStatus.FAILED ||
+      jobData.status === ExtractionStatus.DUPLICATE
     );
   }, []);
 
