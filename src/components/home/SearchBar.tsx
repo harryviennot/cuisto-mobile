@@ -4,6 +4,7 @@
  */
 import { useState, useEffect, useRef } from "react";
 import { View, TextInput, Pressable } from "react-native";
+import { useTranslation } from "react-i18next";
 import { MagnifyingGlass, X } from "phosphor-react-native";
 
 interface SearchBarProps {
@@ -21,14 +22,18 @@ export function SearchBar({
   value,
   onChangeText,
   onSearch,
-  placeholder = "Search recipes...",
+  placeholder,
   isLoading = false,
   debounceMs = 150, // Reduced from 300ms for snappier feel
   readOnly = false,
   autoFocus = false,
 }: SearchBarProps) {
+  const { t } = useTranslation();
   const [isFocused, setIsFocused] = useState(false);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Use translation as default placeholder
+  const placeholderText = placeholder || t("search.placeholder");
 
   // Debounced search effect (skip if readOnly)
   useEffect(() => {
@@ -79,7 +84,7 @@ export function SearchBar({
       <TextInput
         value={value}
         onChangeText={onChangeText}
-        placeholder={placeholder}
+        placeholder={placeholderText}
         placeholderTextColor="#a8a29e"
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}

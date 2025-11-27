@@ -1,14 +1,18 @@
 import "@/global.css";
-import "@/locales/i18n";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, useSegments } from "expo-router";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SearchProvider } from "@/contexts/SearchContext";
 import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { KeyboardProvider } from "react-native-keyboard-controller";
+import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
+import i18n from "@/locales/i18n";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "@/components/ui/ToastConfig";
 
 import {
   useFonts,
@@ -18,6 +22,15 @@ import {
   PlayfairDisplay_600SemiBold,
   PlayfairDisplay_500Medium,
 } from "@expo-google-fonts/playfair-display";
+
+// Configure Reanimated logger (disable strict mode warnings)
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false,
+});
+
+// Keep splash screen visible while we load resources
+SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +42,7 @@ const queryClient = new QueryClient({
 });
 
 export default function RootLayout() {
+  const [i18nInitialized, setI18nInitialized] = useState(false);
   const [fontsLoaded] = useFonts({
     PlayfairDisplay_400Regular,
     PlayfairDisplay_700Bold,
@@ -37,42 +51,63 @@ export default function RootLayout() {
     PlayfairDisplay_500Medium,
   });
 
+  const segments = useSegments();
+
   useEffect(() => {
-    if (fontsLoaded) {
+    // Wait for i18n to be ready
+    if (i18n.isInitialized) {
+      setI18nInitialized(true);
+    } else {
+      const checkI18n = setInterval(() => {
+        if (i18n.isInitialized) {
+          setI18nInitialized(true);
+          clearInterval(checkI18n);
+        }
+      }, 100);
+
+      return () => clearInterval(checkI18n);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (fontsLoaded && i18nInitialized) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, i18nInitialized]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded || !i18nInitialized) {
     return null;
   }
 
+  console.log(segments);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <QueryClientProvider client={queryClient}>
-        <BottomSheetModalProvider>
-          <AuthProvider>
-            <SearchProvider>
-              <Stack>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="search"
-                  options={{
-                    headerShown: false,
-                    presentation: "transparentModal",
-                    animation: "fade",
-                    animationDuration: 200,
-                  }}
-                />
-                <Stack.Screen name="test-creen" options={{ headerShown: false }} />
-                <Stack.Screen name="recipe/preview/index" options={{ headerShown: false }} />
-                <Stack.Screen name="recipe/preview/[recipeId]" options={{ headerShown: false }} />
-              </Stack>
-            </SearchProvider>
-          </AuthProvider>
-          <StatusBar barStyle="dark-content" />
-        </BottomSheetModalProvider>
-      </QueryClientProvider>
+      <KeyboardProvider>
+        <QueryClientProvider client={queryClient}>
+          <BottomSheetModalProvider>
+            <AuthProvider>
+              <SearchProvider>
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="index" />
+                  <Stack.Screen
+                    name="search"
+                    options={{
+                      presentation: "transparentModal",
+                      animation: "fade",
+                      animationDuration: 200,
+                    }}
+                  />
+                  <Stack.Screen name="test-creen" />
+                  <Stack.Screen name="recipe" />
+                </Stack>
+              </SearchProvider>
+            </AuthProvider>
+            <StatusBar barStyle="dark-content" />
+          </BottomSheetModalProvider>
+        </QueryClientProvider>
+      </KeyboardProvider>
+      <Toast config={toastConfig} topOffset={60} />
     </GestureHandlerRootView>
   );
 }

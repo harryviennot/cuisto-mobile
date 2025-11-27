@@ -2,13 +2,15 @@
  * Recipe card component for displaying recipe in grid view
  * Editorial Pinterest-style design with glassmorphism
  */
-import { memo } from "react";
+import { memo, useState } from "react";
 import { View, Text, Pressable, Platform } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Image as ImageIcon, Clock, Flame, Bookmark } from "phosphor-react-native";
 import { BlurView } from "expo-blur";
+import { useTranslation } from "react-i18next";
 import type { Recipe } from "@/types/recipe";
+import { Skeleton } from "../ui/Skeleton";
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -16,8 +18,19 @@ interface RecipeCardProps {
 }
 
 export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) {
+  const { t } = useTranslation();
+  const [imageLoading, setImageLoading] = useState(true);
+
   const handlePress = () => {
-    router.push(`/recipe/preview/${recipe.id}` as any);
+    // Navigate to recipe detail page with optimistic data
+    router.push({
+      pathname: `/recipe/[id]` as const,
+      params: {
+        id: recipe.id,
+        title: recipe.title,
+        ...(recipe.image_url && { imageUrl: recipe.image_url }),
+      },
+    });
   };
 
   // Calculate total time
@@ -55,7 +68,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
   const imageHeight = getImageHeight();
 
   // Get category or first tag
-  const categoryLabel = recipe.categories?.[0] || recipe.tags?.[0] || "RECIPE";
+  const categoryLabel = recipe.categories?.[0] || recipe.tags?.[0] || t("recipe.card.recipeLabel");
 
   // Get calories (placeholder - TODO: add nutrition field to Recipe type)
   const calories = 450;
@@ -79,18 +92,30 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
           }}
         >
           {recipe.image_url ? (
-            <Image
-              source={{ uri: recipe.image_url }}
-              style={{ width: "100%", height: "100%" }}
-              contentFit="cover"
-              transition={200}
-              cachePolicy="memory-disk"
-              priority="normal"
-            />
+            <>
+              {/* Loading Skeleton */}
+              {imageLoading && (
+                <View className="absolute inset-0 z-10">
+                  <Skeleton width="100%" height="100%" borderRadius={0} />
+                </View>
+              )}
+              {/* Image */}
+              <Image
+                source={{ uri: recipe.image_url }}
+                style={{ width: "100%", height: "100%" }}
+                contentFit="cover"
+                transition={200}
+                cachePolicy="memory-disk"
+                priority="normal"
+                onLoadStart={() => setImageLoading(true)}
+                onLoad={() => setImageLoading(false)}
+                onError={() => setImageLoading(false)}
+              />
+            </>
           ) : (
             <View className="w-full h-full items-center justify-center gap-2">
               <ImageIcon size={48} color="#a8a29e" weight="duotone" />
-              <Text className="text-stone-400 text-sm">No Image</Text>
+              <Text className="text-stone-400 text-sm">{t("recipe.card.noImage")}</Text>
             </View>
           )}
 
@@ -167,7 +192,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
               <View className="flex-row items-center gap-1">
                 <Clock size={12} color="#a8a29e" weight="regular" />
                 <Text className="text-[11px] font-medium tracking-wide text-stone-500">
-                  {totalTime} min
+                  {totalTime} {t("common.min")}
                 </Text>
               </View>
             )}
@@ -178,7 +203,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
             <View className="flex-row items-center gap-1">
               <Flame size={12} color="#a8a29e" weight="regular" />
               <Text className="text-[11px] font-medium tracking-wide text-stone-500">
-                {calories} kcal
+                {calories} {t("common.kcal")}
               </Text>
             </View>
           </View>

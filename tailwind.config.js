@@ -52,6 +52,7 @@ module.exports = {
         border: {
           DEFAULT: "#d4c5a9", // Default border
           light: "#e4dbc8", // Light border
+          button: "#e8e3d6", //Soft light border
           dark: "#b5a082", // Dark border
           input: "#78716c", // Input borders
         },
@@ -79,8 +80,16 @@ module.exports = {
         state: {
           success: "#507768", // forest-500
           warning: "#d1c1a5", // brown-300
-          error: "#b5a082", // brown-400
+          error: "#c65d47", // terracotta-500 - proper error/danger color
           info: "#91b5a7", // forest-300
+        },
+
+        // Semantic Colors
+        danger: {
+          DEFAULT: "#c65d47", // Warm terracotta red - main danger color
+          light: "#d98775", // Lighter shade for backgrounds
+          dark: "#a84a36", // Darker shade for emphasis
+          muted: "#e4b4a9", // Very light for subtle danger states
         },
 
         // Full color palettes (for granular control)
@@ -113,6 +122,18 @@ module.exports = {
           400: "#a8a29e",
           500: "#78716c",
           600: "#57534e",
+        },
+        terracotta: {
+          50: "#fdf5f3",
+          100: "#fae8e3",
+          200: "#f5d0c7",
+          300: "#e4b4a9",
+          400: "#d98775",
+          500: "#c65d47", // Main danger color
+          600: "#a84a36",
+          700: "#8a3d2d",
+          800: "#6d3224",
+          900: "#4f251b",
         },
       },
       fontFamily: {

@@ -28,7 +28,15 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
+      [
+        "expo-router",
+        {
+          "asyncRoutes": {
+            "web": true,
+            "default": "development"
+          }
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -46,7 +54,8 @@
         {
           "photosPermission": "The app accesses your photos to let you upload them to your recipes."
         }
-      ]
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

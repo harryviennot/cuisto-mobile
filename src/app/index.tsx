@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { View, Text, ActivityIndicator, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRef, useCallback } from "react";
-import { Camera, Image as ImageIcon, Plus, Warning } from "phosphor-react-native";
+import { CameraIcon, ImageIcon, PlusIcon, WarningIcon } from "phosphor-react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { BlurView } from "expo-blur";
@@ -18,8 +18,8 @@ import {
   IMAGE_EXTRACTION_CONFIG,
   type ExtractionSourceType,
 } from "@/config/extractionMethods";
-import { SearchButton } from "@/components/recipe/SearchButton";
-import { MasonryGrid } from "@/components/recipe/MasonryGrid";
+import { SearchButton } from "@/components/home/SearchButton";
+import { MasonryGrid } from "@/components/home/MasonryGrid";
 import { useRecipes } from "@/hooks/useRecipes";
 
 export default function Index() {
@@ -61,7 +61,7 @@ export default function Index() {
     if (bottomSheetRef.current) {
       try {
         bottomSheetRef.current.present();
-      } catch (error) {
+      } catch {
         console.error("Error calling present():", error);
       }
     } else {
@@ -89,14 +89,17 @@ export default function Index() {
         : t("extraction.methods.chooseGallery"),
     icon:
       method.id === "camera" ? (
-        <Camera size={32} color="#334d43" weight="duotone" />
+        <CameraIcon size={32} color="#334d43" weight="duotone" />
       ) : (
         <ImageIcon size={32} color="#334d43" weight="duotone" />
       ),
   }));
 
-  // All recipes
+  // All recipes - deduplicate by ID to handle any backend duplicates
   const allRecipes = data?.pages.flatMap((page) => page) ?? [];
+  const uniqueRecipes = Array.from(
+    new Map(allRecipes.map((recipe) => [recipe.id, recipe])).values()
+  );
 
   // Handle infinite scroll
   const handleEndReached = useCallback(() => {
@@ -141,7 +144,7 @@ export default function Index() {
         className="flex-1 items-center justify-center bg-surface p-6 gap-4"
         style={{ paddingTop: insets.top }}
       >
-        <Warning size={64} color="#ef4444" weight="duotone" />
+        <WarningIcon size={64} color="#ef4444" weight="duotone" />
         <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
           Oops! Something went wrong
         </Text>
@@ -161,7 +164,7 @@ export default function Index() {
   // Empty state component for MasonryGrid
   const EmptyComponent = (
     <View className="flex-1 items-center justify-center p-6 gap-4">
-      <Plus size={64} color="#334d43" weight="duotone" />
+      <PlusIcon size={64} color="#334d43" weight="duotone" />
       <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
         No recipes yet!
       </Text>
@@ -175,7 +178,7 @@ export default function Index() {
     <View className="flex-1 bg-surface">
       {/* Recipe Grid with Sticky Header */}
       <MasonryGrid
-        recipes={allRecipes}
+        recipes={uniqueRecipes}
         refreshing={isRefetching}
         onRefresh={handleRefresh}
         onEndReached={handleEndReached}
@@ -208,7 +211,7 @@ export default function Index() {
                 textShadowRadius: 1,
               }}
             >
-              Recipes
+              My Recipes
             </Text>
             <SearchButton
               onPress={handleSearchPress}

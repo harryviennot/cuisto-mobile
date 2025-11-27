@@ -2,7 +2,11 @@
  * Recipe service
  */
 import { api } from "../api-client";
-import type { Recipe } from "@/types/recipe";
+import type {
+  Recipe,
+  RecipeTimingsUpdateRequest,
+  RecipeTimingsUpdateResponse,
+} from "@/types/recipe";
 
 export const recipeService = {
   /**
@@ -74,6 +78,49 @@ export const recipeService = {
     const response = await api.get<Recipe[]>("/recipes/search", {
       params: { q: query, limit, offset },
     });
+    return response.data;
+  },
+
+  /**
+   * Update recipe rating with half-star precision
+   * @param recipeId - The recipe ID
+   * @param rating - Rating value (must be 0.5, 1.0, 1.5, ..., 5.0)
+   * @returns Complete updated recipe with new rating and aggregate statistics
+   */
+  updateRecipeRating: async (recipeId: string, rating: number): Promise<Recipe> => {
+    const response = await api.patch<Recipe>(`/recipes/${recipeId}/rating`, { rating });
+    return response.data;
+  },
+
+  /**
+   * Update recipe timings with smart ownership logic
+   * - If you own the recipe: Updates the base recipe (visible to all users)
+   * - If you don't own it: Updates your personal custom timings (only you see them)
+   *
+   * @param recipeId - The recipe ID
+   * @param timings - Prep and/or cook time in minutes
+   * @returns Updated timing information and ownership indicator
+   */
+  updateRecipeTimings: async (
+    recipeId: string,
+    timings: RecipeTimingsUpdateRequest
+  ): Promise<RecipeTimingsUpdateResponse> => {
+    const response = await api.patch<RecipeTimingsUpdateResponse>(
+      `/recipes/${recipeId}/timings`,
+      timings
+    );
+    return response.data;
+  },
+
+  /**
+   * Mark a recipe as cooked (increments cooked count)
+   * Updates the user's times_cooked counter and last_cooked_at timestamp
+   *
+   * @param recipeId - The recipe ID
+   * @returns Success message
+   */
+  markRecipeAsCooked: async (recipeId: string): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>(`/recipes/${recipeId}/cooked`);
     return response.data;
   },
 };

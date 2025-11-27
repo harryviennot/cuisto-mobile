@@ -13,7 +13,27 @@
     "success": "Success",
     "ok": "OK",
     "retry": "Retry",
-    "tryAgain": "Try Again"
+    "tryAgain": "Try Again",
+    "of": "of",
+    "previous": "Previous",
+    "next": "Next",
+    "finish": "Finish",
+    "minutes": "minutes",
+    "min": "min",
+    "minAbbr": "min",
+    "kcal": "kcal",
+    "servings": "servings",
+    "add": "Add",
+    "stay": "Stay",
+    "leave": "Leave",
+    "discard": "Discard",
+    "reset": "Reset",
+    "saveChanges": "Save Changes",
+    "bonAppetit": "Bon Appétit!",
+    "upNext": "Up Next",
+    "photo": "Photo",
+    "share": "Share",
+    "warning": "Warning"
   },
   "app": {
     "title": "CuiStudio",
@@ -69,6 +89,7 @@
     "cook": "Cook",
     "minutes": "min",
     "saveRecipe": "Save Recipe",
+    "rateRecipe": "Rate Recipe",
     "discard": "Discard",
     "discardRecipe": "Discard Recipe",
     "discardConfirm": "Are you sure you want to discard this recipe? This action cannot be undone.",
@@ -76,7 +97,142 @@
     "failedToSave": "Failed to save recipe",
     "failedToLoad": "Failed to load recipe. Please try again.",
     "failedToDiscard": "Failed to discard recipe",
-    "invalidJob": "Invalid extraction job"
+    "invalidJob": "Invalid extraction job",
+    "noImage": "No image",
+    "draftPreview": "AI Draft Preview",
+    "yourRating": "Your Rating",
+    "adjustServings": "Adjust servings to scale ingredients automatically",
+    "previewChanges": "Preview changes",
+    "savedSuccessfully": "Recipe saved successfully!",
+    "cookingMode": {
+      "title": "Cooking Mode",
+      "step": "Step",
+      "percentComplete": "% Complete",
+      "nextStep": "Next Step",
+      "timerRunning": "Timer Running",
+      "timerPaused": "Paused",
+      "recommendedTime": "Recommended Time",
+      "thisStep": "This Step",
+      "allItems": "All Items",
+      "noIngredientsForStep": "No ingredients needed for this step",
+      "requiredForThisStep": "Required for this step",
+      "viewFullList": "View Full List",
+      "finishedMessage": "You've successfully cooked {{title}}!",
+      "mastered": "You've mastered",
+      "completeSession": "Dinner's ready!",
+      "activeTimersWarning": "You have active timers running. Are you sure you want to finish?"
+    },
+    "card": {
+      "recipeLabel": "RECIPE",
+      "noImage": "No Image"
+    },
+    "actions": {
+      "saveRecipe": "Save Recipe",
+      "startCooking": "Start Cooking",
+      "share": "Share Recipe",
+      "shareDescription": "Share this recipe with your friends",
+      "edit": "Edit Recipe",
+      "delete": "Delete Recipe",
+      "deleteDescription": "This action cannot be undone"
+    },
+    "quickInfo": {
+      "tapToEdit": "Tap to edit"
+    },
+    "rating": {
+      "yourRating": "Your Rating",
+      "rateRecipe": "Rate Recipe",
+      "average": "Average",
+      "review": "review",
+      "reviews": "reviews",
+      "noReviews": "No reviews"
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "category": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "dessert": "Dessert",
+      "snack": "Snack",
+      "appetizer": "Appetizer",
+      "beverage": "Beverage",
+      "other": "Other"
+    },
+    "timeAdjuster": {
+      "modified": "Modified"
+    },
+    "editCookTime": {
+      "title": "Edit Recipe Times",
+      "description": "Customize times to match your pace",
+      "totalTime": "Total Time",
+      "prepTime": "Prep Time",
+      "cookTime": "Cook Time"
+    },
+    "edit": {
+      "unsavedChangesTitle": "Unsaved Changes",
+      "unsavedChangesMessage": "Careful, you have unsaved changes. Are you sure you want to leave?",
+      "updateSuccess": "Recipe updated successfully!",
+      "updateFailed": "Failed to update recipe. Please try again.",
+      "discardChangesTitle": "Discard Changes?",
+      "discardChangesMessage": "Are you sure you want to discard your changes? This cannot be undone.",
+      "permissionsDenied": "Sorry, we need camera roll permissions to change the recipe image.",
+      "changePhoto": "Change Photo",
+      "addPhoto": "Add Recipe Photo",
+      "recipeTitle": "Recipe Title",
+      "recipeTitlePlaceholder": "e.g., Grandma's Chocolate Chip Cookies",
+      "description": "Description (Optional)",
+      "descriptionPlaceholder": "A brief description of your recipe...",
+      "cookingInfo": "Cooking Info",
+      "servings": "Servings",
+      "prepTime": "Prep Time",
+      "cookTime": "Cook Time",
+      "totalTime": "Total Time",
+      "difficulty": "Difficulty",
+      "categoriesAndTags": "Categories & Tags",
+      "categories": "Categories",
+      "tags": "Tags",
+      "tagsPlaceholder": "e.g., vegan, gluten-free, quick...",
+      "ingredients": "Ingredients",
+      "ingredientGroups": "Ingredient Groups",
+      "ingredientGroupsPlaceholder": "e.g., For the sauce, For the dough...",
+      "noIngredientsYet": "No ingredients yet. Add your first ingredient below.",
+      "instructions": "Instructions",
+      "instructionGroups": "Instruction Groups",
+      "instructionGroupsPlaceholder": "e.g., Making the sauce, Assembling...",
+      "noInstructionsYet": "No instructions yet",
+      "noInstructionsDescription": "Add your first step below to get started",
+      "addIngredient": "Add Ingredient",
+      "editIngredient": "Edit Ingredient",
+      "quantity": "Qty",
+      "qtyAbbr": "Qty",
+      "unit": "Unit",
+      "ingredientName": "Ingredient name *",
+      "ingredientNotes": "Notes (e.g., chopped, optional)",
+      "addStep": "Add Step",
+      "editInstruction": "Edit Instruction",
+      "instructionTitle": "Title *",
+      "instructionTitlePlaceholder": "e.g., Preheat the oven",
+      "instructionDescription": "Instructions *",
+      "instructionDescriptionPlaceholder": "Describe the step in detail..."
+    },
+    "errors": {
+      "updateTimingFailed": "Failed to update timing. Please try again.",
+      "invalidRatingFormat": "Please select a rating in 0.5 increments (0.5 to 5.0)",
+      "rateRecipeFailed": "Failed to rate recipe. Please try again.",
+      "deleteTitle": "Delete Recipe",
+      "deleteConfirmation": "Are you sure you want to delete this recipe? This action cannot be undone."
+    },
+    "chefChat": {
+      "mockResponse": {
+        "substitute": "Substitutions depend on the specific ingredient. For example, you can often use Greek yogurt instead of sour cream, or maple syrup instead of honey. What specific ingredient are you looking to replace?",
+        "stepExplanation": "For this step, you need to focus on the current action. Make sure to watch the heat carefully!",
+        "consistency": "It should look smooth and consistent. If it's too thick, add a splash of liquid. If too thin, let it simmer a bit longer.",
+        "default": "That's a great question! While I'm just a demo AI right now, normally I'd give you a detailed culinary answer based on the recipe context. Keep cooking!"
+      }
+    }
   },
   "errors": {
     "extractionFailed": "Extraction Failed",
@@ -95,5 +251,13 @@
     "createdAt": "Created At",
     "metadata": "Metadata",
     "authenticationStatus": "Authentication Status"
+  },
+  "home": {
+    "header": {
+      "title": "Let's Cook!"
+    }
+  },
+  "search": {
+    "placeholder": "Search recipes..."
   }
 }

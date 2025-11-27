@@ -4,6 +4,7 @@
 import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 import { Alert } from "react-native";
+import Toast from "react-native-toast-message";
 
 export type ImagePickerSource = "camera" | "gallery";
 
@@ -90,7 +91,11 @@ export function useImagePicker() {
       return images;
     } catch (error) {
       console.error("Error picking images:", error);
-      Alert.alert("Error", "Failed to pick images. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to pick images. Please try again.",
+      });
       return null;
     } finally {
       setIsPickingImage(false);

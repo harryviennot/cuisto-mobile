@@ -3,7 +3,8 @@
  * Encapsulates image picking, confirmation, and submission logic
  */
 import { useState } from "react";
-import { Alert } from "react-native";
+
+import Toast from "react-native-toast-message";
 import { useRouter } from "expo-router";
 import { useImagePicker, type PickedImage } from "./useImagePicker";
 import { useImageExtraction } from "./useImageExtraction";
@@ -55,7 +56,11 @@ export function useImageExtractionFlow(maxImages: number = 3): UseImageExtractio
       setSelectedImages([]);
     } else {
       console.error("No response from submit images");
-      Alert.alert("Error", "Failed to submit images for extraction. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to submit images for extraction. Please try again.",
+      });
     }
   };
 

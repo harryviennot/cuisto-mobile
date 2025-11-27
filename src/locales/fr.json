@@ -13,7 +13,27 @@
     "success": "Succès",
     "ok": "OK",
     "retry": "Réessayer",
-    "tryAgain": "Réessayer"
+    "tryAgain": "Réessayer",
+    "of": "de",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "finish": "Terminer",
+    "upNext": "À venir",
+    "minutes": "minutes",
+    "min": "min",
+    "minAbbr": "min",
+    "kcal": "kcal",
+    "servings": "portions",
+    "add": "Ajouter",
+    "stay": "Rester",
+    "leave": "Quitter",
+    "discard": "Supprimer",
+    "reset": "Réinitialiser",
+    "saveChanges": "Enregistrer les modifications",
+    "bonAppetit": "Bon Appétit !",
+    "photo": "Photo",
+    "share": "Partager",
+    "warning": "Attention"
   },
   "app": {
     "title": "CuiStudio",
@@ -76,7 +96,144 @@
     "failedToSave": "Échec de l'enregistrement de la recette",
     "failedToLoad": "Échec du chargement de la recette. Veuillez réessayer.",
     "failedToDiscard": "Échec de la suppression de la recette",
-    "invalidJob": "Tâche d'extraction invalide"
+    "invalidJob": "Tâche d'extraction invalide",
+    "noImage": "Aucune image",
+    "draftPreview": "Aperçu du brouillon IA",
+    "yourRating": "Votre note",
+    "adjustServings": "Ajustez les portions pour mettre à l'échelle les ingrédients automatiquement",
+    "previewChanges": "Aperçu des modifications",
+    "savedSuccessfully": "Recette enregistrée avec succès !",
+    "cookingMode": {
+      "title": "Mode cuisson",
+      "step": "Étape",
+      "percentComplete": "% Terminé",
+      "stepCompleted": "Étape terminée",
+      "markAsComplete": "Marquer comme terminée",
+      "nextStep": "Étape suivante",
+      "timerRunning": "Minuteur en cours",
+      "timerPaused": "En pause",
+      "recommendedTime": "Temps recommandé",
+      "thisStep": "Cette étape",
+      "allItems": "Tous les éléments",
+      "noIngredientsForStep": "Aucun ingrédient nécessaire pour cette étape",
+      "requiredForThisStep": "Requis pour cette étape",
+      "viewFullList": "Voir la liste complète",
+      "mastered": "Vous avez maîtrisé",
+      "completeSession": "A table !",
+      "finishedMessage": "Félicitations ! Vous avez terminé {{title}}.",
+      "activeTimersWarning": "Vous avez encore des minuteurs actifs. Êtes-vous sûr de vouloir terminer la recette ?"
+    },
+    "card": {
+      "recipeLabel": "RECETTE",
+      "noImage": "Aucune image"
+    },
+    "actions": {
+      "saveRecipe": "Enregistrer la recette",
+      "startCooking": "Commencer la cuisson",
+      "share": "Partager la recette",
+      "shareDescription": "Partager cette recette avec vos amis",
+      "edit": "Modifier la recette",
+      "delete": "Supprimer la recette",
+      "deleteDescription": "Cette action ne peut pas être annulée"
+    },
+    "quickInfo": {
+      "tapToEdit": "Appuyer pour modifier"
+    },
+    "rating": {
+      "yourRating": "Votre note",
+      "rateRecipe": "Noter la recette",
+      "average": "Moyenne",
+      "review": "avis",
+      "reviews": "avis",
+      "noReviews": "Aucun avis"
+    },
+    "difficulty": {
+      "easy": "Facile",
+      "medium": "Moyen",
+      "hard": "Difficile"
+    },
+    "category": {
+      "breakfast": "Petit-déjeuner",
+      "lunch": "Déjeuner",
+      "dinner": "Dîner",
+      "dessert": "Dessert",
+      "snack": "Collation",
+      "appetizer": "Entrée",
+      "beverage": "Boisson",
+      "other": "Autre"
+    },
+    "timeAdjuster": {
+      "modified": "Modifié"
+    },
+    "editCookTime": {
+      "title": "Modifier les temps de recette",
+      "description": "Personnalisez les temps pour correspondre à votre rythme",
+      "totalTime": "Temps total",
+      "prepTime": "Temps de préparation",
+      "cookTime": "Temps de cuisson"
+    },
+    "edit": {
+      "unsavedChangesTitle": "Modifications non enregistrées",
+      "unsavedChangesMessage": "Attention, vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir partir ?",
+      "updateSuccess": "Recette mise à jour avec succès !",
+      "updateFailed": "Échec de la mise à jour de la recette. Veuillez réessayer.",
+      "discardChangesTitle": "Supprimer les modifications ?",
+      "discardChangesMessage": "Êtes-vous sûr de vouloir supprimer vos modifications ? Cette action ne peut pas être annulée.",
+      "permissionsDenied": "Désolé, nous avons besoin des autorisations de la galerie photo pour changer l'image de la recette.",
+      "changePhoto": "Changer la photo",
+      "addPhoto": "Ajouter une photo de recette",
+      "recipeTitle": "Titre de la recette",
+      "recipeTitlePlaceholder": "ex. : Les cookies aux pépites de chocolat de grand-mère",
+      "description": "Description (Optionnel)",
+      "descriptionPlaceholder": "Une brève description de votre recette...",
+      "cookingInfo": "Informations de cuisson",
+      "servings": "Portions",
+      "prepTime": "Temps de préparation",
+      "cookTime": "Temps de cuisson",
+      "totalTime": "Temps total",
+      "difficulty": "Difficulté",
+      "categoriesAndTags": "Catégories et étiquettes",
+      "categories": "Catégories",
+      "tags": "Étiquettes",
+      "tagsPlaceholder": "ex. : végétalien, sans gluten, rapide...",
+      "ingredients": "Ingrédients",
+      "ingredientGroups": "Groupes d'ingrédients",
+      "ingredientGroupsPlaceholder": "ex. : Pour la sauce, Pour la pâte...",
+      "noIngredientsYet": "Aucun ingrédient pour le moment. Ajoutez votre premier ingrédient ci-dessous.",
+      "instructions": "Instructions",
+      "instructionGroups": "Groupes d'instructions",
+      "instructionGroupsPlaceholder": "ex. : Préparation de la sauce, Assemblage...",
+      "noInstructionsYet": "Aucune instruction pour le moment",
+      "noInstructionsDescription": "Ajoutez votre première étape ci-dessous pour commencer",
+      "addIngredient": "Ajouter un ingrédient",
+      "editIngredient": "Modifier l'ingrédient",
+      "quantity": "Qté",
+      "qtyAbbr": "Qté",
+      "unit": "Unité",
+      "ingredientName": "Nom de l'ingrédient *",
+      "ingredientNotes": "Notes (ex. : haché, optionnel)",
+      "addStep": "Ajouter une étape",
+      "editInstruction": "Modifier l'instruction",
+      "instructionTitle": "Titre *",
+      "instructionTitlePlaceholder": "ex. : Préchauffer le four",
+      "instructionDescription": "Instructions *",
+      "instructionDescriptionPlaceholder": "Décrivez l'étape en détail..."
+    },
+    "errors": {
+      "updateTimingFailed": "Échec de la mise à jour du temps. Veuillez réessayer.",
+      "invalidRatingFormat": "Veuillez sélectionner une note par incréments de 0,5 (0,5 à 5,0)",
+      "rateRecipeFailed": "Échec de la notation de la recette. Veuillez réessayer.",
+      "deleteTitle": "Supprimer la recette",
+      "deleteConfirmation": "Êtes-vous sûr de vouloir supprimer cette recette ? Cette action ne peut pas être annulée."
+    },
+    "chefChat": {
+      "mockResponse": {
+        "substitute": "Les substitutions dépendent de l'ingrédient spécifique. Par exemple, vous pouvez souvent utiliser du yaourt grec au lieu de la crème sure, ou du sirop d'érable au lieu du miel. Quel ingrédient spécifique souhaitez-vous remplacer ?",
+        "stepExplanation": "Pour cette étape, vous devez vous concentrer sur l'action en cours. Assurez-vous de surveiller attentivement la chaleur !",
+        "consistency": "Cela devrait avoir l'air lisse et homogène. Si c'est trop épais, ajoutez un peu de liquide. Si c'est trop liquide, laissez mijoter un peu plus longtemps.",
+        "default": "C'est une excellente question ! Bien que je ne sois qu'une IA de démonstration pour le moment, normalement je vous donnerais une réponse culinaire détaillée basée sur le contexte de la recette. Continuez à cuisiner !"
+      }
+    }
   },
   "errors": {
     "extractionFailed": "Échec de l'extraction",
@@ -95,5 +252,13 @@
     "createdAt": "Créé le",
     "metadata": "Métadonnées",
     "authenticationStatus": "Statut d'authentification"
+  },
+  "home": {
+    "header": {
+      "title": "À vos fourneaux !"
+    }
+  },
+  "search": {
+    "placeholder": "Rechercher des recettes..."
   }
 }
