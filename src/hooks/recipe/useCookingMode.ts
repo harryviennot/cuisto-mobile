@@ -22,7 +22,7 @@ export function useCookingMode(instructions: Instruction[]) {
   const [isScreenLocked, setIsScreenLocked] = useState(false);
 
   // Refs for timer management
-  const intervalRefs = useRef<Map<string, number>>(new Map());
+  const intervalRefs = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
   /**
