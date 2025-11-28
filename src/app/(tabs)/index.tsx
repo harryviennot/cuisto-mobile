@@ -263,7 +263,7 @@ export default function Index() {
       />
 
       {/* FAB for adding recipes */}
-      <FAB onPress={handleFABPress} />
+      {/* <FAB onPress={handleFABPress} /> */}
 
       {/* Bottom sheet for extraction method selection */}
       <ExtractionMethodBottomSheet
