@@ -37,6 +37,8 @@ export default function RecipeDetailScreen() {
     );
   }
 
+  console.log(recipe?.source_type, recipe?.source_url);
+
   return (
     <RecipeDetail
       recipe={isTablet ? recipe : recipe}

@@ -58,8 +58,11 @@
     "selectedCount_other": "{{count}} images selected",
     "methods": {
       "takePhotos": "Take Photos",
-      "chooseGallery": "Choose from Gallery"
+      "chooseGallery": "Choose from Gallery",
+      "importVideoLink": "Import from Video Link"
     },
+    "videoUrlPlaceholder": "Paste TikTok, Instagram, or YouTube link",
+    "extractFromVideo": "Extract from Video",
     "funMessages": {
       "0": "Reading grandma's secret notes...",
       "1": "Translating chef whispers...",
@@ -238,7 +241,10 @@
     "extractionFailed": "Extraction Failed",
     "extractionError": "An error occurred while extracting the recipe",
     "connectionIssue": "Connection Issue",
-    "connectionMessage": "Unable to connect to the server after multiple attempts. Please check your internet connection and try again."
+    "connectionMessage": "Unable to connect to the server after multiple attempts. Please check your internet connection and try again.",
+    "notARecipe": "No Recipe Found",
+    "notARecipeMessage": "We couldn't find a recipe in the content you submitted. Please try with content that contains cooking instructions, ingredients, or a recipe card.",
+    "notARecipeHint": "Tips: Try submitting a recipe video, a photo of a recipe card, or text that includes ingredients and cooking steps."
   },
   "auth": {
     "status": "Status",

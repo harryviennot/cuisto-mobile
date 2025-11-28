@@ -67,6 +67,8 @@ export const RecipeMetadata = memo(function RecipeMetadata({
         onStartCooking={onStartCooking}
         isDraft={isDraft}
         isEditing={isEditing}
+        platform={recipe?.video_platform}
+        source_url={recipe?.source_url}
       />
 
       {/* Tags */}

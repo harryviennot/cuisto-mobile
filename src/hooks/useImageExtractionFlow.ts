@@ -41,25 +41,39 @@ export function useImageExtractionFlow(maxImages: number = 3): UseImageExtractio
   };
 
   const handleConfirm = async (images: PickedImage[]) => {
-    console.log("Submitting images for extraction...", images.length);
-    const response = await submitImages(images);
-    console.log("Extraction response:", response);
+    console.log("[useImageExtractionFlow] handleConfirm called with", images.length, "images");
 
-    if (response) {
-      console.log("Navigating to unified preview screen with job_id:", response.job_id);
-      // Navigate to unified recipe preview screen (handles extraction + preview)
-      router.push({
-        pathname: "/recipe/preview",
-        params: { jobId: response.job_id },
-      });
-      // Reset selection after successful submission
-      setSelectedImages([]);
-    } else {
-      console.error("No response from submit images");
+    try {
+      console.log("[useImageExtractionFlow] Calling submitImages...");
+      const response = await submitImages(images);
+      console.log("[useImageExtractionFlow] submitImages response:", response);
+
+      if (response && response.job_id) {
+        console.log("[useImageExtractionFlow] Navigating to preview with job_id:", response.job_id);
+        // Navigate to unified recipe preview screen (handles extraction + preview)
+        router.push({
+          pathname: "/recipe/preview",
+          params: { jobId: response.job_id },
+        });
+        // Reset selection after successful submission
+        setSelectedImages([]);
+      } else {
+        console.error(
+          "[useImageExtractionFlow] No response or job_id from submitImages:",
+          response
+        );
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to submit images for extraction. Please try again.",
+        });
+      }
+    } catch (err) {
+      console.error("[useImageExtractionFlow] Error in handleConfirm:", err);
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "Failed to submit images for extraction. Please try again.",
+        text2: "An unexpected error occurred. Please try again.",
       });
     }
   };

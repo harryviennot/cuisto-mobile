@@ -1,8 +1,8 @@
 import { useTranslation } from "react-i18next";
 import { View, Text, ActivityIndicator, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useRef, useCallback } from "react";
-import { CameraIcon, ImageIcon, PlusIcon, WarningIcon } from "phosphor-react-native";
+import { useRef, useCallback, useState } from "react";
+import { CameraIcon, ImageIcon, PlusIcon, WarningIcon, LinkSimple } from "phosphor-react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { BlurView } from "expo-blur";
@@ -12,10 +12,13 @@ import {
   type ExtractionMethodBottomSheetRef,
 } from "@/components/extraction/ExtractionMethodBottomSheet";
 import { ImageConfirmationView } from "@/components/extraction/confirmation/ImageConfirmationView";
+import { VideoConfirmationView } from "@/components/extraction/confirmation/VideoConfirmationView";
 import { useImageExtractionFlow } from "@/hooks/useImageExtractionFlow";
+import { useVideoExtractionFlow } from "@/hooks/useVideoExtractionFlow";
 import {
   IMAGE_EXTRACTION_METHODS,
   IMAGE_EXTRACTION_CONFIG,
+  VIDEO_EXTRACTION_METHODS,
   type ExtractionSourceType,
 } from "@/config/extractionMethods";
 import { SearchButton } from "@/components/home/SearchButton";
@@ -45,6 +48,12 @@ export default function Index() {
     IMAGE_EXTRACTION_CONFIG.maxItems
   );
 
+  // Use the video extraction flow hook
+  const { submitVideoUrl, isSubmitting: isVideoSubmitting } = useVideoExtractionFlow();
+
+  // Track which extraction type is active for rendering the correct confirmation view
+  const [activeExtractionType, setActiveExtractionType] = useState<"image" | "video" | null>(null);
+
   // Handle pull-to-refresh
   const handleRefresh = useCallback(async () => {
     queryClient.setQueryData(["recipes"], (oldData: any) => {
@@ -70,9 +79,17 @@ export default function Index() {
   };
 
   const handleMethodSelect = async (method: ExtractionSourceType) => {
-    const images = await handleSelectMethod(method);
-    if (images && images.length > 0) {
-      bottomSheetRef.current?.showConfirmation(images);
+    if (method === "video") {
+      // For video, show confirmation view with URL input
+      setActiveExtractionType("video");
+      bottomSheetRef.current?.showConfirmation([]);
+    } else {
+      // For image methods (camera/gallery), pick images then show confirmation
+      setActiveExtractionType("image");
+      const images = await handleSelectMethod(method);
+      if (images && images.length > 0) {
+        bottomSheetRef.current?.showConfirmation(images);
+      }
     }
   };
 
@@ -81,7 +98,7 @@ export default function Index() {
     bottomSheetRef.current?.dismiss();
   };
 
-  const methodsWithIcons = IMAGE_EXTRACTION_METHODS.map((method) => ({
+  const imageMethodsWithIcons = IMAGE_EXTRACTION_METHODS.map((method) => ({
     ...method,
     label:
       method.id === "camera"
@@ -94,6 +111,15 @@ export default function Index() {
         <ImageIcon size={32} color="#334d43" weight="duotone" />
       ),
   }));
+
+  const videoMethodsWithIcons = VIDEO_EXTRACTION_METHODS.map((method) => ({
+    ...method,
+    label: t("extraction.methods.importVideoLink"),
+    icon: <LinkSimple size={32} color="#334d43" weight="duotone" />,
+  }));
+
+  // Combine all extraction methods
+  const allMethodsWithIcons = [...imageMethodsWithIcons, ...videoMethodsWithIcons];
 
   // All recipes - deduplicate by ID to handle any backend duplicates
   const allRecipes = data?.pages.flatMap((page) => page) ?? [];
@@ -242,23 +268,34 @@ export default function Index() {
       {/* Bottom sheet for extraction method selection */}
       <ExtractionMethodBottomSheet
         ref={bottomSheetRef}
-        methods={methodsWithIcons}
-        title={t("extraction.addRecipeFromImage")}
+        methods={allMethodsWithIcons}
+        title={t("extraction.addRecipe")}
         onSelectMethod={handleMethodSelect}
         onConfirm={handleConfirmImages}
         onAddMore={handleAddMore}
-        renderConfirmation={(props) => (
-          <ImageConfirmationView
-            images={props.items}
-            uploadStates={props.uploadStates}
-            maxItems={IMAGE_EXTRACTION_CONFIG.maxItems}
-            onRemoveImage={props.onRemove}
-            onAddMore={props.onAddMore}
-            onConfirm={props.onConfirm}
-            onBack={props.onBack}
-            isUploading={props.isUploading}
-          />
-        )}
+        renderConfirmation={(props) =>
+          activeExtractionType === "video" ? (
+            <VideoConfirmationView
+              onConfirm={async (url) => {
+                await submitVideoUrl(url);
+                bottomSheetRef.current?.dismiss();
+              }}
+              onBack={props.onBack}
+              isSubmitting={isVideoSubmitting}
+            />
+          ) : (
+            <ImageConfirmationView
+              images={props.items}
+              uploadStates={props.uploadStates}
+              maxItems={IMAGE_EXTRACTION_CONFIG.maxItems}
+              onRemoveImage={props.onRemove}
+              onAddMore={props.onAddMore}
+              onConfirm={props.onConfirm}
+              onBack={props.onBack}
+              isUploading={props.isUploading}
+            />
+          )
+        }
       />
     </View>
   );

@@ -86,6 +86,9 @@ export interface Recipe {
   created_at: string;
   updated_at: string;
 
+  // Video source info (only for video-extracted recipes)
+  video_platform?: string; // tiktok, youtube, instagram
+
   // Rating aggregation
   average_rating?: number;
   rating_count: number;

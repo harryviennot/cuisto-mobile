@@ -1,11 +1,11 @@
 /**
- * Extraction progress indicator with smooth interpolation and shimmering text
+ * Extraction progress indicator with shimmering text
  * Features:
- * - Smooth progress bar that interpolates 25% of remaining on each poll
+ * - Progress bar showing real backend progress
  * - Shimmer effect on title text (OpenAI style)
  * - Rotating text with fun cooking-related sentences
  */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import { View, Text } from "react-native";
 import Animated, {
   useSharedValue,
@@ -14,7 +14,6 @@ import Animated, {
   withRepeat,
   withSequence,
   Easing,
-  runOnJS,
   interpolate,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
@@ -28,13 +27,8 @@ interface ExtractionProgressProps {
 export function ExtractionProgress({ progress, currentStep }: ExtractionProgressProps) {
   const { t } = useTranslation();
 
-  // Interpolated progress for smooth animation between polling updates
-  const interpolatedProgress = useSharedValue(0);
-  const lastRealProgress = useRef(0);
-  const pollCountRef = useRef(0);
-
-  // Display progress that matches the animated bar
-  const [displayProgress, setDisplayProgress] = useState(0);
+  // Animated progress value for smooth transitions
+  const animatedProgress = useSharedValue(0);
 
   // Shimmer animation for title (OpenAI style)
   const shimmerAnimation = useSharedValue(0);
@@ -57,51 +51,16 @@ export function ExtractionProgress({ progress, currentStep }: ExtractionProgress
     return { opacity };
   });
 
+  // Animate to the real progress value with smooth transition
   useEffect(() => {
-    // Every poll, add 25% of remaining distance and cap at 95%
-    const currentProgress = interpolatedProgress.value;
-
-    // If this is a real backend update, jump to it first
-    if (progress !== lastRealProgress.current && progress > currentProgress) {
-      lastRealProgress.current = progress;
-      pollCountRef.current = 0;
-
-      interpolatedProgress.value = withTiming(
-        progress,
-        {
-          duration: 600,
-          easing: Easing.out(Easing.cubic),
-        },
-        () => {
-          runOnJS(setDisplayProgress)(progress);
-        }
-      );
-    } else if (progress === lastRealProgress.current) {
-      // This is a poll without backend update - add 25% of remaining
-      pollCountRef.current += 1;
-
-      const gap = 95 - currentProgress; // Max out at 95%
-      const increment = gap * 0.25;
-      const nextTarget = Math.min(currentProgress + increment, 95);
-
-      if (nextTarget > currentProgress) {
-        interpolatedProgress.value = withTiming(
-          nextTarget,
-          {
-            duration: 1500,
-            easing: Easing.out(Easing.quad),
-          },
-          () => {
-            runOnJS(setDisplayProgress)(Math.round(nextTarget));
-          }
-        );
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [progress]); // Trigger on every poll
+    animatedProgress.value = withTiming(progress, {
+      duration: 400,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [progress, animatedProgress]);
 
   const progressBarStyle = useAnimatedStyle(() => ({
-    width: `${Math.min(interpolatedProgress.value, 100)}%`,
+    width: `${Math.min(animatedProgress.value, 100)}%`,
   }));
 
   return (
@@ -117,7 +76,7 @@ export function ExtractionProgress({ progress, currentStep }: ExtractionProgress
             {t("extraction.extractingRecipe")}
           </Animated.Text>
           <View className="rounded-full bg-primary/10 px-3 py-1">
-            <Text className="text-sm font-bold text-primary">{displayProgress}%</Text>
+            <Text className="text-sm font-bold text-primary">{progress}%</Text>
           </View>
         </View>
 
