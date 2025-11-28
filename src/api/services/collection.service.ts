@@ -28,10 +28,9 @@ export const collectionService = {
     limit = 20,
     offset = 0
   ): Promise<CollectionWithRecipes> => {
-    const response = await api.get<CollectionWithRecipes>(
-      `/collections/${collectionId}`,
-      { params: { limit, offset } }
-    );
+    const response = await api.get<CollectionWithRecipes>(`/collections/${collectionId}`, {
+      params: { limit, offset },
+    });
     return response.data;
   },
 
@@ -79,10 +78,7 @@ export const collectionService = {
   /**
    * Remove a recipe from a collection
    */
-  removeRecipeFromCollection: async (
-    collectionId: string,
-    recipeId: string
-  ): Promise<void> => {
+  removeRecipeFromCollection: async (collectionId: string, recipeId: string): Promise<void> => {
     await api.delete(`/collections/${collectionId}/recipes/${recipeId}`);
   },
 };

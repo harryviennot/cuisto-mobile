@@ -58,7 +58,10 @@ export function useImageExtractionFlow(maxImages: number = 3): UseImageExtractio
         // Reset selection after successful submission
         setSelectedImages([]);
       } else {
-        console.error("[useImageExtractionFlow] No response or job_id from submitImages:", response);
+        console.error(
+          "[useImageExtractionFlow] No response or job_id from submitImages:",
+          response
+        );
         Toast.show({
           type: "error",
           text1: "Error",

@@ -63,7 +63,7 @@ export const RecipeMetadata = memo(function RecipeMetadata({
         onSaveRecipe={() => onSave?.()}
         isOwner={isOwner}
         onEdit={() => router.push(`/recipe/${recipe.id}/edit`)}
-        onShare={() => { }}
+        onShare={() => {}}
         onStartCooking={onStartCooking}
         isDraft={isDraft}
         isEditing={isEditing}

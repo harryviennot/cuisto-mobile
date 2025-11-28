@@ -67,10 +67,7 @@ export const extractionService = {
    * @param recipeId - The recipe ID to save (from job.recipe_id)
    * @param collectionId - Optional collection ID (defaults to "extracted")
    */
-  saveRecipe: async (
-    recipeId: string,
-    collectionId?: string
-  ): Promise<RecipeSaveResponse> => {
+  saveRecipe: async (recipeId: string, collectionId?: string): Promise<RecipeSaveResponse> => {
     const request: SaveRecipeRequest = {
       recipe_id: recipeId,
       collection_id: collectionId,

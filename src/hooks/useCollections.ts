@@ -43,8 +43,7 @@ export function useCreateCollection() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: CreateCollectionRequest) =>
-      collectionService.createCollection(request),
+    mutationFn: (request: CreateCollectionRequest) => collectionService.createCollection(request),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
     },
@@ -79,8 +78,7 @@ export function useDeleteCollection() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (collectionId: string) =>
-      collectionService.deleteCollection(collectionId),
+    mutationFn: (collectionId: string) => collectionService.deleteCollection(collectionId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
     },
@@ -94,13 +92,8 @@ export function useAddToCollection() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      collectionId,
-      recipeId,
-    }: {
-      collectionId: string;
-      recipeId: string;
-    }) => collectionService.addRecipeToCollection(collectionId, recipeId),
+    mutationFn: ({ collectionId, recipeId }: { collectionId: string; recipeId: string }) =>
+      collectionService.addRecipeToCollection(collectionId, recipeId),
     onSuccess: (_, { collectionId }) => {
       queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, collectionId] });
@@ -115,13 +108,8 @@ export function useRemoveFromCollection() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      collectionId,
-      recipeId,
-    }: {
-      collectionId: string;
-      recipeId: string;
-    }) => collectionService.removeRecipeFromCollection(collectionId, recipeId),
+    mutationFn: ({ collectionId, recipeId }: { collectionId: string; recipeId: string }) =>
+      collectionService.removeRecipeFromCollection(collectionId, recipeId),
     onSuccess: (_, { collectionId }) => {
       queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
       queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, collectionId] });

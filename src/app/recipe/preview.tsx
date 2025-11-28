@@ -13,13 +13,13 @@
  * - recipe_id is set to the existing public recipe
  * - User can add the existing recipe to their collection
  */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
 import Toast from "react-native-toast-message";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { XIcon, ArrowCounterClockwiseIcon, UsersThreeIcon, MagnifyingGlassIcon } from "phosphor-react-native";
+import { XIcon, ArrowCounterClockwiseIcon, MagnifyingGlassIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { recipeService } from "@/api/services/recipe.service";
@@ -91,25 +91,28 @@ export default function UnifiedRecipePreviewScreen() {
     fetchInitialJob();
   }, [jobId, initialJobLoaded]);
 
+  const loadRecipe = useCallback(
+    async (id: string) => {
+      try {
+        const data = await recipeService.getRecipe(id);
+        setRecipe(data);
+      } catch {
+        Toast.show({
+          type: "error",
+          text1: t("common.error"),
+          text2: t("recipe.failedToLoad"),
+        });
+      }
+    },
+    [t]
+  );
+
   // Fetch recipe when recipe_id is available
   useEffect(() => {
     if (recipeId) {
       loadRecipe(recipeId);
     }
-  }, [recipeId]);
-
-  const loadRecipe = async (id: string) => {
-    try {
-      const data = await recipeService.getRecipe(id);
-      setRecipe(data);
-    } catch {
-      Toast.show({
-        type: "error",
-        text1: t("common.error"),
-        text2: t("recipe.failedToLoad"),
-      });
-    }
-  };
+  }, [recipeId, loadRecipe]);
 
   const handleRetry = () => {
     setRecipe(null);
@@ -309,7 +312,7 @@ export default function UnifiedRecipePreviewScreen() {
     return (
       <RecipeDetail
         recipe={recipe}
-        onBack={() => { }}
+        onBack={() => {}}
         isDraft={true}
         onDiscard={isDeleting ? undefined : handleDiscard}
         onSave={isSaving ? undefined : handleSave}
@@ -333,8 +336,8 @@ export default function UnifiedRecipePreviewScreen() {
       {__DEV__ && (
         <View className="border-t border-border bg-surface-overlay px-4 py-3">
           <Text className="font-mono text-xs text-foreground-secondary">
-            Status: {job?.status ?? "connecting"} | Progress: {job?.progress_percentage ?? 0}% |
-            Job ID: {jobId}
+            Status: {job?.status ?? "connecting"} | Progress: {job?.progress_percentage ?? 0}% | Job
+            ID: {jobId}
           </Text>
         </View>
       )}

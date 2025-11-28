@@ -77,9 +77,7 @@ export function VideoConfirmationView({
             onPress={handleConfirm}
             disabled={!isValidUrl}
             className={`flex-row items-center justify-center gap-2 rounded-2xl px-6 py-4 ${
-              !isValidUrl
-                ? "bg-interactive-muted opacity-50"
-                : "bg-primary active:bg-primary-dark"
+              !isValidUrl ? "bg-interactive-muted opacity-50" : "bg-primary active:bg-primary-dark"
             }`}
           >
             <Check size={20} color="#fefdfb" weight="bold" />
