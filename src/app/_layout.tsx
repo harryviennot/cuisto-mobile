@@ -89,7 +89,7 @@ export default function RootLayout() {
             <AuthProvider>
               <SearchProvider>
                 <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="index" />
+                  <Stack.Screen name="(tabs)" />
                   <Stack.Screen
                     name="search"
                     options={{
