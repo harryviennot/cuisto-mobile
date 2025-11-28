@@ -19,7 +19,7 @@ import Toast from "react-native-toast-message";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { XIcon, ArrowCounterClockwiseIcon, UsersThreeIcon } from "phosphor-react-native";
+import { XIcon, ArrowCounterClockwiseIcon, UsersThreeIcon, MagnifyingGlassIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { recipeService } from "@/api/services/recipe.service";
@@ -209,6 +209,36 @@ export default function UnifiedRecipePreviewScreen() {
             >
               <ArrowCounterClockwiseIcon size={20} color="#FFFFFF" weight="bold" />
               <Text className="text-base font-semibold text-white">{t("common.tryAgain")}</Text>
+            </Pressable>
+          </Animated.View>
+        </View>
+      </View>
+    );
+  }
+
+  // Not a recipe state - show friendly message with tips
+  if (job?.status === ExtractionStatus.NOT_A_RECIPE) {
+    return (
+      <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
+        <View className="flex-1 items-center justify-center px-6">
+          <Animated.View entering={FadeIn.delay(200)} className="items-center">
+            <View className="mb-4 h-16 w-16 items-center justify-center rounded-full bg-state-warning/10">
+              <MagnifyingGlassIcon size={32} color="#f59e0b" weight="bold" />
+            </View>
+            <Text className="mb-2 text-center text-xl font-semibold text-foreground">
+              {t("errors.notARecipe")}
+            </Text>
+            <Text className="mb-4 text-center text-foreground-secondary">
+              {t("errors.notARecipeMessage")}
+            </Text>
+            <Text className="mb-6 text-center text-sm text-foreground-secondary opacity-70">
+              {t("errors.notARecipeHint")}
+            </Text>
+            <Pressable
+              onPress={() => router.replace("/")}
+              className="rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
+            >
+              <Text className="text-base font-semibold text-white">{t("common.ok")}</Text>
             </Pressable>
           </Animated.View>
         </View>

@@ -16,6 +16,7 @@ export enum ExtractionStatus {
   COMPLETED = "completed",
   FAILED = "failed",
   DUPLICATE = "duplicate", // Video already extracted by someone else
+  NOT_A_RECIPE = "not_a_recipe", // Content doesn't contain a recipe
 }
 
 /**
