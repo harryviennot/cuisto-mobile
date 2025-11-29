@@ -20,6 +20,10 @@ import {
   ImageInput,
   VoiceInput,
 } from '@/components/extraction/methods';
+import { useImagePicker, type PickedImage } from '@/hooks/useImagePicker';
+
+type UploadState = 'uploading' | 'completed' | 'error';
+const MAX_IMAGES = 3;
 
 type Method = 'link' | 'text' | 'image' | 'voice';
 
@@ -56,8 +60,36 @@ export default function ExtractionScreen() {
 
   // State
   const [inputValue, setInputValue] = useState('');
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<PickedImage[]>([]);
+  const [uploadStates, setUploadStates] = useState<Record<number, UploadState>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Image picker hook
+  const { pickImages, pickSingleImage } = useImagePicker();
+
+  // Image handlers
+  const handleAddFromCamera = async () => {
+    const image = await pickSingleImage('camera');
+    if (image) {
+      setSelectedImages(prev => [...prev, image].slice(0, MAX_IMAGES));
+    }
+  };
+
+  const handleAddFromGallery = async () => {
+    const remainingSlots = MAX_IMAGES - selectedImages.length;
+    if (remainingSlots <= 0) return;
+
+    const images = await pickImages('gallery', { maxImages: remainingSlots });
+    if (images && images.length > 0) {
+      setSelectedImages(prev => [...prev, ...images].slice(0, MAX_IMAGES));
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    // Clear upload states and reindex
+    setUploadStates({});
+  };
 
   const handleClose = () => router.back();
 
@@ -66,19 +98,31 @@ export default function ExtractionScreen() {
     setIsSubmitting(true);
 
     try {
-      if (validMethod === 'image' && previewImage) {
-        const formData = new FormData();
-        const filename = previewImage.split('/').pop() || 'image.jpg';
-        const match = /\.(\w+)$/.exec(filename);
-        const type = match ? `image/${match[1]}` : 'image/jpeg';
+      if (validMethod === 'image' && selectedImages.length > 0) {
+        // Set all images to uploading state
+        const initialUploadStates: Record<number, UploadState> = {};
+        selectedImages.forEach((_, index) => {
+          initialUploadStates[index] = 'uploading';
+        });
+        setUploadStates(initialUploadStates);
 
-        formData.append('files', {
-          uri: previewImage,
-          name: filename,
-          type,
-        } as unknown as Blob);
+        const formData = new FormData();
+        selectedImages.forEach((image) => {
+          formData.append('files', {
+            uri: Platform.OS === 'android' ? image.uri : image.uri.replace('file://', ''),
+            name: image.name,
+            type: image.type,
+          } as unknown as Blob);
+        });
 
         const response = await extractionService.submitImages(formData);
+
+        // Mark all as completed on success
+        const completedStates: Record<number, UploadState> = {};
+        selectedImages.forEach((_, index) => {
+          completedStates[index] = 'completed';
+        });
+        setUploadStates(completedStates);
 
         if (response && response.job_id) {
           router.replace({
@@ -125,7 +169,7 @@ export default function ExtractionScreen() {
     }
   };
 
-  const canSubmit = validMethod === 'image' ? !!previewImage : !!inputValue.trim();
+  const canSubmit = validMethod === 'image' ? selectedImages.length > 0 : !!inputValue.trim();
 
   const renderMethodInput = () => {
     switch (validMethod) {
@@ -136,9 +180,13 @@ export default function ExtractionScreen() {
       case 'image':
         return (
           <ImageInput
-            previewImage={previewImage}
-            onImageSelected={setPreviewImage}
-            onClearImage={() => setPreviewImage(null)}
+            images={selectedImages}
+            uploadStates={uploadStates}
+            maxItems={MAX_IMAGES}
+            onRemoveImage={handleRemoveImage}
+            onAddFromCamera={handleAddFromCamera}
+            onAddFromGallery={handleAddFromGallery}
+            isUploading={isSubmitting}
           />
         );
       case 'voice':
@@ -183,13 +231,12 @@ export default function ExtractionScreen() {
             {renderMethodInput()}
 
             {/* SUBMIT ACTION */}
-            <View className="mt-auto pt-8 pb-8">
+            <View className="mt-auto" style={{ marginBottom: insets.bottom + 20 }}>
               <TouchableOpacity
                 onPress={handleExtract}
                 disabled={!canSubmit || isSubmitting}
-                className={`w-full h-14 bg-primary rounded-full flex-row items-center justify-center gap-3 shadow-lg shadow-primary/20 ${
-                  (!canSubmit || isSubmitting) ? 'opacity-50' : ''
-                }`}
+                className={`w-full h-14 bg-primary rounded-full flex-row items-center justify-center gap-3 shadow-lg shadow-primary/20 ${(!canSubmit || isSubmitting) ? 'opacity-50' : ''
+                  }`}
               >
                 <Text className="text-white text-sm font-bold tracking-widest uppercase">
                   {isSubmitting ? 'Processing...' : 'Draft Recipe'}

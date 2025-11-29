@@ -44,6 +44,9 @@ export function RecipeActionButtons({
 }: RecipeActionButtonsProps) {
   const { t } = useTranslation();
 
+  console.log("source_url", source_url);
+  console.log("platform", platform);
+
   if (isLoading) {
     return (
       <View className="flex-row gap-3 mb-6">
@@ -79,7 +82,7 @@ export function RecipeActionButtons({
         </ShadowItem>
       )}
 
-      {source_url && (
+      {(source_url && platform) && (
         <ShadowItem
           onPress={() => Linking.openURL(source_url)}
           className="w-14 h-14"
@@ -93,13 +96,6 @@ export function RecipeActionButtons({
           {platform === undefined && <LinkIcon size={20} color="#334d43" weight="regular" />}
         </ShadowItem>
       )}
-
-      {/* Edit Button
-      {isOwner && !isEditing && (
-        <ShadowItem onPress={onEdit} className="w-14 h-14 bg-white">
-          <PencilIcon size={20} color="#334d43" weight="regular" />
-        </ShadowItem>
-      )} */}
 
       {/* Share Button */}
       {isDraft ? (

@@ -1,91 +1,229 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { Camera, Images } from 'phosphor-react-native';
-import { BlurView } from 'expo-blur';
-import * as ImagePicker from 'expo-image-picker';
-import Toast from 'react-native-toast-message';
+import { View, Text, TouchableOpacity, useWindowDimensions, Pressable } from 'react-native';
+import { Camera, CameraIcon, CameraPlus, CameraPlusIcon, Images } from 'phosphor-react-native';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import { ImageUploadCard } from '../ImageUploadCard';
+import type { PickedImage } from '@/hooks/useImagePicker';
+import { AnimatedDropZone } from '@/components/ui/AnimatedDropZone';
+
+type UploadState = 'uploading' | 'completed' | 'error';
 
 interface ImageInputProps {
-  previewImage: string | null;
-  onImageSelected: (uri: string) => void;
-  onClearImage: () => void;
+  images: PickedImage[];
+  uploadStates: Record<number, UploadState>;
+  maxItems: number;
+  onRemoveImage: (index: number) => void;
+  onAddFromCamera: () => void;
+  onAddFromGallery: () => void;
+  isUploading: boolean;
 }
 
-export function ImageInput({ previewImage, onImageSelected, onClearImage }: ImageInputProps) {
-  const handleImageSelect = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.8,
-      base64: true,
-    });
+export function ImageInput({
+  images,
+  uploadStates,
+  maxItems,
+  onRemoveImage,
+  onAddFromCamera,
+  onAddFromGallery,
+  isUploading,
+}: ImageInputProps) {
+  const canAddMore = images.length < maxItems && !isUploading;
+  const { width, height } = useWindowDimensions();
 
-    if (!result.canceled && result.assets[0]) {
-      onImageSelected(result.assets[0].uri);
-    }
-  };
+  // Detect iPad landscape (width > height and width > 700)
+  const isLandscape = width > height;
+  const isTablet = Math.min(width, height) > 600;
+  const isTabletLandscape = isTablet && isLandscape;
 
-  const handleCameraSelect = async () => {
-    const permission = await ImagePicker.requestCameraPermissionsAsync();
-    if (!permission.granted) {
-      Toast.show({
-        type: 'error',
-        text1: 'Permission Required',
-        text2: 'Camera permission is needed to scan dishes.',
-      });
-      return;
-    }
+  // Empty state - show camera button and gallery option
+  if (images.length === 0) {
+    // For tablet landscape, constrain the empty state width
+    const emptyStateMaxWidth = isTabletLandscape ? Math.min(width * 0.5, 400) : undefined;
+    const emptyStateMaxHeight = isTabletLandscape ? height - 250 : undefined;
 
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      quality: 0.8,
-      base64: true,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      onImageSelected(result.assets[0].uri);
-    }
-  };
-
-  if (previewImage) {
     return (
-      <View className="flex-1 items-center">
-        <View className="w-full aspect-[3/4] rounded-[24px] overflow-hidden bg-stone-100 mb-6 relative">
-          <Image source={{ uri: previewImage }} className="w-full h-full" />
-          <TouchableOpacity
-            onPress={onClearImage}
-            className="absolute bottom-6 self-center rounded-full overflow-hidden"
+      <Animated.View className="flex-1" layout={LinearTransition.duration(200)}>
+        <View className="flex-1 justify-center items-center">
+          <View
+            className="w-full gap-4"
+            style={emptyStateMaxWidth ? { maxWidth: emptyStateMaxWidth } : undefined}
           >
-            <BlurView intensity={80} tint="light" className="px-6 py-3">
-              <Text className="text-sm font-bold text-foreground-heading">Retake Photo</Text>
-            </BlurView>
-          </TouchableOpacity>
+            <AnimatedDropZone
+
+              className="w-full aspect-square   bg-surface-overlay items-center justify-center gap-4"
+              style={emptyStateMaxHeight ? { maxHeight: emptyStateMaxHeight } : undefined}
+            >
+              <Pressable onPress={onAddFromCamera}>
+                <View className="items-center gap-2">
+                  <View className="rounded-full bg-primary/10 p-3">
+                    <CameraIcon size={24} color="#334d43" weight="duotone" />
+                  </View>
+                  <Text className="text-xs font-medium text-foreground-secondary">Take Photo</Text>
+                </View>
+              </Pressable>
+            </AnimatedDropZone>
+          </View>
         </View>
-      </View>
+        <Animated.View
+          className="flex-row justify-center gap-4 flex-wrap py-4"
+          entering={FadeIn.duration(200)}
+        >
+          <TouchableOpacity
+            onPress={onAddFromGallery}
+            className="flex-row items-center gap-2 px-4 py-3 bg-surface-overlay rounded-full"
+          >
+            <Images size={20} color="#78716c" weight="duotone" />
+            <Text className="text-sm font-semibold text-foreground-muted">Choose from Gallery</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </Animated.View>
     );
   }
 
-  return (
-    <View className="flex-1 items-center">
-      <View className="w-full gap-4">
-        <TouchableOpacity
-          onPress={handleCameraSelect}
-          className="w-full aspect-[3/4] rounded-[24px] border-2 border-dashed border-border-light bg-surface-overlay items-center justify-center gap-4"
-        >
-          <View className="w-16 h-16 rounded-full bg-white items-center justify-center shadow-sm">
-            <Camera size={32} color="#334d43" weight="duotone" />
-          </View>
-          <Text className="font-playfair text-lg text-foreground-muted">Take Photo</Text>
-        </TouchableOpacity>
+  // Dynamic layout based on image count
+  const renderImages = () => {
+    if (isTabletLandscape) {
+      const imageSize = (height - 48) / (Math.max(images.length, 2));
+      return (
+        <View className="flex-1 flex-row gap-3 justify-center items-center">
+          {images.map((image, index) => (
+            <Animated.View
+              key={image.uri}
+              style={{ width: imageSize, height: imageSize }}
+              entering={FadeIn.duration(200)}
+              exiting={FadeOut.duration(150)}
+              layout={LinearTransition.duration(200)}
+            >
+              <ImageUploadCard
+                image={image}
+                uploadState={uploadStates[index]}
+                onRemove={isUploading ? undefined : () => onRemoveImage(index)}
+              />
+            </Animated.View>
+          ))}
+        </View>
+      );
+    }
 
-        <TouchableOpacity
-          onPress={handleImageSelect}
-          className="flex-row items-center justify-center gap-2 p-4"
+    // Phone/Portrait layouts - use full width
+    if (images.length === 1) {
+      // Single image - full width
+      return (
+        <Animated.View
+          key={images[0].uri}
+          className="w-full"
+          entering={FadeIn.duration(200)}
+          exiting={FadeOut.duration(150)}
+          layout={LinearTransition.duration(200)}
         >
-          <Images size={20} color="#78716c" weight="duotone" />
-          <Text className="text-sm font-semibold text-foreground-muted">Choose from Gallery</Text>
-        </TouchableOpacity>
+          <ImageUploadCard
+            image={images[0]}
+            uploadState={uploadStates[0]}
+            onRemove={isUploading ? undefined : () => onRemoveImage(0)}
+          />
+        </Animated.View>
+      );
+    }
+
+    if (images.length === 2) {
+      // Two images - side by side, full width
+      return (
+        <View className="w-full flex-row gap-3">
+          {images.map((image, index) => (
+            <Animated.View
+              key={image.uri}
+              className="flex-1 aspect-square"
+              entering={FadeIn.duration(200)}
+              exiting={FadeOut.duration(150)}
+              layout={LinearTransition.duration(200)}
+            >
+              <ImageUploadCard
+                image={image}
+                uploadState={uploadStates[index]}
+                onRemove={isUploading ? undefined : () => onRemoveImage(index)}
+              />
+            </Animated.View>
+          ))}
+        </View>
+      );
+    }
+
+    // Three images - 2 on top, 1 centered below (full width)
+    return (
+      <View className="w-full gap-3">
+        <View className="flex-row gap-3">
+          {images.slice(0, 2).map((image, index) => (
+            <Animated.View
+              key={image.uri}
+              className="flex-1 aspect-square"
+              entering={FadeIn.duration(200)}
+              exiting={FadeOut.duration(150)}
+              layout={LinearTransition.duration(200)}
+            >
+              <ImageUploadCard
+                image={image}
+                uploadState={uploadStates[index]}
+                onRemove={isUploading ? undefined : () => onRemoveImage(index)}
+              />
+            </Animated.View>
+          ))}
+        </View>
+        <View className="flex-row justify-center">
+          <Animated.View
+            key={images[2].uri}
+            style={{ width: (width - 48 - 12) / 2 }} // Match the width of images above (accounting for padding and gap)
+            className="aspect-square"
+            entering={FadeIn.duration(200)}
+            exiting={FadeOut.duration(150)}
+            layout={LinearTransition.duration(200)}
+          >
+            <ImageUploadCard
+              image={images[2]}
+              uploadState={uploadStates[2]}
+              onRemove={isUploading ? undefined : () => onRemoveImage(2)}
+            />
+          </Animated.View>
+        </View>
       </View>
-    </View>
+    );
+  };
+
+  return (
+    <Animated.View className="flex-1" layout={LinearTransition.duration(200)}>
+      {/* Centered image grid */}
+      <View className="flex-1 justify-center">
+        {renderImages()}
+      </View>
+
+      {/* Camera and Gallery options at bottom */}
+      {(canAddMore && !isUploading) ? (
+        <Animated.View
+          className="flex-row justify-center gap-4 flex-wrap py-4"
+          entering={FadeIn.duration(200)}
+        >
+          <TouchableOpacity
+            onPress={onAddFromCamera}
+            className="flex-row items-center gap-2 px-4 py-3 bg-surface-overlay rounded-full"
+          >
+            <CameraPlus size={20} color="#78716c" weight="duotone" />
+            <Text className="text-sm font-semibold text-foreground-secondary">Take a picture</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onAddFromGallery}
+            className="flex-row items-center gap-2 px-4 py-3 bg-surface-overlay rounded-full"
+          >
+            <Images size={20} color="#78716c" weight="duotone" />
+            <Text className="text-sm font-semibold text-foreground-secondary">Choose from Gallery</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      ) : (
+        <Animated.View
+          className="flex-row justify-center gap-6 py-4"
+          entering={FadeIn.duration(200)}
+        >
+          <Text className="text-sm font-semibold text-foreground-secondary">You can only add 3 images</Text>
+        </Animated.View>
+      )}
+    </Animated.View>
   );
 }

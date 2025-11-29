@@ -48,7 +48,7 @@ export default function NewRecipeScreen() {
 
         <View className="flex-1 gap-4">
           {/* HERO CARD: Photo/Camera */}
-          <View className="h-64 rounded-[24px] overflow-hidden bg-primary-darker relative">
+          <View className="h-64 rounded-2xl overflow-hidden bg-primary-darker relative">
             <TouchableOpacity
               activeOpacity={0.9}
               onPress={() => handleMethodSelect('image')}
@@ -85,7 +85,7 @@ export default function NewRecipeScreen() {
           {/* SIDEBAR: Link, Voice, Text */}
           <View className="flex-1 gap-4">
             {/* Link Card */}
-            <View className="bg-[#E8E6E1] rounded-[24px] overflow-hidden">
+            <View className="bg-[#E8E6E1] rounded-2xl overflow-hidden">
               <TouchableOpacity
                 activeOpacity={0.9}
                 onPress={() => handleMethodSelect('link')}
@@ -106,7 +106,7 @@ export default function NewRecipeScreen() {
 
             {/* Bottom Split Row */}
             <View className="flex-row gap-4 h-40">
-              <View className="flex-1 bg-primary rounded-[24px] overflow-hidden">
+              <View className="flex-1 bg-primary rounded-2xl overflow-hidden">
                 <TouchableOpacity
                   activeOpacity={0.9}
                   onPress={() => handleMethodSelect('voice')}
@@ -122,7 +122,7 @@ export default function NewRecipeScreen() {
                 </TouchableOpacity>
               </View>
 
-              <View className="flex-1 bg-white border border-border-light rounded-[24px] overflow-hidden">
+              <View className="flex-1 bg-white border border-border-light rounded-2xl overflow-hidden">
                 <TouchableOpacity
                   activeOpacity={0.9}
                   onPress={() => handleMethodSelect('text')}
