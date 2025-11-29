@@ -79,8 +79,6 @@ export default function RootLayout() {
     return null;
   }
 
-  console.log(segments);
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <KeyboardProvider>
@@ -96,6 +94,14 @@ export default function RootLayout() {
                       presentation: "transparentModal",
                       animation: "fade",
                       animationDuration: 200,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="extraction"
+                    options={{
+                      presentation: "fullScreenModal",
+                      animation: "fade_from_bottom",
+                      animationDuration: 350,
                     }}
                   />
                   <Stack.Screen name="test-creen" />
