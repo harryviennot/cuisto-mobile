@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, useWindowDimensions, Pressable } from "react-native";
-import { Camera, CameraIcon, CameraPlus, CameraPlusIcon, Images } from "phosphor-react-native";
+import { CameraIcon, CameraPlusIcon, ImagesIcon } from "phosphor-react-native";
 import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
 import { ImageUploadCard } from "../ImageUploadCard";
 import type { PickedImage } from "@/hooks/useImagePicker";
@@ -74,7 +74,7 @@ export function ImageInput({
             onPress={onAddFromGallery}
             className="flex-row items-center gap-2 px-4 py-3 bg-surface-overlay rounded-full"
           >
-            <Images size={20} color="#78716c" weight="duotone" />
+            <ImagesIcon size={20} color="#78716c" weight="duotone" />
             <Text className="text-sm font-semibold text-foreground-muted">Choose from Gallery</Text>
           </TouchableOpacity>
         </Animated.View>
@@ -205,14 +205,14 @@ export function ImageInput({
             onPress={onAddFromCamera}
             className="flex-row items-center gap-2 px-4 py-3 bg-surface-overlay rounded-full"
           >
-            <CameraPlus size={20} color="#78716c" weight="duotone" />
+            <CameraPlusIcon size={20} color="#78716c" weight="duotone" />
             <Text className="text-sm font-semibold text-foreground-secondary">Take a picture</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onAddFromGallery}
             className="flex-row items-center gap-2 px-4 py-3 bg-surface-overlay rounded-full"
           >
-            <Images size={20} color="#78716c" weight="duotone" />
+            <ImagesIcon size={20} color="#78716c" weight="duotone" />
             <Text className="text-sm font-semibold text-foreground-secondary">
               Choose from Gallery
             </Text>

@@ -2,7 +2,7 @@ import "@/global.css";
 import { useEffect, useState, useRef } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack, useSegments } from "expo-router";
+import { Stack } from "expo-router";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SearchProvider } from "@/contexts/SearchContext";
 import { StatusBar } from "react-native";
@@ -51,8 +51,6 @@ export default function RootLayout() {
     PlayfairDisplay_600SemiBold,
     PlayfairDisplay_500Medium,
   });
-
-  const segments = useSegments();
 
   useEffect(() => {
     // Wait for i18n to be ready

@@ -52,7 +52,6 @@ export default function UnifiedRecipePreviewScreen() {
   const {
     job,
     error: jobError,
-    retry: retryConnection,
   } = useExtractionJob({
     jobId: jobId || "",
     onComplete: async (completedJob) => {
@@ -118,14 +117,6 @@ export default function UnifiedRecipePreviewScreen() {
       loadRecipe(recipeId);
     }
   }, [recipeId, loadRecipe]);
-
-  const handleRetry = () => {
-    setRecipe(null);
-    setRecipeId(null);
-    setIsDuplicate(false);
-    retryConnection();
-  };
-
   /**
    * Save the recipe to collection.
    * This publishes the draft (is_draft=false) and adds to user's collection.
@@ -323,7 +314,7 @@ export default function UnifiedRecipePreviewScreen() {
     return (
       <RecipeDetail
         recipe={recipe}
-        onBack={() => {}}
+        onBack={() => { }}
         isDraft={true}
         onDiscard={isDeleting ? undefined : handleDiscard}
         onSave={isSaving ? undefined : handleSave}

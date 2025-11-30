@@ -42,7 +42,7 @@ export function VoiceInput({ value, onChangeText }: VoiceInputProps) {
       <View className="max-w-[280px] min-h-[100px] items-center">
         {value ? (
           <Text className="font-playfair text-2xl text-foreground-heading text-center leading-8">
-            "{value}"
+            &ldquo;{value}&rdquo;
           </Text>
         ) : (
           <Text className="text-base font-medium text-foreground-tertiary">
