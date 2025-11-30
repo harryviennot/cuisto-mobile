@@ -212,7 +212,10 @@ export default function UnifiedRecipePreviewScreen() {
               {job.error_message || t("errors.extractionError")}
             </Text>
             <Pressable
-              onPress={handleRetry}
+              onPress={() => {
+                router.dismissAll()
+                router.push(`/extraction/${job.source_type}`)
+              }}
               className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
             >
               <ArrowCounterClockwiseIcon size={20} color="#FFFFFF" weight="bold" />
@@ -220,7 +223,7 @@ export default function UnifiedRecipePreviewScreen() {
             </Pressable>
           </Animated.View>
         </View>
-      </View>
+      </View >
     );
   }
 
@@ -271,8 +274,7 @@ export default function UnifiedRecipePreviewScreen() {
             </Text>
             <Pressable
               onPress={() => {
-                router.dismissAll();
-                router.push("/extraction/text");
+                router.replace("/extraction/text");
               }}
               className="rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
             >
