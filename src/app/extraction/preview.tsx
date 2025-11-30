@@ -304,7 +304,9 @@ export default function UnifiedRecipePreviewScreen() {
               {t("errors.connectionMessage")}
             </Text>
             <Pressable
-              onPress={handleRetry}
+              onPress={() => {
+                router.dismissAll();
+              }}
               className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
             >
               <ArrowCounterClockwiseIcon size={20} color="#FFFFFF" weight="bold" />
@@ -332,7 +334,7 @@ export default function UnifiedRecipePreviewScreen() {
 
   // Loading state - show progress (always render with default 0% if job not yet loaded)
   return (
-    <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-surface" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
       {/* Progress indicator - always show, even before first SSE event */}
       <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-1">
         <ExtractionProgress
@@ -340,6 +342,18 @@ export default function UnifiedRecipePreviewScreen() {
           currentStep={job?.current_step}
         />
       </Animated.View>
+
+      <View className="items-center justify-center px-6">
+        <Pressable
+          onPress={() => {
+            router.dismissAll();
+          }}
+          className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
+        >
+          <ArrowCounterClockwiseIcon size={20} color="#FFFFFF" weight="bold" />
+          <Text className="text-base font-semibold text-white">{t("common.cancel")}</Text>
+        </Pressable>
+      </View>
 
       {/* Debug info (optional - only in dev mode) */}
       {__DEV__ && (

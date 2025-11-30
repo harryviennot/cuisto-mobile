@@ -99,7 +99,7 @@ export default function NewRecipeScreen() {
               </View>
               <View>
                 <Text className="font-playfair-bold text-xl text-foreground-heading mb-1">Import from Web</Text>
-                <Text className="text-[10px] font-bold tracking-widest text-foreground-muted uppercase">SOCIALS • BLOGS • SITES</Text>
+                <Text className="text-[10px] font-bold tracking-widest text-foreground-muted uppercase">TIKTOKS • REELS • SHORTS • BLOGS • SITES</Text>
               </View>
             </TouchableOpacity>
           </View>
