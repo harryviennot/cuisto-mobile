@@ -345,8 +345,9 @@ export default function UnifiedRecipePreviewScreen() {
 
       <View className="items-center justify-center px-6">
         <Pressable
-          onPress={() => {
+          onPress={async () => {
             router.dismissAll();
+            await extractionService.cancelJob(jobId);
           }}
           className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
         >

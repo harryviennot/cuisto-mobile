@@ -19,6 +19,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useDeviceType } from '@/hooks/useDeviceType';
+import Toast from 'react-native-toast-message';
 
 type ExtractionMethod = 'image' | 'link' | 'voice' | 'text';
 
@@ -109,7 +110,12 @@ export default function NewRecipeScreen() {
             <View className="flex-1 bg-primary rounded-2xl overflow-hidden">
               <TouchableOpacity
                 activeOpacity={0.9}
-                onPress={() => handleMethodSelect('voice')}
+                // onPress={() => handleMethodSelect('voice')}
+                onPress={() => Toast.show({
+                  type: 'info',
+                  text1: 'Coming soon',
+                  text2: 'Dictate is not available yet',
+                })}
                 className="flex-1 p-5 justify-between"
               >
                 <View className="w-10 h-10 rounded-full bg-white/10 items-center justify-center">
