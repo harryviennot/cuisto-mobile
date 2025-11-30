@@ -3,11 +3,11 @@
  */
 
 export enum SourceType {
-  URL = "url",
+  VIDEO = "video", // Deprecated - use LINK instead
   PHOTO = "photo",
   PASTE = "paste",
   VOICE = "voice",
-  VIDEO = "video",
+  LINK = "link", // Auto-detects video vs webpage
 }
 
 export enum ExtractionStatus {

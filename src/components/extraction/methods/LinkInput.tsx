@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, TextInput } from 'react-native';
-import { GlobeHemisphereWest } from 'phosphor-react-native';
+import { View, TextInput, TouchableOpacity } from 'react-native';
+import { GlobeHemisphereWest, ClipboardText } from 'phosphor-react-native';
+import * as Clipboard from 'expo-clipboard';
 
 interface LinkInputProps {
   value: string;
@@ -8,14 +9,23 @@ interface LinkInputProps {
 }
 
 export function LinkInput({ value, onChangeText }: LinkInputProps) {
+  const handlePasteFromClipboard = async () => {
+    const clipboardContent = await Clipboard.getStringAsync();
+    if (clipboardContent) {
+      onChangeText(clipboardContent);
+    }
+  };
+
   return (
     <View className="bg-white rounded-xl p-2 flex-row items-center border border-border-light">
-      <View className="w-12 h-12 rounded-[18px] bg-stone-50 items-center justify-center mr-3">
-        <GlobeHemisphereWest size={24} color="#a8a29e" weight="duotone" />
-      </View>
+      <TouchableOpacity
+        onPress={handlePasteFromClipboard}
+        className="w-12 h-12 rounded-lg bg-primary/10 items-center justify-center mr-2"
+      >
+        <ClipboardText size={22} color="#334d43" weight="duotone" />
+      </TouchableOpacity>
       <TextInput
         className="flex-1 h-12 text-lg text-foreground-heading leading-snug"
-        // style={{ color: "#a8a29e", flex: 1, height: 48, fontSize: 16, fontWeight: "normal", fontFamily: "PlayfairDisplay_400Regular" }}
         placeholder="Paste URL here..."
         placeholderTextColor="#a8a29e"
         value={value}
@@ -25,6 +35,7 @@ export function LinkInput({ value, onChangeText }: LinkInputProps) {
         keyboardType="url"
         autoFocus
       />
+
     </View>
   );
 }

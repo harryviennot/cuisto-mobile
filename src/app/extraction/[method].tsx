@@ -131,11 +131,11 @@ export default function ExtractionScreen() {
           });
         }
       } else if (inputValue.trim()) {
-        let sourceType = SourceType.URL;
+        let sourceType = SourceType.LINK;
         let payload: Record<string, string> = {};
 
         if (validMethod === 'link') {
-          sourceType = SourceType.URL;
+          sourceType = SourceType.LINK;
           payload = { source_url: inputValue };
         } else if (validMethod === 'text') {
           sourceType = SourceType.PASTE;

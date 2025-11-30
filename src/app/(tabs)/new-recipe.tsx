@@ -18,12 +18,14 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useDeviceType } from '@/hooks/useDeviceType';
 
 type ExtractionMethod = 'image' | 'link' | 'voice' | 'text';
 
 export default function NewRecipeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { isTablet } = useDeviceType();
 
   const handleMethodSelect = (method: ExtractionMethod) => {
     router.push(`/extraction/${method}`);
@@ -32,9 +34,9 @@ export default function NewRecipeScreen() {
   return (
     <View className="flex-1 bg-surface">
       <Animated.View
-        entering={FadeInDown.duration(700).springify()}
+        entering={FadeInDown.duration(1000)}
         className="flex-1 p-6"
-        style={{ paddingTop: insets.top + 24 }}
+        style={{ paddingTop: insets.top + 24, marginBottom: isTablet ? insets.bottom + 48 : 0 }}
       >
         <View className="mb-8">
           <Text className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-tertiary mb-3">
@@ -47,8 +49,8 @@ export default function NewRecipeScreen() {
         </View>
 
         <View className="flex-1 gap-4">
-          {/* HERO CARD: Photo/Camera */}
-          <View className="h-64 rounded-2xl overflow-hidden bg-primary-darker relative">
+          {/* HERO CARD: Photo/Camera - flex-3 */}
+          <View className="flex-[3] rounded-2xl overflow-hidden bg-primary-darker relative">
             <TouchableOpacity
               activeOpacity={0.9}
               onPress={() => handleMethodSelect('image')}
@@ -56,7 +58,7 @@ export default function NewRecipeScreen() {
             >
               <View className="absolute inset-0">
                 <Image
-                  source={{ uri: "https://images.unsplash.com/photo-1495521841625-233ee87a4633?auto=format&fit=crop&q=80&w=800" }}
+                  source={require('../../../assets/images/cookingimage.png')}
                   className="w-full h-full opacity-70"
                 />
                 <LinearGradient
@@ -82,61 +84,58 @@ export default function NewRecipeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* SIDEBAR: Link, Voice, Text */}
-          <View className="flex-1 gap-4">
-            {/* Link Card */}
-            <View className="bg-[#E8E6E1] rounded-2xl overflow-hidden">
+          {/* Import from Web - flex-2 */}
+          <View className="flex-[2] bg-[#E8E6E1] rounded-2xl overflow-hidden">
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => handleMethodSelect('link')}
+              className="flex-1 p-6 justify-between"
+            >
+              <View className="flex-row justify-between items-start">
+                <View className="w-10 h-10 rounded-full bg-stone-900/5 items-center justify-center">
+                  <LinkIcon size={20} color="#57534e" weight="duotone" />
+                </View>
+                <GlobeHemisphereWest size={64} color="#e7e5e4" weight="thin" style={{ position: 'absolute', right: -10, top: -10, opacity: 0.5 }} />
+              </View>
+              <View>
+                <Text className="font-playfair-bold text-xl text-foreground-heading mb-1">Import from Web</Text>
+                <Text className="text-[10px] font-bold tracking-widest text-foreground-muted uppercase">SOCIALS • BLOGS • SITES</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* Dictate/Write row - flex-2 */}
+          <View className="flex-[2] flex-row gap-4">
+            <View className="flex-1 bg-primary rounded-2xl overflow-hidden">
               <TouchableOpacity
                 activeOpacity={0.9}
-                onPress={() => handleMethodSelect('link')}
-                className="p-6 min-h-[140px] justify-between"
+                onPress={() => handleMethodSelect('voice')}
+                className="flex-1 p-5 justify-between"
               >
-                <View className="flex-row justify-between items-start">
-                  <View className="w-10 h-10 rounded-full bg-stone-900/5 items-center justify-center">
-                    <LinkIcon size={20} color="#57534e" weight="duotone" />
-                  </View>
-                  <GlobeHemisphereWest size={64} color="#e7e5e4" weight="thin" style={{ position: 'absolute', right: -10, top: -10, opacity: 0.5 }} />
+                <View className="w-10 h-10 rounded-full bg-white/10 items-center justify-center">
+                  <Microphone size={20} color="#fff" weight="duotone" />
                 </View>
                 <View>
-                  <Text className="font-playfair-bold text-xl text-foreground-heading mb-1">Import from Web</Text>
-                  <Text className="text-[10px] font-bold tracking-widest text-foreground-muted uppercase">SOCIALS • BLOGS • SITES</Text>
+                  <Text className="font-playfair-bold text-lg text-white mb-0.5">Dictate</Text>
+                  <Text className="text-white/60 text-[10px] font-bold tracking-widest uppercase">VOICE NOTE</Text>
                 </View>
               </TouchableOpacity>
             </View>
 
-            {/* Bottom Split Row */}
-            <View className="flex-row gap-4 h-40">
-              <View className="flex-1 bg-primary rounded-2xl overflow-hidden">
-                <TouchableOpacity
-                  activeOpacity={0.9}
-                  onPress={() => handleMethodSelect('voice')}
-                  className="flex-1 p-5 justify-between"
-                >
-                  <View className="w-10 h-10 rounded-full bg-white/10 items-center justify-center">
-                    <Microphone size={20} color="#fff" weight="duotone" />
-                  </View>
-                  <View>
-                    <Text className="font-playfair-bold text-lg text-white mb-0.5">Dictate</Text>
-                    <Text className="text-white/60 text-[10px] font-bold tracking-widest uppercase">VOICE NOTE</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-
-              <View className="flex-1 bg-white border border-border-light rounded-2xl overflow-hidden">
-                <TouchableOpacity
-                  activeOpacity={0.9}
-                  onPress={() => handleMethodSelect('text')}
-                  className="flex-1 p-5 justify-between"
-                >
-                  <View className="w-10 h-10 rounded-full bg-stone-50 items-center justify-center">
-                    <Pencil size={20} color="#3a3226" weight="duotone" />
-                  </View>
-                  <View>
-                    <Text className="font-playfair-bold text-lg text-foreground-heading mb-0.5">Write</Text>
-                    <Text className="text-foreground-tertiary text-[10px] font-bold tracking-widest uppercase">MANUAL ENTRY</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
+            <View className="flex-1 bg-white border border-border-light rounded-2xl overflow-hidden">
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() => handleMethodSelect('text')}
+                className="flex-1 p-5 justify-between"
+              >
+                <View className="w-10 h-10 rounded-full bg-stone-50 items-center justify-center">
+                  <Pencil size={20} color="#3a3226" weight="duotone" />
+                </View>
+                <View>
+                  <Text className="font-playfair-bold text-lg text-foreground-heading mb-0.5">Write</Text>
+                  <Text className="text-foreground-tertiary text-[10px] font-bold tracking-widest uppercase">MANUAL ENTRY</Text>
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
