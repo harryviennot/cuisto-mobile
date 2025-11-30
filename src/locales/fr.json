@@ -63,6 +63,64 @@
     },
     "videoUrlPlaceholder": "Collez un lien TikTok, Instagram ou YouTube",
     "extractFromVideo": "Extraire de la vidéo",
+    "imageInput": {
+      "takePhoto": "Prendre une photo",
+      "chooseFromGallery": "Choisir dans la galerie",
+      "takePicture": "Prendre une photo",
+      "maxImagesWarning": "Vous pouvez ajouter seulement {{max}} images"
+    },
+    "voiceInput": {
+      "tapToRecord": "Appuyer pour commencer l'enregistrement"
+    },
+    "textInput": {
+      "placeholder": "Commencez à écrire..."
+    },
+    "linkInput": {
+      "placeholder": "Collez l'URL ici..."
+    },
+    "methodScreen": {
+      "link": {
+        "title": "Coller un lien",
+        "subtitle": "DEPUIS LE WEB"
+      },
+      "text": {
+        "title": "Journal du Chef",
+        "subtitle": "SAISIE MANUELLE"
+      },
+      "image": {
+        "title": "Capture",
+        "subtitle": "SOURCE PHOTO"
+      },
+      "voice": {
+        "title": "Dictée",
+        "subtitle": "NOTE VOCALE"
+      },
+      "processing": "Traitement...",
+      "draftRecipe": "Brouillon de recette"
+    },
+    "newRecipe": {
+      "subtitle": "NOUVELLE ENTRÉE",
+      "title": "Ajoutez à votre",
+      "titleHighlight": "collection.",
+      "scanDish": {
+        "title": "Scanner un plat",
+        "subtitle": "DEPUIS UNE PHOTO OU MENU"
+      },
+      "importWeb": {
+        "title": "Importer du Web",
+        "subtitle": "TIKTOKS • REELS • SHORTS • BLOGS • SITES"
+      },
+      "dictate": {
+        "title": "Dicter",
+        "subtitle": "NOTE VOCALE",
+        "comingSoon": "Bientôt disponible",
+        "notAvailable": "La dictée n'est pas encore disponible"
+      },
+      "write": {
+        "title": "Écrire",
+        "subtitle": "SAISIE MANUELLE"
+      }
+    },
     "funMessages": {
       "0": "Lecture des notes secrètes de grand-mère...",
       "1": "Traduction des murmures du chef...",
@@ -245,7 +303,10 @@
     "connectionMessage": "Impossible de se connecter au serveur après plusieurs tentatives. Veuillez vérifier votre connexion Internet et réessayer.",
     "notARecipe": "Aucune Recette Trouvée",
     "notARecipeMessage": "Nous n'avons pas trouvé de recette dans le contenu soumis. Veuillez essayer avec un contenu contenant des instructions de cuisine, des ingrédients ou une fiche recette.",
-    "notARecipeHint": "Conseils : Essayez de soumettre une vidéo de recette, une photo d'une fiche recette, ou du texte incluant des ingrédients et des étapes de préparation."
+    "notARecipeHint": "Conseils : Essayez de soumettre une vidéo de recette, une photo d'une fiche recette, ou du texte incluant des ingrédients et des étapes de préparation.",
+    "websiteBlocked": "Site Web Bloqué",
+    "websiteBlockedMessage": "Oups ! Ce site web ne nous permet pas d'extraire les recettes automatiquement. Pas de souci - vous pouvez copier la recette et la coller dans la saisie manuelle pour le même résultat !",
+    "tryManualEntry": "Essayer la Saisie Manuelle"
   },
   "auth": {
     "status": "Statut",

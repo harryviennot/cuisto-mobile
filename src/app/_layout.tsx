@@ -1,8 +1,8 @@
 import "@/global.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack, useSegments } from "expo-router";
+import { Stack } from "expo-router";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SearchProvider } from "@/contexts/SearchContext";
 import { StatusBar } from "react-native";
@@ -43,6 +43,7 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const [i18nInitialized, setI18nInitialized] = useState(false);
+  const splashHiddenRef = useRef(false);
   const [fontsLoaded] = useFonts({
     PlayfairDisplay_400Regular,
     PlayfairDisplay_700Bold,
@@ -50,8 +51,6 @@ export default function RootLayout() {
     PlayfairDisplay_600SemiBold,
     PlayfairDisplay_500Medium,
   });
-
-  const segments = useSegments();
 
   useEffect(() => {
     // Wait for i18n to be ready
@@ -70,16 +69,19 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (fontsLoaded && i18nInitialized) {
-      SplashScreen.hideAsync();
+    if (fontsLoaded && i18nInitialized && !splashHiddenRef.current) {
+      splashHiddenRef.current = true;
+      SplashScreen.hideAsync().catch((error) => {
+        // Silently handle - splash screen errors are non-critical
+        // The error often occurs if splash is already hidden
+        console.debug("Splash screen hide error (non-critical):", error.message);
+      });
     }
   }, [fontsLoaded, i18nInitialized]);
 
   if (!fontsLoaded || !i18nInitialized) {
     return null;
   }
-
-  console.log(segments);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -89,13 +91,21 @@ export default function RootLayout() {
             <AuthProvider>
               <SearchProvider>
                 <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="index" />
+                  <Stack.Screen name="(tabs)" />
                   <Stack.Screen
                     name="search"
                     options={{
                       presentation: "transparentModal",
                       animation: "fade",
                       animationDuration: 200,
+                    }}
+                  />
+                  <Stack.Screen
+                    name="extraction"
+                    options={{
+                      presentation: "fullScreenModal",
+                      animation: "fade_from_bottom",
+                      animationDuration: 350,
                     }}
                   />
                   <Stack.Screen name="test-creen" />

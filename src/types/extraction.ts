@@ -3,11 +3,11 @@
  */
 
 export enum SourceType {
-  URL = "url",
+  VIDEO = "video", // Deprecated - use LINK instead
   PHOTO = "photo",
   PASTE = "paste",
   VOICE = "voice",
-  VIDEO = "video",
+  LINK = "link", // Auto-detects video vs webpage
 }
 
 export enum ExtractionStatus {
@@ -17,6 +17,7 @@ export enum ExtractionStatus {
   FAILED = "failed",
   DUPLICATE = "duplicate", // Video already extracted by someone else
   NOT_A_RECIPE = "not_a_recipe", // Content doesn't contain a recipe
+  WEBSITE_BLOCKED = "website_blocked", // Website blocks automated extraction
 }
 
 /**

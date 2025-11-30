@@ -63,6 +63,64 @@
     },
     "videoUrlPlaceholder": "Paste TikTok, Instagram, or YouTube link",
     "extractFromVideo": "Extract from Video",
+    "imageInput": {
+      "takePhoto": "Take Photo",
+      "chooseFromGallery": "Choose from Gallery",
+      "takePicture": "Take a picture",
+      "maxImagesWarning": "You can only add {{max}} images"
+    },
+    "voiceInput": {
+      "tapToRecord": "Tap to start recording"
+    },
+    "textInput": {
+      "placeholder": "Start writing..."
+    },
+    "linkInput": {
+      "placeholder": "Paste URL here..."
+    },
+    "methodScreen": {
+      "link": {
+        "title": "Paste Link",
+        "subtitle": "FROM THE WEB"
+      },
+      "text": {
+        "title": "Chef's Journal",
+        "subtitle": "MANUAL ENTRY"
+      },
+      "image": {
+        "title": "Capture",
+        "subtitle": "PHOTO SOURCE"
+      },
+      "voice": {
+        "title": "Dictation",
+        "subtitle": "VOICE NOTE"
+      },
+      "processing": "Processing...",
+      "draftRecipe": "Draft Recipe"
+    },
+    "newRecipe": {
+      "subtitle": "NEW ENTRY",
+      "title": "Add to your",
+      "titleHighlight": "collection.",
+      "scanDish": {
+        "title": "Scan Dish",
+        "subtitle": "FROM PHOTO OR MENU"
+      },
+      "importWeb": {
+        "title": "Import from Web",
+        "subtitle": "TIKTOKS • REELS • SHORTS • BLOGS • SITES"
+      },
+      "dictate": {
+        "title": "Dictate",
+        "subtitle": "VOICE NOTE",
+        "comingSoon": "Coming soon",
+        "notAvailable": "Dictate is not available yet"
+      },
+      "write": {
+        "title": "Write",
+        "subtitle": "MANUAL ENTRY"
+      }
+    },
     "funMessages": {
       "0": "Reading grandma's secret notes...",
       "1": "Translating chef whispers...",
@@ -244,7 +302,10 @@
     "connectionMessage": "Unable to connect to the server after multiple attempts. Please check your internet connection and try again.",
     "notARecipe": "No Recipe Found",
     "notARecipeMessage": "We couldn't find a recipe in the content you submitted. Please try with content that contains cooking instructions, ingredients, or a recipe card.",
-    "notARecipeHint": "Tips: Try submitting a recipe video, a photo of a recipe card, or text that includes ingredients and cooking steps."
+    "notARecipeHint": "Tips: Try submitting a recipe video, a photo of a recipe card, or text that includes ingredients and cooking steps.",
+    "websiteBlocked": "Website Blocked",
+    "websiteBlockedMessage": "Oops! This website doesn't allow us to extract recipes automatically. No worries - you can copy the recipe and paste it in the manual entry for the same result!",
+    "tryManualEntry": "Try Manual Entry"
   },
   "auth": {
     "status": "Status",

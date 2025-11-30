@@ -52,7 +52,7 @@ export function useImageExtractionFlow(maxImages: number = 3): UseImageExtractio
         console.log("[useImageExtractionFlow] Navigating to preview with job_id:", response.job_id);
         // Navigate to unified recipe preview screen (handles extraction + preview)
         router.push({
-          pathname: "/recipe/preview",
+          pathname: "/extraction/preview",
           params: { jobId: response.job_id },
         });
         // Reset selection after successful submission
