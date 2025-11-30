@@ -76,7 +76,7 @@ export default function RootLayout() {
       SplashScreen.hideAsync().catch((error) => {
         // Silently handle - splash screen errors are non-critical
         // The error often occurs if splash is already hidden
-        console.debug('Splash screen hide error (non-critical):', error.message);
+        console.debug("Splash screen hide error (non-critical):", error.message);
       });
     }
   }, [fontsLoaded, i18nInitialized]);

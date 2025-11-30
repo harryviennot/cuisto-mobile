@@ -1,15 +1,15 @@
-import { Stack } from 'expo-router';
+import { Stack } from "expo-router";
 
 export default function ExtractionLayout() {
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        presentation: 'fullScreenModal',
-        animation: 'fade_from_bottom',
+        presentation: "fullScreenModal",
+        animation: "fade_from_bottom",
         animationDuration: 350,
         gestureEnabled: true,
-        gestureDirection: 'vertical',
+        gestureDirection: "vertical",
       }}
     >
       <Stack.Screen name="[method]" options={{ headerShown: false }} />

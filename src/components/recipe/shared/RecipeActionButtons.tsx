@@ -82,7 +82,7 @@ export function RecipeActionButtons({
         </ShadowItem>
       )}
 
-      {(source_url && platform) && (
+      {source_url && platform && (
         <ShadowItem
           onPress={() => Linking.openURL(source_url)}
           className="w-14 h-14"

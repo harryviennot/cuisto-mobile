@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, TextInput } from 'react-native';
+import React from "react";
+import { View, TextInput } from "react-native";
 
 interface TextInputMethodProps {
   value: string;
@@ -16,7 +16,10 @@ export function TextInputMethod({ value, onChangeText }: TextInputMethodProps) {
         ))}
       </View>
       {/* Red margin line */}
-      <View className="absolute left-12 top-0 bottom-0 w-[1px] bg-red-500/20" pointerEvents="none" />
+      <View
+        className="absolute left-12 top-0 bottom-0 w-[1px] bg-red-500/20"
+        pointerEvents="none"
+      />
 
       <TextInput
         className="flex-1 text-lg leading-[2.2] text-foreground-heading pl-[60px] pr-6 pt-[34px]"

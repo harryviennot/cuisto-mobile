@@ -1,12 +1,7 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import React from "react";
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import {
   Camera,
   GlobeHemisphereWest,
@@ -14,14 +9,14 @@ import {
   Microphone,
   Pencil,
   ArrowRight,
-} from 'phosphor-react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useDeviceType } from '@/hooks/useDeviceType';
-import Toast from 'react-native-toast-message';
+} from "phosphor-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
+import { useDeviceType } from "@/hooks/useDeviceType";
+import Toast from "react-native-toast-message";
 
-type ExtractionMethod = 'image' | 'link' | 'voice' | 'text';
+type ExtractionMethod = "image" | "link" | "voice" | "text";
 
 export default function NewRecipeScreen() {
   const insets = useSafeAreaInsets();
@@ -44,7 +39,7 @@ export default function NewRecipeScreen() {
             NEW ENTRY
           </Text>
           <Text className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1]">
-            Add to your{'\n'}
+            Add to your{"\n"}
             <Text className="text-primary italic">collection.</Text>
           </Text>
         </View>
@@ -54,28 +49,34 @@ export default function NewRecipeScreen() {
           <View className="flex-[3] rounded-2xl overflow-hidden bg-primary-darker relative">
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={() => handleMethodSelect('image')}
+              onPress={() => handleMethodSelect("image")}
               className="flex-1"
             >
               <View className="absolute inset-0">
                 <Image
-                  source={require('../../../assets/images/cookingimage.png')}
+                  source={require("../../../assets/images/cookingimage.png")}
                   className="w-full h-full opacity-70"
                 />
                 <LinearGradient
-                  colors={['transparent', 'rgba(0,0,0,0.6)']}
-                  style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+                  colors={["transparent", "rgba(0,0,0,0.6)"]}
+                  style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
                 />
               </View>
 
               <View className="flex-1 justify-end p-6">
                 <View className="flex-row justify-between items-end">
                   <View>
-                    <BlurView intensity={30} tint="light" className="w-12 h-12 rounded-full items-center justify-center mb-3 border border-white/10 overflow-hidden">
+                    <BlurView
+                      intensity={30}
+                      tint="light"
+                      className="w-12 h-12 rounded-full items-center justify-center mb-3 border border-white/10 overflow-hidden"
+                    >
                       <Camera size={24} color="#fff" weight="duotone" />
                     </BlurView>
                     <Text className="font-playfair-bold text-3xl text-white mb-1">Scan Dish</Text>
-                    <Text className="text-white/80 text-[10px] font-bold tracking-widest uppercase">FROM PHOTO OR MENU</Text>
+                    <Text className="text-white/80 text-[10px] font-bold tracking-widest uppercase">
+                      FROM PHOTO OR MENU
+                    </Text>
                   </View>
                   <View className="w-8 h-8 rounded-full border border-white/30 items-center justify-center">
                     <ArrowRight size={16} color="#fff" />
@@ -89,18 +90,27 @@ export default function NewRecipeScreen() {
           <View className="flex-[2] bg-[#E8E6E1] rounded-2xl overflow-hidden">
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={() => handleMethodSelect('link')}
+              onPress={() => handleMethodSelect("link")}
               className="flex-1 p-6 justify-between"
             >
               <View className="flex-row justify-between items-start">
                 <View className="w-10 h-10 rounded-full bg-stone-900/5 items-center justify-center">
                   <LinkIcon size={20} color="#57534e" weight="duotone" />
                 </View>
-                <GlobeHemisphereWest size={64} color="#e7e5e4" weight="thin" style={{ position: 'absolute', right: -10, top: -10, opacity: 0.5 }} />
+                <GlobeHemisphereWest
+                  size={64}
+                  color="#e7e5e4"
+                  weight="thin"
+                  style={{ position: "absolute", right: -10, top: -10, opacity: 0.5 }}
+                />
               </View>
               <View>
-                <Text className="font-playfair-bold text-xl text-foreground-heading mb-1">Import from Web</Text>
-                <Text className="text-[10px] font-bold tracking-widest text-foreground-muted uppercase">TIKTOKS • REELS • SHORTS • BLOGS • SITES</Text>
+                <Text className="font-playfair-bold text-xl text-foreground-heading mb-1">
+                  Import from Web
+                </Text>
+                <Text className="text-[10px] font-bold tracking-widest text-foreground-muted uppercase">
+                  TIKTOKS • REELS • SHORTS • BLOGS • SITES
+                </Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -111,11 +121,13 @@ export default function NewRecipeScreen() {
               <TouchableOpacity
                 activeOpacity={0.9}
                 // onPress={() => handleMethodSelect('voice')}
-                onPress={() => Toast.show({
-                  type: 'info',
-                  text1: 'Coming soon',
-                  text2: 'Dictate is not available yet',
-                })}
+                onPress={() =>
+                  Toast.show({
+                    type: "info",
+                    text1: "Coming soon",
+                    text2: "Dictate is not available yet",
+                  })
+                }
                 className="flex-1 p-5 justify-between"
               >
                 <View className="w-10 h-10 rounded-full bg-white/10 items-center justify-center">
@@ -123,7 +135,9 @@ export default function NewRecipeScreen() {
                 </View>
                 <View>
                   <Text className="font-playfair-bold text-lg text-white mb-0.5">Dictate</Text>
-                  <Text className="text-white/60 text-[10px] font-bold tracking-widest uppercase">VOICE NOTE</Text>
+                  <Text className="text-white/60 text-[10px] font-bold tracking-widest uppercase">
+                    VOICE NOTE
+                  </Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -131,15 +145,19 @@ export default function NewRecipeScreen() {
             <View className="flex-1 bg-white border border-border-light rounded-2xl overflow-hidden">
               <TouchableOpacity
                 activeOpacity={0.9}
-                onPress={() => handleMethodSelect('text')}
+                onPress={() => handleMethodSelect("text")}
                 className="flex-1 p-5 justify-between"
               >
                 <View className="w-10 h-10 rounded-full bg-stone-50 items-center justify-center">
                   <Pencil size={20} color="#3a3226" weight="duotone" />
                 </View>
                 <View>
-                  <Text className="font-playfair-bold text-lg text-foreground-heading mb-0.5">Write</Text>
-                  <Text className="text-foreground-tertiary text-[10px] font-bold tracking-widest uppercase">MANUAL ENTRY</Text>
+                  <Text className="font-playfair-bold text-lg text-foreground-heading mb-0.5">
+                    Write
+                  </Text>
+                  <Text className="text-foreground-tertiary text-[10px] font-bold tracking-widest uppercase">
+                    MANUAL ENTRY
+                  </Text>
                 </View>
               </TouchableOpacity>
             </View>

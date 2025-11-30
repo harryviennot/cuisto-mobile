@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, TextInput, TouchableOpacity } from 'react-native';
-import { GlobeHemisphereWest, ClipboardText } from 'phosphor-react-native';
-import * as Clipboard from 'expo-clipboard';
+import React from "react";
+import { View, TextInput, TouchableOpacity } from "react-native";
+import { GlobeHemisphereWest, ClipboardText } from "phosphor-react-native";
+import * as Clipboard from "expo-clipboard";
 
 interface LinkInputProps {
   value: string;
@@ -35,7 +35,6 @@ export function LinkInput({ value, onChangeText }: LinkInputProps) {
         keyboardType="url"
         autoFocus
       />
-
     </View>
   );
 }

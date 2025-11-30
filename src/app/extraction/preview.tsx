@@ -213,8 +213,8 @@ export default function UnifiedRecipePreviewScreen() {
             </Text>
             <Pressable
               onPress={() => {
-                router.dismissAll()
-                router.push(`/extraction/${job.source_type}`)
+                router.dismissAll();
+                router.push(`/extraction/${job.source_type}`);
               }}
               className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
             >
@@ -223,7 +223,7 @@ export default function UnifiedRecipePreviewScreen() {
             </Pressable>
           </Animated.View>
         </View>
-      </View >
+      </View>
     );
   }
 
@@ -323,7 +323,7 @@ export default function UnifiedRecipePreviewScreen() {
     return (
       <RecipeDetail
         recipe={recipe}
-        onBack={() => { }}
+        onBack={() => {}}
         isDraft={true}
         onDiscard={isDeleting ? undefined : handleDiscard}
         onSave={isSaving ? undefined : handleSave}
@@ -334,7 +334,10 @@ export default function UnifiedRecipePreviewScreen() {
 
   // Loading state - show progress (always render with default 0% if job not yet loaded)
   return (
-    <View className="flex-1 bg-surface" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
+    <View
+      className="flex-1 bg-surface"
+      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
+    >
       {/* Progress indicator - always show, even before first SSE event */}
       <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-1">
         <ExtractionProgress

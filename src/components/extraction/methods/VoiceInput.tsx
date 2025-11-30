@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { Microphone } from 'phosphor-react-native';
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { Microphone } from "phosphor-react-native";
 
 interface VoiceInputProps {
   value: string;
@@ -25,7 +25,7 @@ export function VoiceInput({ value, onChangeText }: VoiceInputProps) {
       <TouchableOpacity
         activeOpacity={0.8}
         className={`w-24 h-24 rounded-full items-center justify-center mb-8 ${
-          isRecording ? 'bg-danger shadow-lg shadow-danger/30' : 'bg-primary'
+          isRecording ? "bg-danger shadow-lg shadow-danger/30" : "bg-primary"
         }`}
         onPress={handlePress}
       >

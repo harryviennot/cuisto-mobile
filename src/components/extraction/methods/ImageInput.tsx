@@ -1,12 +1,12 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, useWindowDimensions, Pressable } from 'react-native';
-import { Camera, CameraIcon, CameraPlus, CameraPlusIcon, Images } from 'phosphor-react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
-import { ImageUploadCard } from '../ImageUploadCard';
-import type { PickedImage } from '@/hooks/useImagePicker';
-import { AnimatedDropZone } from '@/components/ui/AnimatedDropZone';
+import React from "react";
+import { View, Text, TouchableOpacity, useWindowDimensions, Pressable } from "react-native";
+import { Camera, CameraIcon, CameraPlus, CameraPlusIcon, Images } from "phosphor-react-native";
+import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
+import { ImageUploadCard } from "../ImageUploadCard";
+import type { PickedImage } from "@/hooks/useImagePicker";
+import { AnimatedDropZone } from "@/components/ui/AnimatedDropZone";
 
-type UploadState = 'uploading' | 'completed' | 'error';
+type UploadState = "uploading" | "completed" | "error";
 
 interface ImageInputProps {
   images: PickedImage[];
@@ -52,7 +52,10 @@ export function ImageInput({
               className="w-full aspect-square bg-surface-overlay p-0"
               style={emptyStateMaxHeight ? { maxHeight: emptyStateMaxHeight } : undefined}
             >
-              <Pressable onPress={onAddFromCamera} className='flex-1 items-center justify-center w-full'>
+              <Pressable
+                onPress={onAddFromCamera}
+                className="flex-1 items-center justify-center w-full"
+              >
                 <View className="items-center gap-2">
                   <View className="rounded-full bg-primary/10 p-3">
                     <CameraIcon size={24} color="#334d43" weight="duotone" />
@@ -82,7 +85,7 @@ export function ImageInput({
   // Dynamic layout based on image count
   const renderImages = () => {
     if (isTabletLandscape) {
-      const imageSize = (height - 48) / (Math.max(images.length, 2));
+      const imageSize = (height - 48) / Math.max(images.length, 2);
       return (
         <View className="flex-1 flex-row gap-3 justify-center items-center">
           {images.map((image, index) => (
@@ -190,12 +193,10 @@ export function ImageInput({
   return (
     <Animated.View className="flex-1" layout={LinearTransition.duration(200)}>
       {/* Centered image grid */}
-      <View className="flex-1 justify-center">
-        {renderImages()}
-      </View>
+      <View className="flex-1 justify-center">{renderImages()}</View>
 
       {/* Camera and Gallery options at bottom */}
-      {(canAddMore && !isUploading) ? (
+      {canAddMore && !isUploading ? (
         <Animated.View
           className="flex-row justify-center gap-4 flex-wrap py-4"
           entering={FadeIn.duration(200)}
@@ -212,7 +213,9 @@ export function ImageInput({
             className="flex-row items-center gap-2 px-4 py-3 bg-surface-overlay rounded-full"
           >
             <Images size={20} color="#78716c" weight="duotone" />
-            <Text className="text-sm font-semibold text-foreground-secondary">Choose from Gallery</Text>
+            <Text className="text-sm font-semibold text-foreground-secondary">
+              Choose from Gallery
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       ) : (
@@ -220,7 +223,9 @@ export function ImageInput({
           className="flex-row justify-center gap-6 py-4"
           entering={FadeIn.duration(200)}
         >
-          <Text className="text-sm font-semibold text-foreground-secondary">You can only add 3 images</Text>
+          <Text className="text-sm font-semibold text-foreground-secondary">
+            You can only add 3 images
+          </Text>
         </Animated.View>
       )}
     </Animated.View>
