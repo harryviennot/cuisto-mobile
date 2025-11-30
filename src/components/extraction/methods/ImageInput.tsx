@@ -49,11 +49,10 @@ export function ImageInput({
             style={emptyStateMaxWidth ? { maxWidth: emptyStateMaxWidth } : undefined}
           >
             <AnimatedDropZone
-
-              className="w-full aspect-square   bg-surface-overlay items-center justify-center gap-4"
+              className="w-full aspect-square bg-surface-overlay p-0"
               style={emptyStateMaxHeight ? { maxHeight: emptyStateMaxHeight } : undefined}
             >
-              <Pressable onPress={onAddFromCamera}>
+              <Pressable onPress={onAddFromCamera} className='flex-1 items-center justify-center w-full'>
                 <View className="items-center gap-2">
                   <View className="rounded-full bg-primary/10 p-3">
                     <CameraIcon size={24} color="#334d43" weight="duotone" />
