@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { X, ArrowRight } from "phosphor-react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
+import { useTranslation } from "react-i18next";
 
 import { extractionService } from "@/api/services/extraction.service";
 import { SourceType } from "@/types/extraction";
@@ -21,29 +22,30 @@ const MAX_IMAGES = 3;
 
 type Method = "link" | "text" | "image" | "voice";
 
-const METHOD_CONFIG = {
-  link: {
-    title: "Paste Link",
-    subtitle: "FROM THE WEB",
-  },
-  text: {
-    title: "Chef's Journal",
-    subtitle: "MANUAL ENTRY",
-  },
-  image: {
-    title: "Capture",
-    subtitle: "PHOTO SOURCE",
-  },
-  voice: {
-    title: "Dictation",
-    subtitle: "VOICE NOTE",
-  },
-};
-
 export default function ExtractionScreen() {
+  const { t } = useTranslation();
   const { method } = useLocalSearchParams<{ method: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  const METHOD_CONFIG = {
+    link: {
+      title: t("extraction.methodScreen.link.title"),
+      subtitle: t("extraction.methodScreen.link.subtitle"),
+    },
+    text: {
+      title: t("extraction.methodScreen.text.title"),
+      subtitle: t("extraction.methodScreen.text.subtitle"),
+    },
+    image: {
+      title: t("extraction.methodScreen.image.title"),
+      subtitle: t("extraction.methodScreen.image.subtitle"),
+    },
+    voice: {
+      title: t("extraction.methodScreen.voice.title"),
+      subtitle: t("extraction.methodScreen.voice.subtitle"),
+    },
+  };
 
   // Validate method
   const validMethod = (
@@ -155,7 +157,7 @@ export default function ExtractionScreen() {
       console.error("Extraction error:", error);
       Toast.show({
         type: "error",
-        text1: "Extraction Failed",
+        text1: t("errors.extractionFailed"),
         text2: error instanceof Error ? error.message : "Please try again.",
       });
     } finally {
@@ -231,7 +233,9 @@ export default function ExtractionScreen() {
                 }`}
               >
                 <Text className="text-white text-sm font-bold tracking-widest uppercase">
-                  {isSubmitting ? "Processing..." : "Draft Recipe"}
+                  {isSubmitting
+                    ? t("extraction.methodScreen.processing")
+                    : t("extraction.methodScreen.draftRecipe")}
                 </Text>
                 {!isSubmitting && <ArrowRight size={16} color="#fff" weight="bold" />}
               </TouchableOpacity>

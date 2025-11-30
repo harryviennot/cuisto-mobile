@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, useWindowDimensions, Pressable } from "react-native";
 import { CameraIcon, CameraPlusIcon, ImagesIcon } from "phosphor-react-native";
 import Animated, { FadeIn, FadeOut, LinearTransition } from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
 import { ImageUploadCard } from "../ImageUploadCard";
 import type { PickedImage } from "@/hooks/useImagePicker";
 import { AnimatedDropZone } from "@/components/ui/AnimatedDropZone";
@@ -27,6 +28,7 @@ export function ImageInput({
   onAddFromGallery,
   isUploading,
 }: ImageInputProps) {
+  const { t } = useTranslation();
   const canAddMore = images.length < maxItems && !isUploading;
   const { width, height } = useWindowDimensions();
 
@@ -60,7 +62,9 @@ export function ImageInput({
                   <View className="rounded-full bg-primary/10 p-3">
                     <CameraIcon size={24} color="#334d43" weight="duotone" />
                   </View>
-                  <Text className="text-xs font-medium text-foreground-secondary">Take Photo</Text>
+                  <Text className="text-xs font-medium text-foreground-secondary">
+                    {t("extraction.imageInput.takePhoto")}
+                  </Text>
                 </View>
               </Pressable>
             </AnimatedDropZone>
@@ -75,7 +79,9 @@ export function ImageInput({
             className="flex-row items-center gap-2 px-4 py-3 bg-surface-overlay rounded-full"
           >
             <ImagesIcon size={20} color="#78716c" weight="duotone" />
-            <Text className="text-sm font-semibold text-foreground-muted">Choose from Gallery</Text>
+            <Text className="text-sm font-semibold text-foreground-muted">
+              {t("extraction.imageInput.chooseFromGallery")}
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       </Animated.View>
@@ -206,7 +212,9 @@ export function ImageInput({
             className="flex-row items-center gap-2 px-4 py-3 bg-surface-overlay rounded-full"
           >
             <CameraPlusIcon size={20} color="#78716c" weight="duotone" />
-            <Text className="text-sm font-semibold text-foreground-secondary">Take a picture</Text>
+            <Text className="text-sm font-semibold text-foreground-secondary">
+              {t("extraction.imageInput.takePicture")}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onAddFromGallery}
@@ -214,7 +222,7 @@ export function ImageInput({
           >
             <ImagesIcon size={20} color="#78716c" weight="duotone" />
             <Text className="text-sm font-semibold text-foreground-secondary">
-              Choose from Gallery
+              {t("extraction.imageInput.chooseFromGallery")}
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -224,7 +232,7 @@ export function ImageInput({
           entering={FadeIn.duration(200)}
         >
           <Text className="text-sm font-semibold text-foreground-secondary">
-            You can only add 3 images
+            {t("extraction.imageInput.maxImagesWarning", { max: maxItems })}
           </Text>
         </Animated.View>
       )}

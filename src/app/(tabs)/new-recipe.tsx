@@ -15,10 +15,12 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import Toast from "react-native-toast-message";
+import { useTranslation } from "react-i18next";
 
 type ExtractionMethod = "image" | "link" | "voice" | "text";
 
 export default function NewRecipeScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { isTablet } = useDeviceType();
@@ -36,11 +38,12 @@ export default function NewRecipeScreen() {
       >
         <View className="mb-8">
           <Text className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-tertiary mb-3">
-            NEW ENTRY
+            {t("extraction.newRecipe.subtitle")}
           </Text>
           <Text className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1]">
-            Add to your{"\n"}
-            <Text className="text-primary italic">collection.</Text>
+            {t("extraction.newRecipe.title")}
+            {"\n"}
+            <Text className="text-primary italic">{t("extraction.newRecipe.titleHighlight")}</Text>
           </Text>
         </View>
 
@@ -73,9 +76,11 @@ export default function NewRecipeScreen() {
                     >
                       <Camera size={24} color="#fff" weight="duotone" />
                     </BlurView>
-                    <Text className="font-playfair-bold text-3xl text-white mb-1">Scan Dish</Text>
+                    <Text className="font-playfair-bold text-3xl text-white mb-1">
+                      {t("extraction.newRecipe.scanDish.title")}
+                    </Text>
                     <Text className="text-white/80 text-[10px] font-bold tracking-widest uppercase">
-                      FROM PHOTO OR MENU
+                      {t("extraction.newRecipe.scanDish.subtitle")}
                     </Text>
                   </View>
                   <View className="w-8 h-8 rounded-full border border-white/30 items-center justify-center">
@@ -106,10 +111,10 @@ export default function NewRecipeScreen() {
               </View>
               <View>
                 <Text className="font-playfair-bold text-xl text-foreground-heading mb-1">
-                  Import from Web
+                  {t("extraction.newRecipe.importWeb.title")}
                 </Text>
                 <Text className="text-[10px] font-bold tracking-widest text-foreground-muted uppercase">
-                  TIKTOKS • REELS • SHORTS • BLOGS • SITES
+                  {t("extraction.newRecipe.importWeb.subtitle")}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -124,8 +129,8 @@ export default function NewRecipeScreen() {
                 onPress={() =>
                   Toast.show({
                     type: "info",
-                    text1: "Coming soon",
-                    text2: "Dictate is not available yet",
+                    text1: t("extraction.newRecipe.dictate.comingSoon"),
+                    text2: t("extraction.newRecipe.dictate.notAvailable"),
                   })
                 }
                 className="flex-1 p-5 justify-between"
@@ -134,9 +139,11 @@ export default function NewRecipeScreen() {
                   <Microphone size={20} color="#fff" weight="duotone" />
                 </View>
                 <View>
-                  <Text className="font-playfair-bold text-lg text-white mb-0.5">Dictate</Text>
+                  <Text className="font-playfair-bold text-lg text-white mb-0.5">
+                    {t("extraction.newRecipe.dictate.title")}
+                  </Text>
                   <Text className="text-white/60 text-[10px] font-bold tracking-widest uppercase">
-                    VOICE NOTE
+                    {t("extraction.newRecipe.dictate.subtitle")}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -153,10 +160,10 @@ export default function NewRecipeScreen() {
                 </View>
                 <View>
                   <Text className="font-playfair-bold text-lg text-foreground-heading mb-0.5">
-                    Write
+                    {t("extraction.newRecipe.write.title")}
                   </Text>
                   <Text className="text-foreground-tertiary text-[10px] font-bold tracking-widest uppercase">
-                    MANUAL ENTRY
+                    {t("extraction.newRecipe.write.subtitle")}
                   </Text>
                 </View>
               </TouchableOpacity>

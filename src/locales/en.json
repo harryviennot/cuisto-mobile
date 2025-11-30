@@ -63,6 +63,64 @@
     },
     "videoUrlPlaceholder": "Paste TikTok, Instagram, or YouTube link",
     "extractFromVideo": "Extract from Video",
+    "imageInput": {
+      "takePhoto": "Take Photo",
+      "chooseFromGallery": "Choose from Gallery",
+      "takePicture": "Take a picture",
+      "maxImagesWarning": "You can only add {{max}} images"
+    },
+    "voiceInput": {
+      "tapToRecord": "Tap to start recording"
+    },
+    "textInput": {
+      "placeholder": "Start writing..."
+    },
+    "linkInput": {
+      "placeholder": "Paste URL here..."
+    },
+    "methodScreen": {
+      "link": {
+        "title": "Paste Link",
+        "subtitle": "FROM THE WEB"
+      },
+      "text": {
+        "title": "Chef's Journal",
+        "subtitle": "MANUAL ENTRY"
+      },
+      "image": {
+        "title": "Capture",
+        "subtitle": "PHOTO SOURCE"
+      },
+      "voice": {
+        "title": "Dictation",
+        "subtitle": "VOICE NOTE"
+      },
+      "processing": "Processing...",
+      "draftRecipe": "Draft Recipe"
+    },
+    "newRecipe": {
+      "subtitle": "NEW ENTRY",
+      "title": "Add to your",
+      "titleHighlight": "collection.",
+      "scanDish": {
+        "title": "Scan Dish",
+        "subtitle": "FROM PHOTO OR MENU"
+      },
+      "importWeb": {
+        "title": "Import from Web",
+        "subtitle": "TIKTOKS • REELS • SHORTS • BLOGS • SITES"
+      },
+      "dictate": {
+        "title": "Dictate",
+        "subtitle": "VOICE NOTE",
+        "comingSoon": "Coming soon",
+        "notAvailable": "Dictate is not available yet"
+      },
+      "write": {
+        "title": "Write",
+        "subtitle": "MANUAL ENTRY"
+      }
+    },
     "funMessages": {
       "0": "Reading grandma's secret notes...",
       "1": "Translating chef whispers...",

@@ -63,6 +63,64 @@
     },
     "videoUrlPlaceholder": "Collez un lien TikTok, Instagram ou YouTube",
     "extractFromVideo": "Extraire de la vidéo",
+    "imageInput": {
+      "takePhoto": "Prendre une photo",
+      "chooseFromGallery": "Choisir dans la galerie",
+      "takePicture": "Prendre une photo",
+      "maxImagesWarning": "Vous pouvez ajouter seulement {{max}} images"
+    },
+    "voiceInput": {
+      "tapToRecord": "Appuyer pour commencer l'enregistrement"
+    },
+    "textInput": {
+      "placeholder": "Commencez à écrire..."
+    },
+    "linkInput": {
+      "placeholder": "Collez l'URL ici..."
+    },
+    "methodScreen": {
+      "link": {
+        "title": "Coller un lien",
+        "subtitle": "DEPUIS LE WEB"
+      },
+      "text": {
+        "title": "Journal du Chef",
+        "subtitle": "SAISIE MANUELLE"
+      },
+      "image": {
+        "title": "Capture",
+        "subtitle": "SOURCE PHOTO"
+      },
+      "voice": {
+        "title": "Dictée",
+        "subtitle": "NOTE VOCALE"
+      },
+      "processing": "Traitement...",
+      "draftRecipe": "Brouillon de recette"
+    },
+    "newRecipe": {
+      "subtitle": "NOUVELLE ENTRÉE",
+      "title": "Ajoutez à votre",
+      "titleHighlight": "collection.",
+      "scanDish": {
+        "title": "Scanner un plat",
+        "subtitle": "DEPUIS UNE PHOTO OU MENU"
+      },
+      "importWeb": {
+        "title": "Importer du Web",
+        "subtitle": "TIKTOKS • REELS • SHORTS • BLOGS • SITES"
+      },
+      "dictate": {
+        "title": "Dicter",
+        "subtitle": "NOTE VOCALE",
+        "comingSoon": "Bientôt disponible",
+        "notAvailable": "La dictée n'est pas encore disponible"
+      },
+      "write": {
+        "title": "Écrire",
+        "subtitle": "SAISIE MANUELLE"
+      }
+    },
     "funMessages": {
       "0": "Lecture des notes secrètes de grand-mère...",
       "1": "Traduction des murmures du chef...",

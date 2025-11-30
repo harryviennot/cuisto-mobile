@@ -1,5 +1,6 @@
 import React from "react";
 import { View, TextInput } from "react-native";
+import { useTranslation } from "react-i18next";
 
 interface TextInputMethodProps {
   value: string;
@@ -7,6 +8,7 @@ interface TextInputMethodProps {
 }
 
 export function TextInputMethod({ value, onChangeText }: TextInputMethodProps) {
+  const { t } = useTranslation();
   return (
     <View className="flex-1 bg-[#FDFBF7] rounded rounded-t-none border border-border-light relative overflow-hidden min-h-[300px]">
       {/* Lined paper effect */}
@@ -23,7 +25,7 @@ export function TextInputMethod({ value, onChangeText }: TextInputMethodProps) {
 
       <TextInput
         className="flex-1 text-lg leading-[2.2] text-foreground-heading pl-[60px] pr-6 pt-[34px]"
-        placeholder="Start writing..."
+        placeholder={t("extraction.textInput.placeholder")}
         placeholderTextColor="#a8a29e"
         value={value}
         onChangeText={onChangeText}

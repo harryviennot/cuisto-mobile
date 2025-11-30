@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Microphone } from "phosphor-react-native";
+import { useTranslation } from "react-i18next";
 
 interface VoiceInputProps {
   value: string;
@@ -8,6 +9,7 @@ interface VoiceInputProps {
 }
 
 export function VoiceInput({ value, onChangeText }: VoiceInputProps) {
+  const { t } = useTranslation();
   const isRecording = !value;
 
   const handlePress = () => {
@@ -46,7 +48,7 @@ export function VoiceInput({ value, onChangeText }: VoiceInputProps) {
           </Text>
         ) : (
           <Text className="text-base font-medium text-foreground-tertiary">
-            Tap to start recording
+            {t("extraction.voiceInput.tapToRecord")}
           </Text>
         )}
       </View>

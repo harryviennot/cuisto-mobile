@@ -2,6 +2,7 @@ import React from "react";
 import { View, TextInput, TouchableOpacity } from "react-native";
 import { ClipboardTextIcon } from "phosphor-react-native";
 import * as Clipboard from "expo-clipboard";
+import { useTranslation } from "react-i18next";
 
 interface LinkInputProps {
   value: string;
@@ -9,6 +10,7 @@ interface LinkInputProps {
 }
 
 export function LinkInput({ value, onChangeText }: LinkInputProps) {
+  const { t } = useTranslation();
   const handlePasteFromClipboard = async () => {
     const clipboardContent = await Clipboard.getStringAsync();
     if (clipboardContent) {
@@ -26,7 +28,7 @@ export function LinkInput({ value, onChangeText }: LinkInputProps) {
       </TouchableOpacity>
       <TextInput
         className="flex-1 h-12 text-lg text-foreground-heading leading-snug"
-        placeholder="Paste URL here..."
+        placeholder={t("extraction.linkInput.placeholder")}
         placeholderTextColor="#a8a29e"
         value={value}
         onChangeText={onChangeText}
