@@ -49,10 +49,7 @@ export default function UnifiedRecipePreviewScreen() {
   const [initialJobLoaded, setInitialJobLoaded] = useState(false);
 
   // Monitor extraction job with SSE and polling fallback
-  const {
-    job,
-    error: jobError,
-  } = useExtractionJob({
+  const { job, error: jobError } = useExtractionJob({
     jobId: jobId || "",
     onComplete: async (completedJob) => {
       // Handle completed or duplicate status
@@ -314,7 +311,7 @@ export default function UnifiedRecipePreviewScreen() {
     return (
       <RecipeDetail
         recipe={recipe}
-        onBack={() => { }}
+        onBack={() => {}}
         isDraft={true}
         onDiscard={isDeleting ? undefined : handleDiscard}
         onSave={isSaving ? undefined : handleSave}
