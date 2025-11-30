@@ -11,6 +11,17 @@ export default function ExtractionLayout() {
         gestureEnabled: true,
         gestureDirection: 'vertical',
       }}
-    />
+    >
+      <Stack.Screen name="[method]" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="preview"
+        options={{
+          headerShown: false,
+          presentation: "fullScreenModal",
+          animation: "slide_from_right",
+          gestureEnabled: false,
+        }}
+      />
+    </Stack>
   );
 }

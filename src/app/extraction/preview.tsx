@@ -19,7 +19,12 @@ import Toast from "react-native-toast-message";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { XIcon, ArrowCounterClockwiseIcon, MagnifyingGlassIcon } from "phosphor-react-native";
+import {
+  XIcon,
+  ArrowCounterClockwiseIcon,
+  MagnifyingGlassIcon,
+  LockIcon,
+} from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { recipeService } from "@/api/services/recipe.service";
@@ -242,6 +247,38 @@ export default function UnifiedRecipePreviewScreen() {
               className="rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
             >
               <Text className="text-base font-semibold text-white">{t("common.ok")}</Text>
+            </Pressable>
+          </Animated.View>
+        </View>
+      </View>
+    );
+  }
+
+  // Website blocked state - show friendly message directing to manual paste
+  if (job?.status === ExtractionStatus.WEBSITE_BLOCKED) {
+    return (
+      <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
+        <View className="flex-1 items-center justify-center px-6">
+          <Animated.View entering={FadeIn.delay(200)} className="items-center">
+            <View className="mb-4 h-16 w-16 items-center justify-center rounded-full bg-state-warning/10">
+              <LockIcon size={32} color="#f59e0b" weight="bold" />
+            </View>
+            <Text className="mb-2 text-center text-xl font-semibold text-foreground">
+              {t("errors.websiteBlocked")}
+            </Text>
+            <Text className="mb-6 text-center text-foreground-secondary">
+              {t("errors.websiteBlockedMessage")}
+            </Text>
+            <Pressable
+              onPress={() => {
+                router.dismissAll();
+                router.push("/extraction/text");
+              }}
+              className="rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
+            >
+              <Text className="text-base font-semibold text-white">
+                {t("errors.tryManualEntry")}
+              </Text>
             </Pressable>
           </Animated.View>
         </View>

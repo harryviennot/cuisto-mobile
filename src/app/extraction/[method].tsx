@@ -126,7 +126,7 @@ export default function ExtractionScreen() {
 
         if (response && response.job_id) {
           router.replace({
-            pathname: "/recipe/preview",
+            pathname: "/extraction/preview",
             params: { jobId: response.job_id },
           });
         }
@@ -152,7 +152,7 @@ export default function ExtractionScreen() {
 
         if (response && response.id) {
           router.replace({
-            pathname: "/recipe/preview",
+            pathname: "/extraction/preview",
             params: { jobId: response.id },
           });
         }

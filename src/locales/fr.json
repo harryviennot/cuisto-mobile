@@ -245,7 +245,10 @@
     "connectionMessage": "Impossible de se connecter au serveur après plusieurs tentatives. Veuillez vérifier votre connexion Internet et réessayer.",
     "notARecipe": "Aucune Recette Trouvée",
     "notARecipeMessage": "Nous n'avons pas trouvé de recette dans le contenu soumis. Veuillez essayer avec un contenu contenant des instructions de cuisine, des ingrédients ou une fiche recette.",
-    "notARecipeHint": "Conseils : Essayez de soumettre une vidéo de recette, une photo d'une fiche recette, ou du texte incluant des ingrédients et des étapes de préparation."
+    "notARecipeHint": "Conseils : Essayez de soumettre une vidéo de recette, une photo d'une fiche recette, ou du texte incluant des ingrédients et des étapes de préparation.",
+    "websiteBlocked": "Site Web Bloqué",
+    "websiteBlockedMessage": "Oups ! Ce site web ne nous permet pas d'extraire les recettes automatiquement. Pas de souci - vous pouvez copier la recette et la coller dans la saisie manuelle pour le même résultat !",
+    "tryManualEntry": "Essayer la Saisie Manuelle"
   },
   "auth": {
     "status": "Statut",

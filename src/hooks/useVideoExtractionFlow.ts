@@ -35,7 +35,7 @@ export function useVideoExtractionFlow(): UseVideoExtractionFlowReturn {
       if (response && response.id) {
         console.log("[useVideoExtractionFlow] Navigating to preview with job_id:", response.id);
         router.push({
-          pathname: "/recipe/preview",
+          pathname: "/extraction/preview",
           params: { jobId: response.id },
         });
       } else {
