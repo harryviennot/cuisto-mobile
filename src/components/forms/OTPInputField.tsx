@@ -49,7 +49,7 @@ export const OTPInputField = ({ otpCode, setOtpCode, maxInputLength, error, clas
   return (
     <>
       <TextInput
-        className="absolute border-2 border-white/20"
+        className="absolute opacity-0"
         keyboardType="numeric"
         textContentType="oneTimeCode"
         // returnKeyType="done"

@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 import type { OnboardingFormData } from "../types";
+import React from "react";
+import { FixedTextInput } from "@/components/forms/FixedTextInput";
 
 interface BasicInfoStepProps {
   formData: OnboardingFormData;
@@ -35,8 +37,8 @@ export function BasicInfoStep({ formData, onFormDataChange }: BasicInfoStepProps
         <Text className="mb-2 text-sm font-medium text-foreground-secondary">
           {t("onboarding.basicInfo.nameLabel")}
         </Text>
-        <TextInput
-          className="rounded-xl border-2 border-border bg-white px-4 py-4 text-base text-foreground-heading"
+        <FixedTextInput
+          className="rounded-xl border-2 border-border bg-white px-4 py-4 mb-4"
           placeholder={t("onboarding.basicInfo.namePlaceholder")}
           placeholderTextColor="#a8a29e"
           value={formData.display_name}
@@ -52,8 +54,8 @@ export function BasicInfoStep({ formData, onFormDataChange }: BasicInfoStepProps
         <Text className="mb-2 text-sm font-medium text-foreground-secondary">
           {t("onboarding.basicInfo.ageLabel")}
         </Text>
-        <TextInput
-          className="rounded-xl border-2 border-border bg-white px-4 py-4 text-base text-foreground-heading"
+        <FixedTextInput
+          className="rounded-xl border-2 border-border bg-white px-4 py-4 mb-4"
           placeholder={t("onboarding.basicInfo.agePlaceholder")}
           placeholderTextColor="#a8a29e"
           value={formData.age}

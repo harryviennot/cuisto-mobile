@@ -7,6 +7,7 @@ import Animated, {
   interpolate,
   interpolateColor,
 } from "react-native-reanimated";
+import { FixedTextInput } from "../forms/FixedTextInput";
 
 interface AuthInputProps extends Omit<TextInputProps, "style"> {
   label: string;
@@ -60,10 +61,10 @@ export const AuthInput: React.FC<AuthInputProps> = ({
     const borderColor = error
       ? "rgba(239, 68, 68, 0.8)"
       : interpolateColor(
-          animValue.value,
-          [0, 1],
-          ["rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.6)"]
-        );
+        animValue.value,
+        [0, 1],
+        ["rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.6)"]
+      );
 
     return { borderBottomColor: borderColor };
   });
@@ -101,14 +102,15 @@ export const AuthInput: React.FC<AuthInputProps> = ({
             className="border-b-2"
             style={borderColorStyle}
           >
-            <TextInput
+            <FixedTextInput
               ref={inputRef}
               value={value}
               onFocus={handleFocus}
               onBlur={handleBlur}
-              className="py-3 text-lg text-white"
+              className="py-3  text-white"
               placeholderTextColor="transparent"
               selectionColor="rgba(255, 255, 255, 0.5)"
+              style={{ fontSize: 16 }}
               {...props}
             />
           </Animated.View>
