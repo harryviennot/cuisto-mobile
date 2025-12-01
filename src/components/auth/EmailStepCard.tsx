@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { StarIcon } from "phosphor-react-native";
-import { AuthCard, AuthInput, AuthButton } from "@/components/auth";
+import { AuthCard } from "./AuthCard";
+import { AuthInput } from "./AuthInput";
+import { AuthButton } from "./AuthButton";
 
 interface EmailStepCardProps {
   email: string;

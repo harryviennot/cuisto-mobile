@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text } from "react-native";
 import * as Haptics from "expo-haptics";
-import { AuthCard, AuthButton } from "@/components/auth";
+import { AuthCard } from "./AuthCard";
+import { AuthButton } from "./AuthButton";
 import { OTPInputField } from "@/components/forms/OTPInputField";
 
 interface OTPStepCardProps {
