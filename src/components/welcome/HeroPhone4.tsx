@@ -63,6 +63,54 @@ const TIKTOK_VARIANTS: Omit<DemoItem, 'id' | 'image' | 'rotation'>[] = [
   },
 ];
 
+const WEB_VARIANTS: Omit<DemoItem, 'id' | 'image' | 'rotation'>[] = [
+  {
+    sourceName: "Articles",
+    recipeTitle: "Roast Chicken",
+    subTitle: "with Sourdough Croutons",
+    icon: GlobeIcon,
+    colors: ["#3b82f6", "#6366f1"],
+  },
+  {
+    sourceName: "Blogs",
+    recipeTitle: "Best Brownies",
+    subTitle: "Fudgy & Chewy",
+    icon: GlobeIcon,
+    colors: ["#8b5cf6", "#6d28d9"],
+  },
+  {
+    sourceName: "Websites",
+    recipeTitle: "Avocado Toast",
+    subTitle: "Cafe Style",
+    icon: GlobeIcon,
+    colors: ["#06b6d4", "#0891b2"],
+  },
+];
+
+const PHOTO_VARIANTS: Omit<DemoItem, 'id' | 'image' | 'rotation'>[] = [
+  {
+    sourceName: "Cookbooks",
+    recipeTitle: "Mom’s Lasagna",
+    subTitle: "Handwritten Note",
+    icon: CameraIcon,
+    colors: ["#f59e0b", "#d97706"],
+  },
+  {
+    sourceName: "Screenshots",
+    recipeTitle: "Smoothie Bowl",
+    subTitle: "Instagram Story",
+    icon: CameraIcon,
+    colors: ["#f97316", "#ea580c"],
+  },
+  {
+    sourceName: "Images",
+    recipeTitle: "Caesar Salad",
+    subTitle: "Restaurant Menu",
+    icon: CameraIcon,
+    colors: ["#eab308", "#ca8a04"],
+  },
+];
+
 const STATIC_DEMO_DATA: DemoItem[] = [
   {
     id: "tiktok", // This will be dynamic
@@ -75,7 +123,7 @@ const STATIC_DEMO_DATA: DemoItem[] = [
     rotation: "rotate-3",
   },
   {
-    id: "web",
+    id: "web", // This will be dynamic
     sourceName: "Articles",
     recipeTitle: "Roast Chicken",
     subTitle: "with Sourdough Croutons",
@@ -85,8 +133,8 @@ const STATIC_DEMO_DATA: DemoItem[] = [
     rotation: "-rotate-2",
   },
   {
-    id: "photo",
-    sourceName: "Scan",
+    id: "photo", // This will be dynamic
+    sourceName: "cookbooks",
     recipeTitle: "Mom’s Lasagna",
     subTitle: "Handwritten Note",
     icon: CameraIcon,
@@ -306,28 +354,35 @@ export const HeroPhone4: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [tiktokVariantIndex, setTiktokVariantIndex] = useState(0);
+  const [webVariantIndex, setWebVariantIndex] = useState(0);
+  const [photoVariantIndex, setPhotoVariantIndex] = useState(0);
 
   // Construct current data based on variants
   const currentData = [...STATIC_DEMO_DATA];
-  // Update first item based on variant
-  const currentVariant = TIKTOK_VARIANTS[tiktokVariantIndex % TIKTOK_VARIANTS.length];
-  currentData[0] = {
-    ...currentData[0],
-    ...currentVariant,
-  };
+
+  // Update TikTok (index 0)
+  const currentTiktok = TIKTOK_VARIANTS[tiktokVariantIndex % TIKTOK_VARIANTS.length];
+  currentData[0] = { ...currentData[0], ...currentTiktok };
+
+  // Update Web (index 1)
+  const currentWeb = WEB_VARIANTS[webVariantIndex % WEB_VARIANTS.length];
+  currentData[1] = { ...currentData[1], ...currentWeb };
+
+  // Update Photo (index 2)
+  const currentPhoto = PHOTO_VARIANTS[photoVariantIndex % PHOTO_VARIANTS.length];
+  currentData[2] = { ...currentData[2], ...currentPhoto };
 
   useEffect(() => {
     setMounted(true);
     const interval = setInterval(() => {
       setActiveIndex(prev => {
         const next = (prev + 1) % currentData.length;
-        // If we are looping back to 0, or just every time?
-        // The user wants it to show a different icon/label "every time".
-        // Since index 0 is the one changing, we should change it when we leave it or before we enter it.
-        // Let's change it when we cycle back to 0.
-        if (next === 0) {
-          setTiktokVariantIndex(v => v + 1);
-        }
+
+        // Update variants when we cycle back to them
+        if (next === 0) setTiktokVariantIndex(v => v + 1);
+        if (next === 1) setWebVariantIndex(v => v + 1);
+        if (next === 2) setPhotoVariantIndex(v => v + 1);
+
         return next;
       });
     }, 4000);
@@ -376,7 +431,7 @@ export const HeroPhone4: React.FC = () => {
           {/* SATELLITE SOURCES (Orbiting) */}
           {currentData.map((item, idx) => (
             <SatelliteSource
-              key={item.id} // Note: id for first item is always 'tiktok', so React might not re-mount it, which is good for transitions, but we want the content to update.
+              key={`${item.id}-${item.sourceName}`}
               item={item}
               isActive={idx === activeIndex}
               index={idx}
