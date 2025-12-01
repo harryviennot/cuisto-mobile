@@ -38,14 +38,15 @@ export const OTPInputField = ({
     return (
       <View
         key={index}
-        className={`w-12 items-center border-b-2 pb-3 ${!!error
-          ? "border-red-400"
-          : isDigitFilled
-            ? "border-white"
-            : isCurrentInput
-              ? "border-white/60"
-              : "border-white/20"
-          }`}
+        className={`w-12 items-center border-b-2 pb-3 ${
+          !!error
+            ? "border-red-400"
+            : isDigitFilled
+              ? "border-white"
+              : isCurrentInput
+                ? "border-white/60"
+                : "border-white/20"
+        }`}
       >
         <Text className="text-3xl text-white font-bold">{digit}</Text>
       </View>
