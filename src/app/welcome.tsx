@@ -72,130 +72,43 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#0c0a09" }}>
+    <View className="flex-1 bg-stone-950">
       <StatusBar barStyle="light-content" />
 
       {/* Background Ambience */}
-      <View
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-        }}
-        pointerEvents="none"
-      >
+      <View className="absolute inset-0" pointerEvents="none">
         {/* Top left emerald orb */}
         <View
-          style={{
-            position: "absolute",
-            top: "-10%",
-            left: "-20%",
-            width: 300,
-            height: 300,
-            borderRadius: 150,
-            backgroundColor: "rgba(6, 78, 59, 0.4)", // emerald-900/30
-            // Note: blur is simulated via large border radius and low opacity
-            // For true blur, would need BlurView or SVG filter
-          }}
+          className="absolute w-[300px] h-[300px] rounded-full bg-emerald-900/40"
+          style={{ top: "-10%", left: "-20%" }}
         />
         {/* Bottom right stone orb */}
         <View
-          style={{
-            position: "absolute",
-            bottom: "10%",
-            right: "-20%",
-            width: 300,
-            height: 300,
-            borderRadius: 150,
-            backgroundColor: "rgba(41, 37, 36, 0.7)", // stone-800/40
-          }}
+          className="absolute w-[300px] h-[300px] rounded-full bg-stone-800/70"
+          style={{ bottom: "10%", right: "-20%" }}
         />
       </View>
 
       <BlurView
-        style={{
-          flex: 1,
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
-        }}
+        className="flex-1 absolute inset-0 bg-black/50"
         tint="dark"
         intensity={65}
       />
 
       {/* Main Content */}
       <View
-        style={{
-          flex: 1,
-          paddingHorizontal: 24,
-          paddingTop: insets.top + 48,
-          paddingBottom: insets.bottom + 48,
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
+        className="flex-1 px-6 justify-between items-center"
+        style={{ paddingTop: insets.top + 48, paddingBottom: insets.bottom + 48 }}
       >
         {/* HEADER */}
         <Animated.View
-          style={[headerAnimatedStyle, { alignItems: "center", gap: 16 }]}
+          style={headerAnimatedStyle}
+          className="items-center gap-4"
         >
-          {/* Brand badge */}
-          {/* <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 8,
-              paddingHorizontal: 12,
-              paddingVertical: 6,
-              borderRadius: 9999,
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              borderWidth: 1,
-              borderColor: "rgba(255, 255, 255, 0.1)",
-            }}
-          > */}
-          {/* <View
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: 3,
-                backgroundColor: "#34d399", // emerald-400
-              }}
-            />
-            <Text
-              style={{
-                fontSize: 10,
-                fontWeight: "700",
-                letterSpacing: 2,
-                textTransform: "uppercase",
-                color: "#34d399", // emerald-400
-              }}
-            >
-              Cuisto
-            </Text>
-          </View> */}
-
           {/* Tagline */}
-          <Text
-            style={{
-              fontFamily: "PlayfairDisplay_400Regular",
-              fontSize: 48,
-              lineHeight: 52,
-              textAlign: "center",
-              color: "#ffffff",
-              letterSpacing: -0.5,
-            }}
-          >
+          <Text className="font-playfair text-5xl text-center text-white tracking-tight leading-[52px]">
             All your recipes.{"\n"}
-            <Text
-              style={{
-                fontFamily: "PlayfairDisplay_400Regular_Italic",
-                color: "rgba(255, 255, 255, 0.4)",
-              }}
-            >
+            <Text className="font-playfair-italic text-white/40">
               One Place.
             </Text>
           </Text>
@@ -203,29 +116,15 @@ export default function WelcomeScreen() {
 
         {/* GRAPHIC AREA */}
         <View
-          style={{
-            position: "relative",
-            width: "100%",
-            maxWidth: 340,
-            height: 460,
-            alignItems: "center",
-            justifyContent: "center",
-            marginVertical: 16,
-          }}
+          className="relative w-full items-center justify-center my-4"
+          style={{ maxWidth: 340, height: 460 }}
         >
           {/* Central Phone */}
           <HeroPhone delay={300} />
 
           {/* Floating Cards */}
           {/* Top Left - TikTok */}
-          <View
-            style={{
-              position: "absolute",
-              top: 16,
-              left: -12,
-              zIndex: 30,
-            }}
-          >
+          <View className="absolute z-30" style={{ top: 16, left: -12 }}>
             <FloatingSourceCard
               type="tiktok"
               label="Feta Pasta"
@@ -235,14 +134,7 @@ export default function WelcomeScreen() {
           </View>
 
           {/* Top Right - Instagram */}
-          <View
-            style={{
-              position: "absolute",
-              top: 56,
-              right: -12,
-              zIndex: 30,
-            }}
-          >
+          <View className="absolute z-30" style={{ top: 56, right: -12 }}>
             <FloatingSourceCard
               type="instagram"
               label="@chef_mike"
@@ -252,14 +144,7 @@ export default function WelcomeScreen() {
           </View>
 
           {/* Middle Left - Photo */}
-          <View
-            style={{
-              position: "absolute",
-              top: "38%",
-              left: -20,
-              zIndex: 30,
-            }}
-          >
+          <View className="absolute z-30" style={{ top: "38%", left: -20 }}>
             <FloatingSourceCard
               type="photo"
               label="Mom's Recipe"
@@ -269,14 +154,7 @@ export default function WelcomeScreen() {
           </View>
 
           {/* Middle Right - Text */}
-          <View
-            style={{
-              position: "absolute",
-              top: "45%",
-              right: -20,
-              zIndex: 30,
-            }}
-          >
+          <View className="absolute z-30" style={{ top: "45%", right: -20 }}>
             <FloatingSourceCard
               type="text"
               label="Pasted Text"
@@ -286,14 +164,7 @@ export default function WelcomeScreen() {
           </View>
 
           {/* Bottom Left - Web */}
-          <View
-            style={{
-              position: "absolute",
-              bottom: 56,
-              left: -16,
-              zIndex: 30,
-            }}
-          >
+          <View className="absolute z-30" style={{ bottom: 56, left: -16 }}>
             <FloatingSourceCard
               type="web"
               label="NYT Cooking"
@@ -303,14 +174,7 @@ export default function WelcomeScreen() {
           </View>
 
           {/* Bottom Right - Voice */}
-          <View
-            style={{
-              position: "absolute",
-              bottom: 16,
-              right: -16,
-              zIndex: 30,
-            }}
-          >
+          <View className="absolute z-30" style={{ bottom: 16, right: -16 }}>
             <FloatingSourceCard
               type="voice"
               label="Grandma's Pie"
@@ -321,39 +185,15 @@ export default function WelcomeScreen() {
         </View>
 
         {/* CTA */}
-        <Animated.View style={[ctaAnimatedStyle, { width: "100%" }]}>
+        <Animated.View style={ctaAnimatedStyle} className="w-full">
           <AnimatedPressable
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
             onPress={handleGetStarted}
-            style={[
-              buttonAnimatedStyle,
-              {
-                width: "100%",
-                height: 64,
-                borderRadius: 16,
-                backgroundColor: "#ffffff",
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 12,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.3,
-                shadowRadius: 8,
-                elevation: 8,
-              },
-            ]}
+            style={buttonAnimatedStyle}
+            className="w-full h-16 rounded-2xl bg-white flex-row items-center justify-center gap-3 shadow-lg"
           >
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: "700",
-                letterSpacing: 3,
-                textTransform: "uppercase",
-                color: "#0c0a09", // stone-950
-              }}
-            >
+            <Text className="text-sm font-bold uppercase tracking-[3px] text-stone-950">
               Start Collecting
             </Text>
             <ArrowRight size={18} color="#0c0a09" weight="bold" />
