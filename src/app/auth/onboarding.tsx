@@ -1,319 +1,495 @@
-import { useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ActivityIndicator,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+/**
+ * Multi-step onboarding questionnaire
+ * Features:
+ * - Blurred food photography background (like cooking mode)
+ * - Progress bar indicator at top
+ * - Cream-colored card with swipe animations
+ * - Bottom navigation controls
+ * - Auto-advance on single-select
+ */
+import { useState, useEffect, useCallback } from "react";
+import { View, Text, TextInput, ScrollView, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { Confetti } from "phosphor-react-native";
-import { TextInput } from "@/components/forms/TextInput";
-import { authService } from "@/api/services/auth.service";
+import { StatusBar } from "expo-status-bar";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+  useDerivedValue,
+  runOnJS,
+  Easing,
+} from "react-native-reanimated";
+import { useTranslation } from "react-i18next";
+import {
+  Megaphone,
+  Storefront,
+  Article,
+  MagnifyingGlass,
+  DotsThree,
+  CookingPot,
+  Timer,
+  CalendarBlank,
+  Fire,
+  TiktokLogo,
+  InstagramLogo,
+  YoutubeLogo,
+  BookOpen,
+  BookBookmark,
+  UsersThree,
+} from "phosphor-react-native";
 import Toast from "react-native-toast-message";
 
+import {
+  OnboardingProgress,
+  OnboardingOptionCard,
+  OnboardingBackground,
+  OnboardingComplete,
+  OnboardingControls,
+} from "@/components/onboarding";
+import { authService } from "@/api/services/auth.service";
+import type { Icon } from "phosphor-react-native";
+
+// Step definitions
+type StepId = "basicInfo" | "heardFrom" | "cookingFrequency" | "recipeSources" | "completion";
+
 interface OnboardingFormData {
+  display_name: string;
+  age: string;
   heard_from: string;
   cooking_frequency: string;
   recipe_sources: string[];
-  display_name: string;
 }
+
+interface OptionConfig {
+  value: string;
+  icon: Icon;
+}
+
+// Option configurations with icons
+const HEARD_FROM_OPTIONS: OptionConfig[] = [
+  { value: "social_media", icon: Megaphone },
+  { value: "friend", icon: UsersThree },
+  { value: "app_store", icon: Storefront },
+  { value: "blog", icon: Article },
+  { value: "search_engine", icon: MagnifyingGlass },
+  { value: "other", icon: DotsThree },
+];
+
+const COOKING_FREQUENCY_OPTIONS: OptionConfig[] = [
+  { value: "rarely", icon: CalendarBlank },
+  { value: "occasionally", icon: Timer },
+  { value: "regularly", icon: CookingPot },
+  { value: "almost_daily", icon: Fire },
+];
+
+const RECIPE_SOURCES_OPTIONS: OptionConfig[] = [
+  { value: "tiktok", icon: TiktokLogo },
+  { value: "instagram", icon: InstagramLogo },
+  { value: "youtube", icon: YoutubeLogo },
+  { value: "blogs", icon: Article },
+  { value: "cookbooks", icon: BookBookmark },
+  { value: "family", icon: UsersThree },
+  { value: "other", icon: BookOpen },
+];
+
+const STEPS: StepId[] = ["basicInfo", "heardFrom", "cookingFrequency", "recipeSources", "completion"];
+const TOTAL_QUESTION_STEPS = STEPS.length - 1; // Exclude completion step from count
 
 export default function Onboarding() {
   const insets = useSafeAreaInsets();
-  const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<Partial<Record<keyof OnboardingFormData, string>>>({});
+  const { t } = useTranslation();
+  const { width } = useWindowDimensions();
+
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const [formData, setFormData] = useState<OnboardingFormData>({
+    display_name: "",
+    age: "",
     heard_from: "",
     cooking_frequency: "",
     recipe_sources: [],
-    display_name: "",
   });
 
-  // Options for "How did you hear about us?"
-  const heardFromOptions = [
-    { label: "Social Media", value: "social_media" },
-    { label: "Friend", value: "friend" },
-    { label: "App Store", value: "app_store" },
-    { label: "Blog/Article", value: "blog" },
-    { label: "Search Engine", value: "search_engine" },
-    { label: "Other", value: "other" },
-  ];
+  // Animation values (like cooking mode)
+  const slideAnim = useSharedValue(0);
 
-  // Options for "How often do you cook?"
-  const cookingFrequencyOptions = [
-    { label: "Rarely", value: "rarely" },
-    { label: "Occasionally", value: "occasionally" },
-    { label: "Regularly", value: "regularly" },
-    { label: "Almost Daily", value: "almost_daily" },
-  ];
+  // Derived animation values for content
+  const contentTranslateX = useDerivedValue(() => {
+    return interpolate(slideAnim.value, [-1, 0, 1], [-width, 0, width]);
+  });
 
-  // Options for "Where do you get recipes?"
-  const recipeSourceOptions = [
-    { label: "TikTok", value: "tiktok" },
-    { label: "Instagram", value: "instagram" },
-    { label: "YouTube", value: "youtube" },
-    { label: "Blogs", value: "blogs" },
-    { label: "Cookbooks", value: "cookbooks" },
-    { label: "Family & Friends", value: "family" },
-    { label: "Other", value: "other" },
-  ];
+  const contentScale = useDerivedValue(() => {
+    return interpolate(slideAnim.value, [-1, 0, 1], [0.9, 1, 0.9]);
+  });
 
-  const handleHeardFromSelect = (value: string) => {
-    setFormData({ ...formData, heard_from: value });
-    setErrors({ ...errors, heard_from: undefined });
-  };
+  const contentOpacity = useDerivedValue(() => {
+    return interpolate(slideAnim.value, [-1, 0, 1], [0, 1, 0]);
+  });
 
-  const handleCookingFrequencySelect = (value: string) => {
-    setFormData({ ...formData, cooking_frequency: value });
-    setErrors({ ...errors, cooking_frequency: undefined });
-  };
+  const contentAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: contentTranslateX.value },
+      { scale: contentScale.value },
+    ],
+    opacity: contentOpacity.value,
+  }));
 
-  const handleRecipeSourceToggle = (value: string) => {
-    const newSources = formData.recipe_sources.includes(value)
-      ? formData.recipe_sources.filter((s) => s !== value)
-      : [...formData.recipe_sources, value];
+  // Navigate to next step with slide animation
+  const goToNextStep = useCallback(() => {
+    if (isAnimating || currentStep >= STEPS.length - 1) return;
 
-    setFormData({ ...formData, recipe_sources: newSources });
-    setErrors({ ...errors, recipe_sources: undefined });
-  };
+    setIsAnimating(true);
 
-  const validate = (): boolean => {
-    const newErrors: Partial<Record<keyof OnboardingFormData, string>> = {};
-
-    if (!formData.heard_from) {
-      newErrors.heard_from = "Please select how you heard about us";
-    }
-
-    if (!formData.cooking_frequency) {
-      newErrors.cooking_frequency = "Please select your cooking frequency";
-    }
-
-    if (formData.recipe_sources.length === 0) {
-      newErrors.recipe_sources = "Please select at least one recipe source";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleComplete = async () => {
-    if (!validate()) {
-      Toast.show({
-        type: "error",
-        text1: "Missing information",
-        text2: "Please complete all required fields",
+    // Slide out to the left
+    slideAnim.value = withTiming(-1, { duration: 250, easing: Easing.out(Easing.cubic) }, () => {
+      runOnJS(setCurrentStep)(currentStep + 1);
+      // Reset to right side
+      slideAnim.value = 1;
+      // Slide in from right
+      slideAnim.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) }, () => {
+        runOnJS(setIsAnimating)(false);
       });
-      return;
-    }
+    });
+  }, [currentStep, isAnimating, slideAnim]);
 
-    setIsLoading(true);
+  // Navigate to previous step with slide animation
+  const goToPreviousStep = useCallback(() => {
+    if (isAnimating || currentStep <= 0) return;
+
+    setIsAnimating(true);
+
+    // Slide out to the right
+    slideAnim.value = withTiming(1, { duration: 250, easing: Easing.out(Easing.cubic) }, () => {
+      runOnJS(setCurrentStep)(currentStep - 1);
+      // Reset to left side
+      slideAnim.value = -1;
+      // Slide in from left
+      slideAnim.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) }, () => {
+        runOnJS(setIsAnimating)(false);
+      });
+    });
+  }, [currentStep, isAnimating, slideAnim]);
+
+  // Handle single-select option (auto-advance)
+  const handleSingleSelect = useCallback(
+    (field: "heard_from" | "cooking_frequency", value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      // Auto-advance after a longer delay so user sees their selection
+      setTimeout(() => goToNextStep(), 600);
+    },
+    [goToNextStep]
+  );
+
+  // Handle multi-select option (toggle)
+  const handleMultiSelect = useCallback((value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      recipe_sources: prev.recipe_sources.includes(value)
+        ? prev.recipe_sources.filter((v) => v !== value)
+        : [...prev.recipe_sources, value],
+    }));
+  }, []);
+
+  // Submit onboarding data
+  const handleSubmit = useCallback(async () => {
+    setIsSubmitting(true);
 
     try {
+      const ageNumber = formData.age ? parseInt(formData.age, 10) : undefined;
+
       await authService.submitOnboarding({
         heard_from: formData.heard_from,
         cooking_frequency: formData.cooking_frequency,
         recipe_sources: formData.recipe_sources,
         display_name: formData.display_name.trim() || undefined,
+        age: ageNumber && !isNaN(ageNumber) ? ageNumber : undefined,
       });
 
       Toast.show({
         type: "success",
-        text1: "Welcome to Cuistudio!",
+        text1: t("common.welcome"),
         text2: "Your account is all set up",
       });
 
       // Navigate to main app
       router.replace("/(tabs)");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Onboarding submission error:", err);
+
+      const errorMessage =
+        err instanceof Error ? err.message : "Please try again";
 
       Toast.show({
         type: "error",
         text1: "Failed to complete setup",
-        text2: err.response?.data?.message || "Please try again",
+        text2: errorMessage,
       });
-    } finally {
-      setIsLoading(false);
+
+      setIsSubmitting(false);
+    }
+  }, [formData, t]);
+
+  // Check if current step can continue
+  const canContinueCurrentStep = useCallback(() => {
+    const stepId = STEPS[currentStep];
+    switch (stepId) {
+      case "basicInfo":
+        return formData.display_name.trim().length > 0;
+      case "heardFrom":
+        return formData.heard_from !== "";
+      case "cookingFrequency":
+        return formData.cooking_frequency !== "";
+      case "recipeSources":
+        return formData.recipe_sources.length > 0;
+      default:
+        return true;
+    }
+  }, [currentStep, formData]);
+
+  // Handle continue button press
+  const handleContinue = useCallback(() => {
+    const stepId = STEPS[currentStep];
+
+    if (stepId === "recipeSources" && formData.recipe_sources.length === 0) {
+      Toast.show({
+        type: "error",
+        text1: "Please select at least one",
+        text2: "Where do you usually find recipes?",
+      });
+      return;
+    }
+
+    goToNextStep();
+  }, [currentStep, formData.recipe_sources, goToNextStep]);
+
+  // Trigger submit when reaching completion step
+  useEffect(() => {
+    if (STEPS[currentStep] === "completion" && !isSubmitting) {
+      // Small delay to show completion animation
+      const timer = setTimeout(() => {
+        handleSubmit();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, isSubmitting, handleSubmit]);
+
+  const stepId = STEPS[currentStep];
+  const canContinue = canContinueCurrentStep();
+  const isLastQuestionStep = currentStep === TOTAL_QUESTION_STEPS - 1;
+
+  // Render step content inside the card
+  const renderStepContent = () => {
+    switch (stepId) {
+      case "basicInfo":
+        return (
+          <View className="p-7">
+            {/* Title */}
+            <Text
+              className="mb-2 text-3xl text-foreground-heading"
+              style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+            >
+              {t("onboarding.basicInfo.title")}
+            </Text>
+            <Text className="mb-8 text-base text-foreground-muted">
+              {t("onboarding.basicInfo.subtitle")}
+            </Text>
+
+            {/* Name input */}
+            <View className="mb-6">
+              <Text className="mb-2 text-sm font-medium text-foreground-secondary">
+                {t("onboarding.basicInfo.nameLabel")}
+              </Text>
+              <TextInput
+                className="rounded-xl border-2 border-border bg-white px-4 py-4 text-base text-foreground-heading"
+                placeholder={t("onboarding.basicInfo.namePlaceholder")}
+                placeholderTextColor="#a8a29e"
+                value={formData.display_name}
+                onChangeText={(text) => setFormData((prev) => ({ ...prev, display_name: text }))}
+                autoCapitalize="words"
+                autoCorrect={false}
+                returnKeyType="next"
+              />
+            </View>
+
+            {/* Age input */}
+            <View>
+              <Text className="mb-2 text-sm font-medium text-foreground-secondary">
+                {t("onboarding.basicInfo.ageLabel")}
+              </Text>
+              <TextInput
+                className="rounded-xl border-2 border-border bg-white px-4 py-4 text-base text-foreground-heading"
+                placeholder={t("onboarding.basicInfo.agePlaceholder")}
+                placeholderTextColor="#a8a29e"
+                value={formData.age}
+                onChangeText={(text) => {
+                  // Only allow numbers
+                  const numericText = text.replace(/[^0-9]/g, "");
+                  setFormData((prev) => ({ ...prev, age: numericText }));
+                }}
+                keyboardType="number-pad"
+                maxLength={3}
+                returnKeyType="done"
+              />
+            </View>
+          </View>
+        );
+
+      case "heardFrom":
+        return (
+          <ScrollView
+            // style={{ maxHeight: 900 }}
+            contentContainerStyle={{ padding: 24 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Title */}
+            <Text
+              className="mb-2 text-3xl text-foreground-heading"
+              style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+            >
+              {t("onboarding.heardFrom.title")}
+            </Text>
+            <Text className="mb-6 text-base text-foreground-muted">
+              {t("onboarding.heardFrom.subtitle")}
+            </Text>
+
+            {/* Options */}
+            {HEARD_FROM_OPTIONS.map((option, index) => (
+              <OnboardingOptionCard
+                key={option.value}
+                label={t(`onboarding.heardFrom.options.${option.value}.label` as any)}
+                description={t(`onboarding.heardFrom.options.${option.value}.description` as any)}
+                icon={option.icon}
+                isSelected={formData.heard_from === option.value}
+                onPress={() => handleSingleSelect("heard_from", option.value)}
+                disabled={isAnimating}
+                className={index === HEARD_FROM_OPTIONS.length - 1 ? "mb-0" : "mb-4"}
+              />
+            ))}
+          </ScrollView>
+        );
+
+      case "cookingFrequency":
+        return (
+          <ScrollView
+            // style={{ maxHeight: 420 }}
+            contentContainerStyle={{ padding: 24 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Title */}
+            <Text
+              className="mb-2 text-3xl text-foreground-heading"
+              style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+            >
+              {t("onboarding.cookingFrequency.title")}
+            </Text>
+            <Text className="mb-6 text-base text-foreground-muted">
+              {t("onboarding.cookingFrequency.subtitle")}
+            </Text>
+
+            {/* Options */}
+            {COOKING_FREQUENCY_OPTIONS.map((option, index) => (
+              <OnboardingOptionCard
+                key={option.value}
+                label={t(`onboarding.cookingFrequency.options.${option.value}.label` as any)}
+                description={t(`onboarding.cookingFrequency.options.${option.value}.description` as any)}
+                icon={option.icon}
+                isSelected={formData.cooking_frequency === option.value}
+                onPress={() => handleSingleSelect("cooking_frequency", option.value)}
+                disabled={isAnimating}
+                className={index === COOKING_FREQUENCY_OPTIONS.length - 1 ? "mb-0" : "mb-4"}
+              />
+            ))}
+          </ScrollView>
+        );
+
+      case "recipeSources":
+        return (
+          <ScrollView
+            // style={{ maxHeight: 500 }}
+            contentContainerStyle={{ padding: 24 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Title */}
+            <Text
+              className="mb-2 text-3xl text-foreground-heading"
+              style={{ fontFamily: "PlayfairDisplay_700Bold" }}
+            >
+              {t("onboarding.recipeSources.title")}
+            </Text>
+            <Text className="mb-6 text-base text-foreground-muted">
+              {t("onboarding.recipeSources.subtitle")}
+            </Text>
+
+            {/* Options (multi-select) */}
+            {RECIPE_SOURCES_OPTIONS.map((option, index) => (
+              <OnboardingOptionCard
+                key={option.value}
+                label={t(`onboarding.recipeSources.options.${option.value}.label` as any)}
+                description={t(`onboarding.recipeSources.options.${option.value}.description` as any)}
+                icon={option.icon}
+                isSelected={formData.recipe_sources.includes(option.value)}
+                onPress={() => handleMultiSelect(option.value)}
+                disabled={isAnimating}
+                className={index === RECIPE_SOURCES_OPTIONS.length - 1 ? "mb-0" : "mb-4"}
+              />
+            ))}
+          </ScrollView>
+        );
+
+      default:
+        return null;
     }
   };
 
+  // Completion screen (no card)
+  if (stepId === "completion") {
+    return (
+      <View className="flex-1 bg-black">
+        <StatusBar style="light" />
+        <OnboardingBackground step={currentStep} />
+        <OnboardingComplete displayName={formData.display_name} isSubmitting={isSubmitting} />
+      </View>
+    );
+  }
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-surface"
-      style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
-    >
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 24, paddingVertical: 24 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View className="items-center mb-8">
-          <View className="bg-primary/10 rounded-full p-4 mb-4">
-            <Confetti size={48} color="#334d43" weight="duotone" />
-          </View>
-          <Text
-            className="text-3xl font-playfair-bold text-foreground-heading mb-2 text-center"
-            style={{ fontFamily: "PlayfairDisplay_700Bold" }}
-          >
-            Welcome to Cuistudio!
-          </Text>
-          <Text className="text-base text-foreground-secondary text-center">
-            Help us personalize your experience
-          </Text>
-        </View>
+    <View className="flex-1 bg-black">
+      <StatusBar style="light" />
 
-        {/* Display Name (Optional) */}
-        <View className="mb-8">
-          <TextInput
-            label="Display Name (Optional)"
-            placeholder="What should we call you?"
-            value={formData.display_name}
-            onChangeText={(text) => setFormData({ ...formData, display_name: text })}
-            autoCapitalize="words"
-            autoCorrect={false}
-            returnKeyType="done"
-          />
-        </View>
+      {/* Blurred background */}
+      <OnboardingBackground step={currentStep} />
 
-        {/* Question 1: How did you hear about us? */}
-        <View className="mb-8">
-          <Text className="font-bold text-sm uppercase tracking-widest text-foreground-tertiary mb-3">
-            How did you hear about us? *
-          </Text>
-          <View className="flex-row flex-wrap gap-2">
-            {heardFromOptions.map((option) => {
-              const isSelected = formData.heard_from === option.value;
-              return (
-                <Pressable
-                  key={option.value}
-                  onPress={() => handleHeardFromSelect(option.value)}
-                  className="active:opacity-60"
-                >
-                  <View
-                    className={`rounded-full px-4 py-2.5 border ${
-                      isSelected
-                        ? "border-primary bg-primary/10"
-                        : "border-border-button bg-white"
-                    }`}
-                  >
-                    <Text
-                      className={`text-sm font-semibold ${
-                        isSelected ? "text-primary" : "text-foreground"
-                      }`}
-                    >
-                      {option.label}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-          {errors.heard_from && (
-            <Text className="mt-2 text-sm text-danger">{errors.heard_from}</Text>
-          )}
-        </View>
+      {/* Content */}
+      <View className="flex-1 gap-4" style={{ paddingTop: insets.top }}>
+        {/* Progress bar */}
+        <OnboardingProgress currentStep={currentStep} totalSteps={TOTAL_QUESTION_STEPS} />
 
-        {/* Question 2: How often do you cook? */}
-        <View className="mb-8">
-          <Text className="font-bold text-sm uppercase tracking-widest text-foreground-tertiary mb-3">
-            How often do you cook? *
-          </Text>
-          <View className="flex-row flex-wrap gap-2">
-            {cookingFrequencyOptions.map((option) => {
-              const isSelected = formData.cooking_frequency === option.value;
-              return (
-                <Pressable
-                  key={option.value}
-                  onPress={() => handleCookingFrequencySelect(option.value)}
-                  className="active:opacity-60"
-                >
-                  <View
-                    className={`rounded-full px-4 py-2.5 border ${
-                      isSelected
-                        ? "border-primary bg-primary/10"
-                        : "border-border-button bg-white"
-                    }`}
-                  >
-                    <Text
-                      className={`text-sm font-semibold ${
-                        isSelected ? "text-primary" : "text-foreground"
-                      }`}
-                    >
-                      {option.label}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-          {errors.cooking_frequency && (
-            <Text className="mt-2 text-sm text-danger">{errors.cooking_frequency}</Text>
-          )}
-        </View>
-
-        {/* Question 3: Where do you get recipes? (Multi-select) */}
-        <View className="mb-8">
-          <Text className="font-bold text-sm uppercase tracking-widest text-foreground-tertiary mb-3">
-            Where do you get recipes from? * (Select all that apply)
-          </Text>
-          <View className="flex-row flex-wrap gap-2">
-            {recipeSourceOptions.map((option) => {
-              const isSelected = formData.recipe_sources.includes(option.value);
-              return (
-                <Pressable
-                  key={option.value}
-                  onPress={() => handleRecipeSourceToggle(option.value)}
-                  className="active:opacity-60"
-                >
-                  <View
-                    className={`rounded-full px-4 py-2.5 border ${
-                      isSelected
-                        ? "border-primary bg-primary/10"
-                        : "border-border-button bg-white"
-                    }`}
-                  >
-                    <Text
-                      className={`text-sm font-semibold ${
-                        isSelected ? "text-primary" : "text-foreground"
-                      }`}
-                    >
-                      {option.label}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
-          </View>
-          {errors.recipe_sources && (
-            <Text className="mt-2 text-sm text-danger">{errors.recipe_sources}</Text>
-          )}
-        </View>
-
-        {/* Complete Button */}
-        <Pressable
-          onPress={handleComplete}
-          disabled={isLoading}
-          className="bg-primary rounded-xl py-4 items-center justify-center active:opacity-80 disabled:opacity-50 mb-6"
+        {/* Card container */}
+        <Animated.View
+          className="flex-1 justify-center px-4"
+          style={contentAnimatedStyle}
         >
-          {isLoading ? (
-            <ActivityIndicator color="#f4f1e8" />
-          ) : (
-            <Text className="text-white font-semibold text-base">Complete Setup</Text>
-          )}
-        </Pressable>
+          {/* Cream-colored card (like StepCard) - auto-sized to content */}
+          <View className="overflow-hidden rounded-[32px] bg-[#FDFBF7] shadow-2xl">
+            {renderStepContent()}
+          </View>
+        </Animated.View>
 
-        {/* Helper Text */}
-        <Text className="text-sm text-foreground-tertiary text-center mb-8">
-          * Required fields
-        </Text>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        {/* Bottom controls */}
+        <OnboardingControls
+          currentStep={currentStep}
+          totalSteps={TOTAL_QUESTION_STEPS}
+          canContinue={canContinue}
+          onPrevious={goToPreviousStep}
+          onNext={handleContinue}
+          isAnimating={isAnimating}
+          isLastStep={isLastQuestionStep}
+        />
+      </View>
+    </View>
   );
 }

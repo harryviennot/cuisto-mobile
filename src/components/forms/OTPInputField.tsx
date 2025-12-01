@@ -1,25 +1,24 @@
 import { Pressable, Text, TextInput, View } from "react-native";
 import { useRef, useState } from "react";
+import { cn } from "@/utils/cn";
 
 interface OTPInputFieldProps {
   otpCode: string;
   setOtpCode: (otpCode: string) => void;
   maxInputLength: number;
   error?: string;
+  className?: string;
 }
 
-export const OTPInputField = ({ otpCode, setOtpCode, maxInputLength, error }: OTPInputFieldProps) => {
+export const OTPInputField = ({ otpCode, setOtpCode, maxInputLength, error, className }: OTPInputFieldProps) => {
   const textInputRef = useRef<TextInput>(null);
   const codeDigitsArray = new Array(maxInputLength).fill(0);
-  const [isFocused, setIsFocused] = useState(false);
 
   const handlePress = () => {
-    // setIsFocused(true);
     textInputRef.current?.focus();
   };
 
   const handleOnBlur = () => {
-    // setIsFocused(false);
     if (textInputRef.current) {
       textInputRef.current.blur();
     }
@@ -28,37 +27,32 @@ export const OTPInputField = ({ otpCode, setOtpCode, maxInputLength, error }: OT
   const toCodeDigitInput = (_value: string, index: number) => {
     const digit = otpCode[index] || " ";
     const isDigitFilled = digit !== " ";
-
     const isCurrentInput = index === otpCode.length;
-
-    const shouldBorderCurrentInput = isCurrentInput || isDigitFilled;
 
     return (
       <View
         key={index}
-        className={`w-12 h-14 items-center justify-center  rounded-xl border-2 ${error
-          ? "border-danger bg-danger-muted"
-          : shouldBorderCurrentInput
-            ? "border-primary bg-white"
-            : "border-border-button bg-white"
+        className={`w-12 items-center border-b-2 pb-3 ${!!error
+          ? "border-red-400"
+          : isDigitFilled
+            ? "border-white"
+            : isCurrentInput
+              ? "border-white/60"
+              : "border-white/20"
           }`}
       >
-        <Text className="text-2xl font-semibold text-primary-foreground">{digit}</Text>
+        <Text className="text-3xl text-white font-bold">{digit}</Text>
       </View>
     )
   };
 
   return (
-    <View className="flex items-center justify-center">
-      <Pressable onPress={handlePress} className="flex-row gap-3 justify-center mb-4">
-        {codeDigitsArray.map(toCodeDigitInput)}
-      </Pressable>
-
+    <>
       <TextInput
-        className="w-12 h-12 border border-gray-300 rounded-md text-center absolute  opacity-0"
+        className="absolute border-2 border-white/20"
         keyboardType="numeric"
         textContentType="oneTimeCode"
-        returnKeyType="done"
+        // returnKeyType="done"
         maxLength={maxInputLength}
         value={otpCode}
         autoComplete="sms-otp"
@@ -66,6 +60,17 @@ export const OTPInputField = ({ otpCode, setOtpCode, maxInputLength, error }: OT
         onBlur={handleOnBlur}
         ref={textInputRef}
       />
-    </View >
+
+      <Pressable onPress={handlePress} className={cn("flex-row justify-between", className)}>
+        {codeDigitsArray.map(toCodeDigitInput)}
+      </Pressable>
+
+      {error && (
+        <Text className="text-sm text-red-400 mb-4">
+          {error}
+        </Text>
+      )}
+
+    </>
   );
 };

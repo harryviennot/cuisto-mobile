@@ -60,6 +60,7 @@ export interface OnboardingData {
   cooking_frequency: string; // 'rarely' | 'occasionally' | 'regularly' | 'almost_daily'
   recipe_sources: string[]; // ['tiktok', 'instagram', 'youtube', 'blogs', 'cookbooks', 'family', 'other']
   display_name?: string;
+  age?: number; // User's age as integer
 }
 
 export interface CompleteProfileRequest {

@@ -327,5 +327,108 @@
   },
   "search": {
     "placeholder": "Rechercher des recettes..."
+  },
+  "onboarding": {
+    "step": "Étape {{current}} sur {{total}}",
+    "back": "Retour",
+    "continue": "Continuer",
+    "basicInfo": {
+      "title": "Faisons connaissance",
+      "subtitle": "Parlez-nous un peu de vous",
+      "nameLabel": "Comment devons-nous vous appeler ?",
+      "namePlaceholder": "Votre prénom",
+      "ageLabel": "Quel âge avez-vous ?",
+      "agePlaceholder": "Votre âge"
+    },
+    "heardFrom": {
+      "title": "Comment nous avez-vous découvert ?",
+      "subtitle": "Nous sommes curieux de savoir comment nos chemins se sont croisés",
+      "options": {
+        "social_media": {
+          "label": "Réseaux sociaux",
+          "description": "Instagram, TikTok ou autres plateformes"
+        },
+        "friend": {
+          "label": "Ami ou famille",
+          "description": "Quelqu'un m'a recommandé l'application"
+        },
+        "app_store": {
+          "label": "App Store",
+          "description": "Trouvé en parcourant le store"
+        },
+        "blog": {
+          "label": "Blog ou article",
+          "description": "Lu à ce sujet en ligne"
+        },
+        "search_engine": {
+          "label": "Moteur de recherche",
+          "description": "Trouvé sur Google ou autre"
+        },
+        "other": {
+          "label": "Autre",
+          "description": "Une autre façon non listée ici"
+        }
+      }
+    },
+    "cookingFrequency": {
+      "title": "À quelle fréquence cuisinez-vous ?",
+      "subtitle": "Cela nous aide à personnaliser votre expérience",
+      "options": {
+        "rarely": {
+          "label": "Rarement",
+          "description": "Quelques fois par mois ou moins"
+        },
+        "occasionally": {
+          "label": "Occasionnellement",
+          "description": "Une ou deux fois par semaine"
+        },
+        "regularly": {
+          "label": "Régulièrement",
+          "description": "Plusieurs fois par semaine"
+        },
+        "almost_daily": {
+          "label": "Presque quotidiennement",
+          "description": "Cuisiner est mon rituel quotidien"
+        }
+      }
+    },
+    "recipeSources": {
+      "title": "Où trouvez-vous vos recettes ?",
+      "subtitle": "Sélectionnez tout ce qui s'applique",
+      "options": {
+        "tiktok": {
+          "label": "TikTok",
+          "description": "Vidéos de cuisine courtes"
+        },
+        "instagram": {
+          "label": "Instagram",
+          "description": "Reels et photos culinaires"
+        },
+        "youtube": {
+          "label": "YouTube",
+          "description": "Tutoriels de cuisine longs"
+        },
+        "blogs": {
+          "label": "Blogs culinaires",
+          "description": "Recettes écrites et histoires"
+        },
+        "cookbooks": {
+          "label": "Livres de cuisine",
+          "description": "Livres physiques ou numériques"
+        },
+        "family": {
+          "label": "Famille et amis",
+          "description": "Recettes transmises ou partagées"
+        },
+        "other": {
+          "label": "Autre",
+          "description": "Autres sources de recettes"
+        }
+      }
+    },
+    "completion": {
+      "title": "Bienvenue, {{name}} !",
+      "subtitle": "Préparation de votre cuisine..."
+    }
   }
 }

@@ -47,21 +47,25 @@ const queryClient = new QueryClient({
 function ProtectedNavigation() {
   const segments = useSegments();
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     if (isLoading) return; // Don't do anything while loading
 
     const inAuthGroup = segments[0] === "auth";
+    const onOnboardingScreen = segments[1] === "onboarding";
 
     if (!isAuthenticated && !inAuthGroup) {
       // User is not authenticated and not in auth screens, redirect to auth
       router.replace("/auth");
-    } else if (isAuthenticated && inAuthGroup) {
-      // User is authenticated but still in auth screens, redirect to main app
+    } else if (isAuthenticated && user?.is_new_user && !onOnboardingScreen) {
+      // User is authenticated but hasn't completed onboarding, redirect to onboarding
+      router.replace("/auth/onboarding");
+    } else if (isAuthenticated && !user?.is_new_user && inAuthGroup) {
+      // User is authenticated and completed onboarding but still in auth screens, redirect to main app
       router.replace("/(tabs)");
     }
-  }, [isAuthenticated, isLoading, segments]);
+  }, [isAuthenticated, isLoading, segments, user]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

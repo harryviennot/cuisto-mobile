@@ -132,7 +132,7 @@ export const authService = {
    * Called after email verification for new users
    */
   submitOnboarding: async (data: OnboardingData) => {
-    const response = await api.post<{ message: string }>("/auth/profile/complete", data);
+    const response = await api.post<{ message: string }>("/auth/onboarding", data);
     return response.data;
   },
 };
