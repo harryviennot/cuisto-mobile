@@ -70,12 +70,12 @@ function MiniRecipeCard({ item, index, parentDelay }: { item: any; index: number
   return (
     <Animated.View
       style={animatedStyle}
-      className="bg-white rounded-xl overflow-hidden shadow-sm mb-3"
+      className=" rounded-xl overflow-hidden mb-3"
     >
-      <View className="h-24 w-full bg-stone-200 relative">
+      <View className="h-24 w-full relative">
         <Image
           source={item.image}
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "100%", borderRadius: 8 }}
           contentFit="cover"
         />
         <View className="absolute top-2 right-2 bg-white/20 backdrop-blur-md rounded-full p-1">
@@ -150,7 +150,7 @@ export function HeroPhone({ delay = 300 }: HeroPhoneProps) {
       <View className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-4 bg-black rounded-full z-30" />
 
       {/* Main Content */}
-      <Animated.View style={contentStyle} className="flex-1 pt-10 px-3 pb-4">
+      <Animated.View style={contentStyle} className="flex-1 pt-10 px-3">
         {/* App Header */}
         <View className="mb-4 flex-row items-center justify-between">
           <View>
@@ -182,9 +182,9 @@ export function HeroPhone({ delay = 300 }: HeroPhoneProps) {
         </View>
 
         {/* Bottom Tab Bar Indicator */}
-        <View className="absolute bottom-1 left-0 right-0 items-center pb-1">
+        {/* <View className="absolute bottom-1 left-0 right-0 items-center pb-1">
           <View className="w-24 h-1 bg-stone-900/20 rounded-full" />
-        </View>
+        </View> */}
       </Animated.View>
 
       {/* Glass overlay for bottom fade */}

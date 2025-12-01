@@ -127,7 +127,7 @@ export default function WelcomeScreen() {
           <View className="absolute z-30" style={{ top: 16, left: -12 }}>
             <FloatingSourceCard
               type="tiktok"
-              label="Feta Pasta"
+              label="Pasta Carbonara"
               rotation={-6}
               delay={0}
             />
@@ -147,7 +147,7 @@ export default function WelcomeScreen() {
           <View className="absolute z-30" style={{ top: "38%", left: -20 }}>
             <FloatingSourceCard
               type="photo"
-              label="Mom's Recipe"
+              label="Recipe Book"
               rotation={5}
               delay={1600}
             />
@@ -167,7 +167,7 @@ export default function WelcomeScreen() {
           <View className="absolute z-30" style={{ bottom: 56, left: -16 }}>
             <FloatingSourceCard
               type="web"
-              label="NYT Cooking"
+              label="BBC Good Food"
               rotation={6}
               delay={400}
             />
@@ -177,7 +177,7 @@ export default function WelcomeScreen() {
           <View className="absolute z-30" style={{ bottom: 16, right: -16 }}>
             <FloatingSourceCard
               type="voice"
-              label="Grandma's Pie"
+              label="Grandma's Recipe"
               rotation={-3}
               delay={1200}
             />
