@@ -5,11 +5,7 @@
  */
 import React from "react";
 import { Pressable, View, Text } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { Check } from "phosphor-react-native";
 import type { Icon } from "phosphor-react-native";
 import { cn } from "@/utils/cn";

@@ -21,10 +21,7 @@ interface OnboardingCompleteProps {
   isSubmitting?: boolean;
 }
 
-export function OnboardingComplete({
-  displayName,
-  isSubmitting = true,
-}: OnboardingCompleteProps) {
+export function OnboardingComplete({ displayName, isSubmitting = true }: OnboardingCompleteProps) {
   const { t } = useTranslation();
 
   // Animation values
@@ -37,11 +34,17 @@ export function OnboardingComplete({
 
   useEffect(() => {
     // Staggered entrance animation
-    iconScale.value = withDelay(100, withTiming(1, { duration: 500, easing: Easing.out(Easing.back(1.5)) }));
+    iconScale.value = withDelay(
+      100,
+      withTiming(1, { duration: 500, easing: Easing.out(Easing.back(1.5)) })
+    );
     iconOpacity.value = withDelay(100, withTiming(1, { duration: 400 }));
 
     titleOpacity.value = withDelay(400, withTiming(1, { duration: 500 }));
-    titleTranslateY.value = withDelay(400, withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) }));
+    titleTranslateY.value = withDelay(
+      400,
+      withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) })
+    );
 
     subtitleOpacity.value = withDelay(700, withTiming(1, { duration: 400 }));
     loaderOpacity.value = withDelay(900, withTiming(1, { duration: 400 }));

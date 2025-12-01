@@ -61,10 +61,10 @@ export const AuthInput: React.FC<AuthInputProps> = ({
     const borderColor = error
       ? "rgba(239, 68, 68, 0.8)"
       : interpolateColor(
-        animValue.value,
-        [0, 1],
-        ["rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.6)"]
-      );
+          animValue.value,
+          [0, 1],
+          ["rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.6)"]
+        );
 
     return { borderBottomColor: borderColor };
   });
@@ -89,19 +89,13 @@ export const AuthInput: React.FC<AuthInputProps> = ({
             style={labelAnimatedStyle}
             pointerEvents="none"
           >
-            <AnimatedText
-              className="text-base"
-              style={[{ fontWeight: "400" }, labelColorStyle]}
-            >
+            <AnimatedText className="text-base" style={[{ fontWeight: "400" }, labelColorStyle]}>
               {label}
             </AnimatedText>
           </Animated.View>
 
           {/* Input */}
-          <Animated.View
-            className="border-b-2"
-            style={borderColorStyle}
-          >
+          <Animated.View className="border-b-2" style={borderColorStyle}>
             <FixedTextInput
               ref={inputRef}
               value={value}
@@ -118,9 +112,7 @@ export const AuthInput: React.FC<AuthInputProps> = ({
       </Pressable>
 
       {/* Error Message */}
-      {error && (
-        <Text className="mt-2 text-sm text-red-400">{error}</Text>
-      )}
+      {error && <Text className="mt-2 text-sm text-red-400">{error}</Text>}
     </View>
   );
 };

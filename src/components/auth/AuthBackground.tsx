@@ -22,11 +22,7 @@ export const AuthBackground: React.FC<AuthBackgroundProps> = ({ children }) => {
           style={StyleSheet.absoluteFill}
           contentFit="cover"
         />
-        <BlurView
-          intensity={20}
-          tint="dark"
-          style={StyleSheet.absoluteFill}
-        />
+        <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />
       </View>
 
       {/* Gradient Overlay */}

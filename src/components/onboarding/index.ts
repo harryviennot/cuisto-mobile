@@ -5,12 +5,7 @@ export { OnboardingComplete } from "./OnboardingComplete";
 export { OnboardingControls } from "./OnboardingControls";
 
 // Steps
-export {
-  BasicInfoStep,
-  HeardFromStep,
-  CookingFrequencyStep,
-  RecipeSourcesStep,
-} from "./steps";
+export { BasicInfoStep, HeardFromStep, CookingFrequencyStep, RecipeSourcesStep } from "./steps";
 
 // Types and constants
 export type { StepId, OnboardingFormData, OptionConfig } from "./types";

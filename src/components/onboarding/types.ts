@@ -1,6 +1,11 @@
 import type { Icon } from "phosphor-react-native";
 
-export type StepId = "basicInfo" | "heardFrom" | "cookingFrequency" | "recipeSources" | "completion";
+export type StepId =
+  | "basicInfo"
+  | "heardFrom"
+  | "cookingFrequency"
+  | "recipeSources"
+  | "completion";
 
 export interface OnboardingFormData {
   display_name: string;

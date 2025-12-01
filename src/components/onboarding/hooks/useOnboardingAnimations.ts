@@ -47,10 +47,7 @@ export function useOnboardingAnimations({
   });
 
   const contentAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: contentTranslateX.value },
-      { scale: contentScale.value },
-    ],
+    transform: [{ translateX: contentTranslateX.value }, { scale: contentScale.value }],
     opacity: contentOpacity.value,
   }));
 
@@ -60,23 +57,15 @@ export function useOnboardingAnimations({
     setIsAnimating(true);
 
     // Slide out to the left
-    slideAnim.value = withTiming(
-      -1,
-      { duration: 250, easing: Easing.out(Easing.cubic) },
-      () => {
-        runOnJS(setCurrentStep)(currentStep + 1);
-        // Reset to right side
-        slideAnim.value = 1;
-        // Slide in from right
-        slideAnim.value = withTiming(
-          0,
-          { duration: 300, easing: Easing.out(Easing.cubic) },
-          () => {
-            runOnJS(setIsAnimating)(false);
-          }
-        );
-      }
-    );
+    slideAnim.value = withTiming(-1, { duration: 250, easing: Easing.out(Easing.cubic) }, () => {
+      runOnJS(setCurrentStep)(currentStep + 1);
+      // Reset to right side
+      slideAnim.value = 1;
+      // Slide in from right
+      slideAnim.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) }, () => {
+        runOnJS(setIsAnimating)(false);
+      });
+    });
   }, [currentStep, isAnimating, slideAnim, setCurrentStep]);
 
   const goToPreviousStep = useCallback(() => {
@@ -85,23 +74,15 @@ export function useOnboardingAnimations({
     setIsAnimating(true);
 
     // Slide out to the right
-    slideAnim.value = withTiming(
-      1,
-      { duration: 250, easing: Easing.out(Easing.cubic) },
-      () => {
-        runOnJS(setCurrentStep)(currentStep - 1);
-        // Reset to left side
-        slideAnim.value = -1;
-        // Slide in from left
-        slideAnim.value = withTiming(
-          0,
-          { duration: 300, easing: Easing.out(Easing.cubic) },
-          () => {
-            runOnJS(setIsAnimating)(false);
-          }
-        );
-      }
-    );
+    slideAnim.value = withTiming(1, { duration: 250, easing: Easing.out(Easing.cubic) }, () => {
+      runOnJS(setCurrentStep)(currentStep - 1);
+      // Reset to left side
+      slideAnim.value = -1;
+      // Slide in from left
+      slideAnim.value = withTiming(0, { duration: 300, easing: Easing.out(Easing.cubic) }, () => {
+        runOnJS(setIsAnimating)(false);
+      });
+    });
   }, [currentStep, isAnimating, slideAnim, setCurrentStep]);
 
   return {

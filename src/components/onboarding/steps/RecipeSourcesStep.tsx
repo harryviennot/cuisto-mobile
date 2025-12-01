@@ -18,10 +18,7 @@ export function RecipeSourcesStep({
   const { t } = useTranslation();
 
   return (
-    <ScrollView
-      contentContainerStyle={{ padding: 24 }}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView contentContainerStyle={{ padding: 24 }} showsVerticalScrollIndicator={false}>
       {/* Title */}
       <Text
         className="mb-2 text-3xl text-foreground-heading"
@@ -37,19 +34,13 @@ export function RecipeSourcesStep({
       {RECIPE_SOURCES_OPTIONS.map((option, index) => (
         <OnboardingOptionCard
           key={option.value}
-          label={t(
-            `onboarding.recipeSources.options.${option.value}.label` as any
-          )}
-          description={t(
-            `onboarding.recipeSources.options.${option.value}.description` as any
-          )}
+          label={t(`onboarding.recipeSources.options.${option.value}.label` as any)}
+          description={t(`onboarding.recipeSources.options.${option.value}.description` as any)}
           icon={option.icon}
           isSelected={selectedValues.includes(option.value)}
           onPress={() => onToggle(option.value)}
           disabled={isAnimating}
-          className={
-            index === RECIPE_SOURCES_OPTIONS.length - 1 ? "mb-0" : "mb-5"
-          }
+          className={index === RECIPE_SOURCES_OPTIONS.length - 1 ? "mb-0" : "mb-5"}
         />
       ))}
     </ScrollView>

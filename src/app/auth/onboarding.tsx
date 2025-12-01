@@ -54,12 +54,9 @@ export default function Onboarding() {
     });
 
   // Handle form data changes
-  const handleFormDataChange = useCallback(
-    (data: Partial<OnboardingFormData>) => {
-      setFormData((prev) => ({ ...prev, ...data }));
-    },
-    []
-  );
+  const handleFormDataChange = useCallback((data: Partial<OnboardingFormData>) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+  }, []);
 
   // Handle single-select option
   const handleSingleSelect = useCallback(
@@ -105,8 +102,7 @@ export default function Onboarding() {
     } catch (err: unknown) {
       console.error("Onboarding submission error:", err);
 
-      const errorMessage =
-        err instanceof Error ? err.message : "Please try again";
+      const errorMessage = err instanceof Error ? err.message : "Please try again";
 
       Toast.show({
         type: "error",
@@ -170,12 +166,7 @@ export default function Onboarding() {
   const renderStepContent = () => {
     switch (stepId) {
       case "basicInfo":
-        return (
-          <BasicInfoStep
-            formData={formData}
-            onFormDataChange={handleFormDataChange}
-          />
-        );
+        return <BasicInfoStep formData={formData} onFormDataChange={handleFormDataChange} />;
 
       case "heardFrom":
         return (
@@ -215,10 +206,7 @@ export default function Onboarding() {
       <View className="flex-1 bg-black">
         <StatusBar style="light" />
         <OnboardingBackground step={currentStep} />
-        <OnboardingComplete
-          displayName={formData.display_name}
-          isSubmitting={isSubmitting}
-        />
+        <OnboardingComplete displayName={formData.display_name} isSubmitting={isSubmitting} />
       </View>
     );
   }
@@ -233,10 +221,7 @@ export default function Onboarding() {
       {/* Content */}
       <View className="flex-1 gap-4" style={{ paddingTop: insets.top }}>
         {/* Progress bar */}
-        <OnboardingProgress
-          currentStep={currentStep}
-          totalSteps={TOTAL_QUESTION_STEPS}
-        />
+        <OnboardingProgress currentStep={currentStep} totalSteps={TOTAL_QUESTION_STEPS} />
 
         {/* Card container */}
         <Animated.View

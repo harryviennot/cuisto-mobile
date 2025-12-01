@@ -43,8 +43,7 @@ export const OTPStepCard: React.FC<OTPStepCardProps> = ({
           Verify your email
         </Text>
         <Text className="text-base text-white/50">
-          Enter the code sent to{" "}
-          <Text className="text-sm text-white font-medium">{email}</Text>
+          Enter the code sent to <Text className="text-sm text-white font-medium">{email}</Text>
         </Text>
       </View>
 

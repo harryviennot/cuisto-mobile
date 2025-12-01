@@ -10,18 +10,11 @@ interface HeardFromStepProps {
   isAnimating: boolean;
 }
 
-export function HeardFromStep({
-  selectedValue,
-  onSelect,
-  isAnimating,
-}: HeardFromStepProps) {
+export function HeardFromStep({ selectedValue, onSelect, isAnimating }: HeardFromStepProps) {
   const { t } = useTranslation();
 
   return (
-    <ScrollView
-      contentContainerStyle={{ padding: 24 }}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView contentContainerStyle={{ padding: 24 }} showsVerticalScrollIndicator={false}>
       {/* Title */}
       <Text
         className="mb-2 text-3xl text-foreground-heading"
@@ -38,9 +31,7 @@ export function HeardFromStep({
         <OnboardingOptionCard
           key={option.value}
           label={t(`onboarding.heardFrom.options.${option.value}.label` as any)}
-          description={t(
-            `onboarding.heardFrom.options.${option.value}.description` as any
-          )}
+          description={t(`onboarding.heardFrom.options.${option.value}.description` as any)}
           icon={option.icon}
           isSelected={selectedValue === option.value}
           onPress={() => onSelect(option.value)}

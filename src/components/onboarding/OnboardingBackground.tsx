@@ -37,17 +37,8 @@ export function OnboardingBackground({
 
   return (
     <View style={[styles.container, { opacity: imageOpacity }]}>
-      <Image
-        source={imageSource}
-        style={styles.image}
-        contentFit="cover"
-        transition={400}
-      />
-      <BlurView
-        intensity={blurIntensity}
-        tint="dark"
-        style={styles.blur}
-      />
+      <Image source={imageSource} style={styles.image} contentFit="cover" transition={400} />
+      <BlurView intensity={blurIntensity} tint="dark" style={styles.blur} />
     </View>
   );
 }

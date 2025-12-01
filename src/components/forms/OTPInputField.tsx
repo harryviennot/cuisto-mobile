@@ -10,7 +10,13 @@ interface OTPInputFieldProps {
   className?: string;
 }
 
-export const OTPInputField = ({ otpCode, setOtpCode, maxInputLength, error, className }: OTPInputFieldProps) => {
+export const OTPInputField = ({
+  otpCode,
+  setOtpCode,
+  maxInputLength,
+  error,
+  className,
+}: OTPInputFieldProps) => {
   const textInputRef = useRef<TextInput>(null);
   const codeDigitsArray = new Array(maxInputLength).fill(0);
 
@@ -32,18 +38,19 @@ export const OTPInputField = ({ otpCode, setOtpCode, maxInputLength, error, clas
     return (
       <View
         key={index}
-        className={`w-12 items-center border-b-2 pb-3 ${!!error
-          ? "border-red-400"
-          : isDigitFilled
-            ? "border-white"
-            : isCurrentInput
-              ? "border-white/60"
-              : "border-white/20"
-          }`}
+        className={`w-12 items-center border-b-2 pb-3 ${
+          !!error
+            ? "border-red-400"
+            : isDigitFilled
+              ? "border-white"
+              : isCurrentInput
+                ? "border-white/60"
+                : "border-white/20"
+        }`}
       >
         <Text className="text-3xl text-white font-bold">{digit}</Text>
       </View>
-    )
+    );
   };
 
   return (
@@ -65,12 +72,7 @@ export const OTPInputField = ({ otpCode, setOtpCode, maxInputLength, error, clas
         {codeDigitsArray.map(toCodeDigitInput)}
       </Pressable>
 
-      {error && (
-        <Text className="text-sm text-red-400 mb-4">
-          {error}
-        </Text>
-      )}
-
+      {error && <Text className="text-sm text-red-400 mb-4">{error}</Text>}
     </>
   );
 };

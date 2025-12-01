@@ -1,11 +1,7 @@
 import React from "react";
 import { Pressable, Text, ActivityIndicator, PressableProps } from "react-native";
 import { ArrowRight } from "phosphor-react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { cn } from "@/utils/cn";
 
@@ -77,10 +73,7 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
       {...props}
     >
       {isLoading ? (
-        <ActivityIndicator
-          color={isPrimary ? "#1c1917" : "#ffffff"}
-          size="small"
-        />
+        <ActivityIndicator color={isPrimary ? "#1c1917" : "#ffffff"} size="small" />
       ) : (
         <>
           <Text
@@ -93,11 +86,7 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
           </Text>
           {showArrow && (
             <Animated.View style={arrowStyle} className="ml-3">
-              <ArrowRight
-                size={18}
-                color={isPrimary ? "#1c1917" : "#ffffff"}
-                weight="bold"
-              />
+              <ArrowRight size={18} color={isPrimary ? "#1c1917" : "#ffffff"} weight="bold" />
             </Animated.View>
           )}
         </>

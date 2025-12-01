@@ -12,29 +12,15 @@ interface AuthCardProps extends ViewProps {
  * AuthCard - Glassmorphic card container for auth forms
  * Features backdrop blur, subtle border, and premium styling
  */
-export const AuthCard: React.FC<AuthCardProps> = ({
-  children,
-  className,
-  style,
-  ...props
-}) => {
+export const AuthCard: React.FC<AuthCardProps> = ({ children, className, style, ...props }) => {
   return (
     <View
-      className={cn(
-        "overflow-hidden rounded-[32px] border border-white/10",
-        className
-      )}
+      className={cn("overflow-hidden rounded-[32px] border border-white/10", className)}
       style={style}
       {...props}
     >
-      <BlurView
-        intensity={40}
-        tint="dark"
-        style={StyleSheet.absoluteFill}
-      />
-      <View className="bg-white/5 p-8">
-        {children}
-      </View>
+      <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} />
+      <View className="bg-white/5 p-8">{children}</View>
     </View>
   );
 };

@@ -7,11 +7,7 @@ import * as Haptics from "expo-haptics";
 import { authService } from "@/api/services/auth.service";
 import { useAuth } from "@/contexts/AuthContext";
 import Toast from "react-native-toast-message";
-import {
-  AuthBackground,
-  EmailStepCard,
-  OTPStepCard,
-} from "@/components/auth";
+import { AuthBackground, EmailStepCard, OTPStepCard } from "@/components/auth";
 
 type AuthStep = "email" | "otp";
 
@@ -118,11 +114,7 @@ export default function AuthScreen() {
         type: "email",
       });
 
-      await setTokens(
-        response.access_token,
-        response.refresh_token,
-        response.expires_in
-      );
+      await setTokens(response.access_token, response.refresh_token, response.expires_in);
       setUser(response.user);
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -222,8 +214,12 @@ export default function AuthScreen() {
             <ArrowLeftIcon size={24} color="white" weight="bold" />
           </Pressable>
         )}
-        <View className={`h-2 rounded-full ${currentStep === "email" ? "w-6 bg-white" : "w-2 bg-white/30"}`} />
-        <View className={`h-2 rounded-full ${currentStep === "otp" ? "w-6 bg-white" : "w-2 bg-white/30"}`} />
+        <View
+          className={`h-2 rounded-full ${currentStep === "email" ? "w-6 bg-white" : "w-2 bg-white/30"}`}
+        />
+        <View
+          className={`h-2 rounded-full ${currentStep === "otp" ? "w-6 bg-white" : "w-2 bg-white/30"}`}
+        />
       </View>
 
       <KeyboardAwareScrollView
@@ -263,15 +259,12 @@ export default function AuthScreen() {
           {currentStep === "email" ? (
             <Text className="text-xs text-white/30 text-center leading-5">
               By continuing, you agree to our{" "}
-              <Text className="text-white/50 underline">Terms of Service</Text>
-              {" "}and{" "}
+              <Text className="text-white/50 underline">Terms of Service</Text> and{" "}
               <Text className="text-white/50 underline">Privacy Policy</Text>.
             </Text>
           ) : (
             <View className="items-center">
-              <Text className="text-sm text-white/40 mb-2">
-                Didn&apos;t receive the code?
-              </Text>
+              <Text className="text-sm text-white/40 mb-2">Didn&apos;t receive the code?</Text>
               {canResend ? (
                 <Pressable
                   onPress={handleResendOtp}
@@ -283,9 +276,7 @@ export default function AuthScreen() {
                   </Text>
                 </Pressable>
               ) : (
-                <Text className="text-sm text-white/60">
-                  Resend in {resendTimer}s
-                </Text>
+                <Text className="text-sm text-white/60">Resend in {resendTimer}s</Text>
               )}
             </View>
           )}

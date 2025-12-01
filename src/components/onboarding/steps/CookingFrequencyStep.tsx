@@ -18,10 +18,7 @@ export function CookingFrequencyStep({
   const { t } = useTranslation();
 
   return (
-    <ScrollView
-      contentContainerStyle={{ padding: 24 }}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView contentContainerStyle={{ padding: 24 }} showsVerticalScrollIndicator={false}>
       {/* Title */}
       <Text
         className="mb-2 text-3xl text-foreground-heading"
@@ -37,19 +34,13 @@ export function CookingFrequencyStep({
       {COOKING_FREQUENCY_OPTIONS.map((option, index) => (
         <OnboardingOptionCard
           key={option.value}
-          label={t(
-            `onboarding.cookingFrequency.options.${option.value}.label` as any
-          )}
-          description={t(
-            `onboarding.cookingFrequency.options.${option.value}.description` as any
-          )}
+          label={t(`onboarding.cookingFrequency.options.${option.value}.label` as any)}
+          description={t(`onboarding.cookingFrequency.options.${option.value}.description` as any)}
           icon={option.icon}
           isSelected={selectedValue === option.value}
           onPress={() => onSelect(option.value)}
           disabled={isAnimating}
-          className={
-            index === COOKING_FREQUENCY_OPTIONS.length - 1 ? "mb-0" : "mb-6"
-          }
+          className={index === COOKING_FREQUENCY_OPTIONS.length - 1 ? "mb-0" : "mb-6"}
         />
       ))}
     </ScrollView>
