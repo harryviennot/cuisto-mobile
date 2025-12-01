@@ -1,6 +1,5 @@
 import React, { forwardRef } from "react";
 import { View, TextInput as RNTextInput, TextInputProps, StyleProp, TextStyle } from "react-native";
-import { cn } from "@/utils/cn";
 
 interface CustomTextInputProps extends TextInputProps {
   label?: string;

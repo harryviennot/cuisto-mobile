@@ -1,4 +1,4 @@
-import { View, Text, TextInput } from "react-native";
+import { View, Text } from "react-native";
 import { useTranslation } from "react-i18next";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
