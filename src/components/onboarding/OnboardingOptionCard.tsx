@@ -49,6 +49,10 @@ export function OnboardingOptionCard({
     scale.value = withSpring(1, { damping: 32, stiffness: 400 });
   };
 
+  // Derive icon props from isSelected state
+  const iconColor = isSelected ? "#ffffff" : "#78716c";
+  const iconWeight: "fill" | "duotone" = isSelected ? "fill" : "duotone";
+
   return (
     <AnimatedPressable
       onPress={onPress}
@@ -61,22 +65,17 @@ export function OnboardingOptionCard({
     >
       {/* Icon container */}
       <View
-        className={`mr-4 h-12 w-12 items-center justify-center rounded-xl ${isSelected ? "bg-primary/50" : "bg-surface"
-          }`}
-      >
-        {isSelected ? (
-          <IconComponent
-            size={24}
-            weight="fill"
-            color="#ffffff"
-          />
-        ) : (
-          <IconComponent
-            size={24}
-            weight="duotone"
-            color="#78716c"
-          />
+        className={cn(
+          "mr-4 h-12 w-12 items-center justify-center rounded-xl",
+          isSelected ? "bg-primary" : "bg-surface"
         )}
+      >
+        <IconComponent
+          key={isSelected ? "selected" : "unselected"}
+          size={24}
+          weight={iconWeight}
+          color={iconColor}
+        />
       </View>
 
       {/* Text content */}
@@ -91,8 +90,10 @@ export function OnboardingOptionCard({
 
       {/* Selection indicator */}
       <View
-        className={`ml-3 h-6 w-6 items-center justify-center rounded-full ${isSelected ? "bg-primary" : "border-2 border-border"
-          }`}
+        className={cn(
+          "ml-3 h-6 w-6 items-center justify-center rounded-full",
+          isSelected ? "bg-primary" : "border-2 border-border"
+        )}
       >
         {isSelected && <Check size={14} weight="bold" color="#ffffff" />}
       </View>

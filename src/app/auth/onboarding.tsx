@@ -8,7 +8,15 @@
  * - Auto-advance on single-select
  */
 import { useState, useEffect, useCallback } from "react";
-import { View, Text, TextInput, ScrollView, useWindowDimensions } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  useWindowDimensions,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -50,6 +58,7 @@ import {
 } from "@/components/onboarding";
 import { authService } from "@/api/services/auth.service";
 import type { Icon } from "phosphor-react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 
 // Step definitions
 type StepId = "basicInfo" | "heardFrom" | "cookingFrequency" | "recipeSources" | "completion";
@@ -174,14 +183,12 @@ export default function Onboarding() {
     });
   }, [currentStep, isAnimating, slideAnim]);
 
-  // Handle single-select option (auto-advance)
+  // Handle single-select option (no auto-advance - user controls navigation)
   const handleSingleSelect = useCallback(
     (field: "heard_from" | "cooking_frequency", value: string) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
-      // Auto-advance after a longer delay so user sees their selection
-      setTimeout(() => goToNextStep(), 600);
     },
-    [goToNextStep]
+    []
   );
 
   // Handle multi-select option (toggle)
@@ -286,7 +293,12 @@ export default function Onboarding() {
     switch (stepId) {
       case "basicInfo":
         return (
-          <View className="p-7">
+          <KeyboardAwareScrollView
+            bottomOffset={48}
+            contentContainerStyle={{ padding: 24 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             {/* Title */}
             <Text
               className="mb-2 text-3xl text-foreground-heading"
@@ -332,10 +344,11 @@ export default function Onboarding() {
                 }}
                 keyboardType="number-pad"
                 maxLength={3}
-                returnKeyType="done"
+              // returnKeyType="done"
               />
             </View>
-          </View>
+
+          </KeyboardAwareScrollView>
         );
 
       case "heardFrom":
@@ -366,7 +379,7 @@ export default function Onboarding() {
                 isSelected={formData.heard_from === option.value}
                 onPress={() => handleSingleSelect("heard_from", option.value)}
                 disabled={isAnimating}
-                className={index === HEARD_FROM_OPTIONS.length - 1 ? "mb-0" : "mb-4"}
+                className={index === HEARD_FROM_OPTIONS.length - 1 ? "mb-0" : "mb-6"}
               />
             ))}
           </ScrollView>
@@ -400,7 +413,7 @@ export default function Onboarding() {
                 isSelected={formData.cooking_frequency === option.value}
                 onPress={() => handleSingleSelect("cooking_frequency", option.value)}
                 disabled={isAnimating}
-                className={index === COOKING_FREQUENCY_OPTIONS.length - 1 ? "mb-0" : "mb-4"}
+                className={index === COOKING_FREQUENCY_OPTIONS.length - 1 ? "mb-0" : "mb-6"}
               />
             ))}
           </ScrollView>
@@ -434,7 +447,7 @@ export default function Onboarding() {
                 isSelected={formData.recipe_sources.includes(option.value)}
                 onPress={() => handleMultiSelect(option.value)}
                 disabled={isAnimating}
-                className={index === RECIPE_SOURCES_OPTIONS.length - 1 ? "mb-0" : "mb-4"}
+                className={index === RECIPE_SOURCES_OPTIONS.length - 1 ? "mb-0" : "mb-5"}
               />
             ))}
           </ScrollView>
