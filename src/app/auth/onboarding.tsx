@@ -10,7 +10,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import Animated from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
@@ -30,11 +29,12 @@ import {
   TOTAL_QUESTION_STEPS,
 } from "@/components/onboarding";
 import type { OnboardingFormData } from "@/components/onboarding";
-import { authService } from "@/api/services/auth.service";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const { submitOnboarding } = useAuth();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -86,7 +86,7 @@ export default function Onboarding() {
     try {
       const ageNumber = formData.age ? parseInt(formData.age, 10) : undefined;
 
-      await authService.submitOnboarding({
+      await submitOnboarding({
         heard_from: formData.heard_from,
         cooking_frequency: formData.cooking_frequency,
         recipe_sources: formData.recipe_sources,
@@ -100,8 +100,8 @@ export default function Onboarding() {
         text2: "Your account is all set up",
       });
 
-      // Navigate to main app
-      router.replace("/(tabs)");
+      // Navigation is handled automatically by ProtectedNavigation
+      // after submitOnboarding updates the user's is_new_user flag
     } catch (err: unknown) {
       console.error("Onboarding submission error:", err);
 
@@ -116,7 +116,7 @@ export default function Onboarding() {
 
       setIsSubmitting(false);
     }
-  }, [formData, t]);
+  }, [formData, t, submitOnboarding]);
 
   // Check if current step can continue
   const canContinueCurrentStep = useCallback(() => {

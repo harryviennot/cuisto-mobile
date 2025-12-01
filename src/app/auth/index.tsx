@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from "react";
 import { View, Text, StatusBar, Pressable } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router } from "expo-router";
 import { ArrowLeftIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { authService } from "@/api/services/auth.service";
@@ -134,11 +133,8 @@ export default function AuthScreen() {
         text2: "Welcome to Cuistudio",
       });
 
-      if (response.user.is_new_user) {
-        router.replace("/auth/onboarding");
-      } else {
-        router.replace("/(tabs)");
-      }
+      // Navigation is handled automatically by ProtectedNavigation
+      // based on isAuthenticated and is_new_user state
     } catch (err: any) {
       console.error("Verify OTP error:", err);
       setOtpCode("");
