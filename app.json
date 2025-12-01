@@ -29,13 +29,7 @@
     },
     "plugins": [
       [
-        "expo-router",
-        {
-          "asyncRoutes": {
-            "web": true,
-            "default": "development"
-          }
-        }
+        "expo-router"
       ],
       [
         "expo-splash-screen",

@@ -354,7 +354,6 @@ export default function Onboarding() {
       case "heardFrom":
         return (
           <ScrollView
-            // style={{ maxHeight: 900 }}
             contentContainerStyle={{ padding: 24 }}
             showsVerticalScrollIndicator={false}
           >
@@ -388,7 +387,6 @@ export default function Onboarding() {
       case "cookingFrequency":
         return (
           <ScrollView
-            // style={{ maxHeight: 420 }}
             contentContainerStyle={{ padding: 24 }}
             showsVerticalScrollIndicator={false}
           >
@@ -422,7 +420,6 @@ export default function Onboarding() {
       case "recipeSources":
         return (
           <ScrollView
-            // style={{ maxHeight: 500 }}
             contentContainerStyle={{ padding: 24 }}
             showsVerticalScrollIndicator={false}
           >
@@ -483,11 +480,11 @@ export default function Onboarding() {
 
         {/* Card container */}
         <Animated.View
-          className="flex-1 justify-center px-4"
+          className="flex-1 justify-center items-center px-4 border border-blue-500"
           style={contentAnimatedStyle}
         >
           {/* Cream-colored card (like StepCard) - auto-sized to content */}
-          <View className="overflow-hidden rounded-[32px] bg-[#FDFBF7] shadow-2xl">
+          <View className="overflow-hidden rounded-[32px] bg-[#FDFBF7] shadow-2xl max-w-[500px] w-full">
             {renderStepContent()}
           </View>
         </Animated.View>
