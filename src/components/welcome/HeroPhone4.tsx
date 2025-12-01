@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Pressable, Dimensions, Image as RNImage } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,23 +12,20 @@ import Animated, {
   withDelay,
   Easing,
   interpolate,
-  Extrapolation,
-  FadeIn,
 } from "react-native-reanimated";
 import {
-  ArrowRight,
-  Globe,
-  Microphone,
-  MusicNotes,
-  Stack,
-  Camera,
-  Sparkle,
+  ArrowRightIcon,
+  GlobeIcon,
+  MicrophoneIcon,
+  CameraIcon,
+  ClockIcon,
+  FlameIcon,
+  TiktokLogoIcon,
+  InstagramLogoIcon,
+  PlayIcon,
 } from "phosphor-react-native";
-import Svg, { Defs, RadialGradient, Stop, Rect, Circle } from "react-native-svg";
 import type { Icon } from "phosphor-react-native";
 import type { ImageSource } from "expo-image";
-
-const { width } = Dimensions.get("window");
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 interface DemoItem {
@@ -42,90 +39,72 @@ interface DemoItem {
   rotation: string; // kept for reference, though we calculate rotation in JS
 }
 
-const DEMO_DATA: DemoItem[] = [
+const TIKTOK_VARIANTS: Omit<DemoItem, 'id' | 'image' | 'rotation'>[] = [
   {
-    id: "tiktok",
     sourceName: "TikTok",
     recipeTitle: "Spicy Vodka Pasta",
     subTitle: "Gigi Hadid Style",
-    icon: MusicNotes,
-    colors: ["#ec4899", "#f43f5e"], // pink-500 to rose-500
+    icon: TiktokLogoIcon,
+    colors: ["#000000", "#000000"],
+  },
+  {
+    sourceName: "Reels",
+    recipeTitle: "Green Goddess Salad",
+    subTitle: "Baked by Melissa",
+    icon: InstagramLogoIcon,
+    colors: ["#a855f7", "#ec4899"], // purple-pink
+  },
+  {
+    sourceName: "Shorts",
+    recipeTitle: "Crispy Potato",
+    subTitle: "ASMR Cooking",
+    icon: PlayIcon,
+    colors: ["#ef4444", "#b91c1c"], // red
+  },
+];
+
+const STATIC_DEMO_DATA: DemoItem[] = [
+  {
+    id: "tiktok", // This will be dynamic
+    sourceName: "TikTok",
+    recipeTitle: "Spicy Vodka Pasta",
+    subTitle: "Gigi Hadid Style",
+    icon: TiktokLogoIcon,
+    colors: ["#ec4899", "#f43f5e"],
     image: { uri: "https://images.unsplash.com/photo-1595295333158-4742f28fbd85?auto=format&fit=crop&q=80&w=600" },
     rotation: "rotate-3",
   },
   {
     id: "web",
-    sourceName: "NYT Cooking",
+    sourceName: "Articles",
     recipeTitle: "Roast Chicken",
     subTitle: "with Sourdough Croutons",
-    icon: Globe,
-    colors: ["#3b82f6", "#6366f1"], // blue-500 to indigo-500
+    icon: GlobeIcon,
+    colors: ["#3b82f6", "#6366f1"],
     image: { uri: "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=600" },
     rotation: "-rotate-2",
   },
   {
+    id: "photo",
+    sourceName: "Scan",
+    recipeTitle: "Mom’s Lasagna",
+    subTitle: "Handwritten Note",
+    icon: CameraIcon,
+    colors: ["#f59e0b", "#d97706"], // amber
+    image: { uri: "https://images.unsplash.com/photo-1574894709920-11b28e7367e3?auto=format&fit=crop&q=80&w=600" },
+    rotation: "rotate-2",
+  },
+  {
     id: "voice",
     sourceName: "Dictation",
-    recipeTitle: "Grandma’s Apple Pie",
-    subTitle: "Secret Family Recipe",
-    icon: Microphone,
-    colors: ["#10b981", "#14b8a6"], // emerald-500 to teal-500
+    recipeTitle: "Apple Pie",
+    subTitle: "Grandma's Secret",
+    icon: MicrophoneIcon,
+    colors: ["#10b981", "#14b8a6"],
     image: { uri: "https://images.unsplash.com/photo-1568571780765-9276ac8b75a2?auto=format&fit=crop&q=80&w=600" },
     rotation: "rotate-1",
   },
 ];
-
-// --- COMPONENTS ---
-
-function BackgroundAmbiance() {
-  return (
-    <View className="absolute inset-0 pointer-events-none opacity-60">
-      <Svg height="100%" width="100%" style={{ position: 'absolute' }}>
-        <Defs>
-          <RadialGradient
-            id="grad1"
-            cx="50%"
-            cy="50%"
-            rx="50%"
-            ry="50%"
-            fx="50%"
-            fy="50%"
-            gradientUnits="userSpaceOnUse"
-          >
-            <Stop offset="0%" stopColor="#ffedd5" stopOpacity="0.6" />
-            <Stop offset="100%" stopColor="#ffedd5" stopOpacity="0" />
-          </RadialGradient>
-          <RadialGradient
-            id="grad2"
-            cx="50%"
-            cy="50%"
-            rx="50%"
-            ry="50%"
-            fx="50%"
-            fy="50%"
-            gradientUnits="userSpaceOnUse"
-          >
-            <Stop offset="0%" stopColor="#d1fae5" stopOpacity="0.6" />
-            <Stop offset="100%" stopColor="#d1fae5" stopOpacity="0" />
-          </RadialGradient>
-        </Defs>
-
-        {/* Orange Blob - Top Left */}
-        <Circle cx="-10%" cy="10%" r="200" fill="url(#grad1)" />
-
-        {/* Emerald Blob - Bottom Right */}
-        <Circle cx="110%" cy="80%" r="150" fill="url(#grad2)" />
-      </Svg>
-
-      {/* Texture Overlay */}
-      <RNImage
-        source={{ uri: "https://www.transparenttextures.com/patterns/cream-paper.png" }}
-        style={{ position: "absolute", width: "100%", height: "100%", opacity: 0.4 }}
-        resizeMode="repeat"
-      />
-    </View>
-  );
-}
 
 interface SatelliteSourceProps {
   item: DemoItem;
@@ -159,26 +138,25 @@ function SatelliteSource({ item, isActive, index }: SatelliteSourceProps) {
     opacity: interpolate(labelWidth.value, [0, 80], [0, 1]),
   }));
 
-  // Beam style
-  const beamStyle = useAnimatedStyle(() => ({
-    width: beamWidth.value,
-    opacity: interpolate(beamWidth.value, [0, 100], [0, 1]),
-  }));
-
-  // Positioning logic based on index
+  // Positioning logic based on index (4 items now)
   const positions = [
-    { top: 0, left: -10 },   // TikTok
-    { top: 48, right: -16 }, // Web
-    { bottom: 32, left: 0 }, // Voice
+    { top: 0, left: -10 },    // 0: TikTok (Top Left)
+    { top: 48, right: -16 },  // 1: Web (Top Right)
+    { bottom: 80, right: -12 }, // 2: Photo (Bottom Right)
+    { bottom: 32, left: 0 },  // 3: Voice (Bottom Left)
   ];
 
   const pos = positions[index];
 
   // Beam rotation/position logic
-  // 0 (TikTok): Top-Left -> needs to point towards center-right/down (approx 45deg)
-  // 1 (Web): Top-Right -> needs to point towards center-left/down (approx 135deg)
-  // 2 (Voice): Bottom-Left -> needs to point towards center-right/up (approx -45deg)
-  const beamRotation = index === 0 ? '45deg' : index === 1 ? '135deg' : '-45deg';
+  // 0 (TikTok): Top-Left -> 45deg
+  // 1 (Web): Top-Right -> 135deg
+  // 2 (Photo): Bottom-Right -> -135deg (or 225deg)
+  // 3 (Voice): Bottom-Left -> -45deg
+  const beamRotation = index === 0 ? '45deg'
+    : index === 1 ? '135deg'
+      : index === 2 ? '225deg'
+        : '-45deg';
 
   return (
     <Animated.View
@@ -210,42 +188,16 @@ function SatelliteSource({ item, isActive, index }: SatelliteSourceProps) {
           </Text>
         </Animated.View>
       </View>
-
-      {/* Connecting Beam */}
-      <Animated.View
-        style={[
-          beamStyle,
-          {
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            height: 2,
-            zIndex: -10,
-            transformOrigin: 'left center', // React Native 0.73+ supports this, otherwise use anchor point logic
-            transform: [
-              { translateX: 0 }, // Adjust if needed
-              { rotate: beamRotation }
-            ],
-            backgroundColor: '#d6d3d1', // Fallback
-          }
-        ]}
-      >
-        <LinearGradient
-          colors={['transparent', '#d6d3d1', 'transparent']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ flex: 1 }}
-        />
-      </Animated.View>
     </Animated.View>
   );
 }
 
 interface CentralDeckProps {
   activeIndex: number;
+  currentData: DemoItem[];
 }
 
-function CentralDeck({ activeIndex }: CentralDeckProps) {
+function CentralDeck({ activeIndex, currentData }: CentralDeckProps) {
   return (
     <View className="relative z-20 w-64" style={{ aspectRatio: 3 / 4 }}>
       {/* Back Card (Depth) */}
@@ -262,8 +214,8 @@ function CentralDeck({ activeIndex }: CentralDeckProps) {
       <View className="absolute inset-0 bg-white rounded-3xl shadow-2xl border border-stone-100 overflow-hidden flex-col">
 
         {/* Dynamic Image */}
-        <View className="h-[80%] relative bg-stone-100 overflow-hidden border border-red-500">
-          {DEMO_DATA.map((item, idx) => {
+        <View className="h-[80%] relative bg-stone-100 overflow-hidden ">
+          {currentData.map((item, idx) => {
             const isActive = idx === activeIndex;
 
             const animatedStyle = useAnimatedStyle(() => {
@@ -283,84 +235,69 @@ function CentralDeck({ activeIndex }: CentralDeckProps) {
               </Animated.View>
             );
           })}
-
-          {/* Overlay Gradient */}
-          <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.6)']}
-            className="absolute inset-8 justify-end p-6 border border-red-500"
-          >
-            {/* Floating Tags */}
-            <View className="flex-row gap-2 mb-2">
-              <View className="px-2 py-1 rounded-md bg-white/20 border border-white/10">
-                <Text className="text-[10px] font-bold uppercase tracking-wide text-white">
-                  Imported
-                </Text>
+          <View className="absolute w-full h-full justify-end overflow-hidden">
+            {/* Overlay Gradient */}
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.8)']}
+              className="relative bottom-0 left-0 right-0 h-[60%] justify-end p-6"
+              style={{
+                height: '60%',
+                justifyContent: 'flex-end',
+                paddingHorizontal: 12,
+                paddingBottom: 8,
+              }}
+            >
+              {/* Floating Tags */}
+              <View className="flex-row gap-2 mb-2">
+                <View className="px-2 py-1 rounded-md bg-white/20 border border-white/10">
+                  <Text className="text-[10px] font-bold uppercase tracking-wide text-white">
+                    Imported
+                  </Text>
+                </View>
               </View>
-            </View>
 
-            {/* Animated Text */}
-            <View className="h-12 relative">
-              {DEMO_DATA.map((item, idx) => {
-                const isActive = idx === activeIndex;
-                const textStyle = useAnimatedStyle(() => ({
-                  opacity: withTiming(isActive ? 1 : 0, { duration: 500 }),
-                  transform: [{ translateY: withTiming(isActive ? 0 : 16, { duration: 500 }) }]
-                }));
+              {/* Animated Text */}
+              <View className="h-12 relative">
+                {currentData.map((item, idx) => {
+                  const isActive = idx === activeIndex;
+                  const textStyle = useAnimatedStyle(() => ({
+                    opacity: withTiming(isActive ? 1 : 0, { duration: 500 }),
+                    transform: [{ translateY: withTiming(isActive ? 0 : 16, { duration: 500 }) }]
+                  }));
 
-                return (
-                  <Animated.View key={item.id} style={[textStyle, { position: 'absolute', inset: 0 }]}>
-                    <Text className="text-2xl font-serif text-white leading-none mb-1">
-                      {item.recipeTitle}
-                    </Text>
-                    <Text className="text-white/70 text-xs font-medium">
-                      {item.subTitle}
-                    </Text>
-                  </Animated.View>
-                );
-              })}
-            </View>
-          </LinearGradient>
+                  return (
+                    <Animated.View key={item.id} style={[textStyle, { position: 'absolute', inset: 0 }]}>
+                      <Text className="text-2xl font-serif text-white leading-none mb-1">
+                        {item.recipeTitle}
+                      </Text>
+                      <Text className="text-white/70 text-xs font-medium">
+                        {item.subTitle}
+                      </Text>
+                    </Animated.View>
+                  );
+                })}
+              </View>
+            </LinearGradient>
+          </View>
         </View>
 
         {/* Bottom Action Bar */}
         <View className="flex-1 bg-white p-4 flex-row items-center justify-between">
-          <View className="flex-row -space-x-2">
-            {[1, 2, 3].map(i => (
-              <View key={i} className="w-6 h-6 rounded-full border-2 border-white bg-stone-200" />
-            ))}
+          <View className="flex-row items-center gap-1">
+            <ClockIcon size={16} color="#a8a29e" weight="duotone" />
+            <Text className="text-sm font-medium tracking-wide text-stone-500">
+              {10} min
+            </Text>
           </View>
-          <View className="w-8 h-8 rounded-full bg-[#334d43] items-center justify-center">
-            <ArrowRight size={14} color="white" weight="bold" />
+          <View className="flex-row items-center gap-1">
+            <FlameIcon size={16} color="#a8a29e" weight="duotone" />
+            <Text className="text-sm font-medium tracking-wide text-stone-500">
+              {320} kcal
+            </Text>
           </View>
         </View>
       </View>
-
-      {/* Magic Sparkle Effect */}
-      <SparkleEffect activeIndex={activeIndex} />
     </View>
-  );
-}
-
-function SparkleEffect({ activeIndex }: { activeIndex: number }) {
-  const opacity = useSharedValue(0);
-
-  useEffect(() => {
-    opacity.value = 0;
-    opacity.value = withTiming(1, { duration: 300 });
-    setTimeout(() => {
-      opacity.value = withTiming(0, { duration: 500 });
-    }, 600);
-  }, [activeIndex]);
-
-  const style = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: interpolate(opacity.value, [0, 1], [0.5, 1.2]) }]
-  }));
-
-  return (
-    <Animated.View style={[style, { position: 'absolute', top: -16, right: -16 }]}>
-      <Sparkle size={24} color="#334d43" weight="fill" />
-    </Animated.View>
   );
 }
 
@@ -368,11 +305,31 @@ export const HeroPhone4: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [mounted, setMounted] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [tiktokVariantIndex, setTiktokVariantIndex] = useState(0);
+
+  // Construct current data based on variants
+  const currentData = [...STATIC_DEMO_DATA];
+  // Update first item based on variant
+  const currentVariant = TIKTOK_VARIANTS[tiktokVariantIndex % TIKTOK_VARIANTS.length];
+  currentData[0] = {
+    ...currentData[0],
+    ...currentVariant,
+  };
 
   useEffect(() => {
     setMounted(true);
     const interval = setInterval(() => {
-      setActiveIndex(prev => (prev + 1) % DEMO_DATA.length);
+      setActiveIndex(prev => {
+        const next = (prev + 1) % currentData.length;
+        // If we are looping back to 0, or just every time?
+        // The user wants it to show a different icon/label "every time".
+        // Since index 0 is the one changing, we should change it when we leave it or before we enter it.
+        // Let's change it when we cycle back to 0.
+        if (next === 0) {
+          setTiktokVariantIndex(v => v + 1);
+        }
+        return next;
+      });
     }, 4000);
     return () => clearInterval(interval);
   }, []);
@@ -393,9 +350,8 @@ export const HeroPhone4: React.FC = () => {
   }));
 
   return (
-    <View className="flex-1 bg-[#FDFBF7] overflow-hidden">
+    <View className="flex-1 bg-surface overflow-hidden">
 
-      <BackgroundAmbiance />
 
       <View
         className="flex-1 flex-col items-center justify-between px-6"
@@ -404,12 +360,7 @@ export const HeroPhone4: React.FC = () => {
 
         {/* HEADER */}
         <Animated.View style={headerStyle} className="items-center space-y-5 mt-4">
-          {/* <View className="flex-row items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-stone-200">
-            <Stack size={10} color="#334d43" weight="fill" />
-            <Text className="text-stone-500 text-[10px] font-bold uppercase tracking-[0.2em]">
-              Universal Import
-            </Text>
-          </View> */}
+
 
           <Text className="font-serif text-5xl leading-[1.05] tracking-tight text-stone-800 text-center">
             All your recipes{"\n"}
@@ -420,14 +371,12 @@ export const HeroPhone4: React.FC = () => {
             Turn links, screenshots, and voice notes into a beautiful cookbook.
           </Text>
         </Animated.View>
-
-        {/* --- GRAPHIC STAGE: THE LIVING STACK --- */}
         <Animated.View style={graphicStyle} className="relative w-full max-w-[320px] h-[420px] items-center justify-center my-4">
 
           {/* SATELLITE SOURCES (Orbiting) */}
-          {DEMO_DATA.map((item, idx) => (
+          {currentData.map((item, idx) => (
             <SatelliteSource
-              key={item.id}
+              key={item.id} // Note: id for first item is always 'tiktok', so React might not re-mount it, which is good for transitions, but we want the content to update.
               item={item}
               isActive={idx === activeIndex}
               index={idx}
@@ -435,7 +384,7 @@ export const HeroPhone4: React.FC = () => {
           ))}
 
           {/* CENTRAL DECK (The Result) */}
-          <CentralDeck activeIndex={activeIndex} />
+          <CentralDeck activeIndex={activeIndex} currentData={currentData} />
 
         </Animated.View>
 
@@ -443,12 +392,12 @@ export const HeroPhone4: React.FC = () => {
         <Animated.View style={ctaStyle} className="w-full items-center space-y-4">
           <AnimatedPressable
             onPress={() => router.push("/auth")}
-            className="group relative w-full h-16 bg-stone-900 rounded-2xl shadow-xl shadow-stone-900/10 flex-row items-center justify-center gap-3 overflow-hidden active:scale-95 transition-transform"
+            className="group relative w-full h-16 bg-primary rounded-2xl flex-row items-center justify-center gap-3 overflow-hidden active:scale-95 transition-transform"
           >
             <Text className="text-white font-bold text-sm uppercase tracking-[0.2em] z-10">
               Start Collecting
             </Text>
-            <ArrowRight size={18} color="white" weight="bold" style={{ zIndex: 10 }} />
+            <ArrowRightIcon size={18} color="white" weight="bold" style={{ zIndex: 10 }} />
           </AnimatedPressable>
 
           <Text className="text-stone-400 text-[10px] font-bold uppercase tracking-widest opacity-60 mt-4">
