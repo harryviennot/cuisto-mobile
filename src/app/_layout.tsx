@@ -2,8 +2,8 @@ import "@/global.css";
 import { useEffect, useState, useRef } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { Stack, useRouter, useSegments } from "expo-router";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { SearchProvider } from "@/contexts/SearchContext";
 import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -40,6 +40,54 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+/**
+ * Protected navigation component that handles auth routing
+ */
+function ProtectedNavigation() {
+  const segments = useSegments();
+  const router = useRouter();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (isLoading) return; // Don't do anything while loading
+
+    const inAuthGroup = segments[0] === "auth";
+
+    if (!isAuthenticated && !inAuthGroup) {
+      // User is not authenticated and not in auth screens, redirect to auth
+      router.replace("/auth");
+    } else if (isAuthenticated && inAuthGroup) {
+      // User is authenticated but still in auth screens, redirect to main app
+      router.replace("/(tabs)");
+    }
+  }, [isAuthenticated, isLoading, segments]);
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="auth" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen
+        name="search"
+        options={{
+          presentation: "transparentModal",
+          animation: "fade",
+          animationDuration: 200,
+        }}
+      />
+      <Stack.Screen
+        name="extraction"
+        options={{
+          presentation: "fullScreenModal",
+          animation: "fade_from_bottom",
+          animationDuration: 350,
+        }}
+      />
+      <Stack.Screen name="test-creen" />
+      <Stack.Screen name="recipe" />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const [i18nInitialized, setI18nInitialized] = useState(false);
@@ -90,27 +138,7 @@ export default function RootLayout() {
           <BottomSheetModalProvider>
             <AuthProvider>
               <SearchProvider>
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(tabs)" />
-                  <Stack.Screen
-                    name="search"
-                    options={{
-                      presentation: "transparentModal",
-                      animation: "fade",
-                      animationDuration: 200,
-                    }}
-                  />
-                  <Stack.Screen
-                    name="extraction"
-                    options={{
-                      presentation: "fullScreenModal",
-                      animation: "fade_from_bottom",
-                      animationDuration: 350,
-                    }}
-                  />
-                  <Stack.Screen name="test-creen" />
-                  <Stack.Screen name="recipe" />
-                </Stack>
+                <ProtectedNavigation />
               </SearchProvider>
             </AuthProvider>
             <StatusBar barStyle="dark-content" />

@@ -1,9 +1,9 @@
 /**
  * Authentication Context
- * Manages user authentication state including anonymous and authenticated users
+ * Manages user authentication state with email OTP authentication
  */
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import type { User } from "@/types/auth";
+import type { User, OnboardingData } from "@/types/auth";
 import { authService } from "@/api/services/auth.service";
 import { tokenManager } from "@/api/token-manager";
 
@@ -11,10 +11,13 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  isAnonymous: boolean;
-  signInAnonymously: () => Promise<void>;
+  sendEmailOTP: (email: string) => Promise<void>;
+  verifyEmailOTP: (email: string, token: string) => Promise<void>;
+  submitOnboarding: (data: OnboardingData) => Promise<void>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  setTokens: (accessToken: string, refreshToken: string, expiresIn?: number) => Promise<void>;
+  setUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Initialize authentication on app launch
-   * Checks for existing tokens and signs in anonymously if none exist
+   * Checks for existing tokens and loads user data if available
    */
   const initializeAuth = useCallback(async () => {
     try {
@@ -40,54 +43,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const currentUser = await authService.getCurrentUser();
           setUser(currentUser);
         } catch (error) {
-          console.log("Failed to get current user, signing in anonymously:", error);
-          // Tokens might be invalid, clear them and sign in anonymously
+          console.log("Failed to get current user, clearing tokens:", error);
+          // Tokens might be invalid, clear them
           await tokenManager.clearTokens();
-          await signInAnonymouslyInternal();
+          setUser(null);
         }
       } else {
-        // No tokens, sign in anonymously
-        await signInAnonymouslyInternal();
+        // No tokens, user needs to authenticate
+        setUser(null);
       }
     } catch (error) {
       console.error("Failed to initialize auth:", error);
-      // Fallback: try anonymous sign-in
-      try {
-        await signInAnonymouslyInternal();
-      } catch (fallbackError) {
-        console.error("Failed to sign in anonymously:", fallbackError);
-      }
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   /**
-   * Internal method to sign in anonymously
+   * Send OTP code to email address
    */
-  const signInAnonymouslyInternal = async () => {
-    const response = await authService.signInAnonymously();
-    await tokenManager.setTokens(
-      response.access_token,
-      response.refresh_token,
-      response.expires_in
-    );
-    setUser(response.user);
+  const sendEmailOTP = async (email: string) => {
+    await authService.sendEmailOTP({ email });
   };
 
   /**
-   * Public method to sign in anonymously (can be called manually)
+   * Verify OTP code and authenticate user
    */
-  const signInAnonymously = async () => {
+  const verifyEmailOTP = async (email: string, token: string) => {
     try {
       setIsLoading(true);
-      await signInAnonymouslyInternal();
+      const response = await authService.verifyEmailOTP({ email, token, type: "email" });
+
+      // Store tokens
+      await tokenManager.setTokens(
+        response.access_token,
+        response.refresh_token,
+        response.expires_in
+      );
+
+      // Set user
+      setUser(response.user);
     } catch (error) {
-      console.error("Failed to sign in anonymously:", error);
+      console.error("Failed to verify OTP:", error);
       throw error;
     } finally {
       setIsLoading(false);
     }
+  };
+
+  /**
+   * Submit onboarding questionnaire
+   */
+  const submitOnboarding = async (data: OnboardingData) => {
+    await authService.submitOnboarding(data);
+    // Refresh user data after onboarding
+    await refreshUser();
+  };
+
+  /**
+   * Manually set tokens (used by verify-otp screen)
+   */
+  const setTokensManual = async (accessToken: string, refreshToken: string, expiresIn?: number) => {
+    await tokenManager.setTokens(accessToken, refreshToken, expiresIn || 3600);
+  };
+
+  /**
+   * Manually set user (used by verify-otp screen)
+   */
+  const setUserManual = (newUser: User) => {
+    setUser(newUser);
   };
 
   /**
@@ -102,12 +127,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log("Logout endpoint failed (non-critical):", error);
       }
 
-      // Clear tokens
+      // Clear tokens and user data
       await tokenManager.clearTokens();
       setUser(null);
-
-      // Sign in anonymously again
-      await signInAnonymouslyInternal();
     } catch (error) {
       console.error("Failed to sign out:", error);
       throw error;
@@ -135,11 +157,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value: AuthContextType = {
     user,
     isLoading,
-    isAuthenticated: !!user && !user.is_anonymous,
-    isAnonymous: user?.is_anonymous ?? false,
-    signInAnonymously,
+    isAuthenticated: !!user,
+    sendEmailOTP,
+    verifyEmailOTP,
+    submitOnboarding,
     signOut,
     refreshUser,
+    setTokens: setTokensManual,
+    setUser: setUserManual,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
