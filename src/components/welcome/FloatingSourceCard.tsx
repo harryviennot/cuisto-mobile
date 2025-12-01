@@ -10,9 +10,10 @@ import Animated, {
   withDelay,
   Easing,
 } from "react-native-reanimated";
-import { GlobeIcon, Microphone, Camera, MusicNotes, TiktokLogoIcon, InstagramLogoIcon, GlobeHemisphereWestIcon } from "phosphor-react-native";
+import { Globe, Microphone, Camera, TiktokLogo, InstagramLogo, Clipboard } from "phosphor-react-native";
+import type { Icon } from "phosphor-react-native";
 
-type SourceType = "tiktok" | "instagram" | "web" | "voice";
+type SourceType = "tiktok" | "instagram" | "web" | "voice" | "photo" | "text";
 
 interface FloatingSourceCardProps {
   type: SourceType;
@@ -24,25 +25,33 @@ interface FloatingSourceCardProps {
 const SOURCE_CONFIG: Record<
   SourceType,
   {
-    icon: typeof GlobeIcon;
+    icon: Icon;
     gradientColors: [string, string, ...string[]];
   }
 > = {
   tiktok: {
-    icon: TiktokLogoIcon,
+    icon: TiktokLogo,
     gradientColors: ["#ec4899", "#06b6d4"], // pink to cyan
   },
   instagram: {
-    icon: InstagramLogoIcon,
+    icon: InstagramLogo,
     gradientColors: ["#eab308", "#ef4444", "#a855f7"], // yellow to red to purple
   },
   web: {
-    icon: GlobeIcon,
+    icon: Globe,
     gradientColors: ["#3b82f6", "#3b82f6"], // blue
   },
   voice: {
     icon: Microphone,
     gradientColors: ["#10b981", "#10b981"], // emerald
+  },
+  photo: {
+    icon: Camera,
+    gradientColors: ["#f97316", "#facc15"], // orange to yellow
+  },
+  text: {
+    icon: Clipboard,
+    gradientColors: ["#8b5cf6", "#8b5cf6"], // violet
   },
 };
 
@@ -100,9 +109,9 @@ export function FloatingSourceCard({
     <Animated.View
       style={animatedStyle}
     >
-      <View className="bg-stone-800/90 flex-row items-center gap-2 p-2.5 rounded-xl border border-white/10">
+      <View className="bg-stone-800/90 flex-row items-center gap-3 p-3 rounded-2xl border border-white/10">
         {/* Icon with gradient background */}
-        <View className="w-8 h-8 rounded-lg overflow-hidden">
+        <View className="w-10 h-10 rounded-xl overflow-hidden">
           <LinearGradient
             colors={config.gradientColors}
             start={{ x: 0, y: 0 }}
@@ -114,14 +123,14 @@ export function FloatingSourceCard({
               justifyContent: "center",
             }}
           >
-            <IconComponent size={16} color="#ffffff" weight="fill" />
+            <IconComponent size={20} color="#ffffff" weight="fill" />
           </LinearGradient>
         </View>
 
         {/* Label */}
-        <View className="pr-2">
+        <View className="pr-1">
           <Text
-            className="text-[10px] text-white"
+            className="text-xs text-white font-medium"
           >
             {label}
           </Text>

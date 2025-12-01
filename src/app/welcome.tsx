@@ -206,8 +206,8 @@ export default function WelcomeScreen() {
           style={{
             position: "relative",
             width: "100%",
-            maxWidth: 320,
-            height: 420,
+            maxWidth: 340,
+            height: 460,
             alignItems: "center",
             justifyContent: "center",
             marginVertical: 16,
@@ -221,8 +221,8 @@ export default function WelcomeScreen() {
           <View
             style={{
               position: "absolute",
-              top: 32,
-              left: -8,
+              top: 16,
+              left: -12,
               zIndex: 30,
             }}
           >
@@ -238,16 +238,50 @@ export default function WelcomeScreen() {
           <View
             style={{
               position: "absolute",
-              top: 64,
-              right: -8,
+              top: 56,
+              right: -12,
               zIndex: 30,
             }}
           >
             <FloatingSourceCard
               type="instagram"
               label="@chef_mike"
-              rotation={3}
-              delay={1000}
+              rotation={4}
+              delay={800}
+            />
+          </View>
+
+          {/* Middle Left - Photo */}
+          <View
+            style={{
+              position: "absolute",
+              top: "38%",
+              left: -20,
+              zIndex: 30,
+            }}
+          >
+            <FloatingSourceCard
+              type="photo"
+              label="Mom's Recipe"
+              rotation={5}
+              delay={1600}
+            />
+          </View>
+
+          {/* Middle Right - Text */}
+          <View
+            style={{
+              position: "absolute",
+              top: "45%",
+              right: -20,
+              zIndex: 30,
+            }}
+          >
+            <FloatingSourceCard
+              type="text"
+              label="Pasted Text"
+              rotation={-4}
+              delay={2400}
             />
           </View>
 
@@ -255,7 +289,7 @@ export default function WelcomeScreen() {
           <View
             style={{
               position: "absolute",
-              bottom: 64,
+              bottom: 56,
               left: -16,
               zIndex: 30,
             }}
@@ -264,7 +298,7 @@ export default function WelcomeScreen() {
               type="web"
               label="NYT Cooking"
               rotation={6}
-              delay={2000}
+              delay={400}
             />
           </View>
 
@@ -272,7 +306,7 @@ export default function WelcomeScreen() {
           <View
             style={{
               position: "absolute",
-              bottom: 32,
+              bottom: 16,
               right: -16,
               zIndex: 30,
             }}
@@ -281,7 +315,7 @@ export default function WelcomeScreen() {
               type="voice"
               label="Grandma's Pie"
               rotation={-3}
-              delay={500}
+              delay={1200}
             />
           </View>
         </View>
