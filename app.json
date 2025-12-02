@@ -10,7 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hryvnt.cuistudio"
+      "bundleIdentifier": "com.hryvnt.cuistudio",
+      "icon": "./assets/cuisto.icon"
     },
     "android": {
       "adaptiveIcon": {

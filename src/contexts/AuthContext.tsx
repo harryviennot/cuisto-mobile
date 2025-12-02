@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   /**
    * Initialize authentication on app launch
    * Checks for existing tokens and loads user data if available
+   * Anonymous users are logged out and must re-authenticate with email/phone
    */
   const initializeAuth = useCallback(async () => {
     try {
@@ -41,6 +42,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // We have tokens, try to get current user
         try {
           const currentUser = await authService.getCurrentUser();
+
+          // Block anonymous users - they must authenticate with email/phone
+          if (currentUser.is_anonymous) {
+            console.log("Anonymous user detected, clearing tokens and requiring re-authentication");
+            await tokenManager.clearTokens();
+            setUser(null);
+            return;
+          }
+
           setUser(currentUser);
         } catch (error) {
           console.log("Failed to get current user, clearing tokens:", error);
