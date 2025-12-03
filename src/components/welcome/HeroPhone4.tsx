@@ -265,7 +265,7 @@ function CentralDeck({ activeIndex, currentItems }: CentralDeckProps) {
     <View className="relative z-20 w-[248px]" style={{ aspectRatio: 3 / 4 }}>
       {/* Back Cards - Visible layered stack effect with images */}
       {/* Card 3 (furthest back) */}
-      <View
+      {/* <View
         className="absolute inset-0 rounded-2xl overflow-hidden bg-white"
         style={{
           transform: [{ rotate: '15deg' }, { scale: 0.88 }, { translateY: 20 }, { translateX: 12 }],
@@ -283,7 +283,6 @@ function CentralDeck({ activeIndex, currentItems }: CentralDeckProps) {
         />
         <View className="absolute inset-0 bg-black/20" />
       </View>
-      {/* Card 2 */}
       <View
         className="absolute inset-0 rounded-2xl overflow-hidden bg-white"
         style={{
@@ -302,7 +301,6 @@ function CentralDeck({ activeIndex, currentItems }: CentralDeckProps) {
         />
         <View className="absolute inset-0 bg-black/10" />
       </View>
-      {/* Card 1 (just behind main) */}
       <View
         className="absolute inset-0 rounded-2xl overflow-hidden bg-white"
         style={{
@@ -320,21 +318,21 @@ function CentralDeck({ activeIndex, currentItems }: CentralDeckProps) {
           contentFit="cover"
         />
         <View className="absolute inset-0 bg-black/5" />
-      </View>
+      </View> */}
 
       {/* Main Card */}
       <View
-        className="absolute inset-0 bg-white rounded-2xl overflow-hidden flex-col"
+        className="absolute inset-0 bg-white rounded-2xl flex-col"
         style={{
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 12 },
-          shadowOpacity: 0.15,
-          shadowRadius: 24,
+          shadowOffset: { width: 0, height: 20 },
+          shadowOpacity: 0.2,
+          shadowRadius: 50,
           elevation: 12,
         }}
       >
         {/* Dynamic Image */}
-        <View className="h-[80%] relative bg-stone-100 overflow-hidden">
+        <View className="h-[80%] relative bg-stone-100 overflow-hidden rounded-t-2xl">
           {currentItems.map((item, idx) => {
             const isActive = idx === activeIndex;
             const animatedStyle = useAnimatedStyle(() => ({
@@ -397,7 +395,7 @@ function CentralDeck({ activeIndex, currentItems }: CentralDeckProps) {
         </View>
 
         {/* Bottom Action Bar - Animated time/calories */}
-        <View className="flex-1 bg-white px-4 flex-row items-center justify-between">
+        <View className="flex-1 bg-white px-4 flex-row items-center justify-between rounded-b-2xl">
           <View className="flex-row items-center gap-1">
             <ClockIcon size={16} color="#a8a29e" weight="duotone" />
             <View className="h-5 relative" style={{ width: 54 }}>
