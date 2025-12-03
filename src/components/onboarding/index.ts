@@ -3,6 +3,7 @@ export { OnboardingOptionCard } from "./OnboardingOptionCard";
 export { OnboardingBackground } from "./OnboardingBackground";
 export { OnboardingComplete } from "./OnboardingComplete";
 export { OnboardingControls } from "./OnboardingControls";
+export { OnboardingCard } from "./OnboardingCard";
 
 // Steps
 export { BasicInfoStep, HeardFromStep, CookingFrequencyStep, RecipeSourcesStep } from "./steps";

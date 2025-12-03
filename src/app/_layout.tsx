@@ -79,7 +79,7 @@ function ProtectedNavigation({ onReady }: { onReady: () => void }) {
   // Determine redirect target (only after navigation is ready)
   const inAuthGroup = segments[0] === "auth";
   const inWelcomeScreen = segments[0] === "welcome";
-  const onOnboardingScreen = segments[1] === "onboarding";
+  const onOnboardingScreen = (segments as string[])[1] === "onboarding";
 
   let redirectTarget: string | null = null;
   if (isNavigationReady) {

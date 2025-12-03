@@ -11,7 +11,6 @@ import { useState, useEffect, useCallback } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import Animated from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import Toast from "react-native-toast-message";
 
@@ -20,6 +19,7 @@ import {
   OnboardingBackground,
   OnboardingComplete,
   OnboardingControls,
+  OnboardingCard,
   BasicInfoStep,
   HeardFromStep,
   CookingFrequencyStep,
@@ -47,7 +47,7 @@ export default function Onboarding() {
     recipe_sources: [],
   });
 
-  const { contentAnimatedStyle, goToNextStep, goToPreviousStep, isAnimating } =
+  const { animatedStep, goToNextStep, goToPreviousStep, isAnimating } =
     useOnboardingAnimations({
       currentStep,
       setCurrentStep,
@@ -163,8 +163,8 @@ export default function Onboarding() {
   const isLastQuestionStep = currentStep === TOTAL_QUESTION_STEPS - 1;
 
   // Render step content inside the card
-  const renderStepContent = () => {
-    switch (stepId) {
+  const renderStepContent = (step: typeof STEPS[number]) => {
+    switch (step) {
       case "basicInfo":
         return <BasicInfoStep formData={formData} onFormDataChange={handleFormDataChange} />;
 
@@ -223,16 +223,18 @@ export default function Onboarding() {
         {/* Progress bar */}
         <OnboardingProgress currentStep={currentStep} totalSteps={TOTAL_QUESTION_STEPS} />
 
-        {/* Card container */}
-        <Animated.View
-          className="flex-1 items-center justify-center px-4"
-          style={contentAnimatedStyle}
-        >
-          {/* Cream-colored card (like StepCard) - auto-sized to content */}
-          <View className="w-full max-w-[500px] overflow-hidden rounded-[32px] bg-[#FDFBF7] shadow-2xl">
-            {renderStepContent()}
-          </View>
-        </Animated.View>
+        {/* Card stack container - all cards rendered, animated based on position */}
+        <View className="flex-1">
+          {STEPS.slice(0, -1).map((stepId, index) => (
+            <OnboardingCard
+              key={stepId}
+              stepIndex={index}
+              animatedStep={animatedStep}
+            >
+              {renderStepContent(stepId)}
+            </OnboardingCard>
+          ))}
+        </View>
 
         {/* Bottom controls */}
         <OnboardingControls
