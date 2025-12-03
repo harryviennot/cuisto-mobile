@@ -13,12 +13,109 @@ interface CentralDeckProps {
   currentItems: ShowcaseItem[];
 }
 
+// Extracted component to properly use hooks
+const AnimatedImageItem = ({
+  item,
+  isActive,
+}: {
+  item: ShowcaseItem;
+  isActive: boolean;
+}) => {
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(isActive ? 1 : 0, { duration: 700 }),
+    transform: [{ scale: withTiming(isActive ? 1 : 1.1, { duration: 700 }) }],
+  }));
+
+  return (
+    <Animated.View
+      key={item.source.id}
+      style={[animatedStyle, { position: "absolute", inset: 0 }]}
+    >
+      <Image
+        source={item.recipe.image}
+        style={{ width: "100%", height: "100%" }}
+        contentFit="cover"
+      />
+    </Animated.View>
+  );
+};
+
+// Extracted component for animated title/subtitle
+const AnimatedTitleItem = ({
+  item,
+  isActive,
+}: {
+  item: ShowcaseItem;
+  isActive: boolean;
+}) => {
+  const textStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(isActive ? 1 : 0, { duration: 500 }),
+    transform: [{ translateY: withTiming(isActive ? 0 : 16, { duration: 500 }) }],
+  }));
+
+  return (
+    <Animated.View key={item.source.id} style={[textStyle, { position: "absolute", inset: 0 }]}>
+      <Text className="text-2xl font-serif text-white leading-none mb-1">
+        {item.recipe.title}
+      </Text>
+      <Text className="text-white/70 text-xs font-medium">{item.recipe.subtitle}</Text>
+    </Animated.View>
+  );
+};
+
+// Extracted component for animated time display
+const AnimatedTimeItem = ({
+  item,
+  isActive,
+  label,
+}: {
+  item: ShowcaseItem;
+  isActive: boolean;
+  label: string;
+}) => {
+  const style = useAnimatedStyle(() => ({
+    opacity: withTiming(isActive ? 1 : 0, { duration: 400 }),
+    transform: [{ translateY: withTiming(isActive ? 0 : 8, { duration: 400 }) }],
+  }));
+
+  return (
+    <Animated.View key={item.source.id} style={[style, { position: "absolute", left: 0 }]}>
+      <Text className="text-sm font-medium text-stone-500" numberOfLines={1}>
+        {item.recipe.time} {label}
+      </Text>
+    </Animated.View>
+  );
+};
+
+// Extracted component for animated calories display
+const AnimatedCaloriesItem = ({
+  item,
+  isActive,
+  label,
+}: {
+  item: ShowcaseItem;
+  isActive: boolean;
+  label: string;
+}) => {
+  const style = useAnimatedStyle(() => ({
+    opacity: withTiming(isActive ? 1 : 0, { duration: 400 }),
+    transform: [{ translateY: withTiming(isActive ? 0 : 8, { duration: 400 }) }],
+  }));
+
+  return (
+    <Animated.View key={item.source.id} style={[style, { position: "absolute", left: 0 }]}>
+      <Text className="text-sm font-medium text-stone-500" numberOfLines={1}>
+        {item.recipe.calories} {label}
+      </Text>
+    </Animated.View>
+  );
+};
+
 export const CentralDeck = ({ activeIndex, currentItems }: CentralDeckProps) => {
   const { t } = useTranslation();
 
   return (
     <View className="relative z-20 w-[248px]" style={{ aspectRatio: 3 / 4 }}>
-
       {/* Main Card */}
       <View
         className="absolute inset-0 bg-white rounded-2xl flex-col"
@@ -32,26 +129,9 @@ export const CentralDeck = ({ activeIndex, currentItems }: CentralDeckProps) => 
       >
         {/* Dynamic Image */}
         <View className="h-[80%] relative bg-stone-100 overflow-hidden rounded-t-2xl">
-          {currentItems.map((item, idx) => {
-            const isActive = idx === activeIndex;
-            const animatedStyle = useAnimatedStyle(() => ({
-              opacity: withTiming(isActive ? 1 : 0, { duration: 700 }),
-              transform: [{ scale: withTiming(isActive ? 1 : 1.1, { duration: 700 }) }],
-            }));
-
-            return (
-              <Animated.View
-                key={item.source.id}
-                style={[animatedStyle, { position: "absolute", inset: 0 }]}
-              >
-                <Image
-                  source={item.recipe.image}
-                  style={{ width: "100%", height: "100%" }}
-                  contentFit="cover"
-                />
-              </Animated.View>
-            );
-          })}
+          {currentItems.map((item, idx) => (
+            <AnimatedImageItem key={item.source.id} item={item} isActive={idx === activeIndex} />
+          ))}
 
           <View className="absolute w-full h-full justify-end overflow-hidden">
             <LinearGradient
@@ -73,27 +153,13 @@ export const CentralDeck = ({ activeIndex, currentItems }: CentralDeckProps) => 
 
               {/* Animated Title/Subtitle */}
               <View className="h-12 relative">
-                {currentItems.map((item, idx) => {
-                  const isActive = idx === activeIndex;
-                  const textStyle = useAnimatedStyle(() => ({
-                    opacity: withTiming(isActive ? 1 : 0, { duration: 500 }),
-                    transform: [{ translateY: withTiming(isActive ? 0 : 16, { duration: 500 }) }],
-                  }));
-
-                  return (
-                    <Animated.View
-                      key={item.source.id}
-                      style={[textStyle, { position: "absolute", inset: 0 }]}
-                    >
-                      <Text className="text-2xl font-serif text-white leading-none mb-1">
-                        {item.recipe.title}
-                      </Text>
-                      <Text className="text-white/70 text-xs font-medium">
-                        {item.recipe.subtitle}
-                      </Text>
-                    </Animated.View>
-                  );
-                })}
+                {currentItems.map((item, idx) => (
+                  <AnimatedTitleItem
+                    key={item.source.id}
+                    item={item}
+                    isActive={idx === activeIndex}
+                  />
+                ))}
               </View>
             </LinearGradient>
           </View>
@@ -104,45 +170,27 @@ export const CentralDeck = ({ activeIndex, currentItems }: CentralDeckProps) => 
           <View className="flex-row items-center gap-1">
             <ClockIcon size={16} color="#a8a29e" weight="duotone" />
             <View className="h-5 relative" style={{ width: 54 }}>
-              {currentItems.map((item, idx) => {
-                const isActive = idx === activeIndex;
-                const style = useAnimatedStyle(() => ({
-                  opacity: withTiming(isActive ? 1 : 0, { duration: 400 }),
-                  transform: [{ translateY: withTiming(isActive ? 0 : 8, { duration: 400 }) }],
-                }));
-                return (
-                  <Animated.View
-                    key={item.source.id}
-                    style={[style, { position: "absolute", left: 0 }]}
-                  >
-                    <Text className="text-sm font-medium text-stone-500" numberOfLines={1}>
-                      {item.recipe.time} {t("common.min")}
-                    </Text>
-                  </Animated.View>
-                );
-              })}
+              {currentItems.map((item, idx) => (
+                <AnimatedTimeItem
+                  key={item.source.id}
+                  item={item}
+                  isActive={idx === activeIndex}
+                  label={t("common.min")}
+                />
+              ))}
             </View>
           </View>
           <View className="flex-row items-center gap-1">
             <FlameIcon size={16} color="#a8a29e" weight="duotone" />
             <View className="h-5 relative" style={{ width: 60 }}>
-              {currentItems.map((item, idx) => {
-                const isActive = idx === activeIndex;
-                const style = useAnimatedStyle(() => ({
-                  opacity: withTiming(isActive ? 1 : 0, { duration: 400 }),
-                  transform: [{ translateY: withTiming(isActive ? 0 : 8, { duration: 400 }) }],
-                }));
-                return (
-                  <Animated.View
-                    key={item.source.id}
-                    style={[style, { position: "absolute", left: 0 }]}
-                  >
-                    <Text className="text-sm font-medium text-stone-500" numberOfLines={1}>
-                      {item.recipe.calories} {t("common.kcal")}
-                    </Text>
-                  </Animated.View>
-                );
-              })}
+              {currentItems.map((item, idx) => (
+                <AnimatedCaloriesItem
+                  key={item.source.id}
+                  item={item}
+                  isActive={idx === activeIndex}
+                  label={t("common.kcal")}
+                />
+              ))}
             </View>
           </View>
         </View>

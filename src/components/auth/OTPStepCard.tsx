@@ -46,7 +46,8 @@ export const OTPStepCard: React.FC<OTPStepCardProps> = ({
           {t("auth.otpStep.title")}
         </Text>
         <Text className="text-base text-white/50">
-          {t("auth.otpStep.subtitle")} <Text className="text-sm text-white font-medium">{email}</Text>
+          {t("auth.otpStep.subtitle")}{" "}
+          <Text className="text-sm text-white font-medium">{email}</Text>
         </Text>
       </View>
 

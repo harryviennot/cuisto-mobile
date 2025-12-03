@@ -209,7 +209,6 @@ export default function AuthScreen() {
         className="absolute left-0 right-0 z-10 flex-row items-center justify-center gap-2"
         style={{ top: insets.top + 16 }}
       >
-
         <Pressable
           onPress={currentStep === "otp" ? handleBackToEmail : router.back}
           className="absolute left-6 z-10 rounded-full p-2 active:bg-white/10"

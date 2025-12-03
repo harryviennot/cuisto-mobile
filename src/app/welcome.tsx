@@ -28,9 +28,10 @@ export default function WelcomeScreen() {
 
   useEffect(() => {
     setMounted(true);
+    const itemCount = SHOWCASE_DATA.length;
     const interval = setInterval(() => {
       setActiveIndex((prev) => {
-        const next = (prev + 1) % currentItems.length;
+        const next = (prev + 1) % itemCount;
         // When cycling to a category, advance its variant for next time
         setVariantIndices((indices) => {
           const newIndices = [...indices];

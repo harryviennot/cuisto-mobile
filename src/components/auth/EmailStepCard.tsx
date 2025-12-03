@@ -46,9 +46,7 @@ export const EmailStepCard: React.FC<EmailStepCardProps> = ({
         >
           {t("auth.emailStep.subtitle")}
         </Text>
-        <Text className="text-base text-white/50">
-          {t("auth.emailStep.description")}
-        </Text>
+        <Text className="text-base text-white/50">{t("auth.emailStep.description")}</Text>
       </View>
 
       {/* Email Input */}

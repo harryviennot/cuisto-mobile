@@ -1,10 +1,7 @@
 import {
-  ArrowRightIcon,
   GlobeIcon,
   MicrophoneIcon,
   CameraIcon,
-  ClockIcon,
-  FlameIcon,
   TiktokLogoIcon,
   InstagramLogoIcon,
   PlayIcon,

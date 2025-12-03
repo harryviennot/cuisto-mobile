@@ -1,31 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Pressable } from "react-native";
-import { Image } from "expo-image";
+import React, { useEffect } from "react";
+import { View, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   withSpring,
-  withDelay,
   Easing,
   interpolate,
 } from "react-native-reanimated";
-import {
-  ArrowRightIcon,
-  GlobeIcon,
-  MicrophoneIcon,
-  CameraIcon,
-  ClockIcon,
-  FlameIcon,
-  TiktokLogoIcon,
-  InstagramLogoIcon,
-  PlayIcon,
-} from "phosphor-react-native";
-import type { Icon } from "phosphor-react-native";
-import type { ImageSource } from "expo-image";
 
 import { ShowcaseItem } from "./ShowcaseItems";
 
@@ -49,7 +32,7 @@ export const SatelliteSource = ({ item, isActive, index }: SatelliteSourceProps)
       duration: 500,
       easing: Easing.out(Easing.cubic),
     });
-  }, [isActive]);
+  }, [isActive, scale, opacity, labelWidth]);
 
   const containerStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
