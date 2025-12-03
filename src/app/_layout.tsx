@@ -78,13 +78,13 @@ function ProtectedNavigation({ onReady }: { onReady: () => void }) {
 
   // Determine redirect target (only after navigation is ready)
   const inAuthGroup = segments[0] === "auth";
-  const inWelcomeScreen = segments[0] === "welcome2";
+  const inWelcomeScreen = segments[0] === "welcome";
   const onOnboardingScreen = segments[1] === "onboarding";
 
   let redirectTarget: string | null = null;
   if (isNavigationReady) {
     if (!isAuthenticated && !inAuthGroup && !inWelcomeScreen) {
-      redirectTarget = "/welcome2";
+      redirectTarget = "/welcome";
     } else if (isAuthenticated && user?.is_new_user && !onOnboardingScreen) {
       redirectTarget = "/auth/onboarding";
     } else if (isAuthenticated && !user?.is_new_user && (inAuthGroup || inWelcomeScreen)) {
@@ -93,12 +93,14 @@ function ProtectedNavigation({ onReady }: { onReady: () => void }) {
   }
 
   if (redirectTarget) {
-    return <Redirect href={redirectTarget as "/(tabs)" | "/auth" | "/auth/onboarding" | "/welcome2"} />;
+    return (
+      <Redirect href={redirectTarget as "/(tabs)" | "/auth" | "/auth/onboarding" | "/welcome"} />
+    );
   }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="welcome2" />
+      <Stack.Screen name="welcome" />
       <Stack.Screen name="auth" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen

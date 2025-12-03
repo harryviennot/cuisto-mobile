@@ -1,203 +1,120 @@
-import { useEffect } from "react";
-import { View, Text, Pressable, StatusBar } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { ArrowRight } from "phosphor-react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-  Easing,
-} from "react-native-reanimated";
-import { FloatingSourceCard, HeroPhone } from "@/components/welcome";
-import { BlurView } from "expo-blur";
+import Animated, { useAnimatedStyle, withTiming, withDelay, Easing } from "react-native-reanimated";
+import { ArrowRightIcon } from "phosphor-react-native";
+
+import { SHOWCASE_DATA, ShowcaseItem } from "@components/welcome/ShowcaseItems";
+import { CentralDeck } from "@components/welcome/CentralDeck";
+import { SatelliteSource } from "@components/welcome/SatelliteSource";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
+  const [mounted, setMounted] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  // Track which variant to show for each category
+  const [variantIndices, setVariantIndices] = useState([0, 0, 0, 0]);
 
-  // Mount animations
-  const headerOpacity = useSharedValue(0);
-  const headerTranslateY = useSharedValue(16);
-  const ctaOpacity = useSharedValue(0);
-  const ctaTranslateY = useSharedValue(16);
-
-  // Button press animation
-  const buttonScale = useSharedValue(1);
+  // Build current showcase items from SHOWCASE_DATA using variant indices
+  const currentItems: ShowcaseItem[] = SHOWCASE_DATA.map((categoryItems, categoryIdx) => {
+    const variantIdx = variantIndices[categoryIdx] % categoryItems.length;
+    return categoryItems[variantIdx];
+  });
 
   useEffect(() => {
-    // Header animation
-    headerOpacity.value = withTiming(1, { duration: 700 });
-    headerTranslateY.value = withTiming(0, {
-      duration: 700,
-      easing: Easing.out(Easing.cubic),
-    });
-
-    // CTA animation (delayed)
-    setTimeout(() => {
-      ctaOpacity.value = withTiming(1, { duration: 700 });
-      ctaTranslateY.value = withTiming(0, {
-        duration: 700,
-        easing: Easing.out(Easing.cubic),
+    setMounted(true);
+    const interval = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % currentItems.length;
+        // When cycling to a category, advance its variant for next time
+        setVariantIndices((indices) => {
+          const newIndices = [...indices];
+          newIndices[next] = indices[next] + 1;
+          return newIndices;
+        });
+        return next;
       });
-    }, 500);
-  }, [headerOpacity, headerTranslateY, ctaOpacity, ctaTranslateY]);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const headerAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-    transform: [{ translateY: headerTranslateY.value }],
+  const headerStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(mounted ? 1 : 0, { duration: 1000 }),
+    transform: [
+      {
+        translateY: withTiming(mounted ? 0 : 16, {
+          duration: 1000,
+          easing: Easing.out(Easing.cubic),
+        }),
+      },
+    ],
   }));
 
-  const ctaAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: ctaOpacity.value,
-    transform: [{ translateY: ctaTranslateY.value }],
+  const graphicStyle = useAnimatedStyle(() => ({
+    opacity: withDelay(300, withTiming(mounted ? 1 : 0, { duration: 1000 })),
+    transform: [{ scale: withDelay(300, withTiming(mounted ? 1 : 0.95, { duration: 1000 })) }],
   }));
 
-  const buttonAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScale.value }],
+  const ctaStyle = useAnimatedStyle(() => ({
+    opacity: withDelay(500, withTiming(mounted ? 1 : 0, { duration: 1000 })),
+    transform: [{ translateY: withDelay(500, withTiming(mounted ? 0 : 16, { duration: 1000 })) }],
   }));
-
-  const handlePressIn = () => {
-    buttonScale.value = withSpring(0.97, { damping: 15, stiffness: 400 });
-  };
-
-  const handlePressOut = () => {
-    buttonScale.value = withSpring(1, { damping: 15, stiffness: 400 });
-  };
-
-  const handleGetStarted = () => {
-    router.push("/auth");
-  };
 
   return (
-    <View className="flex-1 bg-stone-950">
-      <StatusBar barStyle="light-content" />
-
-      {/* Background Ambience */}
-      <View className="absolute inset-0" pointerEvents="none">
-        {/* Top left emerald orb */}
-        <View
-          className="absolute w-[300px] h-[300px] rounded-full bg-emerald-900/40"
-          style={{ top: "-10%", left: "-20%" }}
-        />
-        {/* Bottom right stone orb */}
-        <View
-          className="absolute w-[300px] h-[300px] rounded-full bg-stone-800/70"
-          style={{ bottom: "10%", right: "-20%" }}
-        />
-      </View>
-
-      <BlurView
-        className="flex-1 absolute inset-0 bg-black/50"
-        tint="dark"
-        intensity={65}
-      />
-
-      {/* Main Content */}
+    <View className="flex-1 bg-surface overflow-hidden">
       <View
-        className="flex-1 px-6 justify-between items-center"
-        style={{ paddingTop: insets.top + 48, paddingBottom: insets.bottom + 48 }}
+        className="flex-1 flex-col items-center justify-between px-6"
+        style={{ paddingTop: insets.top + 24, paddingBottom: insets.bottom + 32 }}
       >
         {/* HEADER */}
-        <Animated.View
-          style={headerAnimatedStyle}
-          className="items-center gap-4"
-        >
-          {/* Tagline */}
-          <Text className="font-playfair text-5xl text-center text-white tracking-tight leading-[52px]">
-            All your recipes.{"\n"}
-            <Text className="font-playfair-italic text-white/40">
-              One Place.
-            </Text>
+        <Animated.View style={headerStyle} className="items-center space-y-5 mt-4">
+          <Text className="font-serif text-5xl leading-[1.05] tracking-tight text-stone-800 text-center">
+            All your recipes{"\n"}
+            <Text className="italic text-[#334d43]">in one place.</Text>
+          </Text>
+          <Text className="text-stone-500 text-sm font-medium max-w-[280px] text-center leading-relaxed mt-4">
+            Turn links, screenshots, and voice notes
+          </Text>
+          <Text className="text-stone-500 text-sm font-medium max-w-[280px] text-center leading-relaxed">
+            into a beautiful cookbook.
           </Text>
         </Animated.View>
 
-        {/* GRAPHIC AREA */}
-        <View
-          className="relative w-full items-center justify-center my-4"
-          style={{ maxWidth: 340, height: 460 }}
+        <Animated.View
+          style={graphicStyle}
+          className="relative w-full max-w-[320px] h-[420px] items-center justify-center my-4"
         >
-          {/* Central Phone */}
-          <HeroPhone delay={300} />
-
-          {/* Floating Cards */}
-          {/* Top Left - TikTok */}
-          <View className="absolute z-30" style={{ top: 16, left: -12 }}>
-            <FloatingSourceCard
-              type="tiktok"
-              label="Feta Pasta"
-              rotation={-6}
-              delay={0}
+          {/* SATELLITE SOURCES */}
+          {currentItems.map((item, idx) => (
+            <SatelliteSource
+              key={`${item.source.id}-${idx}`}
+              item={item}
+              isActive={idx === activeIndex}
+              index={idx}
             />
-          </View>
-
-          {/* Top Right - Instagram */}
-          <View className="absolute z-30" style={{ top: 56, right: -12 }}>
-            <FloatingSourceCard
-              type="instagram"
-              label="@chef_mike"
-              rotation={4}
-              delay={800}
-            />
-          </View>
-
-          {/* Middle Left - Photo */}
-          <View className="absolute z-30" style={{ top: "38%", left: -20 }}>
-            <FloatingSourceCard
-              type="photo"
-              label="Mom's Recipe"
-              rotation={5}
-              delay={1600}
-            />
-          </View>
-
-          {/* Middle Right - Text */}
-          <View className="absolute z-30" style={{ top: "45%", right: -20 }}>
-            <FloatingSourceCard
-              type="text"
-              label="Pasted Text"
-              rotation={-4}
-              delay={2400}
-            />
-          </View>
-
-          {/* Bottom Left - Web */}
-          <View className="absolute z-30" style={{ bottom: 56, left: -16 }}>
-            <FloatingSourceCard
-              type="web"
-              label="NYT Cooking"
-              rotation={6}
-              delay={400}
-            />
-          </View>
-
-          {/* Bottom Right - Voice */}
-          <View className="absolute z-30" style={{ bottom: 16, right: -16 }}>
-            <FloatingSourceCard
-              type="voice"
-              label="Grandma's Pie"
-              rotation={-3}
-              delay={1200}
-            />
-          </View>
-        </View>
+          ))}
+          {/* CENTRAL DECK */}
+          <CentralDeck activeIndex={activeIndex} currentItems={currentItems} />
+        </Animated.View>
 
         {/* CTA */}
-        <Animated.View style={ctaAnimatedStyle} className="w-full">
+        <Animated.View style={ctaStyle} className="w-full items-center space-y-4">
           <AnimatedPressable
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            onPress={handleGetStarted}
-            style={buttonAnimatedStyle}
-            className="w-full h-16 rounded-2xl bg-white flex-row items-center justify-center gap-3 shadow-lg"
+            onPress={() => router.push("/auth")}
+            className="group relative w-full h-16 bg-primary rounded-2xl flex-row items-center justify-center gap-3 overflow-hidden active:scale-95 transition-transform"
           >
-            <Text className="text-sm font-bold uppercase tracking-[3px] text-stone-950">
+            <Text className="text-white font-bold text-sm uppercase tracking-[0.2em] z-10">
               Start Collecting
             </Text>
-            <ArrowRight size={18} color="#0c0a09" weight="bold" />
+            <ArrowRightIcon size={18} color="white" weight="bold" style={{ zIndex: 10 }} />
           </AnimatedPressable>
+
+          <Text className="text-stone-400 text-[10px] font-bold uppercase tracking-widest opacity-60 mt-4">
+            Join 10,000+ Organized Chefs
+          </Text>
         </Animated.View>
       </View>
     </View>
