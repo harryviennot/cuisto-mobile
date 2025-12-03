@@ -317,7 +317,52 @@
     "phone": "Phone",
     "createdAt": "Created At",
     "metadata": "Metadata",
-    "authenticationStatus": "Authentication Status"
+    "authenticationStatus": "Authentication Status",
+    "emailStep": {
+      "title": "Welcome",
+      "subtitle": "Sign in to continue",
+      "description": "Enter your email to begin your culinary journey.",
+      "emailLabel": "Email Address",
+      "continue": "Continue"
+    },
+    "otpStep": {
+      "title": "Verify your email",
+      "subtitle": "Enter the code sent to",
+      "submit": "Enter Kitchen"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "otpIncomplete": "Please enter the complete 6-digit code"
+    },
+    "toast": {
+      "codeSent": "Code sent!",
+      "codeSentDescription": "Check your email for the verification code",
+      "codeResent": "Code resent!",
+      "codeResentDescription": "Check your email for a new verification code",
+      "failedToSend": "Failed to send code",
+      "failedToResend": "Failed to resend code",
+      "verified": "Email verified!",
+      "verifiedDescription": "Welcome to Cuistudio",
+      "verificationFailed": "Verification failed",
+      "invalidCode": "Invalid or expired code"
+    },
+    "errors": {
+      "tooManyAttempts": "Too many attempts. Please wait before trying again.",
+      "failedToSendCode": "Failed to send verification code. Please try again.",
+      "invalidOrExpired": "Invalid or expired code. Please try again.",
+      "verificationFailed": "Verification failed. Please try again."
+    },
+    "footer": {
+      "didntReceive": "Didn't receive the code?",
+      "resendCode": "Resend Code",
+      "resendIn": "Resend in {{seconds}}s",
+      "sending": "Sending...",
+      "termsPrefix": "By continuing, you agree to our ",
+      "termsOfService": "Terms of Service",
+      "and": " and ",
+      "privacyPolicy": "Privacy Policy"
+    }
   },
   "home": {
     "header": {
@@ -326,5 +371,123 @@
   },
   "search": {
     "placeholder": "Search recipes..."
+  },
+  "welcome": {
+    "headline": "All your recipes",
+    "headlineHighlight": "in one place.",
+    "subtitle1": "Turn links, screenshots, and voice notes",
+    "subtitle2": "into a beautiful cookbook.",
+    "cta": "Start Collecting",
+    "socialProof": "Join 10,000+ Organized Chefs",
+    "imported": "Imported"
+  },
+  "onboarding": {
+    "step": "Step {{current}} of {{total}}",
+    "back": "Back",
+    "continue": "Continue",
+    "basicInfo": {
+      "title": "Let's get to know you",
+      "subtitle": "Tell us a bit about yourself",
+      "nameLabel": "What should we call you?",
+      "namePlaceholder": "Your name",
+      "ageLabel": "How old are you?",
+      "agePlaceholder": "Your age"
+    },
+    "heardFrom": {
+      "title": "How did you hear about us?",
+      "subtitle": "We're curious how our paths crossed",
+      "options": {
+        "social_media": {
+          "label": "Social Media",
+          "description": "Instagram, TikTok, or other social platforms"
+        },
+        "friend": {
+          "label": "Friend or Family",
+          "description": "Someone recommended the app to me"
+        },
+        "app_store": {
+          "label": "App Store",
+          "description": "Found it while browsing the store"
+        },
+        "blog": {
+          "label": "Blog or Article",
+          "description": "Read about it online"
+        },
+        "search_engine": {
+          "label": "Search Engine",
+          "description": "Found it on Google or other search"
+        },
+        "other": {
+          "label": "Other",
+          "description": "Another way not listed here"
+        }
+      }
+    },
+    "cookingFrequency": {
+      "title": "How often do you cook?",
+      "subtitle": "This helps us personalize your experience",
+      "options": {
+        "rarely": {
+          "label": "Rarely",
+          "description": "A few times a month or less"
+        },
+        "occasionally": {
+          "label": "Occasionally",
+          "description": "Once or twice a week"
+        },
+        "regularly": {
+          "label": "Regularly",
+          "description": "Several times a week"
+        },
+        "almost_daily": {
+          "label": "Almost Daily",
+          "description": "Cooking is my daily ritual"
+        }
+      }
+    },
+    "recipeSources": {
+      "title": "Where do you get recipes from?",
+      "subtitle": "Select all that apply",
+      "options": {
+        "tiktok": {
+          "label": "TikTok",
+          "description": "Short-form cooking videos"
+        },
+        "instagram": {
+          "label": "Instagram",
+          "description": "Reels and food photography"
+        },
+        "youtube": {
+          "label": "YouTube",
+          "description": "Long-form cooking tutorials"
+        },
+        "blogs": {
+          "label": "Food Blogs",
+          "description": "Written recipes and stories"
+        },
+        "cookbooks": {
+          "label": "Cookbooks",
+          "description": "Physical or digital cookbooks"
+        },
+        "family": {
+          "label": "Family & Friends",
+          "description": "Recipes passed down or shared"
+        },
+        "other": {
+          "label": "Other",
+          "description": "Other recipe sources"
+        }
+      }
+    },
+    "completion": {
+      "title": "Welcome, {{name}}!",
+      "subtitle": "Setting up your kitchen..."
+    },
+    "toast": {
+      "accountSetUp": "Your account is all set up",
+      "setupFailed": "Failed to complete setup",
+      "pleaseSelectOne": "Please select at least one",
+      "whereGetRecipes": "Where do you usually find recipes?"
+    }
   }
 }

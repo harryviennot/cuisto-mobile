@@ -13,7 +13,7 @@ import Toast from "react-native-toast-message";
 
 const RECIPES_PER_PAGE = 20;
 
-export function useRecipes() {
+export function useRecipes(options?: { enabled?: boolean }) {
   return useInfiniteQuery<Recipe[], Error>({
     queryKey: ["recipes"],
     queryFn: async ({ pageParam = 0 }) => {
@@ -36,6 +36,7 @@ export function useRecipes() {
     refetchOnMount: false, // Don't refetch on mount if data is fresh
     refetchOnWindowFocus: false, // Don't refetch when app comes to foreground
     refetchOnReconnect: false, // Don't refetch when network reconnects (manual refresh available)
+    enabled: options?.enabled ?? true, // Prevent fetching when user is not authenticated
   });
 }
 

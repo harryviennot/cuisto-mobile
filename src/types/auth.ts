@@ -29,14 +29,15 @@ export interface AuthResponse {
 // PASSWORDLESS AUTHENTICATION
 // ============================================================================
 
-// Email Magic Link
+// Email OTP
 export interface EmailAuthRequest {
   email: string;
 }
 
 export interface VerifyEmailOTPRequest {
-  token_hash: string;
-  type: string;
+  email: string;
+  token: string;
+  type: "email";
 }
 
 // Phone OTP
@@ -47,11 +48,20 @@ export interface PhoneAuthRequest {
 export interface VerifyPhoneOTPRequest {
   phone: string;
   token: string;
+  type: "sms";
 }
 
 // ============================================================================
-// PROFILE COMPLETION
+// ONBOARDING & PROFILE COMPLETION
 // ============================================================================
+
+export interface OnboardingData {
+  heard_from: string; // 'social_media' | 'friend' | 'app_store' | 'blog' | 'search_engine' | 'other'
+  cooking_frequency: string; // 'rarely' | 'occasionally' | 'regularly' | 'almost_daily'
+  recipe_sources: string[]; // ['tiktok', 'instagram', 'youtube', 'blogs', 'cookbooks', 'family', 'other']
+  display_name?: string;
+  age?: number; // User's age as integer
+}
 
 export interface CompleteProfileRequest {
   name: string;

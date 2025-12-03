@@ -12,6 +12,7 @@ import type {
   RefreshTokenRequest,
   LinkEmailIdentityRequest,
   LinkPhoneIdentityRequest,
+  OnboardingData,
   User,
 } from "@/types/auth";
 
@@ -32,10 +33,11 @@ export const authService = {
   },
 
   /**
-   * Send magic link to email (public endpoint, no auth required)
+   * Send OTP to email (public endpoint, no auth required)
+   * Sends a 6-digit OTP code via email
    */
-  sendMagicLink: async (data: EmailAuthRequest) => {
-    const response = await api.public.post<{ message: string }>("/auth/magic-link", data);
+  sendEmailOTP: async (data: EmailAuthRequest) => {
+    const response = await api.public.post<{ message: string }>("/auth/email", data);
     return response.data;
   },
 
@@ -43,7 +45,7 @@ export const authService = {
    * Verify email OTP token (public endpoint)
    */
   verifyEmailOTP: async (data: VerifyEmailOTPRequest) => {
-    const response = await api.public.post<AuthResponse>("/auth/verify-email", data, {
+    const response = await api.public.post<AuthResponse>("/auth/email/verify", data, {
       skipAuthRetry: true, // Don't retry on 401
     });
     return response.data;
@@ -53,7 +55,7 @@ export const authService = {
    * Send OTP to phone (public endpoint)
    */
   sendPhoneOTP: async (data: PhoneAuthRequest) => {
-    const response = await api.public.post<{ message: string }>("/auth/phone-otp", data);
+    const response = await api.public.post<{ message: string }>("/auth/phone", data);
     return response.data;
   },
 
@@ -61,7 +63,7 @@ export const authService = {
    * Verify phone OTP (public endpoint)
    */
   verifyPhoneOTP: async (data: VerifyPhoneOTPRequest) => {
-    const response = await api.public.post<AuthResponse>("/auth/verify-phone", data, {
+    const response = await api.public.post<AuthResponse>("/auth/phone/verify", data, {
       skipAuthRetry: true, // Don't retry on 401
     });
     return response.data;
@@ -122,6 +124,15 @@ export const authService = {
    */
   linkPhoneIdentity: async (data: LinkPhoneIdentityRequest) => {
     const response = await api.post<{ message: string }>("/auth/link-identity/phone", data);
+    return response.data;
+  },
+
+  /**
+   * Submit onboarding questionnaire (authenticated endpoint)
+   * Called after email verification for new users
+   */
+  submitOnboarding: async (data: OnboardingData) => {
+    const response = await api.post<{ message: string }>("/auth/onboarding", data);
     return response.data;
   },
 };

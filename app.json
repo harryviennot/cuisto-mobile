@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "cuistudio-mobile",
+    "name": "Cuisto",
     "slug": "cuistudio",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hryvnt.cuistudio"
+      "bundleIdentifier": "com.hryvnt.cuistudio",
+      "icon": "./assets/cuisto.icon"
     },
     "android": {
       "adaptiveIcon": {
@@ -29,13 +30,7 @@
     },
     "plugins": [
       [
-        "expo-router",
-        {
-          "asyncRoutes": {
-            "web": true,
-            "default": "development"
-          }
-        }
+        "expo-router"
       ],
       [
         "expo-splash-screen",
@@ -43,10 +38,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
-          "dark": {
-            "backgroundColor": "#000000"
-          }
+          "backgroundColor": "#1c1917"
         }
       ],
       [

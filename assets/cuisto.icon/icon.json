@@ -1,0 +1,51 @@
+{
+  "fill" : {
+    "solid" : "display-p3:0.22205,0.29932,0.26489,1.00000"
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : {
+                "solid" : "display-p3:0.95686,0.94510,0.90980,1.00000"
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "solid" : "extended-gray:1.00000,1.00000"
+              }
+            }
+          ],
+          "glass" : false,
+          "hidden" : false,
+          "image-name" : "Minimalist App Icon Design Dec 2 2025 2.png",
+          "name" : "Minimalist App Icon Design Dec 2 2025 2",
+          "position" : {
+            "scale" : 0.78,
+            "translation-in-points" : [
+              -20,
+              6
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}

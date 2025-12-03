@@ -13,6 +13,10 @@ npm run android
 npm run ios
 npm run web
 
+# Build native projects (run before ios/android if needed)
+npm run build:ios
+npm run build:android
+
 # Code quality checks
 npm run lint              # Run ESLint
 npm run type-check        # Run TypeScript type checking
@@ -189,11 +193,28 @@ Use these aliases instead of relative paths for cleaner imports.
 
 ### Component Organization
 
-**Ready-to-use directories:**
-- `src/components/` - Reusable UI components
-- `src/screens/` - Screen components organized by feature
-- `src/hooks/` - Custom React hooks
-- `src/contexts/` - React Contexts for global state (if needed)
+**Directory Structure:**
+```
+src/
+├── api/              # API client, services, token management
+├── app/              # Expo Router routes (file-based routing)
+├── components/       # Reusable UI components
+│   ├── ui/          # Generic UI components (ActionSheet, ErrorState, Skeleton)
+│   ├── extraction/  # Recipe extraction components (FAB, ImageUploadCard, ExtractionProgress)
+│   ├── recipe/      # Recipe-specific components (RecipeCard, RecipeDetail, RecipeEdit)
+│   ├── home/        # Home screen components (Header, SearchBar, MasonryGrid)
+│   ├── forms/       # Form components (TextInput, FormGroupInput)
+│   ├── DragAndDrop/ # Drag-and-drop system with custom hooks
+│   └── navigation/  # Navigation components (FloatingTabBar)
+├── config/          # Configuration files (extractionMethods.ts)
+├── contexts/        # React Contexts (AuthContext, RecipeContext, SearchContext)
+├── hooks/           # Custom React hooks
+│   └── recipe/     # Recipe-specific hooks
+├── locales/         # i18n translation files
+├── schemas/         # Validation schemas (Zod)
+├── types/           # TypeScript type definitions
+└── utils/           # Utility functions
+```
 
 **Pattern to follow:**
 ```typescript
@@ -293,3 +314,155 @@ Set `EXPO_PUBLIC_API_URL` in `.env` or configure `extra.apiUrl` in `app.json`:
 ## React Native New Architecture
 
 This project uses React Native's New Architecture (`newArchEnabled: true` in app.json). Be aware of compatibility when adding new native modules.
+
+## Authentication System
+
+**Location:** `src/contexts/AuthContext.tsx`
+
+The app supports both anonymous and authenticated users:
+
+**Anonymous Authentication:**
+- Users can browse and use the app without creating an account
+- On first launch, `AuthContext` automatically signs in anonymously
+- Anonymous users get temporary tokens for API access
+
+**Authentication Flow:**
+```
+App Launch
+  ↓
+Check for existing tokens
+  ↓
+  ├─ Tokens exist → Get current user
+  └─ No tokens → Sign in anonymously
+```
+
+**Usage:**
+```typescript
+import { useAuth } from "@/contexts/AuthContext";
+
+const { user, isAuthenticated, isAnonymous, signOut } = useAuth();
+
+// Check if user is authenticated (not anonymous)
+if (isAuthenticated && !isAnonymous) {
+  // Show authenticated features
+}
+```
+
+**Available Contexts:**
+- `AuthContext` - User authentication state
+- `RecipeContext` - Recipe data management
+- `SearchContext` - Search functionality
+
+## Recipe Extraction System
+
+**Architecture:** The recipe extraction system is modular and extensible.
+
+**Current extraction methods:**
+- **Image** - Camera or gallery photos (max 3 images)
+- **Video** - Import from video link (TikTok, Instagram, YouTube)
+- **URL** - Paste recipe URL (future)
+- **Voice** - Record voice instructions (future)
+- **Paste** - Paste recipe text (future)
+
+**Configuration:** `src/config/extractionMethods.ts`
+
+Each extraction method requires:
+1. **Configuration** - Define method type, label, icon
+2. **Flow Hook** - Business logic (useImageExtractionFlow.ts, useVideoExtractionFlow.ts)
+3. **Confirmation View** - UI for confirming submission
+4. **API Service Method** - Backend integration
+
+**See:** `docs/ADD_EXTRACTION_METHOD.md` for detailed guide on adding new extraction methods.
+
+**Extraction Flow:**
+```
+User selects method (FAB button)
+  ↓
+Method-specific input (camera, gallery, URL, etc.)
+  ↓
+Confirmation view (preview, validate)
+  ↓
+Submit to backend (POST /api/v1/extraction/submit)
+  ↓
+Poll job status (useExtractionJob hook)
+  ↓
+Navigate to recipe detail on completion
+```
+
+## Key Custom Hooks
+
+**Data Fetching:**
+- `useRecipes()` - Fetch and manage recipes with TanStack Query
+- `useExtractionJob(jobId)` - Poll extraction job status with SSE
+- `useCollections()` - Manage recipe collections/cookbooks
+
+**Extraction:**
+- `useImageExtractionFlow()` - Image extraction business logic
+- `useVideoExtractionFlow()` - Video extraction business logic
+- `useImagePicker()` - Native image picker with permissions
+
+**UI/UX:**
+- `useScrollHeader()` - Animated header on scroll
+- `useSearch()` - Search functionality
+- `useDeviceType()` - Detect device type (phone/tablet)
+
+**Polling & Real-time:**
+- `usePolling(callback, interval)` - Generic polling hook
+- `useSSE(url, onMessage)` - Server-Sent Events for real-time updates
+
+## Form Validation
+
+**Library:** Zod with react-hook-form
+
+**Location:** `src/schemas/`
+
+**Pattern:**
+```typescript
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const recipeSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+});
+
+export default function MyForm() {
+  const { control, handleSubmit } = useForm({
+    resolver: zodResolver(recipeSchema),
+  });
+
+  // Use control with TextInput components
+}
+```
+
+## Important Notes
+
+### Expo Router File Structure
+Routes in `src/app/` follow these conventions:
+- `index.tsx` - Default route for directory
+- `_layout.tsx` - Layout wrapper (provider, navigation)
+- `[param].tsx` - Dynamic route parameter
+- `(tabs)/` - Route group (doesn't appear in URL)
+
+Example: `src/app/recipe/[id]/index.tsx` → `/recipe/123`
+
+### API Services Organization
+All API services are in `src/api/services/` and exported from `index.ts`:
+- `auth.service.ts` - Authentication (magic link, OTP, tokens)
+- `extraction.service.ts` - Recipe extraction submission
+- `recipe.service.ts` - Recipe CRUD operations
+- `collection.service.ts` - Cookbook/collection management
+
+### Design System
+The app uses a custom warm, cookbook-inspired design:
+- **Primary color:** Forest green (#334d43)
+- **Surface colors:** Warm beige/paper texture
+- **Typography:** Playfair Display (elegant serif)
+- Always use design tokens from `tailwind.config.js`, not hardcoded colors
+
+### Performance Considerations
+- Use `FlashList` (from @shopify/flash-list) instead of FlatList for long lists
+- Use `expo-image` instead of React Native Image for better performance
+- Lazy load images with NitroImage where appropriate
+- Use React.memo() for expensive components that re-render frequently

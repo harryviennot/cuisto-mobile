@@ -9,13 +9,16 @@ import { BlurView } from "expo-blur";
 import { SearchButton } from "@/components/home/SearchButton";
 import { MasonryGrid } from "@/components/home/MasonryGrid";
 import { useRecipes } from "@/hooks/useRecipes";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
 
   // Use recipes hook for all recipes view
+  // Only fetch when authenticated to prevent requests during auth redirect
   const {
     data,
     isLoading,
@@ -25,7 +28,7 @@ export default function Index() {
     isFetchingNextPage,
     refetch,
     isRefetching,
-  } = useRecipes();
+  } = useRecipes({ enabled: isAuthenticated });
 
   // Handle pull-to-refresh
   const handleRefresh = useCallback(async () => {
