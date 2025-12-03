@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { StarIcon } from "phosphor-react-native";
+import { useTranslation } from "react-i18next";
 import { AuthCard } from "./AuthCard";
 import { AuthInput } from "./AuthInput";
 import { AuthButton } from "./AuthButton";
@@ -22,6 +23,8 @@ export const EmailStepCard: React.FC<EmailStepCardProps> = ({
   isLoading,
   onContinue,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <AuthCard>
       {/* Header */}
@@ -31,7 +34,7 @@ export const EmailStepCard: React.FC<EmailStepCardProps> = ({
             <View className="flex-row items-center gap-1.5">
               <StarIcon size={12} color="#91b5a7" weight="fill" />
               <Text className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary-light">
-                Welcome
+                {t("auth.emailStep.title")}
               </Text>
             </View>
           </View>
@@ -41,16 +44,16 @@ export const EmailStepCard: React.FC<EmailStepCardProps> = ({
           className="text-3xl text-white mb-2"
           style={{ fontFamily: "PlayfairDisplay_700Bold" }}
         >
-          Sign in to continue
+          {t("auth.emailStep.subtitle")}
         </Text>
         <Text className="text-base text-white/50">
-          Enter your email to begin your culinary journey.
+          {t("auth.emailStep.description")}
         </Text>
       </View>
 
       {/* Email Input */}
       <AuthInput
-        label="Email Address"
+        label={t("auth.emailStep.emailLabel")}
         value={email}
         onChangeText={(text) => {
           setEmail(text);
@@ -68,7 +71,7 @@ export const EmailStepCard: React.FC<EmailStepCardProps> = ({
 
       {/* Continue Button */}
       <AuthButton
-        title="Continue"
+        title={t("auth.emailStep.continue")}
         onPress={onContinue}
         isLoading={isLoading}
         disabled={!email.trim()}

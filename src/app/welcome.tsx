@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import Animated, { useAnimatedStyle, withTiming, withDelay, Easing } from "react-native-reanimated";
 import { ArrowRightIcon } from "phosphor-react-native";
+import { useTranslation } from "react-i18next";
 
 import { SHOWCASE_DATA, ShowcaseItem } from "@components/welcome/ShowcaseItems";
 import { CentralDeck } from "@components/welcome/CentralDeck";
@@ -13,6 +14,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   // Track which variant to show for each category
@@ -72,14 +74,15 @@ export default function WelcomeScreen() {
         {/* HEADER */}
         <Animated.View style={headerStyle} className="items-center space-y-5 mt-4">
           <Text className="font-serif text-5xl leading-[1.05] tracking-tight text-stone-800 text-center">
-            All your recipes{"\n"}
-            <Text className="italic text-[#334d43]">in one place.</Text>
+            {t("welcome.headline")}
+            {"\n"}
+            <Text className="italic text-[#334d43]">{t("welcome.headlineHighlight")}</Text>
           </Text>
           <Text className="text-stone-500 text-sm font-medium max-w-[280px] text-center leading-relaxed mt-4">
-            Turn links, screenshots, and voice notes
+            {t("welcome.subtitle1")}
           </Text>
           <Text className="text-stone-500 text-sm font-medium max-w-[280px] text-center leading-relaxed">
-            into a beautiful cookbook.
+            {t("welcome.subtitle2")}
           </Text>
         </Animated.View>
 
@@ -107,13 +110,13 @@ export default function WelcomeScreen() {
             className="group relative w-full h-16 bg-primary rounded-2xl flex-row items-center justify-center gap-3 overflow-hidden active:scale-95 transition-transform"
           >
             <Text className="text-white font-bold text-sm uppercase tracking-[0.2em] z-10">
-              Start Collecting
+              {t("welcome.cta")}
             </Text>
             <ArrowRightIcon size={18} color="white" weight="bold" style={{ zIndex: 10 }} />
           </AnimatedPressable>
 
           <Text className="text-stone-400 text-[10px] font-bold uppercase tracking-widest opacity-60 mt-4">
-            Join 10,000+ Organized Chefs
+            {t("welcome.socialProof")}
           </Text>
         </Animated.View>
       </View>

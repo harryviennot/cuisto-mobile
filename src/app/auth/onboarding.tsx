@@ -94,7 +94,7 @@ export default function Onboarding() {
       Toast.show({
         type: "success",
         text1: t("common.welcome"),
-        text2: "Your account is all set up",
+        text2: t("onboarding.toast.accountSetUp"),
       });
 
       // Navigation is handled automatically by ProtectedNavigation
@@ -102,11 +102,11 @@ export default function Onboarding() {
     } catch (err: unknown) {
       console.error("Onboarding submission error:", err);
 
-      const errorMessage = err instanceof Error ? err.message : "Please try again";
+      const errorMessage = err instanceof Error ? err.message : t("common.tryAgain");
 
       Toast.show({
         type: "error",
-        text1: "Failed to complete setup",
+        text1: t("onboarding.toast.setupFailed"),
         text2: errorMessage,
       });
 
@@ -138,14 +138,14 @@ export default function Onboarding() {
     if (stepId === "recipeSources" && formData.recipe_sources.length === 0) {
       Toast.show({
         type: "error",
-        text1: "Please select at least one",
-        text2: "Where do you usually find recipes?",
+        text1: t("onboarding.toast.pleaseSelectOne"),
+        text2: t("onboarding.toast.whereGetRecipes"),
       });
       return;
     }
 
     goToNextStep();
-  }, [currentStep, formData.recipe_sources, goToNextStep]);
+  }, [currentStep, formData.recipe_sources, goToNextStep, t]);
 
   // Trigger submit when reaching completion step
   useEffect(() => {

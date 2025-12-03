@@ -4,15 +4,18 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ArrowLeftIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
+import { useTranslation } from "react-i18next";
 import { authService } from "@/api/services/auth.service";
 import { useAuth } from "@/contexts/AuthContext";
 import Toast from "react-native-toast-message";
 import { AuthBackground, EmailStepCard, OTPStepCard } from "@/components/auth";
+import { router } from "expo-router";
 
 type AuthStep = "email" | "otp";
 
 export default function AuthScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { setTokens, setUser } = useAuth();
 
   // Current step
@@ -52,12 +55,12 @@ export default function AuthScreen() {
     setEmailError("");
 
     if (!email.trim()) {
-      setEmailError("Email is required");
+      setEmailError(t("auth.validation.emailRequired"));
       return;
     }
 
     if (!validateEmail(email.trim())) {
-      setEmailError("Please enter a valid email address");
+      setEmailError(t("auth.validation.emailInvalid"));
       return;
     }
 
@@ -70,8 +73,8 @@ export default function AuthScreen() {
 
       Toast.show({
         type: "success",
-        text1: "Code sent!",
-        text2: "Check your email for the verification code",
+        text1: t("auth.toast.codeSent"),
+        text2: t("auth.toast.codeSentDescription"),
       });
 
       setCurrentStep("otp");
@@ -81,17 +84,17 @@ export default function AuthScreen() {
       console.error("Send OTP error:", err);
 
       if (err.response?.status === 429) {
-        setEmailError("Too many attempts. Please wait before trying again.");
+        setEmailError(t("auth.errors.tooManyAttempts"));
       } else if (err.response?.data?.message) {
         setEmailError(err.response.data.message);
       } else {
-        setEmailError("Failed to send verification code. Please try again.");
+        setEmailError(t("auth.errors.failedToSendCode"));
       }
 
       Toast.show({
         type: "error",
-        text1: "Failed to send code",
-        text2: err.response?.data?.message || "Please try again",
+        text1: t("auth.toast.failedToSend"),
+        text2: err.response?.data?.message || t("common.tryAgain"),
       });
     } finally {
       setIsSendingOtp(false);
@@ -100,7 +103,7 @@ export default function AuthScreen() {
 
   const handleVerifyOtp = useCallback(async () => {
     if (otpCode.length !== 6) {
-      setOtpError("Please enter the complete 6-digit code");
+      setOtpError(t("auth.validation.otpIncomplete"));
       return;
     }
 
@@ -121,8 +124,8 @@ export default function AuthScreen() {
 
       Toast.show({
         type: "success",
-        text1: "Email verified!",
-        text2: "Welcome to Cuistudio",
+        text1: t("auth.toast.verified"),
+        text2: t("auth.toast.verifiedDescription"),
       });
 
       // Navigation is handled automatically by ProtectedNavigation
@@ -134,24 +137,24 @@ export default function AuthScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
       if (err.response?.status === 401) {
-        setOtpError("Invalid or expired code. Please try again.");
+        setOtpError(t("auth.errors.invalidOrExpired"));
       } else if (err.response?.status === 429) {
-        setOtpError("Too many attempts. Please wait before trying again.");
+        setOtpError(t("auth.errors.tooManyAttempts"));
       } else if (err.response?.data?.message) {
         setOtpError(err.response.data.message);
       } else {
-        setOtpError("Verification failed. Please try again.");
+        setOtpError(t("auth.errors.verificationFailed"));
       }
 
       Toast.show({
         type: "error",
-        text1: "Verification failed",
-        text2: err.response?.data?.message || "Invalid or expired code",
+        text1: t("auth.toast.verificationFailed"),
+        text2: err.response?.data?.message || t("auth.toast.invalidCode"),
       });
     } finally {
       setIsVerifying(false);
     }
-  }, [otpCode, email, setTokens, setUser]);
+  }, [otpCode, email, setTokens, setUser, t]);
 
   // Auto-submit OTP when complete
   useEffect(() => {
@@ -171,8 +174,8 @@ export default function AuthScreen() {
 
       Toast.show({
         type: "success",
-        text1: "Code resent!",
-        text2: "Check your email for a new verification code",
+        text1: t("auth.toast.codeResent"),
+        text2: t("auth.toast.codeResentDescription"),
       });
 
       setOtpCode("");
@@ -183,8 +186,8 @@ export default function AuthScreen() {
 
       Toast.show({
         type: "error",
-        text1: "Failed to resend code",
-        text2: err.response?.data?.message || "Please try again",
+        text1: t("auth.toast.failedToResend"),
+        text2: err.response?.data?.message || t("common.tryAgain"),
       });
     } finally {
       setIsResending(false);
@@ -206,14 +209,14 @@ export default function AuthScreen() {
         className="absolute left-0 right-0 z-10 flex-row items-center justify-center gap-2"
         style={{ top: insets.top + 16 }}
       >
-        {currentStep === "otp" && (
-          <Pressable
-            onPress={handleBackToEmail}
-            className="absolute left-6 z-10 rounded-full p-2 active:bg-white/10"
-          >
-            <ArrowLeftIcon size={24} color="white" weight="bold" />
-          </Pressable>
-        )}
+
+        <Pressable
+          onPress={currentStep === "otp" ? handleBackToEmail : router.back}
+          className="absolute left-6 z-10 rounded-full p-2 active:bg-white/10"
+        >
+          <ArrowLeftIcon size={24} color="white" weight="bold" />
+        </Pressable>
+
         <View
           className={`h-2 rounded-full ${currentStep === "email" ? "w-6 bg-white" : "w-2 bg-white/30"}`}
         />
@@ -258,25 +261,28 @@ export default function AuthScreen() {
         <View className="mt-6">
           {currentStep === "email" ? (
             <Text className="text-xs text-white/30 text-center leading-5">
-              By continuing, you agree to our{" "}
-              <Text className="text-white/50 underline">Terms of Service</Text> and{" "}
-              <Text className="text-white/50 underline">Privacy Policy</Text>.
+              {t("auth.footer.termsPrefix")}
+              <Text className="text-white/50 underline">{t("auth.footer.termsOfService")}</Text>
+              {t("auth.footer.and")}
+              <Text className="text-white/50 underline">{t("auth.footer.privacyPolicy")}</Text>.
             </Text>
           ) : (
             <View className="items-center">
-              <Text className="text-sm text-white/40 mb-2">Didn&apos;t receive the code?</Text>
+              <Text className="text-sm text-white/40 mb-2">{t("auth.footer.didntReceive")}</Text>
               {canResend ? (
                 <Pressable
                   onPress={handleResendOtp}
                   disabled={isResending}
-                  className="active:opacity-60"
+                  className="active:opacity-90"
                 >
                   <Text className="text-sm font-bold uppercase tracking-[0.15em] text-primary-light">
-                    {isResending ? "Sending..." : "Resend Code"}
+                    {isResending ? t("auth.footer.sending") : t("auth.footer.resendCode")}
                   </Text>
                 </Pressable>
               ) : (
-                <Text className="text-sm text-white/60">Resend in {resendTimer}s</Text>
+                <Text className="text-sm text-white/60">
+                  {t("auth.footer.resendIn", { seconds: resendTimer })}
+                </Text>
               )}
             </View>
           )}
