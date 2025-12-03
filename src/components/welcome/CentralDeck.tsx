@@ -14,23 +14,14 @@ interface CentralDeckProps {
 }
 
 // Extracted component to properly use hooks
-const AnimatedImageItem = ({
-  item,
-  isActive,
-}: {
-  item: ShowcaseItem;
-  isActive: boolean;
-}) => {
+const AnimatedImageItem = ({ item, isActive }: { item: ShowcaseItem; isActive: boolean }) => {
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: withTiming(isActive ? 1 : 0, { duration: 700 }),
     transform: [{ scale: withTiming(isActive ? 1 : 1.1, { duration: 700 }) }],
   }));
 
   return (
-    <Animated.View
-      key={item.source.id}
-      style={[animatedStyle, { position: "absolute", inset: 0 }]}
-    >
+    <Animated.View key={item.source.id} style={[animatedStyle, { position: "absolute", inset: 0 }]}>
       <Image
         source={item.recipe.image}
         style={{ width: "100%", height: "100%" }}
@@ -41,13 +32,7 @@ const AnimatedImageItem = ({
 };
 
 // Extracted component for animated title/subtitle
-const AnimatedTitleItem = ({
-  item,
-  isActive,
-}: {
-  item: ShowcaseItem;
-  isActive: boolean;
-}) => {
+const AnimatedTitleItem = ({ item, isActive }: { item: ShowcaseItem; isActive: boolean }) => {
   const textStyle = useAnimatedStyle(() => ({
     opacity: withTiming(isActive ? 1 : 0, { duration: 500 }),
     transform: [{ translateY: withTiming(isActive ? 0 : 16, { duration: 500 }) }],
@@ -55,9 +40,7 @@ const AnimatedTitleItem = ({
 
   return (
     <Animated.View key={item.source.id} style={[textStyle, { position: "absolute", inset: 0 }]}>
-      <Text className="text-2xl font-serif text-white leading-none mb-1">
-        {item.recipe.title}
-      </Text>
+      <Text className="text-2xl font-serif text-white leading-none mb-1">{item.recipe.title}</Text>
       <Text className="text-white/70 text-xs font-medium">{item.recipe.subtitle}</Text>
     </Animated.View>
   );
