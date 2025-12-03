@@ -47,11 +47,10 @@ export default function Onboarding() {
     recipe_sources: [],
   });
 
-  const { animatedStep, goToNextStep, goToPreviousStep, isAnimating } =
-    useOnboardingAnimations({
-      currentStep,
-      setCurrentStep,
-    });
+  const { animatedStep, goToNextStep, goToPreviousStep, isAnimating } = useOnboardingAnimations({
+    currentStep,
+    setCurrentStep,
+  });
 
   // Handle form data changes
   const handleFormDataChange = useCallback((data: Partial<OnboardingFormData>) => {
@@ -163,7 +162,7 @@ export default function Onboarding() {
   const isLastQuestionStep = currentStep === TOTAL_QUESTION_STEPS - 1;
 
   // Render step content inside the card
-  const renderStepContent = (step: typeof STEPS[number]) => {
+  const renderStepContent = (step: (typeof STEPS)[number]) => {
     switch (step) {
       case "basicInfo":
         return <BasicInfoStep formData={formData} onFormDataChange={handleFormDataChange} />;
@@ -206,7 +205,7 @@ export default function Onboarding() {
       <View className="flex-1 bg-black">
         <StatusBar style="light" />
         <OnboardingBackground step={currentStep} />
-        <OnboardingComplete displayName={formData.display_name} isSubmitting={isSubmitting} />
+        <OnboardingComplete displayName={formData.display_name} />
       </View>
     );
   }
@@ -226,11 +225,7 @@ export default function Onboarding() {
         {/* Card stack container - all cards rendered, animated based on position */}
         <View className="flex-1">
           {STEPS.slice(0, -1).map((stepId, index) => (
-            <OnboardingCard
-              key={stepId}
-              stepIndex={index}
-              animatedStep={animatedStep}
-            >
+            <OnboardingCard key={stepId} stepIndex={index} animatedStep={animatedStep}>
               {renderStepContent(stepId)}
             </OnboardingCard>
           ))}

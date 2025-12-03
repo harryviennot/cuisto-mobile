@@ -20,26 +20,11 @@ export function OnboardingCard({ stepIndex, animatedStep, children }: Onboarding
     // Position relative to current step: negative = left, 0 = center, positive = right
     const position = stepIndex - animatedStep.value;
 
-    const translateX = interpolate(
-      position,
-      [-1, 0, 1],
-      [-width, 0, width],
-      Extrapolation.CLAMP
-    );
+    const translateX = interpolate(position, [-1, 0, 1], [-width, 0, width], Extrapolation.CLAMP);
 
-    const scale = interpolate(
-      position,
-      [-1, 0, 1],
-      [0.9, 1, 0.9],
-      Extrapolation.CLAMP
-    );
+    const scale = interpolate(position, [-1, 0, 1], [0.9, 1, 0.9], Extrapolation.CLAMP);
 
-    const opacity = interpolate(
-      position,
-      [-1, 0, 1],
-      [0, 1, 0],
-      Extrapolation.CLAMP
-    );
+    const opacity = interpolate(position, [-1, 0, 1], [0, 1, 0], Extrapolation.CLAMP);
 
     return {
       transform: [{ translateX }, { scale }],

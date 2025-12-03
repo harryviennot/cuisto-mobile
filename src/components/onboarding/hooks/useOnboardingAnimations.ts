@@ -1,11 +1,5 @@
 import { useState, useCallback } from "react";
-import {
-  useSharedValue,
-  withTiming,
-  runOnJS,
-  Easing,
-  SharedValue,
-} from "react-native-reanimated";
+import { useSharedValue, withTiming, runOnJS, Easing, SharedValue } from "react-native-reanimated";
 
 import { STEPS } from "../constants";
 
