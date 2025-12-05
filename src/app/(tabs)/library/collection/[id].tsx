@@ -17,13 +17,14 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, Package, Heart, Plus, MagnifyingGlass } from "phosphor-react-native";
+import { ArrowLeft, Package, SquaresFourIcon, Plus, MagnifyingGlass, BookmarkIcon } from "phosphor-react-native";
 import Animated, {
   FadeIn,
   FadeInDown,
   useSharedValue,
   useAnimatedScrollHandler,
   useAnimatedStyle,
+  useAnimatedProps,
   interpolate,
   Extrapolation,
 } from "react-native-reanimated";
@@ -39,8 +40,8 @@ import type { Recipe } from "@/types/recipe";
 
 // Collection slug to icon mapping
 const COLLECTION_ICONS: Record<string, React.ComponentType<{ size: number; color: string; weight: "duotone" }>> = {
-  extracted: Package,
-  saved: Heart,
+  extracted: SquaresFourIcon,
+  saved: BookmarkIcon,
 };
 
 // Collection display names
@@ -48,6 +49,8 @@ const COLLECTION_NAMES: Record<string, string> = {
   extracted: "All Recipes",
   saved: "Favorites",
 };
+
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 export default function CollectionDetailScreen() {
   const { t } = useTranslation();
@@ -143,7 +146,7 @@ export default function CollectionDetailScreen() {
         </View>
 
         {/* Title */}
-        <Text className="font-playfair-bold text-xl text-foreground-heading text-center mb-2">
+        <Text className=" text-xl text-foreground-heading text-center mb-2">
           {isExtracted
             ? t("library.extracted.empty.title")
             : t("library.saved.empty.title")}
@@ -241,16 +244,22 @@ export default function CollectionDetailScreen() {
   // Animated styles for sticky header
   const headerBackgroundStyle = useAnimatedStyle(() => {
     return {
-      opacity: interpolate(scrollY.value, [0, 60], [0, 1], Extrapolation.CLAMP),
+      opacity: interpolate(scrollY.value, [0, 100], [0, 1], Extrapolation.CLAMP),
+    };
+  });
+
+  const headerBlurProps = useAnimatedProps(() => {
+    return {
+      intensity: interpolate(scrollY.value, [0, 100], [0, 90], Extrapolation.CLAMP),
     };
   });
 
   const headerTitleStyle = useAnimatedStyle(() => {
     return {
-      opacity: interpolate(scrollY.value, [40, 80], [0, 1], Extrapolation.CLAMP),
+      opacity: interpolate(scrollY.value, [60, 120], [0, 1], Extrapolation.CLAMP),
       transform: [
         {
-          translateY: interpolate(scrollY.value, [40, 80], [10, 0], Extrapolation.CLAMP),
+          translateY: interpolate(scrollY.value, [60, 120], [20, 0], Extrapolation.CLAMP),
         },
       ],
     };
@@ -299,22 +308,55 @@ export default function CollectionDetailScreen() {
           zIndex: 100,
         }}
       >
-        {/* Blur Background */}
-        <Animated.View style={[headerBackgroundStyle, { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }]}>
-          <BlurView
-            intensity={80}
+        {/* Animated Background Container (Blur + Color) */}
+        <Animated.View
+          style={[
+            headerBackgroundStyle,
+            {
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            },
+          ]}
+        >
+          {/* Layer 1: Progressive Blur */}
+          <AnimatedBlurView
             tint="light"
+            animatedProps={headerBlurProps}
             style={{
-              paddingTop: insets.top,
-              paddingBottom: 12,
-              paddingHorizontal: 16,
-              borderBottomWidth: 1,
-              borderBottomColor: 'rgba(0,0,0,0.05)',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
             }}
-          >
-            {/* Height placeholder for layout */}
-            <View className="h-10" />
-          </BlurView>
+          />
+
+          {/* Layer 2: Color Overlay */}
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(244, 241, 232, 0.5)',
+            }}
+          />
+
+          {/* Layer 3: Border */}
+          <View
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 1,
+              backgroundColor: 'rgba(0,0,0,0.05)',
+            }}
+          />
         </Animated.View>
 
         {/* Header Content (Overlay) */}

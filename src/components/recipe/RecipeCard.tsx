@@ -129,12 +129,13 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
               >
                 <Pressable
                   className="h-full w-full items-center justify-center active:opacity-70"
+                  hitSlop={10}
                   onPress={(e) => {
                     e.stopPropagation();
                     // TODO: Implement bookmark toggle
                   }}
                 >
-                  <Bookmark size={16} color="#ffffff" weight={isFavorite ? "fill" : "regular"} />
+                  <Bookmark size={18} color="#ffffff" weight={isFavorite ? "fill" : "regular"} />
                 </Pressable>
               </BlurView>
             ) : (
