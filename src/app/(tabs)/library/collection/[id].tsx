@@ -3,6 +3,7 @@
  *
  * Displays recipes within a collection with:
  * - Masonry grid layout (Pinterest-style)
+ * - Sticky header that hides on scroll down, shows on scroll up
  * - Pull-to-refresh
  * - Skeleton loading
  * - Empty states with CTAs based on collection type
@@ -17,9 +18,18 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, Package, Heart, Plus, MagnifyingGlass } from "phosphor-react-native";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  useSharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  interpolate,
+  Extrapolation,
+} from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import Toast from "react-native-toast-message";
+import { BlurView } from "expo-blur";
 
 import { useCollectionBySlug } from "@/hooks/useCollections";
 import { RecipeCardSkeleton } from "@/components/recipe";
@@ -191,6 +201,14 @@ export default function CollectionDetailScreen() {
     </View>
   ), [t, error, handleRefresh]);
 
+  // Scroll handler
+  const scrollY = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
   const { collection, recipes = [] } = data || {};
   const displayName = collection?.name || COLLECTION_NAMES[slug || ""] || t("library.collections.allRecipes");
 
@@ -200,50 +218,151 @@ export default function CollectionDetailScreen() {
     [recipes, mapToRecipe]
   );
 
+  // Large Header (Scrolls with content)
+  const ListHeaderComponent = useMemo(() => (
+    <View
+      style={{
+        paddingTop: insets.top + 60, // Space for sticky header + extra
+        paddingHorizontal: 20,
+        paddingBottom: 24,
+      }}
+    >
+      <Text className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-tertiary mb-3">
+        {collectionSlug === "extracted" ? t("library.subtitle") : t("library.collections.favorites").toUpperCase()}
+      </Text>
+      <Text
+        className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1]"
+      >
+        {displayName}
+      </Text>
+    </View>
+  ), [insets.top, displayName, collectionSlug, t]);
+
+  // Animated styles for sticky header
+  const headerBackgroundStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(scrollY.value, [0, 60], [0, 1], Extrapolation.CLAMP),
+    };
+  });
+
+  const headerTitleStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(scrollY.value, [40, 80], [0, 1], Extrapolation.CLAMP),
+      transform: [
+        {
+          translateY: interpolate(scrollY.value, [40, 80], [10, 0], Extrapolation.CLAMP),
+        },
+      ],
+    };
+  });
+
+  const backButtonStyle = useAnimatedStyle(() => {
+    // Optional: Morph back button or just keep it
+    return {};
+  });
+
   return (
     <View className="flex-1 bg-surface">
       <Animated.View entering={FadeIn.duration(300)} className="flex-1">
-        {/* Header - Minimal static header */}
-        <View
-          className="px-4 pb-4 bg-surface z-10"
-          style={{ paddingTop: insets.top + 12 }}
-        >
-          <View className="flex-row items-center gap-4">
-            <TouchableOpacity
-              onPress={handleBack}
-              className="w-10 h-10 rounded-full bg-stone-100 items-center justify-center"
-            >
-              <ArrowLeft size={20} color="#78716c" />
-            </TouchableOpacity>
-            <Text
-              className="font-playfair-bold text-2xl text-foreground-heading flex-1"
-              numberOfLines={1}
-            >
-              {displayName}
-            </Text>
-          </View>
-        </View>
-
         {/* Content */}
         {isLoading ? (
-          // Loading skeleton
-          renderSkeletons
+          // Loading skeleton with header
+          <View style={{ paddingTop: insets.top + 60 }}>
+            {renderSkeletons}
+          </View>
         ) : error ? (
-          // Error state with retry
+          // Error state
           renderErrorState()
         ) : (
-          // Masonry grid with pull-to-refresh
           <MasonryGrid
             recipes={mappedRecipes}
             refreshing={isRefetching}
             onRefresh={handleRefresh}
             ListEmptyComponent={renderEmptyState()}
+            ListHeaderComponent={ListHeaderComponent}
+            onScroll={scrollHandler}
+            refreshControlOffset={insets.top + 60}
             contentContainerStyle={{
               paddingBottom: 100,
             }}
           />
         )}
       </Animated.View>
+
+      {/* Sticky Header */}
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+        }}
+      >
+        {/* Blur Background */}
+        <Animated.View style={[headerBackgroundStyle, { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }]}>
+          <BlurView
+            intensity={80}
+            tint="light"
+            style={{
+              paddingTop: insets.top,
+              paddingBottom: 12,
+              paddingHorizontal: 16,
+              borderBottomWidth: 1,
+              borderBottomColor: 'rgba(0,0,0,0.05)',
+            }}
+          >
+            {/* Height placeholder for layout */}
+            <View className="h-10" />
+          </BlurView>
+        </Animated.View>
+
+        {/* Header Content (Overlay) */}
+        <View
+          style={{
+            paddingTop: insets.top,
+            paddingHorizontal: 16,
+            paddingBottom: 12,
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
+          <TouchableOpacity
+            onPress={handleBack}
+            className="w-10 h-10 rounded-full  items-center justify-center z-20"
+            activeOpacity={0.7}
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              elevation: 3,
+            }}
+          >
+            <ArrowLeft size={24} color="#334d43" weight="bold" />
+          </TouchableOpacity>
+
+          <Animated.View
+            style={[
+              headerTitleStyle,
+              {
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: 40, // Balance the back button
+              }
+            ]}
+            pointerEvents="none"
+          >
+            <Text
+              className="text-xl text-foreground-heading"
+              numberOfLines={1}
+            >
+              {displayName}
+            </Text>
+          </Animated.View>
+        </View>
+      </View>
     </View>
   );
 }

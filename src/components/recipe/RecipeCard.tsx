@@ -125,7 +125,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
               <BlurView
                 intensity={20}
                 tint="light"
-                className="h-8 w-8 rounded-full overflow-hidden border border-white/20"
+                className="h-10 w-10 rounded-full overflow-hidden border border-white/20"
               >
                 <Pressable
                   className="h-full w-full items-center justify-center active:opacity-70"
@@ -134,7 +134,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
                     // TODO: Implement bookmark toggle
                   }}
                 >
-                  <Bookmark size={14} color="#ffffff" weight={isFavorite ? "fill" : "regular"} />
+                  <Bookmark size={16} color="#ffffff" weight={isFavorite ? "fill" : "regular"} />
                 </Pressable>
               </BlurView>
             ) : (
