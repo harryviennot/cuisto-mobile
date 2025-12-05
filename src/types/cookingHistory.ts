@@ -55,3 +55,12 @@ export interface CookingSession {
   recipeTitle: string;
   startedAt: number; // Date.now() timestamp
 }
+
+/**
+ * Parameters for updating a cooking event
+ */
+export interface UpdateCookingEventParams {
+  cookedAt?: string; // ISO timestamp
+  rating?: number; // 0.5-5.0
+  imageUrl?: string | null; // null to remove image
+}

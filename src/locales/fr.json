@@ -36,7 +36,8 @@
     "warning": "Attention",
     "seeMore": "Voir plus",
     "uploading": "Téléchargement...",
-    "pleaseWait": "Veuillez patienter"
+    "pleaseWait": "Veuillez patienter",
+    "change": "Modifier"
   },
   "app": {
     "title": "CuiStudio",
@@ -450,7 +451,21 @@
     "daysAgo_one": "Il y a {{count}} jour",
     "daysAgo_other": "Il y a {{count}} jours",
     "viewGrid": "Grille",
-    "viewList": "Liste"
+    "viewList": "Liste",
+    "deleteConfirmTitle": "Supprimer l'événement",
+    "deleteConfirmMessage": "Êtes-vous sûr de vouloir supprimer cet événement de cuisine ? Cette action est irréversible.",
+    "editTitle": "Modifier l'événement",
+    "dateLabel": "Date de cuisson",
+    "ratingLabel": "Note",
+    "imageLabel": "Photo",
+    "removeImage": "Supprimer",
+    "changeImage": "Changer",
+    "takePhoto": "Caméra",
+    "choosePhoto": "Galerie",
+    "noImage": "Pas de photo pour cette session de cuisine",
+    "clearRating": "Effacer la note",
+    "uploading": "Téléchargement...",
+    "uploadFailed": "Échec du téléchargement de l'image"
   },
   "onboarding": {
     "step": "Étape {{current}} sur {{total}}",

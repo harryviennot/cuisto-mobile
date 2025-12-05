@@ -10,6 +10,7 @@ import type {
 import type {
   CookingHistoryEvent,
   MarkCookedParams,
+  UpdateCookingEventParams,
 } from "@/types/cookingHistory";
 
 export const recipeService = {
@@ -174,6 +175,43 @@ export const recipeService = {
         offset,
       },
     });
+    return response.data;
+  },
+
+  /**
+   * Update a cooking event
+   *
+   * @param eventId - The cooking event ID
+   * @param params - Fields to update (cookedAt, rating, imageUrl)
+   * @returns Updated cooking event
+   */
+  updateCookingEvent: async (
+    eventId: string,
+    params: UpdateCookingEventParams
+  ): Promise<CookingHistoryEvent> => {
+    const body = {
+      cooked_at: params.cookedAt,
+      rating: params.rating,
+      image_url: params.imageUrl,
+    };
+
+    const response = await api.patch<CookingHistoryEvent>(
+      `/recipes/cooking-events/${eventId}`,
+      body
+    );
+    return response.data;
+  },
+
+  /**
+   * Delete a cooking event
+   *
+   * @param eventId - The cooking event ID
+   * @returns Success message
+   */
+  deleteCookingEvent: async (eventId: string): Promise<{ message: string }> => {
+    const response = await api.delete<{ message: string }>(
+      `/recipes/cooking-events/${eventId}`
+    );
     return response.data;
   },
 };

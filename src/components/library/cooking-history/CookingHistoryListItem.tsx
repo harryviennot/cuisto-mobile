@@ -5,7 +5,7 @@
  * Shows thumbnail, recipe title, date, rating, duration, and times cooked.
  * Supports swipe actions for edit and delete (both on right side).
  */
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useImperativeHandle, forwardRef } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -15,6 +15,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  runOnJS,
 } from "react-native-reanimated";
 import type { CookingHistoryEvent } from "@/types/cookingHistory";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -24,12 +25,18 @@ import { StarRating } from "@/components/StarRating";
 /** Ref type for tracking the currently open swipeable */
 export type OpenSwipeableRef = React.RefObject<SwipeableMethods | null>;
 
+/** Methods exposed by CookingHistoryListItem via ref */
+export interface CookingHistoryListItemHandle {
+  /** Animate the item collapsing out, then call the callback */
+  animateDelete: (onComplete: () => void) => void;
+}
+
 export interface CookingHistoryListItemProps {
   /** The cooking history event to display */
   event: CookingHistoryEvent;
   /** Callback when edit action is triggered */
   onEdit?: (event: CookingHistoryEvent) => void;
-  /** Callback when delete action is triggered */
+  /** Callback when delete action is triggered - shows confirmation first */
   onDelete?: (event: CookingHistoryEvent) => void;
   /** Shared ref to track currently open swipeable - close others when opening */
   openSwipeableRef?: OpenSwipeableRef;
@@ -72,12 +79,13 @@ function RightActions({
   );
 }
 
-export function CookingHistoryListItem({ event, onEdit, onDelete, openSwipeableRef }: CookingHistoryListItemProps) {
+export const CookingHistoryListItem = forwardRef<CookingHistoryListItemHandle, CookingHistoryListItemProps>(
+  function CookingHistoryListItem({ event, onEdit, onDelete, openSwipeableRef }, ref) {
   const [imageLoading, setImageLoading] = useState(true);
-  const [isDeleted, setIsDeleted] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const swipeableRef = useRef<SwipeableMethods>(null);
 
-  // Animation values for collapse effect
+  // Animation values for collapse effect (used when item is deleted)
   const height = useSharedValue(100);
   const opacity = useSharedValue(1);
 
@@ -86,8 +94,23 @@ export function CookingHistoryListItem({ event, onEdit, onDelete, openSwipeableR
     return {
       height: height.value,
       opacity: opacity.value,
+      overflow: "hidden" as const,
     };
   });
+
+  // Expose animateDelete method via ref
+  useImperativeHandle(ref, () => ({
+    animateDelete: (onComplete: () => void) => {
+      setIsDeleting(true);
+      // Run collapse animation
+      height.value = withTiming(0, { duration: 250 }, (finished) => {
+        if (finished) {
+          runOnJS(onComplete)();
+        }
+      });
+      opacity.value = withTiming(0, { duration: 200 });
+    },
+  }));
 
   // Use cooking photo if available, otherwise recipe image
   const imageUrl = event.cooking_image_url || event.recipe_image_url;
@@ -112,10 +135,7 @@ export function CookingHistoryListItem({ event, onEdit, onDelete, openSwipeableR
   };
 
   const handleDelete = () => {
-    // Animate collapse
-    height.value = withTiming(0, { duration: 300 });
-    opacity.value = withTiming(0, { duration: 300 });
-    setIsDeleted(true);
+    swipeableRef.current?.close();
     onDelete?.(event);
   };
 
@@ -145,17 +165,8 @@ export function CookingHistoryListItem({ event, onEdit, onDelete, openSwipeableR
     <RightActions onEdit={handleEdit} onDelete={handleDelete} />
   );
 
-  if (isDeleted && height.value === 0) {
-    return null;
-  }
-
   return (
-    <Animated.View
-      style={[
-        animatedStyle,
-        { overflow: isDeleted ? "hidden" : "visible" }
-      ]}
-    >
+    <Animated.View style={animatedStyle}>
       <ReanimatedSwipeable
         ref={swipeableRef}
         friction={1.5}
@@ -265,7 +276,7 @@ export function CookingHistoryListItem({ event, onEdit, onDelete, openSwipeableR
       </ReanimatedSwipeable>
     </Animated.View>
   );
-}
+});
 
 /**
  * Skeleton loader for CookingHistoryListItem

@@ -11,7 +11,11 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { recipeService } from "@/api/services/recipe.service";
-import type { CookingHistoryEvent, MarkCookedParams } from "@/types/cookingHistory";
+import type {
+  CookingHistoryEvent,
+  MarkCookedParams,
+  UpdateCookingEventParams,
+} from "@/types/cookingHistory";
 import type { Recipe } from "@/types/recipe";
 
 const HISTORY_PER_PAGE = 20;
@@ -158,4 +162,152 @@ export function getCookingHistoryQueryKey(
     return [COOKING_HISTORY_KEY, "preview", param ?? 10];
   }
   return [COOKING_HISTORY_KEY, "full", param ?? 365];
+}
+
+/**
+ * Hook for updating a cooking event
+ *
+ * Includes cache invalidation for all cooking history queries
+ */
+export function useUpdateCookingEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    CookingHistoryEvent,
+    Error,
+    { eventId: string; params: UpdateCookingEventParams }
+  >({
+    mutationFn: async ({ eventId, params }) => {
+      return recipeService.updateCookingEvent(eventId, params);
+    },
+    onSuccess: () => {
+      // Invalidate all cooking history queries to refetch with updated data
+      queryClient.invalidateQueries({
+        queryKey: [COOKING_HISTORY_KEY],
+        refetchType: "all",
+      });
+    },
+  });
+}
+
+/**
+ * Hook for deleting a cooking event
+ *
+ * Uses optimistic updates to immediately remove the event from cache
+ * without showing the refresh indicator to the user.
+ */
+export function useDeleteCookingEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { message: string },
+    Error,
+    { eventId: string; recipeId: string },
+    {
+      previousPreview: CookingHistoryEvent[] | undefined;
+      previousFull: { pages: CookingHistoryEvent[][] } | undefined;
+      recipeId: string;
+    }
+  >({
+    mutationFn: async ({ eventId }) => {
+      return recipeService.deleteCookingEvent(eventId);
+    },
+    onMutate: async (variables) => {
+      const { eventId, recipeId } = variables;
+
+      // Cancel any outgoing refetches to avoid overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: [COOKING_HISTORY_KEY] });
+
+      // Snapshot previous values for rollback
+      const previousPreview = queryClient.getQueryData<CookingHistoryEvent[]>(
+        [COOKING_HISTORY_KEY, "preview", 10]
+      );
+      const previousFull = queryClient.getQueryData<{ pages: CookingHistoryEvent[][] }>(
+        [COOKING_HISTORY_KEY, "full", 365]
+      );
+
+      // Optimistically remove event from preview cache
+      queryClient.setQueryData<CookingHistoryEvent[]>(
+        [COOKING_HISTORY_KEY, "preview", 10],
+        (old) => old?.filter((e) => e.event_id !== eventId)
+      );
+
+      // Optimistically remove event from full cache (infinite query)
+      queryClient.setQueriesData<{ pages: CookingHistoryEvent[][]; pageParams: number[] }>(
+        { queryKey: [COOKING_HISTORY_KEY, "full"] },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) =>
+              page.filter((e) => e.event_id !== eventId)
+            ),
+          };
+        }
+      );
+
+      // Optimistically update recipe times_cooked
+      queryClient.setQueryData<Recipe>(["recipe", recipeId], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          total_times_cooked: Math.max(0, old.total_times_cooked - 1),
+          user_data: {
+            ...old.user_data,
+            times_cooked: Math.max(0, (old.user_data?.times_cooked ?? 1) - 1),
+            is_favorite: old.user_data?.is_favorite ?? false,
+          },
+        };
+      });
+
+      // Optimistically update recipes list cache
+      queryClient.setQueriesData<{ pages: Recipe[][]; pageParams: number[] }>(
+        { queryKey: ["recipes"] },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) =>
+              page.map((recipe) =>
+                recipe.id === recipeId
+                  ? {
+                      ...recipe,
+                      total_times_cooked: Math.max(0, recipe.total_times_cooked - 1),
+                      user_data: {
+                        ...recipe.user_data,
+                        times_cooked: Math.max(0, (recipe.user_data?.times_cooked ?? 1) - 1),
+                        is_favorite: recipe.user_data?.is_favorite ?? false,
+                      },
+                    }
+                  : recipe
+              )
+            ),
+          };
+        }
+      );
+
+      // Return context for rollback
+      return { previousPreview, previousFull, recipeId };
+    },
+    onError: (_err, variables, context) => {
+      // Rollback on error
+      if (context?.previousPreview) {
+        queryClient.setQueryData(
+          [COOKING_HISTORY_KEY, "preview", 10],
+          context.previousPreview
+        );
+      }
+      if (context?.previousFull) {
+        queryClient.setQueryData(
+          [COOKING_HISTORY_KEY, "full", 365],
+          context.previousFull
+        );
+      }
+      // Invalidate to refetch correct state
+      queryClient.invalidateQueries({ queryKey: [COOKING_HISTORY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["recipe", variables.recipeId] });
+      queryClient.invalidateQueries({ queryKey: ["recipes"] });
+    },
+    // No onSuccess needed - optimistic update already applied
+  });
 }

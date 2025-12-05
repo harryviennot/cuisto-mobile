@@ -36,7 +36,8 @@
     "warning": "Warning",
     "seeMore": "See more",
     "uploading": "Uploading...",
-    "pleaseWait": "Please Wait"
+    "pleaseWait": "Please Wait",
+    "change": "Change"
   },
   "app": {
     "title": "CuiStudio",
@@ -449,7 +450,22 @@
     "daysAgo_one": "{{count}} day ago",
     "daysAgo_other": "{{count}} days ago",
     "viewGrid": "Grid",
-    "viewList": "List"
+    "viewList": "List",
+    "deleteConfirmTitle": "Delete Cooking Event",
+    "deleteConfirmMessage": "Are you sure you want to delete this cooking event? This cannot be undone.",
+    "editTitle": "Edit Cooking Event",
+    "dateLabel": "Date Cooked",
+    "ratingLabel": "Rating",
+    "imageLabel": "Photo",
+    "removeImage": "Remove",
+    "changeImage": "Change",
+    "takePhoto": "Camera",
+    "choosePhoto": "Gallery",
+    "noImage": "No photo for this cooking session",
+    "clearRating": "Clear rating",
+    "uploading": "Uploading...",
+    "uploadFailed": "Failed to upload image",
+    "addPhoto": "Add Photo"
   },
   "onboarding": {
     "step": "Step {{current}} of {{total}}",

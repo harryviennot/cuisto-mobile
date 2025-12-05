@@ -8,8 +8,8 @@
  * - Pull-to-refresh and infinite scroll
  * - Empty state
  */
-import React, { useMemo, useCallback, useRef } from "react";
-import { View, RefreshControl, SectionList } from "react-native";
+import React, { useMemo, useCallback, useRef, useState } from "react";
+import { View, RefreshControl, SectionList, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import Animated, {
@@ -20,7 +20,12 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 
-import { useCookingHistoryInfinite } from "@/hooks/useCookingHistory";
+import {
+  useCookingHistoryInfinite,
+  useUpdateCookingEvent,
+  useDeleteCookingEvent,
+} from "@/hooks/useCookingHistory";
+import type { CookingHistoryEvent, UpdateCookingEventParams } from "@/types/cookingHistory";
 import {
   CollectionStickyHeader,
   CollectionErrorState,
@@ -33,7 +38,9 @@ import {
   CookingHistoryMonthHeader,
   groupEventsToSections,
   CookingHistorySection,
+  type CookingHistoryListItemHandle,
 } from "@/components/library/cooking-history";
+import { EditCookingEventBottomSheet } from "@/components/library/cooking-history/EditCookingEventBottomSheet";
 import type { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
@@ -45,6 +52,17 @@ export default function CookingHistoryScreen() {
 
   // Ref to track the currently open swipeable item (for closing others)
   const openSwipeableRef = useRef<SwipeableMethods | null>(null);
+
+  // Refs to list items for delete animation (keyed by event_id)
+  const itemRefsMap = useRef<Map<string, CookingHistoryListItemHandle>>(new Map());
+
+  // State for edit modal
+  const [selectedEvent, setSelectedEvent] = useState<CookingHistoryEvent | null>(null);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+
+  // Mutations
+  const updateEventMutation = useUpdateCookingEvent();
+  const deleteEventMutation = useDeleteCookingEvent();
 
   // Fetch cooking history with infinite scroll
   const {
@@ -84,6 +102,71 @@ export default function CookingHistoryScreen() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  // Edit handler - open the edit modal
+  const handleEdit = useCallback((event: CookingHistoryEvent) => {
+    setSelectedEvent(event);
+    setIsEditModalVisible(true);
+  }, []);
+
+  // Delete handler - show confirmation alert, then animate and delete
+  const handleDelete = useCallback(
+    (event: CookingHistoryEvent) => {
+      Alert.alert(
+        t("cookingHistory.deleteConfirmTitle"),
+        t("cookingHistory.deleteConfirmMessage"),
+        [
+          { text: t("common.cancel"), style: "cancel" },
+          {
+            text: t("common.delete"),
+            style: "destructive",
+            onPress: () => {
+              // Get the item ref and animate, then delete
+              const itemRef = itemRefsMap.current.get(event.event_id);
+              if (itemRef) {
+                itemRef.animateDelete(() => {
+                  deleteEventMutation.mutate({
+                    eventId: event.event_id,
+                    recipeId: event.recipe_id,
+                  });
+                });
+              } else {
+                // Fallback: delete without animation
+                deleteEventMutation.mutate({
+                  eventId: event.event_id,
+                  recipeId: event.recipe_id,
+                });
+              }
+            },
+          },
+        ]
+      );
+    },
+    [deleteEventMutation, t]
+  );
+
+  // Save edit handler
+  const handleSaveEdit = useCallback(
+    (params: UpdateCookingEventParams) => {
+      if (!selectedEvent) return;
+      updateEventMutation.mutate(
+        { eventId: selectedEvent.event_id, params },
+        {
+          onSuccess: () => {
+            setIsEditModalVisible(false);
+            setSelectedEvent(null);
+          },
+        }
+      );
+    },
+    [selectedEvent, updateEventMutation]
+  );
+
+  // Close edit modal
+  const handleCloseEdit = useCallback(() => {
+    setIsEditModalVisible(false);
+    setSelectedEvent(null);
+  }, []);
+
   // 52 is roughly the height of CollectionStickyHeader content (40px button + 12px paddingBottom)
   const headerTopPadding = insets.top + 47;
 
@@ -108,16 +191,31 @@ export default function CookingHistoryScreen() {
 
   // Render list item
   const renderItem = useCallback(
-    ({ item }: { item: any }) => (
-      <CookingHistoryListItem event={item} openSwipeableRef={openSwipeableRef} />
-    ),
-    []
+    ({ item }: { item: unknown }) => {
+      const event = item as CookingHistoryEvent;
+      return (
+        <CookingHistoryListItem
+          ref={(ref) => {
+            if (ref) {
+              itemRefsMap.current.set(event.event_id, ref);
+            } else {
+              itemRefsMap.current.delete(event.event_id);
+            }
+          }}
+          event={event}
+          openSwipeableRef={openSwipeableRef}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      );
+    },
+    [handleEdit, handleDelete]
   );
 
   // Render section header
   const renderSectionHeader = useCallback(
-    ({ section: { title } }: { section: CookingHistorySection }) => (
-      <CookingHistoryMonthHeader label={title} />
+    ({ section }: { section: unknown }) => (
+      <CookingHistoryMonthHeader label={(section as CookingHistorySection).title} />
     ),
     []
   );
@@ -178,6 +276,15 @@ export default function CookingHistoryScreen() {
         title={t("cookingHistory.title")}
         scrollY={adjustedScrollY}
         onBackPress={handleBack}
+      />
+
+      {/* Edit Modal */}
+      <EditCookingEventBottomSheet
+        visible={isEditModalVisible}
+        event={selectedEvent}
+        onSave={handleSaveEdit}
+        onClose={handleCloseEdit}
+        isSaving={updateEventMutation.isPending}
       />
     </View>
   );
