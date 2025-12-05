@@ -130,58 +130,68 @@ export default function CollectionDetailScreen() {
 
     return (
       <Animated.View
-        entering={FadeInDown.delay(200).duration(400)}
-        className="flex-1 items-center justify-center px-8"
+        entering={FadeInDown.delay(200).duration(600)}
+        className="flex-1 px-6 py-12 items-center justify-center"
       >
-        {/* Icon */}
-        <View
-          className="w-20 h-20 rounded-full items-center justify-center mb-6"
-          style={{ backgroundColor: isExtracted ? "#334d4315" : "#c65d4715" }}
-        >
-          <Icon
-            size={40}
-            color={isExtracted ? "#334d43" : "#c65d47"}
-            weight="duotone"
-          />
-        </View>
+        {/* Empty Slot Container */}
+        <View className="w-full aspect-[3/4] max-h-[420px] border-2 border-dashed border-border rounded-[32px] items-center justify-center bg-surface-texture-light/20 p-8">
 
-        {/* Title */}
-        <Text className=" text-xl text-foreground-heading text-center mb-2">
-          {isExtracted
-            ? t("library.extracted.empty.title")
-            : t("library.saved.empty.title")}
-        </Text>
+          {/* Icon Blob */}
+          <View
+            className="w-24 h-24 rounded-full bg-surface-elevated items-center justify-center mb-8"
+            style={{
+              shadowColor: isExtracted ? "#334d43" : "#c65d47",
+              shadowOffset: { width: 0, height: 12 },
+              shadowOpacity: 0.1,
+              shadowRadius: 24,
+              elevation: 6
+            }}
+          >
+            <Icon
+              size={48}
+              color={isExtracted ? "#334d43" : "#c65d47"}
+              weight="duotone"
+            />
+          </View>
 
-        {/* Message */}
-        <Text className="text-foreground-muted text-center mb-8 leading-5">
-          {isExtracted
-            ? t("library.extracted.empty.message")
-            : t("library.saved.empty.message")}
-        </Text>
-
-        {/* CTA Button */}
-        <Pressable
-          onPress={isExtracted ? handleExtractRecipe : handleExploreRecipes}
-          className="flex-row items-center gap-2 bg-primary px-6 py-3.5 rounded-full active:opacity-90"
-          style={{
-            shadowColor: "#334d43",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.2,
-            shadowRadius: 8,
-            elevation: 4,
-          }}
-        >
-          {isExtracted ? (
-            <Plus size={18} color="#ffffff" weight="bold" />
-          ) : (
-            <MagnifyingGlass size={18} color="#ffffff" weight="bold" />
-          )}
-          <Text className="text-white font-semibold">
+          {/* Title */}
+          <Text className="font-playfair-bold text-3xl text-foreground-heading text-center mb-3">
             {isExtracted
-              ? t("library.extracted.empty.cta")
-              : t("library.saved.empty.cta")}
+              ? t("library.extracted.empty.title")
+              : t("library.saved.empty.title")}
           </Text>
-        </Pressable>
+
+          {/* Message */}
+          <Text className="text-foreground-secondary text-center mb-10 leading-6 font-medium max-w-[260px] text-base">
+            {isExtracted
+              ? t("library.extracted.empty.message")
+              : t("library.saved.empty.message")}
+          </Text>
+
+          {/* CTA Button */}
+          <Pressable
+            onPress={isExtracted ? handleExtractRecipe : handleExploreRecipes}
+            className="flex-row items-center gap-3 bg-primary px-8 py-4 rounded-full active:opacity-90 active:scale-95 transform transition-transform"
+            style={{
+              shadowColor: "#334d43",
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.25,
+              shadowRadius: 16,
+              elevation: 8,
+            }}
+          >
+            {isExtracted ? (
+              <Plus size={20} color="#ffffff" weight="bold" />
+            ) : (
+              <MagnifyingGlass size={20} color="#ffffff" weight="bold" />
+            )}
+            <Text className="text-white font-bold text-base tracking-wide">
+              {isExtracted
+                ? t("library.extracted.empty.cta")
+                : t("library.saved.empty.cta")}
+            </Text>
+          </Pressable>
+        </View>
       </Animated.View>
     );
   }, [collectionSlug, t, handleExtractRecipe, handleExploreRecipes, Icon]);
