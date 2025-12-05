@@ -34,7 +34,9 @@
     "photo": "Photo",
     "share": "Partager",
     "warning": "Attention",
-    "seeMore": "Voir plus"
+    "seeMore": "Voir plus",
+    "uploading": "Téléchargement...",
+    "pleaseWait": "Veuillez patienter"
   },
   "app": {
     "title": "CuiStudio",
@@ -183,7 +185,10 @@
       "mastered": "Vous avez maîtrisé",
       "completeSession": "A table !",
       "finishedMessage": "Félicitations ! Vous avez terminé {{title}}.",
-      "activeTimersWarning": "Vous avez encore des minuteurs actifs. Êtes-vous sûr de vouloir terminer la recette ?"
+      "activeTimersWarning": "Vous avez encore des minuteurs actifs. Êtes-vous sûr de vouloir terminer la recette ?",
+      "photoAdded": "Photo ajoutée",
+      "uploadingPhoto": "Veuillez patienter pendant le téléchargement de votre photo...",
+      "photoUploadFailed": "Échec du téléchargement de la photo. Vous pouvez réessayer ou continuer sans photo."
     },
     "card": {
       "recipeLabel": "RECETTE",

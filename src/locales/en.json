@@ -34,7 +34,9 @@
     "photo": "Photo",
     "share": "Share",
     "warning": "Warning",
-    "seeMore": "See more"
+    "seeMore": "See more",
+    "uploading": "Uploading...",
+    "pleaseWait": "Please Wait"
   },
   "app": {
     "title": "CuiStudio",
@@ -182,7 +184,10 @@
       "finishedMessage": "You've successfully cooked {{title}}!",
       "mastered": "You've mastered",
       "completeSession": "Dinner's ready!",
-      "activeTimersWarning": "You have active timers running. Are you sure you want to finish?"
+      "activeTimersWarning": "You have active timers running. Are you sure you want to finish?",
+      "photoAdded": "Photo Added",
+      "uploadingPhoto": "Please wait while your photo uploads...",
+      "photoUploadFailed": "Failed to upload photo. You can try again or continue without a photo."
     },
     "card": {
       "recipeLabel": "RECIPE",
