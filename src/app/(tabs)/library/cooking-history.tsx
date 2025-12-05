@@ -8,7 +8,7 @@
  * - Pull-to-refresh and infinite scroll
  * - Empty state
  */
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useRef } from "react";
 import { View, RefreshControl, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -34,6 +34,7 @@ import {
   groupEventsToSections,
   CookingHistorySection,
 } from "@/components/library/cooking-history";
+import type { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -41,6 +42,9 @@ export default function CookingHistoryScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  // Ref to track the currently open swipeable item (for closing others)
+  const openSwipeableRef = useRef<SwipeableMethods | null>(null);
 
   // Fetch cooking history with infinite scroll
   const {
@@ -105,7 +109,7 @@ export default function CookingHistoryScreen() {
   // Render list item
   const renderItem = useCallback(
     ({ item }: { item: any }) => (
-      <CookingHistoryListItem event={item} />
+      <CookingHistoryListItem event={item} openSwipeableRef={openSwipeableRef} />
     ),
     []
   );

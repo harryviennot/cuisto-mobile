@@ -3,7 +3,7 @@
  *
  * Full-width row component for displaying a cooking event in list view.
  * Shows thumbnail, recipe title, date, rating, duration, and times cooked.
- * Supports swipe actions for edit (left) and delete (right).
+ * Supports swipe actions for edit and delete (both on right side).
  */
 import React, { useState, useRef } from "react";
 import { View, Text, Pressable } from "react-native";
@@ -15,13 +15,14 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
-  interpolate,
-  SharedValue,
 } from "react-native-reanimated";
 import type { CookingHistoryEvent } from "@/types/cookingHistory";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDuration } from "./utils";
 import { StarRating } from "@/components/StarRating";
+
+/** Ref type for tracking the currently open swipeable */
+export type OpenSwipeableRef = React.RefObject<SwipeableMethods | null>;
 
 export interface CookingHistoryListItemProps {
   /** The cooking history event to display */
@@ -30,73 +31,48 @@ export interface CookingHistoryListItemProps {
   onEdit?: (event: CookingHistoryEvent) => void;
   /** Callback when delete action is triggered */
   onDelete?: (event: CookingHistoryEvent) => void;
+  /** Shared ref to track currently open swipeable - close others when opening */
+  openSwipeableRef?: OpenSwipeableRef;
 }
 
 const ACTION_WIDTH = 72;
 
-// Swipe action component for edit (left)
-function LeftAction({
-  progress,
-  onPress,
+// Combined right actions component (Edit + Delete)
+function RightActions({
+  onEdit,
+  onDelete,
 }: {
-  progress: SharedValue<number>;
-  onPress: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
-  const actionStyle = useAnimatedStyle(() => {
-    const scale = interpolate(progress.value, [0, 1], [0.8, 1]);
-    const opacityValue = interpolate(progress.value, [0, 0.5, 1], [0, 0.5, 1]);
-    return {
-      transform: [{ scale }],
-      opacity: opacityValue,
-    };
-  });
-
   return (
-    <Pressable onPress={onPress}>
-      <View
-        className="bg-primary justify-center items-center"
-        style={{ width: ACTION_WIDTH, height: "100%" }}
-      >
-        <Animated.View style={actionStyle}>
-          <PencilSimple size={24} color="white" weight="bold" />
-        </Animated.View>
-      </View>
-    </Pressable>
+    <View className="flex-row">
+      {/* Edit Action - left of delete */}
+      <Pressable onPress={onEdit}>
+        <View
+          className="bg-primary justify-center items-center"
+          style={{ width: ACTION_WIDTH, height: "100%" }}
+        >
+          <PencilSimple size={22} color="white" weight="bold" />
+          <Text className="text-white text-xs mt-1 font-medium">Edit</Text>
+        </View>
+      </Pressable>
+
+      {/* Delete Action - closest to edge */}
+      <Pressable onPress={onDelete}>
+        <View
+          className="bg-red-500 justify-center items-center"
+          style={{ width: ACTION_WIDTH, height: "100%" }}
+        >
+          <Trash size={22} color="white" weight="bold" />
+          <Text className="text-white text-xs mt-1 font-medium">Delete</Text>
+        </View>
+      </Pressable>
+    </View>
   );
 }
 
-// Swipe action component for delete (right)
-function RightAction({
-  progress,
-  onPress,
-}: {
-  progress: SharedValue<number>;
-  onPress: () => void;
-}) {
-  const actionStyle = useAnimatedStyle(() => {
-    const scale = interpolate(progress.value, [0, 1], [0.8, 1]);
-    const opacityValue = interpolate(progress.value, [0, 0.5, 1], [0, 0.5, 1]);
-    return {
-      transform: [{ scale }],
-      opacity: opacityValue,
-    };
-  });
-
-  return (
-    <Pressable onPress={onPress}>
-      <View
-        className="bg-red-500 justify-center items-center"
-        style={{ width: ACTION_WIDTH, height: "100%" }}
-      >
-        <Animated.View style={actionStyle}>
-          <Trash size={24} color="white" weight="bold" />
-        </Animated.View>
-      </View>
-    </Pressable>
-  );
-}
-
-export function CookingHistoryListItem({ event, onEdit, onDelete }: CookingHistoryListItemProps) {
+export function CookingHistoryListItem({ event, onEdit, onDelete, openSwipeableRef }: CookingHistoryListItemProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [isDeleted, setIsDeleted] = useState(false);
   const swipeableRef = useRef<SwipeableMethods>(null);
@@ -143,13 +119,30 @@ export function CookingHistoryListItem({ event, onEdit, onDelete }: CookingHisto
     onDelete?.(event);
   };
 
-  // Render functions for swipeable actions
-  const renderLeftActions = (progress: SharedValue<number>) => (
-    <LeftAction progress={progress} onPress={handleEdit} />
-  );
+  // Close previously open swipeable immediately when drag starts on this one
+  const handleBeginDrag = () => {
+    if (openSwipeableRef?.current && openSwipeableRef.current !== swipeableRef.current) {
+      openSwipeableRef.current.close();
+    }
+  };
 
-  const renderRightActions = (progress: SharedValue<number>) => (
-    <RightAction progress={progress} onPress={handleDelete} />
+  // Track this as the currently open swipeable
+  const handleSwipeableOpen = () => {
+    if (openSwipeableRef) {
+      (openSwipeableRef as React.MutableRefObject<SwipeableMethods | null>).current = swipeableRef.current;
+    }
+  };
+
+  // Clear tracking when closed
+  const handleSwipeableClose = () => {
+    if (openSwipeableRef?.current === swipeableRef.current) {
+      (openSwipeableRef as React.MutableRefObject<SwipeableMethods | null>).current = null;
+    }
+  };
+
+  // Render function for swipeable actions (edit + delete on right)
+  const renderRightActions = () => (
+    <RightActions onEdit={handleEdit} onDelete={handleDelete} />
   );
 
   if (isDeleted && height.value === 0) {
@@ -165,19 +158,14 @@ export function CookingHistoryListItem({ event, onEdit, onDelete }: CookingHisto
     >
       <ReanimatedSwipeable
         ref={swipeableRef}
-        friction={2}
+        friction={1.5}
         enableTrackpadTwoFingerGesture
-        leftThreshold={ACTION_WIDTH}
         rightThreshold={ACTION_WIDTH}
-        overshootLeft={false}
         overshootRight={false}
-        renderLeftActions={renderLeftActions}
         renderRightActions={renderRightActions}
-        onSwipeableOpen={(direction) => {
-          if (direction === "right") {
-            handleDelete();
-          }
-        }}
+        onSwipeableOpenStartDrag={handleBeginDrag}
+        onSwipeableOpen={handleSwipeableOpen}
+        onSwipeableClose={handleSwipeableClose}
       >
         <Pressable
           onPress={handlePress}
