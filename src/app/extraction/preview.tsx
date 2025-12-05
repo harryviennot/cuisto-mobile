@@ -125,18 +125,21 @@ export default function UnifiedRecipePreviewScreen() {
     try {
       await extractionService.saveRecipe(recipeId);
 
-      // Navigate to home
-      router.dismissTo("/(tabs)");
-
-      // Invalidate recipes query to refresh home page
-      queryClient.invalidateQueries({ queryKey: ["recipes"] });
-      queryClient.invalidateQueries({ queryKey: ["collections"] });
+      // Invalidate queries BEFORE navigation to ensure fresh data when returning
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["recipes"] }),
+        queryClient.invalidateQueries({ queryKey: ["collections", "counts"] }),
+        queryClient.invalidateQueries({ queryKey: ["collections", "by-slug", "extracted"] }),
+      ]);
 
       Toast.show({
         type: "success",
         text1: t("common.success"),
         text2: t("recipe.savedSuccessfully"),
       });
+
+      // Navigate to home after invalidation completes
+      router.dismissTo("/(tabs)");
     } catch {
       setIsSaving(false);
       Toast.show({

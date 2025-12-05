@@ -381,6 +381,44 @@
     "socialProof": "Join 10,000+ Organized Chefs",
     "imported": "Imported"
   },
+  "library": {
+    "subtitle": "YOUR ARCHIVE",
+    "title": "My Library",
+    "search": {
+      "placeholder": "Search collections..."
+    },
+    "collections": {
+      "allRecipes": "All Recipes",
+      "allRecipesSubtitle": "EXTRACTED",
+      "favorites": "Favorites",
+      "favoritesSubtitle": "CURATED BY YOU"
+    },
+    "cookbooks": {
+      "title": "Cookbooks",
+      "comingSoon": "Cookbooks coming soon..."
+    },
+    "error": {
+      "title": "Failed to load library"
+    },
+    "empty": {
+      "title": "No collections yet",
+      "message": "Start extracting recipes to build your library"
+    },
+    "extracted": {
+      "empty": {
+        "title": "No recipes yet",
+        "message": "Extract your first recipe from a video, photo, or link",
+        "cta": "Extract Recipe"
+      }
+    },
+    "saved": {
+      "empty": {
+        "title": "No favorites yet",
+        "message": "Save recipes you love to find them quickly",
+        "cta": "Explore Recipes"
+      }
+    }
+  },
   "onboarding": {
     "step": "Step {{current}} of {{total}}",
     "back": "Back",

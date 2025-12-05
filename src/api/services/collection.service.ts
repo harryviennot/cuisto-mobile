@@ -1,84 +1,59 @@
 /**
  * Collections service
+ *
+ * Virtual collections system:
+ * - "extracted" = user_recipe_data WHERE was_extracted = true
+ * - "saved" = user_recipe_data WHERE is_favorite = true
  */
 import { api } from "../api-client";
 import type {
-  Collection,
-  CollectionListResponse,
+  CollectionCountsResponse,
   CollectionWithRecipes,
-  CreateCollectionRequest,
-  UpdateCollectionRequest,
 } from "@/types/collection";
-import type { RecipeSaveResponse, SaveRecipeRequest } from "@/types/extraction";
+import type { RecipeSaveResponse } from "@/types/extraction";
 
 export const collectionService = {
   /**
-   * Get all collections for the current user
+   * Get recipe counts for system collections
+   * Lightweight endpoint for UI updates without full collection data
    */
-  getCollections: async (): Promise<Collection[]> => {
-    const response = await api.get<CollectionListResponse>("/collections");
-    return response.data.collections;
+  getCollectionCounts: async (): Promise<CollectionCountsResponse> => {
+    const response = await api.get<CollectionCountsResponse>("/collections/counts");
+    return response.data;
   },
 
   /**
-   * Get a collection with its recipes
+   * Get a virtual collection by slug with its recipes
+   *
+   * Supported slugs:
+   * - 'extracted': All recipes the user has extracted
+   * - 'saved': All recipes the user has favorited
    */
-  getCollection: async (
-    collectionId: string,
+  getCollectionBySlug: async (
+    slug: string,
     limit = 20,
     offset = 0
   ): Promise<CollectionWithRecipes> => {
-    const response = await api.get<CollectionWithRecipes>(`/collections/${collectionId}`, {
+    const response = await api.get<CollectionWithRecipes>(`/collections/by-slug/${slug}`, {
       params: { limit, offset },
     });
     return response.data;
   },
 
   /**
-   * Create a new collection
+   * Add a recipe to user's favorites
+   * Sets is_favorite=true in user_recipe_data
    */
-  createCollection: async (request: CreateCollectionRequest): Promise<Collection> => {
-    const response = await api.post<Collection>("/collections", request);
+  favoriteRecipe: async (recipeId: string): Promise<RecipeSaveResponse> => {
+    const response = await api.post<RecipeSaveResponse>(`/recipes/${recipeId}/favorite`);
     return response.data;
   },
 
   /**
-   * Update a collection
+   * Remove a recipe from user's favorites
+   * Sets is_favorite=false in user_recipe_data
    */
-  updateCollection: async (
-    collectionId: string,
-    request: UpdateCollectionRequest
-  ): Promise<Collection> => {
-    const response = await api.patch<Collection>(`/collections/${collectionId}`, request);
-    return response.data;
-  },
-
-  /**
-   * Delete a collection
-   */
-  deleteCollection: async (collectionId: string): Promise<void> => {
-    await api.delete(`/collections/${collectionId}`);
-  },
-
-  /**
-   * Add a recipe to a collection
-   */
-  addRecipeToCollection: async (
-    collectionId: string,
-    recipeId: string
-  ): Promise<RecipeSaveResponse> => {
-    const request: SaveRecipeRequest = { recipe_id: recipeId };
-    const response = await api.post<RecipeSaveResponse>(
-      `/collections/${collectionId}/recipes`,
-      request
-    );
-    return response.data;
-  },
-
-  /**
-   * Remove a recipe from a collection
-   */
-  removeRecipeFromCollection: async (collectionId: string, recipeId: string): Promise<void> => {
-    await api.delete(`/collections/${collectionId}/recipes/${recipeId}`);
+  unfavoriteRecipe: async (recipeId: string): Promise<void> => {
+    await api.delete(`/recipes/${recipeId}/favorite`);
   },
 };

@@ -1,5 +1,9 @@
 /**
  * Collection types
+ *
+ * Virtual collections system:
+ * - "extracted" = user_recipe_data WHERE was_extracted = true
+ * - "saved" = user_recipe_data WHERE is_favorite = true
  */
 
 export interface Collection {
@@ -10,12 +14,8 @@ export interface Collection {
   is_system: boolean;
   sort_order: number;
   recipe_count: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CollectionListResponse {
-  collections: Collection[];
+  created_at?: string | null; // Optional for virtual collections
+  updated_at?: string | null; // Optional for virtual collections
 }
 
 export interface CollectionRecipe {
@@ -38,13 +38,7 @@ export interface CollectionWithRecipes {
   total_count: number;
 }
 
-export interface CreateCollectionRequest {
-  name: string;
-  description?: string;
-}
-
-export interface UpdateCollectionRequest {
-  name?: string;
-  description?: string;
-  sort_order?: number;
+export interface CollectionCountsResponse {
+  extracted: number;
+  saved: number;
 }

@@ -382,6 +382,44 @@
     "socialProof": "Rejoignez 10 000+ Chefs Organisés",
     "imported": "Importé"
   },
+  "library": {
+    "subtitle": "VOTRE ARCHIVE",
+    "title": "Ma Bibliothèque",
+    "search": {
+      "placeholder": "Rechercher dans les collections..."
+    },
+    "collections": {
+      "allRecipes": "Toutes les recettes",
+      "allRecipesSubtitle": "EXTRAITES",
+      "favorites": "Favoris",
+      "favoritesSubtitle": "SÉLECTIONNÉES PAR VOUS"
+    },
+    "cookbooks": {
+      "title": "Livres de cuisine",
+      "comingSoon": "Livres de cuisine bientôt disponibles..."
+    },
+    "error": {
+      "title": "Échec du chargement de la bibliothèque"
+    },
+    "empty": {
+      "title": "Aucune collection",
+      "message": "Commencez à extraire des recettes pour créer votre bibliothèque"
+    },
+    "extracted": {
+      "empty": {
+        "title": "Aucune recette",
+        "message": "Extrayez votre première recette depuis une vidéo, une photo ou un lien",
+        "cta": "Extraire une recette"
+      }
+    },
+    "saved": {
+      "empty": {
+        "title": "Aucun favori",
+        "message": "Enregistrez vos recettes préférées pour les retrouver facilement",
+        "cta": "Explorer les recettes"
+      }
+    }
+  },
   "onboarding": {
     "step": "Étape {{current}} sur {{total}}",
     "back": "Retour",

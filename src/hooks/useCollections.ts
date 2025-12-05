@@ -1,118 +1,75 @@
 /**
  * useCollections Hook
  *
- * React Query hooks for managing user collections.
+ * React Query hooks for managing virtual collections.
+ *
+ * Virtual collections system:
+ * - "extracted" = user_recipe_data WHERE was_extracted = true
+ * - "saved" = user_recipe_data WHERE is_favorite = true
  */
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { collectionService } from "@/api/services/collection.service";
-import type {
-  Collection,
-  CollectionWithRecipes,
-  CreateCollectionRequest,
-  UpdateCollectionRequest,
-} from "@/types/collection";
+import type { CollectionCountsResponse, CollectionWithRecipes } from "@/types/collection";
 
 const COLLECTIONS_KEY = "collections";
 
 /**
- * Hook to fetch all user collections
+ * Hook to fetch recipe counts for system collections
+ * Lightweight query that only fetches counts, not full collection data
  */
-export function useCollections() {
-  return useQuery<Collection[], Error>({
-    queryKey: [COLLECTIONS_KEY],
-    queryFn: collectionService.getCollections,
+export function useCollectionCounts() {
+  return useQuery<CollectionCountsResponse, Error>({
+    queryKey: [COLLECTIONS_KEY, "counts"],
+    queryFn: collectionService.getCollectionCounts,
   });
 }
 
 /**
- * Hook to fetch a single collection with its recipes
+ * Hook to fetch a virtual collection by slug with its recipes
+ *
+ * Supported slugs:
+ * - 'extracted': All recipes the user has extracted
+ * - 'saved': All recipes the user has favorited
  */
-export function useCollection(collectionId: string, limit = 20, offset = 0) {
+export function useCollectionBySlug(slug: string, limit = 20, offset = 0) {
   return useQuery<CollectionWithRecipes, Error>({
-    queryKey: [COLLECTIONS_KEY, collectionId, { limit, offset }],
-    queryFn: () => collectionService.getCollection(collectionId, limit, offset),
-    enabled: !!collectionId,
+    queryKey: [COLLECTIONS_KEY, "by-slug", slug, { limit, offset }],
+    queryFn: () => collectionService.getCollectionBySlug(slug, limit, offset),
+    enabled: !!slug,
   });
 }
 
 /**
- * Hook to create a new collection
+ * Hook to favorite a recipe
+ * Sets is_favorite=true in user_recipe_data
  */
-export function useCreateCollection() {
+export function useFavoriteRecipe() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: CreateCollectionRequest) => collectionService.createCollection(request),
+    mutationFn: (recipeId: string) => collectionService.favoriteRecipe(recipeId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
+      // Invalidate collection counts and saved collection
+      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, "counts"] });
+      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, "by-slug", "saved"] });
     },
   });
 }
 
 /**
- * Hook to update a collection
+ * Hook to unfavorite a recipe
+ * Sets is_favorite=false in user_recipe_data
  */
-export function useUpdateCollection() {
+export function useUnfavoriteRecipe() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      collectionId,
-      request,
-    }: {
-      collectionId: string;
-      request: UpdateCollectionRequest;
-    }) => collectionService.updateCollection(collectionId, request),
-    onSuccess: (_, { collectionId }) => {
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, collectionId] });
-    },
-  });
-}
-
-/**
- * Hook to delete a collection
- */
-export function useDeleteCollection() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (collectionId: string) => collectionService.deleteCollection(collectionId),
+    mutationFn: (recipeId: string) => collectionService.unfavoriteRecipe(recipeId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
-    },
-  });
-}
-
-/**
- * Hook to add a recipe to a collection
- */
-export function useAddToCollection() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ collectionId, recipeId }: { collectionId: string; recipeId: string }) =>
-      collectionService.addRecipeToCollection(collectionId, recipeId),
-    onSuccess: (_, { collectionId }) => {
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, collectionId] });
-    },
-  });
-}
-
-/**
- * Hook to remove a recipe from a collection
- */
-export function useRemoveFromCollection() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ collectionId, recipeId }: { collectionId: string; recipeId: string }) =>
-      collectionService.removeRecipeFromCollection(collectionId, recipeId),
-    onSuccess: (_, { collectionId }) => {
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, collectionId] });
+      // Invalidate collection counts and saved collection
+      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, "counts"] });
+      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, "by-slug", "saved"] });
     },
   });
 }
