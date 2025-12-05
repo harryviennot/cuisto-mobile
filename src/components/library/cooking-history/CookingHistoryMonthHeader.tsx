@@ -8,7 +8,7 @@ interface CookingHistoryMonthHeaderProps {
 
 export function CookingHistoryMonthHeader({ label }: CookingHistoryMonthHeaderProps) {
     return (
-        <View className="bg-surface px-4 py-3 border-b border-border-light">
+        <View className="bg-surface px-6 py-3 border-b border-border-light">
             <Text className="text-xs font-bold text-foreground-tertiary uppercase tracking-widest">
                 {label}
             </Text>

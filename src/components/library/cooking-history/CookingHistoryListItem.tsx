@@ -3,44 +3,113 @@
  *
  * Full-width row component for displaying a cooking event in list view.
  * Shows thumbnail, recipe title, date, rating, duration, and times cooked.
+ * Supports swipe actions for edit (left) and delete (right).
  */
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Star, Image as ImageIcon, Timer, Trash } from "phosphor-react-native";
-import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, SharedValue } from "react-native-reanimated";
-import { useTranslation } from "react-i18next";
+import { Image as ImageIcon, Timer, Trash, PencilSimple } from "phosphor-react-native";
+import ReanimatedSwipeable, { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+  SharedValue,
+} from "react-native-reanimated";
 import type { CookingHistoryEvent } from "@/types/cookingHistory";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { formatRelativeDate, formatDuration } from "./utils";
+import { formatDuration } from "./utils";
+import { StarRating } from "@/components/StarRating";
 
 export interface CookingHistoryListItemProps {
   /** The cooking history event to display */
   event: CookingHistoryEvent;
+  /** Callback when edit action is triggered */
+  onEdit?: (event: CookingHistoryEvent) => void;
+  /** Callback when delete action is triggered */
+  onDelete?: (event: CookingHistoryEvent) => void;
 }
 
-const THUMBNAIL_SIZE = 80;
+const ACTION_WIDTH = 72;
 
-// ... imports remain the same
+// Swipe action component for edit (left)
+function LeftAction({
+  progress,
+  onPress,
+}: {
+  progress: SharedValue<number>;
+  onPress: () => void;
+}) {
+  const actionStyle = useAnimatedStyle(() => {
+    const scale = interpolate(progress.value, [0, 1], [0.8, 1]);
+    const opacityValue = interpolate(progress.value, [0, 0.5, 1], [0, 0.5, 1]);
+    return {
+      transform: [{ scale }],
+      opacity: opacityValue,
+    };
+  });
 
-export function CookingHistoryListItem({ event }: CookingHistoryListItemProps) {
-  const { t } = useTranslation();
+  return (
+    <Pressable onPress={onPress}>
+      <View
+        className="bg-primary justify-center items-center"
+        style={{ width: ACTION_WIDTH, height: "100%" }}
+      >
+        <Animated.View style={actionStyle}>
+          <PencilSimple size={24} color="white" weight="bold" />
+        </Animated.View>
+      </View>
+    </Pressable>
+  );
+}
+
+// Swipe action component for delete (right)
+function RightAction({
+  progress,
+  onPress,
+}: {
+  progress: SharedValue<number>;
+  onPress: () => void;
+}) {
+  const actionStyle = useAnimatedStyle(() => {
+    const scale = interpolate(progress.value, [0, 1], [0.8, 1]);
+    const opacityValue = interpolate(progress.value, [0, 0.5, 1], [0, 0.5, 1]);
+    return {
+      transform: [{ scale }],
+      opacity: opacityValue,
+    };
+  });
+
+  return (
+    <Pressable onPress={onPress}>
+      <View
+        className="bg-red-500 justify-center items-center"
+        style={{ width: ACTION_WIDTH, height: "100%" }}
+      >
+        <Animated.View style={actionStyle}>
+          <Trash size={24} color="white" weight="bold" />
+        </Animated.View>
+      </View>
+    </Pressable>
+  );
+}
+
+export function CookingHistoryListItem({ event, onEdit, onDelete }: CookingHistoryListItemProps) {
   const [imageLoading, setImageLoading] = useState(true);
   const [isDeleted, setIsDeleted] = useState(false);
+  const swipeableRef = useRef<SwipeableMethods>(null);
 
   // Animation values for collapse effect
-  const height = useSharedValue(88); // Approximate height of the item
+  const height = useSharedValue(100);
   const opacity = useSharedValue(1);
-  const marginVertical = useSharedValue(0);
 
   // Animated styles for the container
   const animatedStyle = useAnimatedStyle(() => {
     return {
       height: height.value,
       opacity: opacity.value,
-      marginVertical: marginVertical.value,
     };
   });
 
@@ -61,37 +130,27 @@ export function CookingHistoryListItem({ event }: CookingHistoryListItemProps) {
     });
   };
 
+  const handleEdit = () => {
+    swipeableRef.current?.close();
+    onEdit?.(event);
+  };
+
   const handleDelete = () => {
     // Animate collapse
     height.value = withTiming(0, { duration: 300 });
     opacity.value = withTiming(0, { duration: 300 });
-    marginVertical.value = withTiming(0, { duration: 300 });
     setIsDeleted(true);
+    onDelete?.(event);
   };
 
-  const renderRightActions = (
-    progress: SharedValue<number>,
-    dragX: SharedValue<number>
-  ) => {
-    const trans = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateX: dragX.value + 80 }],
-      };
-    });
+  // Render functions for swipeable actions
+  const renderLeftActions = (progress: SharedValue<number>) => (
+    <LeftAction progress={progress} onPress={handleEdit} />
+  );
 
-    return (
-      <View
-        className="bg-red-500 justify-center items-end"
-        style={{ width: 80, height: "100%" }}
-      >
-        <Animated.View
-          style={[trans, { width: 80, height: "100%", justifyContent: "center", alignItems: "center" }]}
-        >
-          <Trash size={24} color="white" weight="bold" />
-        </Animated.View>
-      </View>
-    );
-  };
+  const renderRightActions = (progress: SharedValue<number>) => (
+    <RightAction progress={progress} onPress={handleDelete} />
+  );
 
   if (isDeleted && height.value === 0) {
     return null;
@@ -105,11 +164,14 @@ export function CookingHistoryListItem({ event }: CookingHistoryListItemProps) {
       ]}
     >
       <ReanimatedSwipeable
-        friction={1}
+        ref={swipeableRef}
+        friction={2}
         enableTrackpadTwoFingerGesture
-        rightThreshold={40}
-        containerStyle={{ overflow: "visible" }}
-        childrenContainerStyle={{ overflow: "visible" }}
+        leftThreshold={ACTION_WIDTH}
+        rightThreshold={ACTION_WIDTH}
+        overshootLeft={false}
+        overshootRight={false}
+        renderLeftActions={renderLeftActions}
         renderRightActions={renderRightActions}
         onSwipeableOpen={(direction) => {
           if (direction === "right") {
@@ -119,11 +181,11 @@ export function CookingHistoryListItem({ event }: CookingHistoryListItemProps) {
       >
         <Pressable
           onPress={handlePress}
-          className="flex-row items-center py-3 px-4 active:bg-stone-100 border-b border-border-light bg-surface"
+          className="flex-row items-center py-3 pl-3 pr-4 active:bg-stone-100 border-b border-border-light bg-surface"
         >
           {/* Day Number */}
           <View className="w-12 items-center justify-center mr-2">
-            <Text className="text-2xl font-light text-foreground-tertiary">
+            <Text className="text-[48px] font-light font-playfair text-primary leading-none">
               {dayNumber}
             </Text>
           </View>
@@ -132,7 +194,7 @@ export function CookingHistoryListItem({ event }: CookingHistoryListItemProps) {
           <View
             className="rounded-md overflow-hidden bg-stone-200 border border-border-light"
             style={{
-              width: 50,
+              width: 75,
               height: 75, // 2:3 aspect ratio
               shadowColor: "#000",
               shadowOffset: { width: 0, height: 1 },
@@ -166,26 +228,25 @@ export function CookingHistoryListItem({ event }: CookingHistoryListItemProps) {
           </View>
 
           {/* Content */}
-          <View className="flex-1 ml-4 justify-center">
+          <View className="flex-1 h-full ml-4 justify-between">
             {/* Title */}
             <Text
               className="text-base font-bold text-foreground-heading leading-tight"
-              numberOfLines={1}
+              numberOfLines={2}
             >
               {event.recipe_title}
             </Text>
+            {event.rating && (
+              <StarRating
+                rating={event.rating}
+                size={16}
+                editable={false}
+              />
+            )}
 
             {/* Meta Row: Rating, Duration, Times Cooked */}
             <View className="flex-row items-center gap-3 mt-1.5">
-              {/* Rating */}
-              {event.rating && (
-                <View className="flex-row items-center">
-                  <Star size={12} color="#fbbf24" weight="fill" />
-                  <Text className="text-xs text-foreground-secondary ml-0.5 font-medium">
-                    {event.rating.toFixed(1)}
-                  </Text>
-                </View>
-              )}
+
 
               {/* Duration */}
               {event.duration_minutes && (
@@ -198,13 +259,13 @@ export function CookingHistoryListItem({ event }: CookingHistoryListItemProps) {
               )}
 
               {/* Times Cooked (if > 1) */}
-              {event.times_cooked > 1 && (
+              {/* {event.times_cooked > 1 && (
                 <View className="bg-primary/10 rounded-full px-2 py-0.5">
                   <Text className="text-[10px] text-primary font-semibold">
                     {t("cookingHistory.cookedTimes", { count: event.times_cooked })}
                   </Text>
                 </View>
-              )}
+              )} */}
             </View>
 
             {/* Year (Optional, if needed, but header has it) */}
