@@ -66,6 +66,7 @@ export default function CollectionDetailScreen() {
   const handleBack = () => router.back();
 
   // Convert CollectionRecipe to Recipe format for RecipeCard
+  // For "saved" collection, recipes are favorites by definition
   const mapToRecipe = useCallback((cr: CollectionRecipe): Recipe => ({
     id: cr.id,
     created_by: "",
@@ -83,7 +84,12 @@ export default function CollectionDetailScreen() {
     total_times_cooked: 0,
     created_at: cr.created_at,
     updated_at: cr.created_at,
-  }), []);
+    // Set user_data based on collection type
+    user_data: {
+      is_favorite: slug === "saved", // If we're in saved collection, it's a favorite
+      times_cooked: 0,
+    },
+  }), [slug]);
 
   // Determine collection type from data or params
   const collectionSlug = data?.collection?.slug || slug || "extracted";
@@ -241,12 +247,13 @@ export default function CollectionDetailScreen() {
       }}
     >
       <Text className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-tertiary mb-3">
-        {collectionSlug === "extracted" ? t("library.subtitle") : t("library.collections.favorites").toUpperCase()}
+        {collectionSlug === "extracted" ? t("library.collections.allRecipesSubtitle") : t("library.collections.favoritesSubtitle")}
+
       </Text>
       <Text
         className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1]"
       >
-        {displayName}
+        {collectionSlug === "extracted" ? t("library.collections.allRecipes") : t("library.collections.favorites")}
       </Text>
     </View>
   ), [insets.top, displayName, collectionSlug, t]);
@@ -275,10 +282,7 @@ export default function CollectionDetailScreen() {
     };
   });
 
-  const backButtonStyle = useAnimatedStyle(() => {
-    // Optional: Morph back button or just keep it
-    return {};
-  });
+
 
   return (
     <View className="flex-1 bg-surface">
@@ -410,7 +414,7 @@ export default function CollectionDetailScreen() {
               className="text-xl text-foreground-heading"
               numberOfLines={1}
             >
-              {displayName}
+              {collectionSlug === "extracted" ? t("library.collections.allRecipes") : t("library.collections.favorites")}
             </Text>
           </Animated.View>
         </View>

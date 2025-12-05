@@ -12,10 +12,12 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import { ShareNetworkIcon, PencilIcon, TrashIcon } from "phosphor-react-native";
+import { ShareNetworkIcon, PencilIcon, TrashIcon, Bookmark } from "phosphor-react-native";
+import * as Haptics from "expo-haptics";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDeleteRecipe } from "@/hooks/useRecipes";
+import { useToggleFavorite } from "@/hooks/useCollections";
 
 import type { Recipe } from "@/types/recipe";
 import { AnimatedPageHeader } from "@/components/ui/AnimatedPageHeader";
@@ -69,6 +71,10 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   const insets = useSafeAreaInsets();
   const { isTablet, isTabletLandscape } = useDeviceType(isEditing);
   const deleteRecipeMutation = useDeleteRecipe();
+  const { mutate: toggleFavorite } = useToggleFavorite();
+
+  // Get favorite status from user_data
+  const isFavorite = recipe?.user_data?.is_favorite ?? false;
 
   // State
   const [isCooking, setIsCooking] = useState(false);
@@ -376,6 +382,17 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         visible={isActionsModalVisible}
         onClose={() => setIsActionsModalVisible(false)}
         actions={[
+          {
+            label: isFavorite ? t("recipe.bookmark.remove") : t("recipe.bookmark.save"),
+            icon: <Bookmark size={24} color="#334d43" weight={isFavorite ? "fill" : "regular"} />,
+            onPress: () => {
+              if (recipe) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                toggleFavorite({ recipeId: recipe.id, isFavorite });
+              }
+              setIsActionsModalVisible(false);
+            },
+          },
           {
             label: t("recipe.actions.share"),
             description: t("recipe.actions.shareDescription"),

@@ -293,6 +293,13 @@
         "consistency": "It should look smooth and consistent. If it's too thick, add a splash of liquid. If too thin, let it simmer a bit longer.",
         "default": "That's a great question! While I'm just a demo AI right now, normally I'd give you a detailed culinary answer based on the recipe context. Keep cooking!"
       }
+    },
+    "bookmark": {
+      "added": "Successfully saved to your bookmarks",
+      "removed": "Successfully removed from your bookmarks",
+      "error": "Failed to update bookmark",
+      "save": "Save to Bookmarks",
+      "remove": "Remove from Bookmarks"
     }
   },
   "errors": {

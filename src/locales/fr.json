@@ -294,6 +294,13 @@
         "consistency": "Cela devrait avoir l'air lisse et homogène. Si c'est trop épais, ajoutez un peu de liquide. Si c'est trop liquide, laissez mijoter un peu plus longtemps.",
         "default": "C'est une excellente question ! Bien que je ne sois qu'une IA de démonstration pour le moment, normalement je vous donnerais une réponse culinaire détaillée basée sur le contexte de la recette. Continuez à cuisiner !"
       }
+    },
+    "bookmark": {
+      "added": "Ajouté à vos favoris avec succès",
+      "removed": "Retiré de vos favoris avec succès",
+      "error": "Échec de la mise à jour du favori",
+      "save": "Ajouter aux favoris",
+      "remove": "Retirer des favoris"
     }
   },
   "errors": {

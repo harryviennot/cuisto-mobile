@@ -9,8 +9,10 @@ import { router } from "expo-router";
 import { Image as ImageIcon, Clock, Flame, Bookmark } from "phosphor-react-native";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
+import * as Haptics from "expo-haptics";
 import type { Recipe } from "@/types/recipe";
 import { Skeleton } from "../ui/Skeleton";
+import { useToggleFavorite } from "@/hooks/useCollections";
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -20,6 +22,15 @@ interface RecipeCardProps {
 export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) {
   const { t } = useTranslation();
   const [imageLoading, setImageLoading] = useState(true);
+  const { mutate: toggleFavorite } = useToggleFavorite();
+
+  // Get favorite status from user_data
+  const isFavorite = recipe.user_data?.is_favorite ?? false;
+
+  const handleBookmarkPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    toggleFavorite({ recipeId: recipe.id, isFavorite });
+  };
 
   const handlePress = () => {
     // Navigate to recipe detail page with optimistic data
@@ -72,9 +83,6 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
 
   // Get calories (placeholder - TODO: add nutrition field to Recipe type)
   const calories = 450;
-
-  // Check if favorited (TODO: add user_recipe_data to Recipe type)
-  const isFavorite = false;
 
   return (
     <View className="mb-6">
@@ -132,7 +140,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
                   hitSlop={10}
                   onPress={(e) => {
                     e.stopPropagation();
-                    // TODO: Implement bookmark toggle
+                    handleBookmarkPress();
                   }}
                 >
                   <Bookmark size={18} color="#ffffff" weight={isFavorite ? "fill" : "regular"} />
@@ -151,7 +159,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
                 }}
                 onPress={(e) => {
                   e.stopPropagation();
-                  // TODO: Implement bookmark toggle
+                  handleBookmarkPress();
                 }}
               >
                 <Bookmark size={14} color="#ffffff" weight={isFavorite ? "fill" : "regular"} />
