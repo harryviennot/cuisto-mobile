@@ -1,11 +1,11 @@
 import {
   View,
-  FlatList,
   RefreshControl,
   ActivityIndicator,
   Platform,
   useWindowDimensions,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useMemo, type ReactElement } from "react";
 import { RecipeCard } from "../recipe/RecipeCard";
 import type { Recipe } from "@/types/recipe";
@@ -18,7 +18,7 @@ export interface MasonryGridProps {
   onEndReached?: () => void;
   onEndReachedThreshold?: number;
   showLoadingFooter?: boolean;
-  onScroll?: (event: any) => void;
+  onScroll?: any;
   ListEmptyComponent?: ReactElement;
   ListHeaderComponent?: ReactElement;
   contentContainerStyle?: any;
@@ -108,7 +108,7 @@ export function MasonryGrid({
   const data = [{ id: "masonry-grid", columns }];
 
   return (
-    <FlatList
+    <Animated.FlatList
       data={data}
       keyExtractor={(item) => item.id}
       showsVerticalScrollIndicator={false}
@@ -131,7 +131,7 @@ export function MasonryGrid({
           />
         ) : undefined
       }
-      renderItem={({ item }) => (
+      renderItem={({ item }: { item: { id: string; columns: Recipe[][] } }) => (
         <View className="flex-row p-4 gap-2">
           {item.columns.map((columnRecipes, columnIndex) => (
             <View

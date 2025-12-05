@@ -294,6 +294,13 @@
         "consistency": "Cela devrait avoir l'air lisse et homogène. Si c'est trop épais, ajoutez un peu de liquide. Si c'est trop liquide, laissez mijoter un peu plus longtemps.",
         "default": "C'est une excellente question ! Bien que je ne sois qu'une IA de démonstration pour le moment, normalement je vous donnerais une réponse culinaire détaillée basée sur le contexte de la recette. Continuez à cuisiner !"
       }
+    },
+    "bookmark": {
+      "added": "Ajouté à vos favoris avec succès",
+      "removed": "Retiré de vos favoris avec succès",
+      "error": "Échec de la mise à jour du favori",
+      "save": "Ajouter aux favoris",
+      "remove": "Retirer des favoris"
     }
   },
   "errors": {
@@ -381,6 +388,44 @@
     "cta": "Commencer à collecter",
     "socialProof": "Rejoignez 10 000+ Chefs Organisés",
     "imported": "Importé"
+  },
+  "library": {
+    "subtitle": "VOTRE ARCHIVE",
+    "title": "Ma Bibliothèque",
+    "search": {
+      "placeholder": "Rechercher dans les collections..."
+    },
+    "collections": {
+      "allRecipes": "Toutes les recettes",
+      "allRecipesSubtitle": "EXTRAITES",
+      "favorites": "Favoris",
+      "favoritesSubtitle": "SÉLECTIONNÉES PAR VOUS"
+    },
+    "cookbooks": {
+      "title": "Livres de cuisine",
+      "comingSoon": "Livres de cuisine bientôt disponibles..."
+    },
+    "error": {
+      "title": "Échec du chargement de la bibliothèque"
+    },
+    "empty": {
+      "title": "Aucune collection",
+      "message": "Commencez à extraire des recettes pour créer votre bibliothèque"
+    },
+    "extracted": {
+      "empty": {
+        "title": "Aucune recette",
+        "message": "Extrayez votre première recette depuis une vidéo, une photo ou un lien",
+        "cta": "Extraire une recette"
+      }
+    },
+    "saved": {
+      "empty": {
+        "title": "Aucun favori",
+        "message": "Enregistrez vos recettes préférées pour les retrouver facilement",
+        "cta": "Explorer les recettes"
+      }
+    }
   },
   "onboarding": {
     "step": "Étape {{current}} sur {{total}}",

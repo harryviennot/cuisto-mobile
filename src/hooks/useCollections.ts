@@ -1,118 +1,230 @@
 /**
  * useCollections Hook
  *
- * React Query hooks for managing user collections.
+ * React Query hooks for managing virtual collections.
+ *
+ * Virtual collections system:
+ * - "extracted" = user_recipe_data WHERE was_extracted = true
+ * - "saved" = user_recipe_data WHERE is_favorite = true
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, InfiniteData } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
+import Toast from "react-native-toast-message";
 import { collectionService } from "@/api/services/collection.service";
-import type {
-  Collection,
-  CollectionWithRecipes,
-  CreateCollectionRequest,
-  UpdateCollectionRequest,
-} from "@/types/collection";
+import type { CollectionCountsResponse, CollectionWithRecipes } from "@/types/collection";
+import type { Recipe } from "@/types/recipe";
 
 const COLLECTIONS_KEY = "collections";
 
 /**
- * Hook to fetch all user collections
+ * Hook to fetch recipe counts for system collections
+ * Lightweight query that only fetches counts, not full collection data
  */
-export function useCollections() {
-  return useQuery<Collection[], Error>({
-    queryKey: [COLLECTIONS_KEY],
-    queryFn: collectionService.getCollections,
+export function useCollectionCounts() {
+  return useQuery<CollectionCountsResponse, Error>({
+    queryKey: [COLLECTIONS_KEY, "counts"],
+    queryFn: collectionService.getCollectionCounts,
   });
 }
 
 /**
- * Hook to fetch a single collection with its recipes
+ * Hook to fetch a virtual collection by slug with its recipes
+ *
+ * Supported slugs:
+ * - 'extracted': All recipes the user has extracted
+ * - 'saved': All recipes the user has favorited
  */
-export function useCollection(collectionId: string, limit = 20, offset = 0) {
+export function useCollectionBySlug(slug: string, limit = 20, offset = 0) {
   return useQuery<CollectionWithRecipes, Error>({
-    queryKey: [COLLECTIONS_KEY, collectionId, { limit, offset }],
-    queryFn: () => collectionService.getCollection(collectionId, limit, offset),
-    enabled: !!collectionId,
+    queryKey: [COLLECTIONS_KEY, "by-slug", slug, { limit, offset }],
+    queryFn: () => collectionService.getCollectionBySlug(slug, limit, offset),
+    enabled: !!slug,
   });
 }
 
 /**
- * Hook to create a new collection
+ * Hook to favorite a recipe
+ * Sets is_favorite=true in user_recipe_data
  */
-export function useCreateCollection() {
+export function useFavoriteRecipe() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (request: CreateCollectionRequest) => collectionService.createCollection(request),
+    mutationFn: (recipeId: string) => collectionService.favoriteRecipe(recipeId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
+      // Invalidate collection counts and saved collection
+      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, "counts"] });
+      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, "by-slug", "saved"] });
     },
   });
 }
 
 /**
- * Hook to update a collection
+ * Hook to unfavorite a recipe
+ * Sets is_favorite=false in user_recipe_data
  */
-export function useUpdateCollection() {
+export function useUnfavoriteRecipe() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      collectionId,
-      request,
-    }: {
-      collectionId: string;
-      request: UpdateCollectionRequest;
-    }) => collectionService.updateCollection(collectionId, request),
-    onSuccess: (_, { collectionId }) => {
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, collectionId] });
-    },
-  });
-}
-
-/**
- * Hook to delete a collection
- */
-export function useDeleteCollection() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (collectionId: string) => collectionService.deleteCollection(collectionId),
+    mutationFn: (recipeId: string) => collectionService.unfavoriteRecipe(recipeId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
+      // Invalidate collection counts and saved collection
+      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, "counts"] });
+      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, "by-slug", "saved"] });
     },
   });
 }
 
 /**
- * Hook to add a recipe to a collection
+ * Context type for rollback on error
  */
-export function useAddToCollection() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ collectionId, recipeId }: { collectionId: string; recipeId: string }) =>
-      collectionService.addRecipeToCollection(collectionId, recipeId),
-    onSuccess: (_, { collectionId }) => {
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, collectionId] });
-    },
-  });
+interface ToggleFavoriteContext {
+  previousRecipe: Recipe | undefined;
+  previousRecipes: InfiniteData<Recipe[]> | undefined;
+  previousSavedCollections: [readonly unknown[], CollectionWithRecipes | undefined][];
+  previousCounts: CollectionCountsResponse | undefined;
 }
 
 /**
- * Hook to remove a recipe from a collection
+ * Hook to toggle favorite status with optimistic updates
+ * Provides instant UI feedback while the API request happens in the background
  */
-export function useRemoveFromCollection() {
+export function useToggleFavorite() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
-  return useMutation({
-    mutationFn: ({ collectionId, recipeId }: { collectionId: string; recipeId: string }) =>
-      collectionService.removeRecipeFromCollection(collectionId, recipeId),
-    onSuccess: (_, { collectionId }) => {
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY] });
-      queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, collectionId] });
-    },
-  });
+  return useMutation<void, Error, { recipeId: string; isFavorite: boolean }, ToggleFavoriteContext>(
+    {
+      mutationFn: async ({ recipeId, isFavorite }) => {
+        if (isFavorite) {
+          await collectionService.unfavoriteRecipe(recipeId);
+        } else {
+          await collectionService.favoriteRecipe(recipeId);
+        }
+      },
+
+      onMutate: async ({ recipeId, isFavorite }) => {
+        // 1. Cancel any outgoing refetches to prevent overwriting optimistic update
+        await queryClient.cancelQueries({ queryKey: ["recipe", recipeId] });
+        await queryClient.cancelQueries({ queryKey: ["recipes"] });
+        await queryClient.cancelQueries({ queryKey: [COLLECTIONS_KEY, "by-slug", "saved"] });
+        await queryClient.cancelQueries({ queryKey: [COLLECTIONS_KEY, "counts"] });
+
+        // 2. Snapshot previous values for rollback
+        const previousRecipe = queryClient.getQueryData<Recipe>(["recipe", recipeId]);
+        const previousRecipes = queryClient.getQueryData<InfiniteData<Recipe[]>>(["recipes"]);
+        const previousCounts = queryClient.getQueryData<CollectionCountsResponse>([
+          COLLECTIONS_KEY,
+          "counts",
+        ]);
+
+        // Snapshot all saved collection queries (there could be multiple with different pagination)
+        const savedCollectionQueries = queryClient.getQueriesData<CollectionWithRecipes>({
+          queryKey: [COLLECTIONS_KEY, "by-slug", "saved"],
+        });
+        const previousSavedCollections = savedCollectionQueries.map(
+          ([key, data]) => [key, data] as [readonly unknown[], CollectionWithRecipes | undefined]
+        );
+
+        // 3. Optimistically update individual recipe cache
+        queryClient.setQueryData<Recipe>(["recipe", recipeId], (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            user_data: {
+              ...old.user_data,
+              is_favorite: !isFavorite,
+              times_cooked: old.user_data?.times_cooked ?? 0,
+            },
+          };
+        });
+
+        // 4. Optimistically update recipes list (infinite query)
+        queryClient.setQueriesData<InfiniteData<Recipe[]>>({ queryKey: ["recipes"] }, (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) =>
+              page.map((recipe) =>
+                recipe.id === recipeId
+                  ? {
+                      ...recipe,
+                      user_data: {
+                        ...recipe.user_data,
+                        is_favorite: !isFavorite,
+                        times_cooked: recipe.user_data?.times_cooked ?? 0,
+                      },
+                    }
+                  : recipe
+              )
+            ),
+          };
+        });
+
+        // 5. Optimistically update saved collection (remove recipe if unfavoriting)
+        if (isFavorite) {
+          // Removing from favorites - filter out the recipe
+          queryClient.setQueriesData<CollectionWithRecipes>(
+            { queryKey: [COLLECTIONS_KEY, "by-slug", "saved"] },
+            (old) => {
+              if (!old) return old;
+              return {
+                ...old,
+                recipes: old.recipes.filter((r) => r.id !== recipeId),
+                total_count: Math.max(0, old.total_count - 1),
+                collection: {
+                  ...old.collection,
+                  recipe_count: Math.max(0, old.collection.recipe_count - 1),
+                },
+              };
+            }
+          );
+        }
+
+        // 6. Optimistically update collection counts
+        queryClient.setQueryData<CollectionCountsResponse>([COLLECTIONS_KEY, "counts"], (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            saved: isFavorite ? Math.max(0, old.saved - 1) : old.saved + 1,
+          };
+        });
+
+        return { previousRecipe, previousRecipes, previousSavedCollections, previousCounts };
+      },
+
+      onError: (_err, { recipeId }, context) => {
+        // Rollback to previous state
+        if (context?.previousRecipe) {
+          queryClient.setQueryData(["recipe", recipeId], context.previousRecipe);
+        }
+        if (context?.previousRecipes) {
+          queryClient.setQueryData(["recipes"], context.previousRecipes);
+        }
+        // Rollback saved collections
+        if (context?.previousSavedCollections) {
+          for (const [key, data] of context.previousSavedCollections) {
+            queryClient.setQueryData(key, data);
+          }
+        }
+        // Rollback counts
+        if (context?.previousCounts) {
+          queryClient.setQueryData([COLLECTIONS_KEY, "counts"], context.previousCounts);
+        }
+        Toast.show({ type: "error", text1: t("recipe.bookmark.error") });
+      },
+
+      onSuccess: (_, { isFavorite }) => {
+        Toast.show({
+          type: "success",
+          text1: isFavorite ? t("recipe.bookmark.removed") : t("recipe.bookmark.added"),
+        });
+        // Refetch to ensure server state is synced (but UI already updated)
+        queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, "counts"] });
+        queryClient.invalidateQueries({ queryKey: [COLLECTIONS_KEY, "by-slug", "saved"] });
+      },
+    }
+  );
 }

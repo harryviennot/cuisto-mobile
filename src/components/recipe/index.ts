@@ -5,6 +5,7 @@
 // Main components
 export { RecipeDetail } from "./RecipeDetail";
 export { RecipeCard } from "./RecipeCard";
+export { RecipeCardSkeleton } from "./RecipeCardSkeleton";
 
 // Detail components
 export * from "./detail";
