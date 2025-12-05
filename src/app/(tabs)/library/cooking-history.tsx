@@ -9,13 +9,14 @@
  * - Empty state
  */
 import React, { useMemo, useCallback } from "react";
-import { View, RefreshControl } from "react-native";
+import { View, RefreshControl, SectionList } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import Animated, {
   FadeIn,
   useSharedValue,
   useAnimatedScrollHandler,
+  useDerivedValue,
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 
@@ -24,13 +25,17 @@ import {
   CollectionStickyHeader,
   CollectionErrorState,
   CollectionHeader,
+} from "@/components/library";
+import {
   CookingHistoryListItem,
   CookingHistoryListItemSkeleton,
   CookingHistoryEmpty,
-} from "@/components/library";
-import type { CookingHistoryEvent } from "@/types/cookingHistory";
+  CookingHistoryMonthHeader,
+  groupEventsToSections,
+  CookingHistorySection,
+} from "@/components/library/cooking-history";
 
-
+const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
 export default function CookingHistoryScreen() {
   const { t } = useTranslation();
@@ -49,9 +54,10 @@ export default function CookingHistoryScreen() {
     isFetchingNextPage,
   } = useCookingHistoryInfinite();
 
-  // Flatten pages for display
-  const events = useMemo(() => {
-    return data?.pages.flatMap((page) => page) ?? [];
+  // Group pages for display
+  const sections = useMemo(() => {
+    const flatEvents = data?.pages.flatMap((page) => page) ?? [];
+    return groupEventsToSections(flatEvents);
   }, [data]);
 
   // Scroll handling for sticky header
@@ -74,7 +80,13 @@ export default function CookingHistoryScreen() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const headerTopPadding = insets.top + 60;
+  // 52 is roughly the height of CollectionStickyHeader content (40px button + 12px paddingBottom)
+  const headerTopPadding = insets.top + 47;
+
+  // Adjust scrollY for the header animation because contentInset shifts the origin
+  const adjustedScrollY = useDerivedValue(() => {
+    return scrollY.value + headerTopPadding;
+  });
 
   // Header component
   const ListHeaderComponent = useMemo(
@@ -83,17 +95,25 @@ export default function CookingHistoryScreen() {
         <CollectionHeader
           subtitle={t("cookingHistory.subtitle") || "RECENTLY COOKED"}
           title={t("cookingHistory.title")}
-          topPadding={headerTopPadding}
+          topPadding={0} // Content handled by contentInset
         />
       </View>
     ),
-    [t, headerTopPadding]
+    [t]
   );
 
-  // Render list item for list view
-  const renderListItem = useCallback(
-    ({ item }: { item: CookingHistoryEvent }) => (
+  // Render list item
+  const renderItem = useCallback(
+    ({ item }: { item: any }) => (
       <CookingHistoryListItem event={item} />
+    ),
+    []
+  );
+
+  // Render section header
+  const renderSectionHeader = useCallback(
+    ({ section: { title } }: { section: CookingHistorySection }) => (
+      <CookingHistoryMonthHeader label={title} />
     ),
     []
   );
@@ -117,20 +137,26 @@ export default function CookingHistoryScreen() {
             errorMessage={error.message}
             onRetry={handleRefresh}
           />
-        ) : events.length === 0 ? (
+        ) : sections.length === 0 ? (
           <View style={{ paddingTop: headerTopPadding }}>
             <CookingHistoryEmpty variant="full" />
           </View>
         ) : (
-          <Animated.FlatList
-            data={events}
-            keyExtractor={(item) => item.event_id}
-            renderItem={renderListItem}
+          <AnimatedSectionList
+            sections={sections}
+            keyExtractor={(item: any) => item.event_id}
+            renderItem={renderItem}
+            renderSectionHeader={renderSectionHeader}
             ListHeaderComponent={ListHeaderComponent}
+            stickySectionHeadersEnabled={true}
             onScroll={scrollHandler}
             scrollEventThrottle={16}
             onEndReached={handleEndReached}
             onEndReachedThreshold={0.5}
+            // Use contentInset to handle sticky header offset below navbar
+            contentInset={{ top: headerTopPadding }}
+            contentOffset={{ x: 0, y: -headerTopPadding }}
+            scrollIndicatorInsets={{ top: headerTopPadding }}
             refreshControl={
               <RefreshControl
                 refreshing={isRefetching}
@@ -146,7 +172,7 @@ export default function CookingHistoryScreen() {
 
       <CollectionStickyHeader
         title={t("cookingHistory.title")}
-        scrollY={scrollY}
+        scrollY={adjustedScrollY}
         onBackPress={handleBack}
       />
     </View>

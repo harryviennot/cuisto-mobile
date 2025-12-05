@@ -23,8 +23,7 @@ export interface CookingHistoryCardProps {
 
 export function CookingHistoryCard({ event, width = 110 }: CookingHistoryCardProps) {
   const [imageLoading, setImageLoading] = useState(true);
-
-  console.log(event);
+  const [imageError, setImageError] = useState<string | null>(null);
 
   // Use cooking photo if available, otherwise recipe image
   const imageUrl = event.cooking_image_url || event.recipe_image_url;
@@ -74,8 +73,14 @@ export function CookingHistoryCard({ event, width = 110 }: CookingHistoryCardPro
               transition={200}
               cachePolicy="memory-disk"
               onLoadStart={() => setImageLoading(true)}
-              onLoad={() => setImageLoading(false)}
-              onError={() => setImageLoading(false)}
+              onLoad={() => {
+                setImageLoading(false);
+                setImageError(null);
+              }}
+              onError={() => {
+                setImageLoading(false);
+                setImageError("Failed to load");
+              }}
             />
           </>
         ) : (
