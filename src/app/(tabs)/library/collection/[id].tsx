@@ -84,6 +84,7 @@ export default function CollectionDetailScreen() {
     total_times_cooked: 0,
     created_at: cr.created_at,
     updated_at: cr.created_at,
+    timings: cr.timings,
     // Set user_data based on collection type
     user_data: {
       is_favorite: slug === "saved", // If we're in saved collection, it's a favorite

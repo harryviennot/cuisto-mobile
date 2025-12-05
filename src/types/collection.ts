@@ -6,6 +6,8 @@
  * - "saved" = user_recipe_data WHERE is_favorite = true
  */
 
+import type { Timings } from "./recipe";
+
 export interface Collection {
   id: string;
   name: string;
@@ -30,6 +32,7 @@ export interface CollectionRecipe {
   is_public: boolean;
   added_at: string;
   created_at: string;
+  timings?: Timings;
 }
 
 export interface CollectionWithRecipes {
