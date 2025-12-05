@@ -8,12 +8,10 @@
  * - Pull-to-refresh and infinite scroll
  * - Empty state
  */
-import React, { useState, useMemo, useCallback } from "react";
-import { View, RefreshControl, TouchableOpacity } from "react-native";
+import React, { useMemo, useCallback } from "react";
+import { View, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { List, SquaresFour } from "phosphor-react-native";
 import Animated, {
   FadeIn,
   useSharedValue,
@@ -22,43 +20,22 @@ import Animated, {
 import { useTranslation } from "react-i18next";
 
 import { useCookingHistoryInfinite } from "@/hooks/useCookingHistory";
-import { MasonryGrid } from "@/components/home/MasonryGrid";
 import {
   CollectionStickyHeader,
-  CollectionLoadingSkeleton,
   CollectionErrorState,
   CollectionHeader,
   CookingHistoryListItem,
   CookingHistoryListItemSkeleton,
   CookingHistoryEmpty,
 } from "@/components/library";
-import type { ViewMode } from "@/components/library";
 import type { CookingHistoryEvent } from "@/types/cookingHistory";
-import type { Recipe } from "@/types/recipe";
 
-const VIEW_PREFERENCE_KEY = "cooking_history_view_mode";
+
 
 export default function CookingHistoryScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-
-  // View mode state (persisted to AsyncStorage)
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
-
-  // Load saved view preference
-  React.useEffect(() => {
-    AsyncStorage.getItem(VIEW_PREFERENCE_KEY).then((value) => {
-      if (value === "grid" || value === "list") {
-        setViewMode(value);
-      }
-    });
-  }, []);
-
-  const handleViewModeChange = useCallback((mode: ViewMode) => {
-    setViewMode(mode);
-    AsyncStorage.setItem(VIEW_PREFERENCE_KEY, mode);
-  }, []);
 
   // Fetch cooking history with infinite scroll
   const {
@@ -76,42 +53,6 @@ export default function CookingHistoryScreen() {
   const events = useMemo(() => {
     return data?.pages.flatMap((page) => page) ?? [];
   }, [data]);
-
-  // Convert CookingHistoryEvent to Recipe-like format for MasonryGrid
-  // We store event_id in a custom field for key extraction, but use recipe_id as id for navigation
-  const mapToRecipe = useCallback((event: CookingHistoryEvent): Recipe & { _eventId: string } => {
-    return {
-      id: event.recipe_id, // Use recipe_id for navigation (RecipeCard uses this)
-      _eventId: event.event_id, // Store event_id for unique key extraction
-      created_by: "",
-      title: event.recipe_title,
-      image_url: event.cooking_image_url || event.recipe_image_url,
-      difficulty: event.difficulty as Recipe["difficulty"],
-      ingredients: [],
-      instructions: [],
-      tags: [],
-      rating_count: 0,
-      total_times_cooked: event.times_cooked,
-      created_at: event.cooked_at,
-      updated_at: event.cooked_at,
-      user_data: {
-        is_favorite: false,
-        times_cooked: event.times_cooked,
-        rating: event.rating,
-      },
-    };
-  }, []);
-
-  // Key extractor that uses event_id for uniqueness (same recipe can be cooked multiple times)
-  const recipeKeyExtractor = useCallback(
-    (recipe: Recipe & { _eventId?: string }) => recipe._eventId || recipe.id,
-    []
-  );
-
-  const mappedRecipes = useMemo(
-    () => events.map(mapToRecipe),
-    [events, mapToRecipe]
-  );
 
   // Scroll handling for sticky header
   const scrollY = useSharedValue(0);
@@ -135,23 +76,7 @@ export default function CookingHistoryScreen() {
 
   const headerTopPadding = insets.top + 60;
 
-  const ToggleButton = useMemo(
-    () => (
-      <TouchableOpacity
-        onPress={() => handleViewModeChange(viewMode === "grid" ? "list" : "grid")}
-        className="w-10 h-10 items-center justify-center rounded-full bg-surface-elevated active:opacity-70"
-      >
-        {viewMode === "grid" ? (
-          <List size={20} color="#334d43" weight="regular" />
-        ) : (
-          <SquaresFour size={20} color="#334d43" weight="regular" />
-        )}
-      </TouchableOpacity>
-    ),
-    [viewMode, handleViewModeChange]
-  );
-
-  // Header component with view toggle
+  // Header component
   const ListHeaderComponent = useMemo(
     () => (
       <View>
@@ -159,11 +84,10 @@ export default function CookingHistoryScreen() {
           subtitle={t("cookingHistory.subtitle") || "RECENTLY COOKED"}
           title={t("cookingHistory.title")}
           topPadding={headerTopPadding}
-          rightElement={ToggleButton}
         />
       </View>
     ),
-    [t, headerTopPadding, ToggleButton]
+    [t, headerTopPadding]
   );
 
   // Render list item for list view
@@ -187,11 +111,7 @@ export default function CookingHistoryScreen() {
     <View className="flex-1 bg-surface">
       <Animated.View entering={FadeIn.duration(300)} className="flex-1">
         {isLoading ? (
-          viewMode === "grid" ? (
-            <CollectionLoadingSkeleton topPadding={headerTopPadding} />
-          ) : (
-            <ListLoadingSkeleton />
-          )
+          <ListLoadingSkeleton />
         ) : error ? (
           <CollectionErrorState
             errorMessage={error.message}
@@ -201,19 +121,6 @@ export default function CookingHistoryScreen() {
           <View style={{ paddingTop: headerTopPadding }}>
             <CookingHistoryEmpty variant="full" />
           </View>
-        ) : viewMode === "grid" ? (
-          <MasonryGrid
-            recipes={mappedRecipes}
-            refreshing={isRefetching}
-            onRefresh={handleRefresh}
-            onEndReached={handleEndReached}
-            showLoadingFooter={isFetchingNextPage}
-            ListHeaderComponent={ListHeaderComponent}
-            onScroll={scrollHandler}
-            refreshControlOffset={headerTopPadding}
-            contentContainerStyle={{ paddingBottom: 100 }}
-            keyExtractor={recipeKeyExtractor}
-          />
         ) : (
           <Animated.FlatList
             data={events}
@@ -241,18 +148,6 @@ export default function CookingHistoryScreen() {
         title={t("cookingHistory.title")}
         scrollY={scrollY}
         onBackPress={handleBack}
-        rightElement={
-          <TouchableOpacity
-            onPress={() => handleViewModeChange(viewMode === "grid" ? "list" : "grid")}
-            className="w-10 h-10 items-center justify-center rounded-full active:opacity-70"
-          >
-            {viewMode === "grid" ? (
-              <List size={20} color="#334d43" weight="bold" />
-            ) : (
-              <SquaresFour size={20} color="#334d43" weight="bold" />
-            )}
-          </TouchableOpacity>
-        }
       />
     </View>
   );
