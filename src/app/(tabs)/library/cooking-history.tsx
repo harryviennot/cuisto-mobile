@@ -9,10 +9,11 @@
  * - Empty state
  */
 import React, { useState, useMemo, useCallback } from "react";
-import { View, RefreshControl } from "react-native";
+import { View, RefreshControl, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { List, SquaresFour } from "phosphor-react-native";
 import Animated, {
   FadeIn,
   useSharedValue,
@@ -30,7 +31,6 @@ import {
   CookingHistoryListItem,
   CookingHistoryListItemSkeleton,
   CookingHistoryEmpty,
-  ViewToggle,
 } from "@/components/library";
 import type { ViewMode } from "@/components/library";
 import type { CookingHistoryEvent } from "@/types/cookingHistory";
@@ -78,9 +78,11 @@ export default function CookingHistoryScreen() {
   }, [data]);
 
   // Convert CookingHistoryEvent to Recipe-like format for MasonryGrid
-  const mapToRecipe = useCallback((event: CookingHistoryEvent): Recipe => {
+  // We store event_id in a custom field for key extraction, but use recipe_id as id for navigation
+  const mapToRecipe = useCallback((event: CookingHistoryEvent): Recipe & { _eventId: string } => {
     return {
-      id: event.recipe_id,
+      id: event.recipe_id, // Use recipe_id for navigation (RecipeCard uses this)
+      _eventId: event.event_id, // Store event_id for unique key extraction
       created_by: "",
       title: event.recipe_title,
       image_url: event.cooking_image_url || event.recipe_image_url,
@@ -99,6 +101,12 @@ export default function CookingHistoryScreen() {
       },
     };
   }, []);
+
+  // Key extractor that uses event_id for uniqueness (same recipe can be cooked multiple times)
+  const recipeKeyExtractor = useCallback(
+    (recipe: Recipe & { _eventId?: string }) => recipe._eventId || recipe.id,
+    []
+  );
 
   const mappedRecipes = useMemo(
     () => events.map(mapToRecipe),
@@ -127,6 +135,22 @@ export default function CookingHistoryScreen() {
 
   const headerTopPadding = insets.top + 60;
 
+  const ToggleButton = useMemo(
+    () => (
+      <TouchableOpacity
+        onPress={() => handleViewModeChange(viewMode === "grid" ? "list" : "grid")}
+        className="w-10 h-10 items-center justify-center rounded-full bg-surface-elevated active:opacity-70"
+      >
+        {viewMode === "grid" ? (
+          <List size={20} color="#334d43" weight="regular" />
+        ) : (
+          <SquaresFour size={20} color="#334d43" weight="regular" />
+        )}
+      </TouchableOpacity>
+    ),
+    [viewMode, handleViewModeChange]
+  );
+
   // Header component with view toggle
   const ListHeaderComponent = useMemo(
     () => (
@@ -135,13 +159,11 @@ export default function CookingHistoryScreen() {
           subtitle={t("cookingHistory.subtitle") || "RECENTLY COOKED"}
           title={t("cookingHistory.title")}
           topPadding={headerTopPadding}
+          rightElement={ToggleButton}
         />
-        <View className="flex-row justify-end px-5 pb-3">
-          <ViewToggle value={viewMode} onChange={handleViewModeChange} />
-        </View>
       </View>
     ),
-    [t, headerTopPadding, viewMode, handleViewModeChange]
+    [t, headerTopPadding, ToggleButton]
   );
 
   // Render list item for list view
@@ -190,6 +212,7 @@ export default function CookingHistoryScreen() {
             onScroll={scrollHandler}
             refreshControlOffset={headerTopPadding}
             contentContainerStyle={{ paddingBottom: 100 }}
+            keyExtractor={recipeKeyExtractor}
           />
         ) : (
           <Animated.FlatList
@@ -218,6 +241,18 @@ export default function CookingHistoryScreen() {
         title={t("cookingHistory.title")}
         scrollY={scrollY}
         onBackPress={handleBack}
+        rightElement={
+          <TouchableOpacity
+            onPress={() => handleViewModeChange(viewMode === "grid" ? "list" : "grid")}
+            className="w-10 h-10 items-center justify-center rounded-full active:opacity-70"
+          >
+            {viewMode === "grid" ? (
+              <List size={20} color="#334d43" weight="bold" />
+            ) : (
+              <SquaresFour size={20} color="#334d43" weight="bold" />
+            )}
+          </TouchableOpacity>
+        }
       />
     </View>
   );

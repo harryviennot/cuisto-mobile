@@ -24,6 +24,8 @@ export interface CookingHistoryCardProps {
 export function CookingHistoryCard({ event, width = 110 }: CookingHistoryCardProps) {
   const [imageLoading, setImageLoading] = useState(true);
 
+  console.log(event);
+
   // Use cooking photo if available, otherwise recipe image
   const imageUrl = event.cooking_image_url || event.recipe_image_url;
   const relativeDate = formatRelativeDate(event.cooked_at);

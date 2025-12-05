@@ -5,9 +5,9 @@
  * Includes section header with "See more" button and a horizontal FlatList.
  */
 import React from "react";
-import { View, FlatList, StyleProp, ViewStyle } from "react-native";
+import { View, FlatList, StyleProp, ViewStyle, TouchableOpacity } from "react-native";
 import { useTranslation } from "react-i18next";
-import { SectionHeader } from "../SectionHeader";
+import { Text } from "react-native";
 import { CookingHistoryCard, CookingHistoryCardSkeleton } from "./CookingHistoryCard";
 import { useCookingHistoryPreview } from "@/hooks/useCookingHistory";
 import type { CookingHistoryEvent } from "@/types/cookingHistory";
@@ -41,11 +41,11 @@ export function CookingHistoryPreview({
   if (isLoading) {
     return (
       <View style={style}>
-        <View className="px-5">
-          <SectionHeader
-            title={t("cookingHistory.title")}
-            onSeeMore={onSeeMore}
-          />
+        <View className="mb-4 flex-row items-center gap-3 px-5">
+          <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary">
+            {t("cookingHistory.title")}
+          </Text>
+          <View className="h-px flex-1 bg-border-light" />
         </View>
         <FlatList
           horizontal
@@ -70,11 +70,20 @@ export function CookingHistoryPreview({
 
   return (
     <View style={style}>
-      <View className="px-5">
-        <SectionHeader
-          title={t("cookingHistory.title")}
-          onSeeMore={onSeeMore}
-        />
+      <View className="mb-4 flex-row items-center gap-3 px-6">
+        <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary">
+          {t("cookingHistory.title")}
+        </Text>
+        <View className="h-px flex-1 bg-border-light" />
+        {onSeeMore && (
+          <TouchableOpacity
+            onPress={onSeeMore}
+          >
+            <Text className="text-xs font-bold text-primary ">
+              {t("cookingHistory.seeMore")}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
       <FlatList
         horizontal

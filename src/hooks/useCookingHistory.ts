@@ -93,7 +93,11 @@ export function useMarkRecipeAsCooked() {
       const { recipeId, params } = variables;
 
       // Invalidate cooking history queries to refetch with new event
-      queryClient.invalidateQueries({ queryKey: [COOKING_HISTORY_KEY] });
+      // Use refetchType: 'all' to ensure both active and inactive queries are invalidated
+      queryClient.invalidateQueries({
+        queryKey: [COOKING_HISTORY_KEY],
+        refetchType: "all",
+      });
 
       // Update the recipe's user_data in cache if we have it
       queryClient.setQueryData<Recipe>(["recipe", recipeId], (old) => {

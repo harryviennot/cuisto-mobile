@@ -18,7 +18,8 @@ import Animated, {
 import * as Haptics from "expo-haptics";
 import type { Recipe } from "@/types/recipe";
 import { StarRating } from "@/components/StarRating";
-import { useUpdateRecipeRating } from "@/hooks/useRecipes";
+import { useMarkRecipeAsCooked } from "@/hooks/useCookingHistory";
+import { useCookingSession } from "@/contexts/CookingSessionContext";
 
 interface FinishedScreenProps {
   recipe: Recipe;
@@ -36,9 +37,14 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
     staleTime: Infinity, // Use cached data, don't refetch
   });
 
+  // Rating state - start with existing user rating or 0
   const [rating, setRating] = useState(cachedRecipe.user_data?.rating || 0);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingRatingRef = useRef<number | null>(null);
+  const ratingRef = useRef(rating); // Track current rating for completion
+
+  // Update ref when rating changes
+  useEffect(() => {
+    ratingRef.current = rating;
+  }, [rating]);
 
   // Update local rating state when cache updates
   useEffect(() => {
@@ -47,16 +53,11 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
     }
   }, [cachedRecipe.user_data?.rating]);
 
-  const updateRecipeRatingMutation = useUpdateRecipeRating();
+  // Cooking session for duration tracking
+  const { getElapsedMinutes, endSession } = useCookingSession();
 
-  // Cleanup debounce timer on unmount
-  useEffect(() => {
-    return () => {
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
-    };
-  }, []);
+  // Mark recipe as cooked mutation
+  const markAsCookedMutation = useMarkRecipeAsCooked();
 
   // Animations
   const pulseAnim = useSharedValue(1);
@@ -75,34 +76,36 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
 
   const handleRating = (newRating: number) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    // Update UI immediately for instant feedback
+    // Update UI immediately - the actual API call happens on completion
     setRating(newRating);
+  };
 
-    // Store the pending rating
-    pendingRatingRef.current = newRating;
+  const handleComplete = async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-    // Clear any existing debounce timer
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
+    // Get cooking duration from session
+    const durationMinutes = getElapsedMinutes();
+    console.log("[FinishedScreen] handleComplete - durationMinutes:", durationMinutes, "rating:", ratingRef.current);
+
+    // Mark recipe as cooked with rating and duration
+    try {
+      await markAsCookedMutation.mutateAsync({
+        recipeId: recipe.id,
+        params: {
+          rating: ratingRef.current > 0 ? ratingRef.current : undefined,
+          durationMinutes: durationMinutes > 0 ? durationMinutes : undefined,
+        },
+      });
+    } catch (error) {
+      // Log error but don't block the user from closing
+      console.error("Failed to mark recipe as cooked:", error);
     }
 
-    // Debounce the API call - only send after user stops clicking for 800ms
-    debounceTimerRef.current = setTimeout(async () => {
-      const ratingToSend = pendingRatingRef.current;
-      if (ratingToSend === null) return;
+    // End the cooking session
+    endSession();
 
-      try {
-        await updateRecipeRatingMutation.mutateAsync({
-          recipeId: recipe.id,
-          rating: ratingToSend,
-        });
-        pendingRatingRef.current = null;
-      } catch {
-        // Error toast is handled by the hook
-        pendingRatingRef.current = null;
-      }
-    }, 800); // Wait 800ms after last click before sending to server
+    // Close the cooking mode
+    onClose();
   };
 
   const handleAction = () => {
@@ -208,10 +211,7 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
 
             {/* Complete Button */}
             <Pressable
-              onPress={() => {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                onClose();
-              }}
+              onPress={handleComplete}
               className="w-full py-4 bg-white rounded-xl shadow-xl shadow-white/5 active:bg-stone-200 active:scale-95 transition-all"
             >
               <Text className="text-stone-900 text-center font-bold text-base uppercase tracking-widest">

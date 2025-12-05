@@ -47,11 +47,14 @@ export async function clearCookingSession(): Promise<void> {
 
 /**
  * Calculate elapsed time in minutes from a session start time
+ * Returns at least 1 minute if any time has elapsed
  */
 export function calculateElapsedMinutes(startedAt: number): number {
   const now = Date.now();
   const elapsedMs = now - startedAt;
-  return Math.round(elapsedMs / 60000);
+  const minutes = Math.round(elapsedMs / 60000);
+  // Return at least 1 minute if any time has elapsed (even a few seconds)
+  return elapsedMs > 0 && minutes === 0 ? 1 : minutes;
 }
 
 /**

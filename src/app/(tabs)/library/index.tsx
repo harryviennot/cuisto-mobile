@@ -36,7 +36,6 @@ export default function LibraryScreen() {
         className="flex-1"
         contentContainerStyle={{
           paddingTop: 16,
-          paddingHorizontal: 20,
           paddingBottom: 120, // space for tab bar
         }}
         showsVerticalScrollIndicator={false}
@@ -50,7 +49,7 @@ export default function LibraryScreen() {
         }
       >
         {/* Smart Collections Grid */}
-        <View className="flex-row gap-4">
+        <View className="flex-row gap-4 px-5">
           <SmartCollectionCard
             slug="extracted"
             count={counts?.extracted}
