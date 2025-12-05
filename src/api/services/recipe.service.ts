@@ -7,6 +7,10 @@ import type {
   RecipeTimingsUpdateRequest,
   RecipeTimingsUpdateResponse,
 } from "@/types/recipe";
+import type {
+  CookingHistoryEvent,
+  MarkCookedParams,
+} from "@/types/cookingHistory";
 
 export const recipeService = {
   /**
@@ -113,14 +117,63 @@ export const recipeService = {
   },
 
   /**
-   * Mark a recipe as cooked (increments cooked count)
-   * Updates the user's times_cooked counter and last_cooked_at timestamp
+   * Mark a recipe as cooked with optional session data
+   *
+   * Creates a cooking event record with optional:
+   * - rating: Rating given at this cooking session (0.5-5.0)
+   * - imageUrl: URL to a photo taken during cooking
+   * - durationMinutes: Actual cooking time in minutes
+   *
+   * If rating is provided, it also updates the user's current rating for the recipe.
    *
    * @param recipeId - The recipe ID
+   * @param params - Optional session data (rating, photo, duration)
    * @returns Success message
    */
-  markRecipeAsCooked: async (recipeId: string): Promise<{ message: string }> => {
-    const response = await api.post<{ message: string }>(`/recipes/${recipeId}/cooked`);
+  markRecipeAsCooked: async (
+    recipeId: string,
+    params?: MarkCookedParams
+  ): Promise<{ message: string }> => {
+    const body = params
+      ? {
+          rating: params.rating,
+          image_url: params.imageUrl,
+          duration_minutes: params.durationMinutes,
+        }
+      : undefined;
+
+    const response = await api.post<{ message: string }>(
+      `/recipes/${recipeId}/cooked`,
+      body
+    );
+    return response.data;
+  },
+
+  /**
+   * Get user's cooking history as individual cooking events
+   *
+   * Returns each cooking session with:
+   * - Recipe info (id, title, image, difficulty)
+   * - Per-event data (rating, photo, duration, timestamp)
+   * - Aggregate (total times cooked)
+   *
+   * @param timeWindowDays - Number of days to look back (1-365, default 365)
+   * @param limit - Maximum results per page (1-100, default 20)
+   * @param offset - Pagination offset (default 0)
+   * @returns Array of cooking history events
+   */
+  getCookingHistory: async (
+    timeWindowDays: number = 365,
+    limit: number = 20,
+    offset: number = 0
+  ): Promise<CookingHistoryEvent[]> => {
+    const response = await api.get<CookingHistoryEvent[]>("/recipes/cooking-history", {
+      params: {
+        time_window_days: timeWindowDays,
+        limit,
+        offset,
+      },
+    });
     return response.data;
   },
 };

@@ -33,7 +33,8 @@
     "upNext": "Up Next",
     "photo": "Photo",
     "share": "Share",
-    "warning": "Warning"
+    "warning": "Warning",
+    "seeMore": "See more"
   },
   "app": {
     "title": "CuiStudio",
@@ -425,6 +426,25 @@
         "cta": "Explore Recipes"
       }
     }
+  },
+  "cookingHistory": {
+    "subtitle": "RECENTLY COOKED",
+    "title": "Cooking History",
+    "seeMore": "See more",
+    "empty": {
+      "title": "No cooking history yet",
+      "message": "Recipes you cook will appear here",
+      "cta": "Browse Recipes"
+    },
+    "cookedTimes_one": "Cooked {{count}} time",
+    "cookedTimes_other": "Cooked {{count}} times",
+    "duration": "{{minutes}} min",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago",
+    "viewGrid": "Grid",
+    "viewList": "List"
   },
   "onboarding": {
     "step": "Step {{current}} of {{total}}",

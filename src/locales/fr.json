@@ -33,7 +33,8 @@
     "bonAppetit": "Bon Appétit !",
     "photo": "Photo",
     "share": "Partager",
-    "warning": "Attention"
+    "warning": "Attention",
+    "seeMore": "Voir plus"
   },
   "app": {
     "title": "CuiStudio",
@@ -426,6 +427,25 @@
         "cta": "Explorer les recettes"
       }
     }
+  },
+  "cookingHistory": {
+    "subtitle": "RÉCEMMENT CUISINÉ",
+    "title": "Historique de cuisine",
+    "seeMore": "Voir plus",
+    "empty": {
+      "title": "Aucun historique de cuisine",
+      "message": "Les recettes que vous cuisinez apparaîtront ici",
+      "cta": "Parcourir les recettes"
+    },
+    "cookedTimes_one": "Cuisiné {{count}} fois",
+    "cookedTimes_other": "Cuisiné {{count}} fois",
+    "duration": "{{minutes}} min",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "daysAgo_one": "Il y a {{count}} jour",
+    "daysAgo_other": "Il y a {{count}} jours",
+    "viewGrid": "Grille",
+    "viewList": "Liste"
   },
   "onboarding": {
     "step": "Étape {{current}} sur {{total}}",

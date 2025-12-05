@@ -7,6 +7,10 @@
 // Main library header
 export { LibraryHeader } from "./LibraryHeader";
 
+// Section header (reusable)
+export { SectionHeader } from "./SectionHeader";
+export type { SectionHeaderProps } from "./SectionHeader";
+
 // Shared components (reusable across library features)
 export {
   CollectionEmptyState,
@@ -36,6 +40,27 @@ export type {
 // Collection detail components
 export { CollectionHeader } from "./collection-detail";
 export type { CollectionHeaderProps } from "./collection-detail";
+
+// Cooking history components
+export {
+  CookingHistoryCard,
+  CookingHistoryCardSkeleton,
+  CookingHistoryListItem,
+  CookingHistoryListItemSkeleton,
+  CookingHistoryPreview,
+  CookingHistoryEmpty,
+  ViewToggle,
+  formatRelativeDate,
+  formatDuration,
+} from "./cooking-history";
+export type {
+  CookingHistoryCardProps,
+  CookingHistoryListItemProps,
+  CookingHistoryPreviewProps,
+  CookingHistoryEmptyProps,
+  ViewToggleProps,
+  ViewMode,
+} from "./cooking-history";
 
 // Legacy export alias for backwards compatibility
 export { SmartCollectionCardSkeleton as CollectionCardSkeleton } from "./smart-collections";
