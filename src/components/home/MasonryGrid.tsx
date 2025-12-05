@@ -1,6 +1,5 @@
 import {
   View,
-  FlatList,
   RefreshControl,
   ActivityIndicator,
   Platform,

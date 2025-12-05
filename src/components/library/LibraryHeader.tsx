@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
-import { MagnifyingGlassIcon, UserIcon } from 'phosphor-react-native';
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
+import { MagnifyingGlassIcon, UserIcon } from "phosphor-react-native";
 
 export function LibraryHeader() {
   const { t } = useTranslation();
@@ -31,5 +31,4 @@ export function LibraryHeader() {
       </View>
     </View>
   );
-};
-
+}

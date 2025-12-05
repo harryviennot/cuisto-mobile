@@ -51,10 +51,6 @@ function ProtectedNavigation({ onReady }: { onReady: () => void }) {
   const hasCalledReady = useRef(false);
   const [isNavigationReady, setIsNavigationReady] = useState(false);
 
-  console.log("ProtectedNavigation", segments);
-
-  console.log("ProtectedNavigationIsAuth", isAuthenticated);
-  console.log("ProtectedNavigationUser", user);
   // Wait for navigation tree to fully mount before allowing redirects
   // Using setTimeout to defer to the next event loop tick after all effects have run
   useEffect(() => {

@@ -6,10 +6,7 @@
  * - "saved" = user_recipe_data WHERE is_favorite = true
  */
 import { api } from "../api-client";
-import type {
-  CollectionCountsResponse,
-  CollectionWithRecipes,
-} from "@/types/collection";
+import type { CollectionCountsResponse, CollectionWithRecipes } from "@/types/collection";
 import type { RecipeSaveResponse } from "@/types/extraction";
 
 export const collectionService = {
