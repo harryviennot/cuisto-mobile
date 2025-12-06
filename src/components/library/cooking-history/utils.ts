@@ -75,10 +75,12 @@ export function groupEventsToSections(events: any[]): CookingHistorySection[] {
 
   events.forEach((event) => {
     const date = new Date(event.cooked_at);
-    const monthYear = date.toLocaleDateString(i18n.language, {
-      month: "long",
-      year: "numeric",
-    }).toUpperCase();
+    const monthYear = date
+      .toLocaleDateString(i18n.language, {
+        month: "long",
+        year: "numeric",
+      })
+      .toUpperCase();
 
     if (!currentSection || currentSection.title !== monthYear) {
       currentSection = { title: monthYear, data: [] };
@@ -106,10 +108,12 @@ export function groupEventsByMonth(events: any[]): HistoryItemType[] {
   events.forEach((event) => {
     const date = new Date(event.cooked_at);
     // Use user's locale for month name, or hardcode to English if preferred "NOVEMBER 2025" style
-    const monthYear = date.toLocaleDateString(i18n.language, {
-      month: "long",
-      year: "numeric",
-    }).toUpperCase();
+    const monthYear = date
+      .toLocaleDateString(i18n.language, {
+        month: "long",
+        year: "numeric",
+      })
+      .toUpperCase();
 
     if (!groups[monthYear]) {
       groups[monthYear] = [];
@@ -122,17 +126,19 @@ export function groupEventsByMonth(events: any[]): HistoryItemType[] {
 
   // Sort months descending? Assuming events are already sorted by date desc
   // Just iterate keys naturally if they maintain order, or rely on event order.
-  // Since events come sorted, we can likely trust the order of creation of keys 
+  // Since events come sorted, we can likely trust the order of creation of keys
   // or just use the first event of a month to decide order.
   // Actually, keeping strict order:
   let currentMonth = "";
 
-  events.forEach(event => {
+  events.forEach((event) => {
     const date = new Date(event.cooked_at);
-    const monthYear = date.toLocaleDateString(i18n.language, {
-      month: "long",
-      year: "numeric"
-    }).toUpperCase();
+    const monthYear = date
+      .toLocaleDateString(i18n.language, {
+        month: "long",
+        year: "numeric",
+      })
+      .toUpperCase();
 
     if (monthYear !== currentMonth) {
       currentMonth = monthYear;

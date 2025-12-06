@@ -23,7 +23,6 @@ export interface CookingHistoryCardProps {
 
 export function CookingHistoryCard({ event, width = 110 }: CookingHistoryCardProps) {
   const [imageLoading, setImageLoading] = useState(true);
-  const [imageError, setImageError] = useState<string | null>(null);
 
   // Use cooking photo if available, otherwise recipe image
   const imageUrl = event.cooking_image_url || event.recipe_image_url;
@@ -41,11 +40,7 @@ export function CookingHistoryCard({ event, width = 110 }: CookingHistoryCardPro
   };
 
   return (
-    <Pressable
-      onPress={handlePress}
-      className="active:opacity-90"
-      style={{ width }}
-    >
+    <Pressable onPress={handlePress} className="active:opacity-90" style={{ width }}>
       {/* Square Image */}
       <View
         className="rounded-xl overflow-hidden bg-stone-200"
@@ -73,14 +68,8 @@ export function CookingHistoryCard({ event, width = 110 }: CookingHistoryCardPro
               transition={200}
               cachePolicy="memory-disk"
               onLoadStart={() => setImageLoading(true)}
-              onLoad={() => {
-                setImageLoading(false);
-                setImageError(null);
-              }}
-              onError={() => {
-                setImageLoading(false);
-                setImageError("Failed to load");
-              }}
+              onLoad={() => setImageLoading(false)}
+              onError={() => setImageLoading(false)}
             />
           </>
         ) : (
@@ -108,9 +97,7 @@ export function CookingHistoryCard({ event, width = 110 }: CookingHistoryCardPro
         >
           {event.recipe_title}
         </Text>
-        <Text className="text-[10px] text-foreground-tertiary mt-0.5">
-          {relativeDate}
-        </Text>
+        <Text className="text-[10px] text-foreground-tertiary mt-0.5">{relativeDate}</Text>
       </View>
     </Pressable>
   );

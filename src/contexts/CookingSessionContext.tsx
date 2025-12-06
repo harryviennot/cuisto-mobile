@@ -9,13 +9,7 @@
  * 2. Call endSession() when completing cooking to get duration
  * 3. The duration can then be passed to markRecipeAsCooked()
  */
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { CookingSession } from "@/types/cookingHistory";
 import {
   saveCookingSession,
@@ -51,9 +45,7 @@ interface CookingSessionContextType {
   getFormattedElapsedTime: () => string;
 }
 
-const CookingSessionContext = createContext<CookingSessionContextType | undefined>(
-  undefined
-);
+const CookingSessionContext = createContext<CookingSessionContextType | undefined>(undefined);
 
 export function CookingSessionProvider({ children }: { children: React.ReactNode }) {
   const [activeSession, setActiveSession] = useState<CookingSession | null>(null);
@@ -119,11 +111,7 @@ export function CookingSessionProvider({ children }: { children: React.ReactNode
     getFormattedElapsedTime,
   };
 
-  return (
-    <CookingSessionContext.Provider value={value}>
-      {children}
-    </CookingSessionContext.Provider>
-  );
+  return <CookingSessionContext.Provider value={value}>{children}</CookingSessionContext.Provider>;
 }
 
 /**

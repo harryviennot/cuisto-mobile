@@ -235,10 +235,7 @@ export default function CookingHistoryScreen() {
         {isLoading ? (
           <ListLoadingSkeleton />
         ) : error ? (
-          <CollectionErrorState
-            errorMessage={error.message}
-            onRetry={handleRefresh}
-          />
+          <CollectionErrorState errorMessage={error.message} onRetry={handleRefresh} />
         ) : sections.length === 0 ? (
           <View style={{ paddingTop: headerTopPadding }}>
             <CookingHistoryEmpty variant="full" />

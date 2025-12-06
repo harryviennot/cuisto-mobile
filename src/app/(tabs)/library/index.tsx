@@ -10,11 +10,7 @@ import { View, ScrollView, RefreshControl } from "react-native";
 import { router, Stack } from "expo-router";
 
 import { useCollectionCounts } from "@/hooks/useCollections";
-import {
-  LibraryHeader,
-  SmartCollectionCard,
-  CookingHistoryPreview,
-} from "@/components/library";
+import { LibraryHeader, SmartCollectionCard, CookingHistoryPreview } from "@/components/library";
 
 export default function LibraryScreen() {
   const [refreshing, setRefreshing] = useState(false);

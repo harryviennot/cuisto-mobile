@@ -39,9 +39,7 @@ export function SectionHeader({
             {subtitle}
           </Text>
         )}
-        <Text className="font-playfair-bold text-lg text-foreground-heading">
-          {title}
-        </Text>
+        <Text className="font-playfair-bold text-lg text-foreground-heading">{title}</Text>
       </View>
 
       {showSeeMore && onSeeMore && (

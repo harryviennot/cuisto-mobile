@@ -51,9 +51,7 @@ export function CookingHistoryEmpty({ variant = "full" }: CookingHistoryEmptyPro
         onPress={handleBrowseRecipes}
         className="mt-6 bg-primary rounded-full px-6 py-3 active:opacity-90"
       >
-        <Text className="text-white font-semibold text-sm">
-          {t("cookingHistory.empty.cta")}
-        </Text>
+        <Text className="text-white font-semibold text-sm">{t("cookingHistory.empty.cta")}</Text>
       </Pressable>
     </View>
   );

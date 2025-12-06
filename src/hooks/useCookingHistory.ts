@@ -4,12 +4,7 @@
  * Provides hooks for fetching and managing cooking history data
  * with React Query for caching and automatic refetching.
  */
-import {
-  useQuery,
-  useInfiniteQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { recipeService } from "@/api/services/recipe.service";
 import type {
   CookingHistoryEvent,
@@ -27,10 +22,7 @@ const COOKING_HISTORY_KEY = "cooking-history";
  * @param limit - Maximum number of items to fetch (default: 10)
  * @param options - Additional options like enabled
  */
-export function useCookingHistoryPreview(
-  limit: number = 10,
-  options?: { enabled?: boolean }
-) {
+export function useCookingHistoryPreview(limit: number = 10, options?: { enabled?: boolean }) {
   return useQuery<CookingHistoryEvent[], Error>({
     queryKey: [COOKING_HISTORY_KEY, "preview", limit],
     queryFn: () => recipeService.getCookingHistory(365, limit, 0),
@@ -85,11 +77,7 @@ export function useCookingHistoryInfinite(
 export function useMarkRecipeAsCooked() {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    { message: string },
-    Error,
-    { recipeId: string; params?: MarkCookedParams }
-  >({
+  return useMutation<{ message: string }, Error, { recipeId: string; params?: MarkCookedParams }>({
     mutationFn: async ({ recipeId, params }) => {
       return recipeService.markRecipeAsCooked(recipeId, params);
     },
@@ -154,10 +142,7 @@ export function useMarkRecipeAsCooked() {
 /**
  * Get cooking history query key for external cache manipulation
  */
-export function getCookingHistoryQueryKey(
-  type: "preview" | "full",
-  param?: number
-) {
+export function getCookingHistoryQueryKey(type: "preview" | "full", param?: number) {
   if (type === "preview") {
     return [COOKING_HISTORY_KEY, "preview", param ?? 10];
   }
@@ -219,17 +204,20 @@ export function useDeleteCookingEvent() {
       await queryClient.cancelQueries({ queryKey: [COOKING_HISTORY_KEY] });
 
       // Snapshot previous values for rollback
-      const previousPreview = queryClient.getQueryData<CookingHistoryEvent[]>(
-        [COOKING_HISTORY_KEY, "preview", 10]
-      );
-      const previousFull = queryClient.getQueryData<{ pages: CookingHistoryEvent[][] }>(
-        [COOKING_HISTORY_KEY, "full", 365]
-      );
+      const previousPreview = queryClient.getQueryData<CookingHistoryEvent[]>([
+        COOKING_HISTORY_KEY,
+        "preview",
+        10,
+      ]);
+      const previousFull = queryClient.getQueryData<{ pages: CookingHistoryEvent[][] }>([
+        COOKING_HISTORY_KEY,
+        "full",
+        365,
+      ]);
 
       // Optimistically remove event from preview cache
-      queryClient.setQueryData<CookingHistoryEvent[]>(
-        [COOKING_HISTORY_KEY, "preview", 10],
-        (old) => old?.filter((e) => e.event_id !== eventId)
+      queryClient.setQueryData<CookingHistoryEvent[]>([COOKING_HISTORY_KEY, "preview", 10], (old) =>
+        old?.filter((e) => e.event_id !== eventId)
       );
 
       // Optimistically remove event from full cache (infinite query)
@@ -239,9 +227,7 @@ export function useDeleteCookingEvent() {
           if (!old) return old;
           return {
             ...old,
-            pages: old.pages.map((page) =>
-              page.filter((e) => e.event_id !== eventId)
-            ),
+            pages: old.pages.map((page) => page.filter((e) => e.event_id !== eventId)),
           };
         }
       );
@@ -292,16 +278,10 @@ export function useDeleteCookingEvent() {
     onError: (_err, variables, context) => {
       // Rollback on error
       if (context?.previousPreview) {
-        queryClient.setQueryData(
-          [COOKING_HISTORY_KEY, "preview", 10],
-          context.previousPreview
-        );
+        queryClient.setQueryData([COOKING_HISTORY_KEY, "preview", 10], context.previousPreview);
       }
       if (context?.previousFull) {
-        queryClient.setQueryData(
-          [COOKING_HISTORY_KEY, "full", 365],
-          context.previousFull
-        );
+        queryClient.setQueryData([COOKING_HISTORY_KEY, "full", 365], context.previousFull);
       }
       // Invalidate to refetch correct state
       queryClient.invalidateQueries({ queryKey: [COOKING_HISTORY_KEY] });

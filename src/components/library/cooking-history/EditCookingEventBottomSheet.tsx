@@ -9,7 +9,7 @@ import { View, Text, Pressable, ActivityIndicator } from "react-native";
 import { useRef, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BottomSheetModal, BottomSheetBackdrop, BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import { X, Camera, Trash, ImageSquare, Star } from "phosphor-react-native";
+import { X, Camera, Trash, ImageSquare } from "phosphor-react-native";
 import { Image } from "expo-image";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -206,12 +206,9 @@ export function EditCookingEventBottomSheet({
 
           {/* Content */}
           <View className={`${isTablet ? "px-10" : "px-6"}`}>
-
             {/* Main Image Section - Hero Style */}
             <View className="mb-8 items-center">
-              <View
-                className="w-full aspect-[3/2] bg-stone-100 rounded-2xl overflow-hidden border border-border-light relative shadow-sm"
-              >
+              <View className="w-full aspect-[3/2] bg-stone-100 rounded-2xl overflow-hidden border border-border-light relative shadow-sm">
                 {isUploading ? (
                   <View className="absolute inset-0 items-center justify-center bg-stone-50">
                     <ActivityIndicator size="large" color="#334d43" />
@@ -265,7 +262,6 @@ export function EditCookingEventBottomSheet({
 
             {/* Form Fields - Clean Rows */}
             <View className="gap-6">
-
               {/* Date Input */}
               <View className="border-b border-border-light pb-4">
                 <Text className="text-xs font-bold text-foreground-tertiary uppercase tracking-widest mb-3">
@@ -278,9 +274,7 @@ export function EditCookingEventBottomSheet({
                   <Text className="text-lg font-medium text-foreground-heading font-serif">
                     {formatDate(date)}
                   </Text>
-                  <Text className="text-sm text-primary font-medium">
-                    {t("common.edit")}
-                  </Text>
+                  <Text className="text-sm text-primary font-medium">{t("common.edit")}</Text>
                 </Pressable>
               </View>
 
@@ -291,10 +285,12 @@ export function EditCookingEventBottomSheet({
                     {t("cookingHistory.ratingLabel")}
                   </Text>
                   {rating !== undefined && (
-                    <Pressable onPress={() => {
-                      setRating(undefined);
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    }}>
+                    <Pressable
+                      onPress={() => {
+                        setRating(undefined);
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      }}
+                    >
                       <Text className="text-xs text-foreground-muted">
                         {t("cookingHistory.clearRating")}
                       </Text>
@@ -315,7 +311,6 @@ export function EditCookingEventBottomSheet({
                   />
                 </View>
               </View>
-
             </View>
 
             {/* Action Buttons */}
@@ -351,7 +346,6 @@ export function EditCookingEventBottomSheet({
                 </Text>
               </Pressable>
             </View>
-
           </View>
         </BottomSheetScrollView>
       </BottomSheetModal>

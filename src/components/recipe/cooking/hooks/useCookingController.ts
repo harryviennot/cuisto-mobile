@@ -148,7 +148,6 @@ export const useCookingController = (recipe: Recipe) => {
       animations.nextStepAnim,
       animations.directionAnim,
       animations.contentOpacity,
-      recipe.id,
     ]
   );
 

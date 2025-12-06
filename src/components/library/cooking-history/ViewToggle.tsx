@@ -30,9 +30,7 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
       {/* Grid Button */}
       <Pressable
         onPress={() => handlePress("grid")}
-        className={`px-2.5 py-1.5 rounded-md ${
-          value === "grid" ? "bg-white shadow-sm" : ""
-        }`}
+        className={`px-2.5 py-1.5 rounded-md ${value === "grid" ? "bg-white shadow-sm" : ""}`}
         accessibilityRole="button"
         accessibilityLabel="Grid view"
         accessibilityState={{ selected: value === "grid" }}
@@ -47,9 +45,7 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
       {/* List Button */}
       <Pressable
         onPress={() => handlePress("list")}
-        className={`px-2.5 py-1.5 rounded-md ${
-          value === "list" ? "bg-white shadow-sm" : ""
-        }`}
+        className={`px-2.5 py-1.5 rounded-md ${value === "list" ? "bg-white shadow-sm" : ""}`}
         accessibilityRole="button"
         accessibilityLabel="List view"
         accessibilityState={{ selected: value === "list" }}

@@ -105,10 +105,7 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
         console.log("[FinishedScreen] Photo uploaded successfully:", result.url);
       } catch (error) {
         console.error("Failed to upload cooking photo:", error);
-        Alert.alert(
-          t("common.error"),
-          t("recipe.cookingMode.photoUploadFailed")
-        );
+        Alert.alert(t("common.error"), t("recipe.cookingMode.photoUploadFailed"));
         setCookingPhoto(null);
       } finally {
         setIsUploading(false);
@@ -119,10 +116,7 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
   const handleComplete = async () => {
     // Prevent closing while uploading
     if (isUploading) {
-      Alert.alert(
-        t("common.pleaseWait"),
-        t("recipe.cookingMode.uploadingPhoto")
-      );
+      Alert.alert(t("common.pleaseWait"), t("recipe.cookingMode.uploadingPhoto"));
       return;
     }
 
@@ -130,7 +124,14 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
 
     // Get cooking duration from session
     const durationMinutes = getElapsedMinutes();
-    console.log("[FinishedScreen] handleComplete - durationMinutes:", durationMinutes, "rating:", ratingRef.current, "imageUrl:", uploadedPhotoUrl);
+    console.log(
+      "[FinishedScreen] handleComplete - durationMinutes:",
+      durationMinutes,
+      "rating:",
+      ratingRef.current,
+      "imageUrl:",
+      uploadedPhotoUrl
+    );
 
     // Mark recipe as cooked with rating, duration, and photo
     try {
@@ -239,9 +240,7 @@ export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose 
                 onPress={handleTakePhoto}
                 disabled={isUploading}
                 className={`flex-1 flex-row items-center justify-center gap-2 py-3 rounded-xl border ${
-                  cookingPhoto
-                    ? "bg-primary/20 border-primary/30"
-                    : "bg-white/10 border-white/5"
+                  cookingPhoto ? "bg-primary/20 border-primary/30" : "bg-white/10 border-white/5"
                 } ${isUploading ? "opacity-50" : "active:bg-white/20"}`}
               >
                 {isUploading ? (

@@ -143,10 +143,7 @@ export const recipeService = {
         }
       : undefined;
 
-    const response = await api.post<{ message: string }>(
-      `/recipes/${recipeId}/cooked`,
-      body
-    );
+    const response = await api.post<{ message: string }>(`/recipes/${recipeId}/cooked`, body);
     return response.data;
   },
 
@@ -209,9 +206,7 @@ export const recipeService = {
    * @returns Success message
    */
   deleteCookingEvent: async (eventId: string): Promise<{ message: string }> => {
-    const response = await api.delete<{ message: string }>(
-      `/recipes/cooking-events/${eventId}`
-    );
+    const response = await api.delete<{ message: string }>(`/recipes/cooking-events/${eventId}`);
     return response.data;
   },
 };

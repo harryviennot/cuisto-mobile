@@ -5,9 +5,8 @@
  * Includes section header with "See more" button and a horizontal FlatList.
  */
 import React from "react";
-import { View, FlatList, StyleProp, ViewStyle, TouchableOpacity } from "react-native";
+import { View, FlatList, StyleProp, ViewStyle, TouchableOpacity, Text } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Text } from "react-native";
 import { CookingHistoryCard, CookingHistoryCardSkeleton } from "./CookingHistoryCard";
 import { useCookingHistoryPreview } from "@/hooks/useCookingHistory";
 import type { CookingHistoryEvent } from "@/types/cookingHistory";
@@ -76,12 +75,8 @@ export function CookingHistoryPreview({
         </Text>
         <View className="h-px flex-1 bg-border-light" />
         {onSeeMore && (
-          <TouchableOpacity
-            onPress={onSeeMore}
-          >
-            <Text className="text-xs font-bold text-primary ">
-              {t("cookingHistory.seeMore")}
-            </Text>
+          <TouchableOpacity onPress={onSeeMore}>
+            <Text className="text-xs font-bold text-primary ">{t("cookingHistory.seeMore")}</Text>
           </TouchableOpacity>
         )}
       </View>
