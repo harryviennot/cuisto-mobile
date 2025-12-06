@@ -8,7 +8,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ArrowLeft } from "phosphor-react-native";
+import { ArrowLeftIcon } from "phosphor-react-native";
 import Animated, {
   useAnimatedStyle,
   useAnimatedProps,
@@ -37,6 +37,10 @@ export interface UnifiedStickyHeaderProps {
   rightElement?: React.ReactNode;
   /** Whether to show border at bottom (default: true) */
   showBorder?: boolean;
+  /** Whether to show backdrop behind buttons before header is scrolled (default: false) */
+  showButtonBackdrop?: boolean;
+  /** Whether the right element is always visible or fades in with the header (default: false) */
+  rightElementAlwaysVisible?: boolean;
 }
 
 export function UnifiedStickyHeader({
@@ -48,6 +52,8 @@ export function UnifiedStickyHeader({
   leftElement,
   rightElement,
   showBorder = true,
+  showButtonBackdrop = false,
+  rightElementAlwaysVisible = false,
 }: UnifiedStickyHeaderProps) {
   const insets = useSafeAreaInsets();
 
@@ -71,8 +77,8 @@ export function UnifiedStickyHeader({
     ),
   }));
 
-  // Animated styles for header title (fade in + slide up)
-  // Title animation starts slightly after background for staggered effect
+  // Animated styles for header title and right element (fade in + slide up)
+  // Animation starts slightly after background for staggered effect
   const titleThresholdStart = scrollThresholdStart + 60;
   const titleThresholdEnd = scrollThresholdEnd + 20;
 
@@ -95,22 +101,42 @@ export function UnifiedStickyHeader({
     ],
   }));
 
-  // Default back button
+  // Animated styles for button backdrop (fades out as header fades in)
+  const buttonBackdropStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scrollY.value,
+      [scrollThresholdStart, scrollThresholdEnd],
+      [1, 0],
+      Extrapolation.CLAMP
+    ),
+  }));
+
+  // Default back button with optional backdrop
   const defaultLeftElement = onBackPress ? (
-    <TouchableOpacity
-      onPress={onBackPress}
-      className="w-10 h-10 rounded-full items-center justify-center z-20"
-      activeOpacity={0.7}
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-      }}
-    >
-      <ArrowLeft size={24} color="#334d43" weight="bold" />
-    </TouchableOpacity>
+    <View className="w-11 h-11 items-center justify-center">
+      {showButtonBackdrop && (
+        <Animated.View
+          className="absolute w-11 h-11 rounded-full"
+          style={[
+            {
+              backgroundColor: "#f4f1e8",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.15,
+              shadowRadius: 3,
+            },
+            buttonBackdropStyle,
+          ]}
+        />
+      )}
+      <TouchableOpacity
+        onPress={onBackPress}
+        className="w-11 h-11 rounded-full items-center justify-center"
+        activeOpacity={0.7}
+      >
+        <ArrowLeftIcon size={24} color="#334d43" weight="bold" />
+      </TouchableOpacity>
+    </View>
   ) : (
     <View className="w-10" /> // Spacer when no left element
   );
@@ -190,17 +216,19 @@ export function UnifiedStickyHeader({
         }}
       >
         {/* Left Element */}
-        {leftElement !== undefined ? leftElement : defaultLeftElement}
+        <View className="z-30">
+          {leftElement !== undefined ? leftElement : defaultLeftElement}
+        </View>
 
-        {/* Center Title (optional) */}
+        {/* Center Title (optional) - constrained to not overlap buttons */}
         {title && (
           <Animated.View
             style={[
               headerTitleStyle,
               {
                 position: "absolute",
-                left: 0,
-                right: 0,
+                left: 60, // Leave space for left button
+                right: 60, // Leave space for right button
                 bottom: 12, // Match paddingBottom
                 alignItems: "center",
                 justifyContent: "center",
@@ -209,17 +237,40 @@ export function UnifiedStickyHeader({
             ]}
             pointerEvents="none"
           >
-            <Text className="text-xl text-foreground-heading" numberOfLines={1}>
+            <Text
+              className="text-xl text-foreground-heading"
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {title}
             </Text>
           </Animated.View>
         )}
 
-        {/* Right Element - fades in with title */}
+        {/* Right Element - optionally fades in with title, with optional backdrop */}
         {rightElement ? (
-          <Animated.View style={[headerTitleStyle, { zIndex: 20 }]}>
-            {rightElement}
-          </Animated.View>
+          <View className="z-30 items-center justify-center">
+            {showButtonBackdrop && (
+              <Animated.View
+                className="absolute w-11 h-11 rounded-full"
+                style={[
+                  {
+                    backgroundColor: "#f4f1e8",
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 3,
+                  },
+                  buttonBackdropStyle,
+                ]}
+              />
+            )}
+            {rightElementAlwaysVisible ? (
+              <View>{rightElement}</View>
+            ) : (
+              <Animated.View style={[headerTitleStyle]}>{rightElement}</Animated.View>
+            )}
+          </View>
         ) : (
           <View className="w-10" /> // Spacer to balance left element if no right element
         )}

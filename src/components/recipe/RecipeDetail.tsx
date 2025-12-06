@@ -344,24 +344,19 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
             onBackPress={!isDraft ? onBack : undefined}
             scrollThresholdStart={scrollThresholdStart}
             scrollThresholdEnd={scrollThresholdEnd}
+            showButtonBackdrop={true}
             rightElement={
               !isDraft ? (
                 <TouchableOpacity
                   onPress={() => setIsActionsModalVisible(true)}
-                  className="w-10 h-10 rounded-full items-center justify-center"
+                  className="w-11 h-11 rounded-full items-center justify-center"
                   activeOpacity={0.7}
-                  style={{
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 4,
-                    elevation: 3,
-                  }}
                 >
                   <DotsThreeIcon size={24} color="#334d43" weight="bold" />
                 </TouchableOpacity>
               ) : undefined
             }
+            rightElementAlwaysVisible={true}
           />
         )}
 
