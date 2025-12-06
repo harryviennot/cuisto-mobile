@@ -5,7 +5,7 @@
  * Shows thumbnail, recipe title, date, rating, duration, and times cooked.
  * Supports swipe actions for edit and delete (both on right side).
  */
-import React, { useState, useRef, useImperativeHandle, forwardRef } from "react";
+import React, { useState, useRef, useImperativeHandle, forwardRef, memo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
@@ -75,10 +75,9 @@ function RightActions({ onEdit, onDelete }: { onEdit: () => void; onDelete: () =
   );
 }
 
-export const CookingHistoryListItem = forwardRef<
-  CookingHistoryListItemHandle,
-  CookingHistoryListItemProps
->(function CookingHistoryListItem({ event, onEdit, onDelete, openSwipeableRef }, ref) {
+export const CookingHistoryListItem = memo(
+  forwardRef<CookingHistoryListItemHandle, CookingHistoryListItemProps>(
+    function CookingHistoryListItem({ event, onEdit, onDelete, openSwipeableRef }, ref) {
   const [imageLoading, setImageLoading] = useState(true);
   const swipeableRef = useRef<SwipeableMethods>(null);
 
@@ -263,7 +262,9 @@ export const CookingHistoryListItem = forwardRef<
       </ReanimatedSwipeable>
     </Animated.View>
   );
-});
+    }
+  )
+);
 
 /**
  * Skeleton loader for CookingHistoryListItem

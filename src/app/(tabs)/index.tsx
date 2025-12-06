@@ -1,21 +1,34 @@
 import { useTranslation } from "react-i18next";
-import { View, Text, ActivityIndicator, Pressable } from "react-native";
+import { View, Text, ActivityIndicator, Pressable, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCallback } from "react";
 import { PlusIcon, WarningIcon } from "phosphor-react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { BlurView } from "expo-blur";
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import { SearchButton } from "@/components/home/SearchButton";
 import { MasonryGrid } from "@/components/home/MasonryGrid";
 import { useRecipes } from "@/hooks/useRecipes";
 import { useAuth } from "@/contexts/AuthContext";
+
+// Header height for scroll calculations
+const HEADER_CONTENT_HEIGHT = 120;
 
 export default function Index() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuth();
+
+  // Scroll tracking for header animation
+  const scrollY = useSharedValue(0);
+  const lastScrollY = useSharedValue(0);
+  const headerTranslateY = useSharedValue(0);
 
   // Use recipes hook for all recipes view
   // Only fetch when authenticated to prevent requests during auth redirect
@@ -29,6 +42,42 @@ export default function Index() {
     refetch,
     isRefetching,
   } = useRecipes({ enabled: isAuthenticated });
+
+  // Scroll handler for header hide/show
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      const currentY = event.contentOffset.y;
+      const diff = currentY - lastScrollY.value;
+
+      // Only start hiding after scrolling past the header
+      if (currentY > HEADER_CONTENT_HEIGHT) {
+        // Scrolling down - hide header
+        if (diff > 0) {
+          headerTranslateY.value = Math.max(
+            headerTranslateY.value - diff,
+            -(HEADER_CONTENT_HEIGHT + insets.top)
+          );
+        }
+        // Scrolling up - show header
+        else if (diff < 0) {
+          headerTranslateY.value = Math.min(headerTranslateY.value - diff, 0);
+        }
+      } else {
+        // Near top - always show header
+        headerTranslateY.value = 0;
+      }
+
+      lastScrollY.value = currentY;
+      scrollY.value = currentY;
+    },
+  });
+
+  // Animated style for the header
+  const headerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: headerTranslateY.value }],
+    };
+  });
 
   // Handle pull-to-refresh
   const handleRefresh = useCallback(async () => {
@@ -121,9 +170,11 @@ export default function Index() {
     </View>
   );
 
+  const totalHeaderHeight = HEADER_CONTENT_HEIGHT + insets.top;
+
   return (
     <View className="flex-1 bg-surface">
-      {/* Recipe Grid with Sticky Header */}
+      {/* Recipe Grid */}
       <MasonryGrid
         recipes={uniqueRecipes}
         refreshing={isRefetching}
@@ -131,24 +182,28 @@ export default function Index() {
         onEndReached={handleEndReached}
         showLoadingFooter={isFetchingNextPage}
         ListEmptyComponent={EmptyComponent}
+        onScroll={scrollHandler}
         contentContainerStyle={{
-          paddingTop: insets.top, // Push content down so it starts below safe area
+          paddingTop: totalHeaderHeight,
           paddingBottom: 100,
         }}
-        stickyHeaderIndices={[0]}
-        stickyHeaderHiddenOnScroll={true}
-        refreshControlOffset={insets.top}
-        ListHeaderComponent={
-          <BlurView
-            intensity={50}
-            tint="light"
-            style={{
-              paddingTop: insets.top, // Extend blur upward to cover safe area
-              marginTop: -insets.top, // Pull it up to start at the very top
-              paddingHorizontal: 16,
-              paddingBottom: 16,
-            }}
-          >
+      />
+
+      {/* Animated Sticky Header */}
+      <Animated.View
+        style={[
+          styles.headerContainer,
+          { paddingTop: insets.top },
+          headerAnimatedStyle,
+        ]}
+        pointerEvents="box-none"
+      >
+        <BlurView
+          intensity={80}
+          tint="light"
+          style={[styles.headerBlur, { paddingTop: insets.top }]}
+        >
+          <View style={styles.headerContent}>
             <Text
               className="text-5xl font-playfair-bold leading-tight text-foreground-heading mb-4"
               style={{
@@ -164,24 +219,41 @@ export default function Index() {
               onPress={handleSearchPress}
               placeholder={t("search.placeholder", "Search recipes...")}
             />
-          </BlurView>
-        }
-      />
+          </View>
+        </BlurView>
+      </Animated.View>
 
       {/* Always-visible BlurView for safe area - stays on top even when header hides */}
       <BlurView
         intensity={50}
         tint="light"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: insets.top,
-          zIndex: 10, // Ensure it's above the refresh control
-        }}
-        pointerEvents="box-none" // Allow touches through but keep blur visible
+        style={[styles.safeAreaBlur, { height: insets.top }]}
+        pointerEvents="none"
       />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  headerContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 5,
+  },
+  headerBlur: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+  headerContent: {
+    // Content styling
+  },
+  safeAreaBlur: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+});

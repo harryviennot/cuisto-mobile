@@ -1,14 +1,14 @@
-import {
-  View,
-  RefreshControl,
-  ActivityIndicator,
-  Platform,
-  useWindowDimensions,
-} from "react-native";
+import { View, ActivityIndicator, Platform, useWindowDimensions } from "react-native";
+import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import Animated from "react-native-reanimated";
-import { useMemo, type ReactElement } from "react";
+import { useMemo, useCallback, type ReactElement } from "react";
 import { RecipeCard } from "../recipe/RecipeCard";
 import type { Recipe } from "@/types/recipe";
+
+// Create Reanimated-wrapped FlashList for scroll animations
+const ReanimatedFlashList = Animated.createAnimatedComponent(
+  FlashList as React.ComponentType<any>
+);
 
 export interface MasonryGridProps {
   recipes: Recipe[];
@@ -22,9 +22,6 @@ export interface MasonryGridProps {
   ListEmptyComponent?: ReactElement;
   ListHeaderComponent?: ReactElement;
   contentContainerStyle?: any;
-  stickyHeaderIndices?: number[];
-  stickyHeaderHiddenOnScroll?: boolean;
-  refreshControlOffset?: number;
   /** Custom key extractor for recipes. Defaults to recipe.id */
   keyExtractor?: (recipe: Recipe) => string;
 }
@@ -35,15 +32,12 @@ export function MasonryGrid({
   refreshing = false,
   onRefresh,
   onEndReached,
-  onEndReachedThreshold = 100,
+  onEndReachedThreshold = 0.5,
   showLoadingFooter = false,
   onScroll,
   ListEmptyComponent,
   ListHeaderComponent,
   contentContainerStyle,
-  stickyHeaderIndices,
-  stickyHeaderHiddenOnScroll = false,
-  refreshControlOffset = 0,
   keyExtractor = (recipe) => recipe.id,
 }: MasonryGridProps) {
   const { width } = useWindowDimensions();
@@ -58,7 +52,7 @@ export function MasonryGrid({
     }
 
     // iPad: calculate based on width (max 5 columns)
-    // Assuming minimum column width of ~300px for good UX
+    // Assuming minimum column width of ~250px for good UX
     const minColumnWidth = 250;
     const padding = 32; // Account for horizontal padding
     const gap = 8; // Gap between columns
@@ -69,29 +63,35 @@ export function MasonryGrid({
     return Math.min(Math.max(calculatedColumns, 2), 5);
   }, [width]);
 
-  // Distribute recipes into columns for masonry layout
-  const columns = useMemo(() => {
-    const columnArrays: Recipe[][] = Array.from({ length: numColumns }, () => []);
-    const columnHeights: number[] = Array(numColumns).fill(0);
+  // Render item function - memoized for performance
+  // Wrap in View with padding for horizontal gaps between columns
+  const renderItem: ListRenderItem<Recipe> = useCallback(
+    ({ item, index }) => (
+      <View style={{
+        paddingBottom: 8,
+        paddingHorizontal: 8,
+      }}>
+        <RecipeCard recipe={item} index={index} />
+      </View>
+    ),
+    []
+  );
 
-    recipes.forEach((recipe) => {
-      // Generate consistent but varied heights based on recipe ID
-      const hash = recipe.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const heightVariations = [180, 200, 220, 240, 260, 280];
-      const baseHeight = heightVariations[hash % heightVariations.length];
-      const offset = (hash * 17) % 40;
-      const imageHeight = baseHeight + offset;
-      // Approximate total card height (image + metadata section)
-      const approxCardHeight = imageHeight + 120;
+  // Key extractor wrapped in useCallback
+  const getItemKey = useCallback(
+    (item: Recipe) => keyExtractor(item),
+    [keyExtractor]
+  );
 
-      // Find the shortest column and add recipe to it
-      const shortestColumnIndex = columnHeights.indexOf(Math.min(...columnHeights));
-      columnArrays[shortestColumnIndex].push(recipe);
-      columnHeights[shortestColumnIndex] += approxCardHeight;
-    });
-
-    return columnArrays;
-  }, [recipes, numColumns]);
+  // Loading footer component
+  const ListFooterComponent = useMemo(() => {
+    if (!showLoadingFooter) return null;
+    return (
+      <View className="py-4 items-center">
+        <ActivityIndicator size="small" color="#334d43" />
+      </View>
+    );
+  }, [showLoadingFooter]);
 
   // Show loading state
   if (loading && recipes.length === 0) {
@@ -107,59 +107,30 @@ export function MasonryGrid({
     return <View className="flex-1">{ListEmptyComponent}</View>;
   }
 
-  // Create data array for FlatList - single item containing all columns
-  const data = [{ id: "masonry-grid", columns }];
-
   return (
-    <Animated.FlatList
-      data={data}
-      keyExtractor={(item) => item.id}
+    <ReanimatedFlashList
+      data={recipes}
+      renderItem={renderItem}
+      keyExtractor={getItemKey}
+      numColumns={numColumns}
+      masonry
+      optimizeItemArrangement
       showsVerticalScrollIndicator={false}
       onScroll={onScroll}
       scrollEventThrottle={16}
-      contentContainerStyle={contentContainerStyle}
-      stickyHeaderIndices={stickyHeaderIndices}
-      stickyHeaderHiddenOnScroll={stickyHeaderHiddenOnScroll}
+      contentContainerStyle={{
+        paddingHorizontal: 12,
+        ...contentContainerStyle,
+      }}
       onEndReached={onEndReached}
-      onEndReachedThreshold={onEndReachedThreshold ? onEndReachedThreshold / 1000 : 0.1}
+      onEndReachedThreshold={onEndReachedThreshold}
       ListHeaderComponent={ListHeaderComponent}
-      refreshControl={
-        onRefresh ? (
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor="#334d43"
-            colors={["#334d43"]}
-            progressViewOffset={refreshControlOffset}
-          />
-        ) : undefined
-      }
-      renderItem={({ item }: { item: { id: string; columns: Recipe[][] } }) => (
-        <View className="flex-row p-4 gap-2">
-          {item.columns.map((columnRecipes, columnIndex) => (
-            <View
-              key={`column-${columnIndex}`}
-              className="flex-1 gap-2"
-              style={{ marginHorizontal: 4 }}
-            >
-              {columnRecipes.map((recipe, recipeIndex) => (
-                <RecipeCard
-                  key={keyExtractor(recipe)}
-                  recipe={recipe}
-                  index={columnIndex + recipeIndex * numColumns}
-                />
-              ))}
-            </View>
-          ))}
-        </View>
-      )}
-      ListFooterComponent={
-        showLoadingFooter ? (
-          <View className="py-4 items-center">
-            <ActivityIndicator size="small" color="#334d43" />
-          </View>
-        ) : null
-      }
+      ListHeaderComponentStyle={{
+        marginHorizontal: -12, // Counteract contentContainerStyle padding
+      }}
+      ListFooterComponent={ListFooterComponent}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
     />
   );
 }
