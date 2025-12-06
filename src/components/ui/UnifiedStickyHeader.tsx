@@ -113,7 +113,7 @@ export function UnifiedStickyHeader({
 
   // Default back button with optional backdrop
   const defaultLeftElement = onBackPress ? (
-    <View className="w-11 h-11 items-center justify-center">
+    <View className="h-11 items-center justify-center">
       {showButtonBackdrop && (
         <Animated.View
           className="absolute w-11 h-11 rounded-full"
@@ -138,7 +138,7 @@ export function UnifiedStickyHeader({
       </TouchableOpacity>
     </View>
   ) : (
-    <View className="w-10" /> // Spacer when no left element
+    <View className="w-10 h-11" /> // Spacer when no left element
   );
 
   return (
@@ -207,16 +207,16 @@ export function UnifiedStickyHeader({
       {/* Header Content (Overlay) */}
       <View
         style={{
-          paddingTop: insets.top,
+          marginTop: insets.top,
           paddingHorizontal: 16,
-          paddingBottom: 12,
+          marginBottom: 12,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
         }}
       >
         {/* Left Element */}
-        <View className="z-30">
+        <View className="z-30 w-11 h-11">
           {leftElement !== undefined ? leftElement : defaultLeftElement}
         </View>
 
@@ -229,7 +229,6 @@ export function UnifiedStickyHeader({
                 position: "absolute",
                 left: 60, // Leave space for left button
                 right: 60, // Leave space for right button
-                bottom: 12, // Match paddingBottom
                 alignItems: "center",
                 justifyContent: "center",
                 zIndex: 10,
@@ -249,7 +248,7 @@ export function UnifiedStickyHeader({
 
         {/* Right Element - optionally fades in with title, with optional backdrop */}
         {rightElement ? (
-          <View className="z-30 items-center justify-center">
+          <View className="z-30 items-center justify-center h-11">
             {showButtonBackdrop && (
               <Animated.View
                 className="absolute w-11 h-11 rounded-full"
@@ -275,6 +274,6 @@ export function UnifiedStickyHeader({
           <View className="w-10" /> // Spacer to balance left element if no right element
         )}
       </View>
-    </View>
+    </View >
   );
 }
