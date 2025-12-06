@@ -23,12 +23,12 @@ import Toast from "react-native-toast-message";
 import { useCollectionBySlug } from "@/hooks/useCollections";
 import { MasonryGrid } from "@/components/home/MasonryGrid";
 import {
-  CollectionStickyHeader,
   CollectionEmptyState,
   CollectionErrorState,
   CollectionLoadingSkeleton,
-  CollectionHeader,
 } from "@/components/library";
+import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
+import { PageHeader } from "@/components/ui/PageHeader";
 import type { CollectionRecipe } from "@/types/collection";
 import type { Recipe } from "@/types/recipe";
 
@@ -146,7 +146,7 @@ export default function CollectionDetailScreen() {
             onRefresh={handleRefresh}
             ListEmptyComponent={<CollectionEmptyState {...emptyStateProps} />}
             ListHeaderComponent={
-              <CollectionHeader
+              <PageHeader
                 subtitle={collectionSubtitle}
                 title={collectionTitle}
                 topPadding={headerTopPadding}
@@ -158,7 +158,7 @@ export default function CollectionDetailScreen() {
         )}
       </Animated.View>
 
-      <CollectionStickyHeader title={collectionTitle} scrollY={scrollY} onBackPress={handleBack} />
+      <UnifiedStickyHeader title={collectionTitle} scrollY={scrollY} onBackPress={handleBack} />
     </View>
   );
 }

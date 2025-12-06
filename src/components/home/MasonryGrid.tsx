@@ -22,6 +22,14 @@ export interface MasonryGridProps {
   contentContainerStyle?: any;
   /** Custom key extractor for recipes. Defaults to recipe.id */
   keyExtractor?: (recipe: Recipe) => string;
+  /** Content inset for scroll view */
+  contentInset?: { top?: number; left?: number; bottom?: number; right?: number };
+  /** Initial content offset */
+  contentOffset?: { x: number; y: number };
+  /** Scroll indicator insets */
+  scrollIndicatorInsets?: { top?: number; left?: number; bottom?: number; right?: number };
+  /** Progress view offset for refresh control */
+  progressViewOffset?: number;
 }
 
 export function MasonryGrid({
@@ -37,6 +45,10 @@ export function MasonryGrid({
   ListHeaderComponent,
   contentContainerStyle,
   keyExtractor = (recipe) => recipe.id,
+  contentInset,
+  contentOffset,
+  scrollIndicatorInsets,
+  progressViewOffset,
 }: MasonryGridProps) {
   const { width } = useWindowDimensions();
 
@@ -128,6 +140,10 @@ export function MasonryGrid({
       ListFooterComponent={ListFooterComponent}
       refreshing={refreshing}
       onRefresh={onRefresh}
+      contentInset={contentInset}
+      contentOffset={contentOffset}
+      scrollIndicatorInsets={scrollIndicatorInsets}
+      progressViewOffset={progressViewOffset}
     />
   );
 }

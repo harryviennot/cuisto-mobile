@@ -1,23 +1,27 @@
+/**
+ * Home Screen
+ *
+ * Displays the user's recipe collection in a masonry grid layout.
+ * Features animated sticky header with blur effect on scroll.
+ */
 import { useTranslation } from "react-i18next";
-import { View, Text, ActivityIndicator, Pressable, StyleSheet } from "react-native";
+import { View, Text, ActivityIndicator, Pressable, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useCallback } from "react";
-import { PlusIcon, WarningIcon } from "phosphor-react-native";
+import { useCallback, useMemo } from "react";
+import { PlusIcon, WarningIcon, MagnifyingGlassIcon } from "phosphor-react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { BlurView } from "expo-blur";
-import Animated, {
+import {
   useAnimatedScrollHandler,
   useSharedValue,
-  useAnimatedStyle,
+  useDerivedValue,
 } from "react-native-reanimated";
-import { SearchButton } from "@/components/home/SearchButton";
+
 import { MasonryGrid } from "@/components/home/MasonryGrid";
 import { useRecipes } from "@/hooks/useRecipes";
 import { useAuth } from "@/contexts/AuthContext";
-
-// Header height for scroll calculations
-const HEADER_CONTENT_HEIGHT = 120;
+import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export default function Index() {
   const { t } = useTranslation();
@@ -27,8 +31,6 @@ export default function Index() {
 
   // Scroll tracking for header animation
   const scrollY = useSharedValue(0);
-  const lastScrollY = useSharedValue(0);
-  const headerTranslateY = useSharedValue(0);
 
   // Use recipes hook for all recipes view
   // Only fetch when authenticated to prevent requests during auth redirect
@@ -43,40 +45,19 @@ export default function Index() {
     isRefetching,
   } = useRecipes({ enabled: isAuthenticated });
 
-  // Scroll handler for header hide/show
+  // Scroll handler for header animation
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
-      const currentY = event.contentOffset.y;
-      const diff = currentY - lastScrollY.value;
-
-      // Only start hiding after scrolling past the header
-      if (currentY > HEADER_CONTENT_HEIGHT) {
-        // Scrolling down - hide header
-        if (diff > 0) {
-          headerTranslateY.value = Math.max(
-            headerTranslateY.value - diff,
-            -(HEADER_CONTENT_HEIGHT + insets.top)
-          );
-        }
-        // Scrolling up - show header
-        else if (diff < 0) {
-          headerTranslateY.value = Math.min(headerTranslateY.value - diff, 0);
-        }
-      } else {
-        // Near top - always show header
-        headerTranslateY.value = 0;
-      }
-
-      lastScrollY.value = currentY;
-      scrollY.value = currentY;
+      scrollY.value = event.contentOffset.y;
     },
   });
 
-  // Animated style for the header
-  const headerAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: headerTranslateY.value }],
-    };
+  // 52 is roughly the height of UnifiedStickyHeader content (40px button + 12px paddingBottom)
+  const headerTopPadding = insets.top + 28;
+
+  // Adjust scrollY for the header animation because contentInset shifts the origin
+  const adjustedScrollY = useDerivedValue(() => {
+    return scrollY.value + headerTopPadding;
   });
 
   // Handle pull-to-refresh
@@ -119,6 +100,29 @@ export default function Index() {
     });
     await refetch();
   }, [refetch, queryClient]);
+
+  // Header icon (shared between PageHeader and UnifiedStickyHeader)
+  const headerRightElement = useMemo(
+    () => (
+      <TouchableOpacity onPress={handleSearchPress} activeOpacity={0.7}>
+        <MagnifyingGlassIcon size={24} color="#3a3226" weight="bold" />
+      </TouchableOpacity>
+    ),
+    [handleSearchPress]
+  );
+
+  // Large header component
+  const ListHeaderComponent = useMemo(
+    () => (
+      <PageHeader
+        subtitle={t("home.subtitle", "HOME")}
+        title={t("home.title", "My Recipes")}
+        topPadding={0} // Content handled by contentInset
+        rightElement={headerRightElement}
+      />
+    ),
+    [t, headerRightElement]
+  );
 
   // Loading state (initial load)
   if (isLoading) {
@@ -170,8 +174,6 @@ export default function Index() {
     </View>
   );
 
-  const totalHeaderHeight = HEADER_CONTENT_HEIGHT + insets.top;
-
   return (
     <View className="flex-1 bg-surface">
       {/* Recipe Grid */}
@@ -182,74 +184,23 @@ export default function Index() {
         onEndReached={handleEndReached}
         showLoadingFooter={isFetchingNextPage}
         ListEmptyComponent={EmptyComponent}
+        ListHeaderComponent={ListHeaderComponent}
         onScroll={scrollHandler}
+        contentInset={{ top: headerTopPadding }}
+        contentOffset={{ x: 0, y: -headerTopPadding }}
+        scrollIndicatorInsets={{ top: headerTopPadding }}
         contentContainerStyle={{
-          paddingTop: totalHeaderHeight,
           paddingBottom: 100,
         }}
       />
 
       {/* Animated Sticky Header */}
-      <Animated.View
-        style={[styles.headerContainer, { paddingTop: insets.top }, headerAnimatedStyle]}
-        pointerEvents="box-none"
-      >
-        <BlurView
-          intensity={80}
-          tint="light"
-          style={[styles.headerBlur, { paddingTop: insets.top }]}
-        >
-          <View style={styles.headerContent}>
-            <Text
-              className="text-5xl font-playfair-bold leading-tight text-foreground-heading mb-4"
-              style={{
-                fontFamily: "PlayfairDisplay_500Medium",
-                textShadowColor: "rgba(0, 0, 0, 0.03)",
-                textShadowOffset: { width: 1, height: 1 },
-                textShadowRadius: 1,
-              }}
-            >
-              My Recipes
-            </Text>
-            <SearchButton
-              onPress={handleSearchPress}
-              placeholder={t("search.placeholder", "Search recipes...")}
-            />
-          </View>
-        </BlurView>
-      </Animated.View>
-
-      {/* Always-visible BlurView for safe area - stays on top even when header hides */}
-      <BlurView
-        intensity={50}
-        tint="light"
-        style={[styles.safeAreaBlur, { height: insets.top }]}
-        pointerEvents="none"
+      <UnifiedStickyHeader
+        title={t("home.title", "My Recipes")}
+        scrollY={adjustedScrollY}
+        leftElement={<View className="w-10" />} // No back button on tab screen
+        rightElement={headerRightElement}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  headerContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 5,
-  },
-  headerBlur: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  headerContent: {
-    // Content styling
-  },
-  safeAreaBlur: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-  },
-});
