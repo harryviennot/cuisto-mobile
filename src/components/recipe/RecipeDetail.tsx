@@ -3,7 +3,7 @@
  * Uses split components for better maintainability and performance
  */
 import React, { useState, useEffect, memo } from "react";
-import { View, ScrollView, Alert } from "react-native";
+import { View, ScrollView, Alert, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedScrollHandler,
@@ -12,7 +12,13 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import { ShareNetworkIcon, PencilIcon, TrashIcon, Bookmark } from "phosphor-react-native";
+import {
+  ShareNetworkIcon,
+  PencilIcon,
+  TrashIcon,
+  Bookmark,
+  DotsThreeIcon,
+} from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,7 +26,7 @@ import { useDeleteRecipe } from "@/hooks/useRecipes";
 import { useToggleFavorite } from "@/hooks/useCollections";
 
 import type { Recipe } from "@/types/recipe";
-import { AnimatedPageHeader } from "@/components/ui/AnimatedPageHeader";
+import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ActionSheet } from "@/components/ui/ActionSheet";
@@ -132,16 +138,11 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     return (
       <View className="flex-1 bg-surface">
         {showHeader && (
-          <AnimatedPageHeader
-            title=""
+          <UnifiedStickyHeader
             scrollY={scrollY}
             onBackPress={onBack}
-            animationConfig={{
-              scrollThresholdStart: 200,
-              scrollThresholdEnd: 244,
-              titleTranslateYStart: 16,
-              titleTranslateYEnd: 0,
-            }}
+            scrollThresholdStart={0}
+            scrollThresholdEnd={100}
           />
         )}
         <ErrorState
@@ -343,17 +344,25 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     <View className="flex-1 bg-black">
       <Animated.View className="flex-1 bg-surface" style={detailAnimatedStyle}>
         {showHeader && (
-          <AnimatedPageHeader
+          <UnifiedStickyHeader
             title={displayRecipe.title}
             scrollY={scrollY}
             onBackPress={!isDraft ? onBack : undefined}
-            onMenuPress={!isDraft ? () => setIsActionsModalVisible(true) : undefined}
-            animationConfig={{
-              scrollThresholdStart,
-              scrollThresholdEnd,
-              titleTranslateYStart: 16,
-              titleTranslateYEnd: 0,
-            }}
+            scrollThresholdStart={scrollThresholdStart}
+            scrollThresholdEnd={scrollThresholdEnd}
+            showButtonBackdrop={true}
+            rightElement={
+              !isDraft ? (
+                <TouchableOpacity
+                  onPress={() => setIsActionsModalVisible(true)}
+                  className="w-11 h-11 rounded-full items-center justify-center"
+                  activeOpacity={0.7}
+                >
+                  <DotsThreeIcon size={24} color="#334d43" weight="bold" />
+                </TouchableOpacity>
+              ) : undefined
+            }
+            rightElementAlwaysVisible={true}
           />
         )}
 

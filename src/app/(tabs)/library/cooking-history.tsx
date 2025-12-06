@@ -26,11 +26,9 @@ import {
   useDeleteCookingEvent,
 } from "@/hooks/useCookingHistory";
 import type { CookingHistoryEvent, UpdateCookingEventParams } from "@/types/cookingHistory";
-import {
-  CollectionStickyHeader,
-  CollectionErrorState,
-  CollectionHeader,
-} from "@/components/library";
+import { CollectionErrorState } from "@/components/library";
+import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
+import { PageHeader } from "@/components/ui/PageHeader";
 import {
   CookingHistoryListItem,
   CookingHistoryListItemSkeleton,
@@ -167,7 +165,7 @@ export default function CookingHistoryScreen() {
     setSelectedEvent(null);
   }, []);
 
-  // 52 is roughly the height of CollectionStickyHeader content (40px button + 12px paddingBottom)
+  // 52 is roughly the height of UnifiedStickyHeader content (40px button + 12px paddingBottom)
   const headerTopPadding = insets.top + 47;
 
   // Adjust scrollY for the header animation because contentInset shifts the origin
@@ -179,7 +177,7 @@ export default function CookingHistoryScreen() {
   const ListHeaderComponent = useMemo(
     () => (
       <View>
-        <CollectionHeader
+        <PageHeader
           subtitle={t("cookingHistory.subtitle") || "RECENTLY COOKED"}
           title={t("cookingHistory.title")}
           topPadding={0} // Content handled by contentInset
@@ -278,7 +276,7 @@ export default function CookingHistoryScreen() {
         )}
       </Animated.View>
 
-      <CollectionStickyHeader
+      <UnifiedStickyHeader
         title={t("cookingHistory.title")}
         scrollY={adjustedScrollY}
         onBackPress={handleBack}

@@ -12,8 +12,5 @@ export type { CollectionErrorStateProps } from "./CollectionErrorState";
 export { CollectionLoadingSkeleton } from "./CollectionLoadingSkeleton";
 export type { CollectionLoadingSkeletonProps } from "./CollectionLoadingSkeleton";
 
-export { CollectionStickyHeader } from "./CollectionStickyHeader";
-export type { CollectionStickyHeaderProps } from "./CollectionStickyHeader";
-
 export * from "./constants";
 export * from "./utils";
