@@ -12,7 +12,13 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import { ShareNetworkIcon, PencilIcon, TrashIcon, Bookmark, DotsThreeIcon } from "phosphor-react-native";
+import {
+  ShareNetworkIcon,
+  PencilIcon,
+  TrashIcon,
+  Bookmark,
+  DotsThreeIcon,
+} from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { useAuth } from "@/contexts/AuthContext";

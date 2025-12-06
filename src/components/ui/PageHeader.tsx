@@ -19,12 +19,7 @@ export interface PageHeaderProps {
   rightElement?: React.ReactNode;
 }
 
-export function PageHeader({
-  title,
-  subtitle,
-  topPadding,
-  rightElement,
-}: PageHeaderProps) {
+export function PageHeader({ title, subtitle, topPadding, rightElement }: PageHeaderProps) {
   return (
     <View
       style={{

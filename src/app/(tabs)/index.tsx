@@ -11,11 +11,7 @@ import { useCallback, useMemo } from "react";
 import { PlusIcon, WarningIcon, MagnifyingGlassIcon } from "phosphor-react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
-import {
-  useAnimatedScrollHandler,
-  useSharedValue,
-  useDerivedValue,
-} from "react-native-reanimated";
+import { useAnimatedScrollHandler, useSharedValue, useDerivedValue } from "react-native-reanimated";
 
 import { MasonryGrid } from "@/components/home/MasonryGrid";
 import { useRecipes } from "@/hooks/useRecipes";

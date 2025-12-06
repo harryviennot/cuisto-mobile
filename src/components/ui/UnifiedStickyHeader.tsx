@@ -274,6 +274,6 @@ export function UnifiedStickyHeader({
           <View className="w-10" /> // Spacer to balance left element if no right element
         )}
       </View>
-    </View >
+    </View>
   );
 }
