@@ -189,19 +189,25 @@ export default function CookingHistoryScreen() {
     [t]
   );
 
+  // Stable ref callback to avoid creating new functions per render
+  const setItemRef = useCallback(
+    (eventId: string, ref: CookingHistoryListItemHandle | null) => {
+      if (ref) {
+        itemRefsMap.current.set(eventId, ref);
+      } else {
+        itemRefsMap.current.delete(eventId);
+      }
+    },
+    []
+  );
+
   // Render list item
   const renderItem = useCallback(
     ({ item }: { item: unknown }) => {
       const event = item as CookingHistoryEvent;
       return (
         <CookingHistoryListItem
-          ref={(ref) => {
-            if (ref) {
-              itemRefsMap.current.set(event.event_id, ref);
-            } else {
-              itemRefsMap.current.delete(event.event_id);
-            }
-          }}
+          ref={(ref) => setItemRef(event.event_id, ref)}
           event={event}
           openSwipeableRef={openSwipeableRef}
           onEdit={handleEdit}
@@ -209,7 +215,7 @@ export default function CookingHistoryScreen() {
         />
       );
     },
-    [handleEdit, handleDelete]
+    [handleEdit, handleDelete, setItemRef]
   );
 
   // Render section header
@@ -252,6 +258,12 @@ export default function CookingHistoryScreen() {
             scrollEventThrottle={16}
             onEndReached={handleEndReached}
             onEndReachedThreshold={0.5}
+            // Performance optimizations
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            initialNumToRender={10}
+            updateCellsBatchingPeriod={50}
             // Use contentInset to handle sticky header offset below navbar
             contentInset={{ top: headerTopPadding }}
             contentOffset={{ x: 0, y: -headerTopPadding }}
