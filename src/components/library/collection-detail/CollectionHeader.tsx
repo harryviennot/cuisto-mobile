@@ -14,9 +14,16 @@ export interface CollectionHeaderProps {
   title: string;
   /** Top padding (usually safe area + sticky header height) */
   topPadding: number;
+  /** Optional element to render on the right side of the header */
+  rightElement?: React.ReactNode;
 }
 
-export function CollectionHeader({ subtitle, title, topPadding }: CollectionHeaderProps) {
+export function CollectionHeader({
+  subtitle,
+  title,
+  topPadding,
+  rightElement,
+}: CollectionHeaderProps) {
   return (
     <View
       style={{
@@ -28,9 +35,12 @@ export function CollectionHeader({ subtitle, title, topPadding }: CollectionHead
       <Text className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-tertiary mb-3">
         {subtitle}
       </Text>
-      <Text className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1]">
-        {title}
-      </Text>
+      <View className="flex-row items-center justify-between">
+        <Text className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1] flex-1">
+          {title}
+        </Text>
+        {rightElement}
+      </View>
     </View>
   );
 }

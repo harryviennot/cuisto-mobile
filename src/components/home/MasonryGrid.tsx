@@ -25,6 +25,8 @@ export interface MasonryGridProps {
   stickyHeaderIndices?: number[];
   stickyHeaderHiddenOnScroll?: boolean;
   refreshControlOffset?: number;
+  /** Custom key extractor for recipes. Defaults to recipe.id */
+  keyExtractor?: (recipe: Recipe) => string;
 }
 
 export function MasonryGrid({
@@ -42,6 +44,7 @@ export function MasonryGrid({
   stickyHeaderIndices,
   stickyHeaderHiddenOnScroll = false,
   refreshControlOffset = 0,
+  keyExtractor = (recipe) => recipe.id,
 }: MasonryGridProps) {
   const { width } = useWindowDimensions();
 
@@ -141,7 +144,7 @@ export function MasonryGrid({
             >
               {columnRecipes.map((recipe, recipeIndex) => (
                 <RecipeCard
-                  key={recipe.id}
+                  key={keyExtractor(recipe)}
                   recipe={recipe}
                   index={columnIndex + recipeIndex * numColumns}
                 />

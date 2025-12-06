@@ -3,13 +3,14 @@
  *
  * Displays user collections (All Recipes, Favorites) with a premium, editorial design.
  * System collections are hardcoded for instant rendering, with counts fetched async.
+ * Includes cooking history preview section.
  */
 import React, { useState } from "react";
 import { View, ScrollView, RefreshControl } from "react-native";
 import { router, Stack } from "expo-router";
 
 import { useCollectionCounts } from "@/hooks/useCollections";
-import { LibraryHeader, SmartCollectionCard } from "@/components/library";
+import { LibraryHeader, SmartCollectionCard, CookingHistoryPreview } from "@/components/library";
 
 export default function LibraryScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -31,7 +32,6 @@ export default function LibraryScreen() {
         className="flex-1"
         contentContainerStyle={{
           paddingTop: 16,
-          paddingHorizontal: 20,
           paddingBottom: 120, // space for tab bar
         }}
         showsVerticalScrollIndicator={false}
@@ -45,7 +45,7 @@ export default function LibraryScreen() {
         }
       >
         {/* Smart Collections Grid */}
-        <View className="flex-row gap-4">
+        <View className="flex-row gap-4 px-5">
           <SmartCollectionCard
             slug="extracted"
             count={counts?.extracted}
@@ -59,6 +59,12 @@ export default function LibraryScreen() {
             onPress={() => router.push("/library/collection/saved")}
           />
         </View>
+
+        {/* Cooking History Section */}
+        <CookingHistoryPreview
+          onSeeMore={() => router.push("/library/cooking-history")}
+          style={{ marginTop: 24 }}
+        />
       </ScrollView>
     </View>
   );

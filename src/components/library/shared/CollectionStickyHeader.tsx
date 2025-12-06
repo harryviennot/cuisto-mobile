@@ -27,12 +27,15 @@ export interface CollectionStickyHeaderProps {
   scrollY: SharedValue<number>;
   /** Callback when back button is pressed */
   onBackPress: () => void;
+  /** Optional element to display on the right side */
+  rightElement?: React.ReactNode;
 }
 
 export function CollectionStickyHeader({
   title,
   scrollY,
   onBackPress,
+  rightElement,
 }: CollectionStickyHeaderProps) {
   const insets = useSafeAreaInsets();
 
@@ -125,6 +128,7 @@ export function CollectionStickyHeader({
           paddingBottom: 12,
           flexDirection: "row",
           alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
         <TouchableOpacity
@@ -146,10 +150,13 @@ export function CollectionStickyHeader({
           style={[
             headerTitleStyle,
             {
-              flex: 1,
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 12, // Match paddingBottom
               alignItems: "center",
               justifyContent: "center",
-              marginRight: 40, // Balance the back button
+              zIndex: 10,
             },
           ]}
           pointerEvents="none"
@@ -158,6 +165,12 @@ export function CollectionStickyHeader({
             {title}
           </Text>
         </Animated.View>
+
+        {rightElement ? (
+          <View className="z-20">{rightElement}</View>
+        ) : (
+          <View className="w-10" /> // Spacer to balance back button if no right element
+        )}
       </View>
     </View>
   );

@@ -3,7 +3,6 @@ import { useWindowDimensions } from "react-native";
 import { withSpring, withTiming, runOnJS } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import type { Recipe } from "@/types/recipe";
-import { recipeService } from "@/api/services";
 import { useTimerManager } from "./useTimerManager";
 import { useStepNavigation } from "./useStepNavigation";
 import { useIngredientFiltering } from "./useIngredientFiltering";
@@ -66,17 +65,8 @@ export const useCookingController = (recipe: Recipe) => {
           );
         } else {
           // Finish Transition
-
-          // Mark recipe as cooked
-          const markAsCooked = async () => {
-            try {
-              await recipeService.markRecipeAsCooked(recipe.id);
-            } catch (error) {
-              // Log error but don't interrupt the user's celebration
-              console.error("Failed to mark recipe as cooked:", error);
-            }
-          };
-          runOnJS(markAsCooked)();
+          // Note: markRecipeAsCooked is called from FinishedScreen when user closes it,
+          // allowing us to capture the rating and cooking duration at completion time.
 
           // Custom Premium Haptic Pattern (~1s duration)
           // A "swell" effect inspired by soft haptics
@@ -158,7 +148,6 @@ export const useCookingController = (recipe: Recipe) => {
       animations.nextStepAnim,
       animations.directionAnim,
       animations.contentOpacity,
-      recipe.id,
     ]
   );
 

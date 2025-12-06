@@ -33,7 +33,11 @@
     "bonAppetit": "Bon Appétit !",
     "photo": "Photo",
     "share": "Partager",
-    "warning": "Attention"
+    "warning": "Attention",
+    "seeMore": "Voir plus",
+    "uploading": "Téléchargement...",
+    "pleaseWait": "Veuillez patienter",
+    "change": "Modifier"
   },
   "app": {
     "title": "CuiStudio",
@@ -182,7 +186,10 @@
       "mastered": "Vous avez maîtrisé",
       "completeSession": "A table !",
       "finishedMessage": "Félicitations ! Vous avez terminé {{title}}.",
-      "activeTimersWarning": "Vous avez encore des minuteurs actifs. Êtes-vous sûr de vouloir terminer la recette ?"
+      "activeTimersWarning": "Vous avez encore des minuteurs actifs. Êtes-vous sûr de vouloir terminer la recette ?",
+      "photoAdded": "Photo ajoutée",
+      "uploadingPhoto": "Veuillez patienter pendant le téléchargement de votre photo...",
+      "photoUploadFailed": "Échec du téléchargement de la photo. Vous pouvez réessayer ou continuer sans photo."
     },
     "card": {
       "recipeLabel": "RECETTE",
@@ -426,6 +433,39 @@
         "cta": "Explorer les recettes"
       }
     }
+  },
+  "cookingHistory": {
+    "subtitle": "RÉCEMMENT CUISINÉ",
+    "title": "Historique de cuisine",
+    "seeMore": "Voir plus",
+    "empty": {
+      "title": "Aucun historique de cuisine",
+      "message": "Les recettes que vous cuisinez apparaîtront ici",
+      "cta": "Parcourir les recettes"
+    },
+    "cookedTimes_one": "Cuisiné {{count}} fois",
+    "cookedTimes_other": "Cuisiné {{count}} fois",
+    "duration": "{{minutes}} min",
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "daysAgo_one": "Il y a {{count}} jour",
+    "daysAgo_other": "Il y a {{count}} jours",
+    "viewGrid": "Grille",
+    "viewList": "Liste",
+    "deleteConfirmTitle": "Supprimer l'événement",
+    "deleteConfirmMessage": "Êtes-vous sûr de vouloir supprimer cet événement de cuisine ? Cette action est irréversible.",
+    "editTitle": "Modifier l'événement",
+    "dateLabel": "Date de cuisson",
+    "ratingLabel": "Note",
+    "imageLabel": "Photo",
+    "removeImage": "Supprimer",
+    "changeImage": "Changer",
+    "takePhoto": "Caméra",
+    "choosePhoto": "Galerie",
+    "noImage": "Pas de photo pour cette session de cuisine",
+    "clearRating": "Effacer la note",
+    "uploading": "Téléchargement...",
+    "uploadFailed": "Échec du téléchargement de l'image"
   },
   "onboarding": {
     "step": "Étape {{current}} sur {{total}}",

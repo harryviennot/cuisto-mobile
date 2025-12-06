@@ -93,7 +93,7 @@ export function RecipeActionButtons({
             <InstagramLogoIcon size={20} color="#334d43" weight="regular" />
           )}
           {platform === "youtube" && <YoutubeLogoIcon size={20} color="#334d43" weight="regular" />}
-          {platform === undefined && <LinkIcon size={20} color="#334d43" weight="regular" />}
+          {platform === null && <LinkIcon size={20} color="#334d43" weight="regular" />}
         </ShadowItem>
       )}
 

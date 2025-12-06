@@ -27,6 +27,7 @@ import { ActionSheet } from "@/components/ui/ActionSheet";
 
 // Import recipe components using barrel exports
 import { CookingMode } from "@/components/recipe/CookingMode";
+import { CookingSessionProvider } from "@/contexts/CookingSessionContext";
 import {
   RecipeHeader,
   RecipeMetadata,
@@ -374,7 +375,9 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         <Animated.View
           style={[{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }, cookingModeStyle]}
         >
-          <CookingMode recipe={recipe} onClose={() => setIsCooking(false)} />
+          <CookingSessionProvider>
+            <CookingMode recipe={recipe} onClose={() => setIsCooking(false)} />
+          </CookingSessionProvider>
         </Animated.View>
       )}
       {/* Actions Modal */}
