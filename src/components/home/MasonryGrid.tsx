@@ -6,9 +6,7 @@ import { RecipeCard } from "../recipe/RecipeCard";
 import type { Recipe } from "@/types/recipe";
 
 // Create Reanimated-wrapped FlashList for scroll animations
-const ReanimatedFlashList = Animated.createAnimatedComponent(
-  FlashList as React.ComponentType<any>
-);
+const ReanimatedFlashList = Animated.createAnimatedComponent(FlashList as React.ComponentType<any>);
 
 export interface MasonryGridProps {
   recipes: Recipe[];
@@ -67,10 +65,12 @@ export function MasonryGrid({
   // Wrap in View with padding for horizontal gaps between columns
   const renderItem: ListRenderItem<Recipe> = useCallback(
     ({ item, index }) => (
-      <View style={{
-        paddingBottom: 8,
-        paddingHorizontal: 8,
-      }}>
+      <View
+        style={{
+          paddingBottom: 8,
+          paddingHorizontal: 8,
+        }}
+      >
         <RecipeCard recipe={item} index={index} />
       </View>
     ),
@@ -78,10 +78,7 @@ export function MasonryGrid({
   );
 
   // Key extractor wrapped in useCallback
-  const getItemKey = useCallback(
-    (item: Recipe) => keyExtractor(item),
-    [keyExtractor]
-  );
+  const getItemKey = useCallback((item: Recipe) => keyExtractor(item), [keyExtractor]);
 
   // Loading footer component
   const ListFooterComponent = useMemo(() => {

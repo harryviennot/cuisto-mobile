@@ -190,16 +190,13 @@ export default function CookingHistoryScreen() {
   );
 
   // Stable ref callback to avoid creating new functions per render
-  const setItemRef = useCallback(
-    (eventId: string, ref: CookingHistoryListItemHandle | null) => {
-      if (ref) {
-        itemRefsMap.current.set(eventId, ref);
-      } else {
-        itemRefsMap.current.delete(eventId);
-      }
-    },
-    []
-  );
+  const setItemRef = useCallback((eventId: string, ref: CookingHistoryListItemHandle | null) => {
+    if (ref) {
+      itemRefsMap.current.set(eventId, ref);
+    } else {
+      itemRefsMap.current.delete(eventId);
+    }
+  }, []);
 
   // Render list item
   const renderItem = useCallback(

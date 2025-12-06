@@ -191,11 +191,7 @@ export default function Index() {
 
       {/* Animated Sticky Header */}
       <Animated.View
-        style={[
-          styles.headerContainer,
-          { paddingTop: insets.top },
-          headerAnimatedStyle,
-        ]}
+        style={[styles.headerContainer, { paddingTop: insets.top }, headerAnimatedStyle]}
         pointerEvents="box-none"
       >
         <BlurView

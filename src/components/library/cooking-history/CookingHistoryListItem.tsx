@@ -78,190 +78,190 @@ function RightActions({ onEdit, onDelete }: { onEdit: () => void; onDelete: () =
 export const CookingHistoryListItem = memo(
   forwardRef<CookingHistoryListItemHandle, CookingHistoryListItemProps>(
     function CookingHistoryListItem({ event, onEdit, onDelete, openSwipeableRef }, ref) {
-  const [imageLoading, setImageLoading] = useState(true);
-  const swipeableRef = useRef<SwipeableMethods>(null);
+      const [imageLoading, setImageLoading] = useState(true);
+      const swipeableRef = useRef<SwipeableMethods>(null);
 
-  // Animation values for collapse effect (used when item is deleted)
-  const height = useSharedValue(100);
-  const opacity = useSharedValue(1);
+      // Animation values for collapse effect (used when item is deleted)
+      const height = useSharedValue(100);
+      const opacity = useSharedValue(1);
 
-  // Animated styles for the container
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      height: height.value,
-      opacity: opacity.value,
-      overflow: "hidden" as const,
-    };
-  });
-
-  // Expose animateDelete method via ref
-  useImperativeHandle(ref, () => ({
-    animateDelete: (onComplete: () => void) => {
-      // Run collapse animation
-      height.value = withTiming(0, { duration: 250 }, (finished) => {
-        if (finished) {
-          runOnJS(onComplete)();
-        }
+      // Animated styles for the container
+      const animatedStyle = useAnimatedStyle(() => {
+        return {
+          height: height.value,
+          opacity: opacity.value,
+          overflow: "hidden" as const,
+        };
       });
-      opacity.value = withTiming(0, { duration: 200 });
-    },
-  }));
 
-  // Use cooking photo if available, otherwise recipe image
-  const imageUrl = event.cooking_image_url || event.recipe_image_url;
-  // Get Day Number
-  const dateObj = new Date(event.cooked_at);
-  const dayNumber = dateObj.getDate();
+      // Expose animateDelete method via ref
+      useImperativeHandle(ref, () => ({
+        animateDelete: (onComplete: () => void) => {
+          // Run collapse animation
+          height.value = withTiming(0, { duration: 250 }, (finished) => {
+            if (finished) {
+              runOnJS(onComplete)();
+            }
+          });
+          opacity.value = withTiming(0, { duration: 200 });
+        },
+      }));
 
-  const handlePress = () => {
-    router.push({
-      pathname: `/recipe/[id]` as const,
-      params: {
-        id: event.recipe_id,
-        title: event.recipe_title,
-        ...(event.recipe_image_url && { imageUrl: event.recipe_image_url }),
-      },
-    });
-  };
+      // Use cooking photo if available, otherwise recipe image
+      const imageUrl = event.cooking_image_url || event.recipe_image_url;
+      // Get Day Number
+      const dateObj = new Date(event.cooked_at);
+      const dayNumber = dateObj.getDate();
 
-  const handleEdit = () => {
-    swipeableRef.current?.close();
-    onEdit?.(event);
-  };
+      const handlePress = () => {
+        router.push({
+          pathname: `/recipe/[id]` as const,
+          params: {
+            id: event.recipe_id,
+            title: event.recipe_title,
+            ...(event.recipe_image_url && { imageUrl: event.recipe_image_url }),
+          },
+        });
+      };
 
-  const handleDelete = () => {
-    swipeableRef.current?.close();
-    onDelete?.(event);
-  };
+      const handleEdit = () => {
+        swipeableRef.current?.close();
+        onEdit?.(event);
+      };
 
-  // Close previously open swipeable immediately when drag starts on this one
-  const handleBeginDrag = () => {
-    if (openSwipeableRef?.current && openSwipeableRef.current !== swipeableRef.current) {
-      openSwipeableRef.current.close();
-    }
-  };
+      const handleDelete = () => {
+        swipeableRef.current?.close();
+        onDelete?.(event);
+      };
 
-  // Track this as the currently open swipeable
-  const handleSwipeableOpen = () => {
-    if (openSwipeableRef) {
-      (openSwipeableRef as React.MutableRefObject<SwipeableMethods | null>).current =
-        swipeableRef.current;
-    }
-  };
+      // Close previously open swipeable immediately when drag starts on this one
+      const handleBeginDrag = () => {
+        if (openSwipeableRef?.current && openSwipeableRef.current !== swipeableRef.current) {
+          openSwipeableRef.current.close();
+        }
+      };
 
-  // Clear tracking when closed
-  const handleSwipeableClose = () => {
-    if (openSwipeableRef?.current === swipeableRef.current) {
-      (openSwipeableRef as React.MutableRefObject<SwipeableMethods | null>).current = null;
-    }
-  };
+      // Track this as the currently open swipeable
+      const handleSwipeableOpen = () => {
+        if (openSwipeableRef) {
+          (openSwipeableRef as React.MutableRefObject<SwipeableMethods | null>).current =
+            swipeableRef.current;
+        }
+      };
 
-  // Render function for swipeable actions (edit + delete on right)
-  const renderRightActions = () => <RightActions onEdit={handleEdit} onDelete={handleDelete} />;
+      // Clear tracking when closed
+      const handleSwipeableClose = () => {
+        if (openSwipeableRef?.current === swipeableRef.current) {
+          (openSwipeableRef as React.MutableRefObject<SwipeableMethods | null>).current = null;
+        }
+      };
 
-  return (
-    <Animated.View style={animatedStyle}>
-      <ReanimatedSwipeable
-        ref={swipeableRef}
-        friction={1.5}
-        enableTrackpadTwoFingerGesture
-        rightThreshold={ACTION_WIDTH}
-        overshootRight={false}
-        renderRightActions={renderRightActions}
-        onSwipeableOpenStartDrag={handleBeginDrag}
-        onSwipeableOpen={handleSwipeableOpen}
-        onSwipeableClose={handleSwipeableClose}
-      >
-        <Pressable
-          onPress={handlePress}
-          className="flex-row items-center py-3 pl-3 pr-4 active:bg-stone-100 border-b border-border-light bg-surface"
-        >
-          {/* Day Number */}
-          <View className="w-12 items-center justify-center mr-2">
-            <Text className="text-[48px] font-light font-playfair text-primary leading-none">
-              {dayNumber}
-            </Text>
-          </View>
+      // Render function for swipeable actions (edit + delete on right)
+      const renderRightActions = () => <RightActions onEdit={handleEdit} onDelete={handleDelete} />;
 
-          {/* Poster Image (2:3 aspect ratio) */}
-          <View
-            className="rounded-xl overflow-hidden bg-stone-200"
-            style={{
-              width: 75,
-              height: 75, // 2:3 aspect ratio
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.1,
-              shadowRadius: 2,
-              elevation: 1,
-            }}
+      return (
+        <Animated.View style={animatedStyle}>
+          <ReanimatedSwipeable
+            ref={swipeableRef}
+            friction={1.5}
+            enableTrackpadTwoFingerGesture
+            rightThreshold={ACTION_WIDTH}
+            overshootRight={false}
+            renderRightActions={renderRightActions}
+            onSwipeableOpenStartDrag={handleBeginDrag}
+            onSwipeableOpen={handleSwipeableOpen}
+            onSwipeableClose={handleSwipeableClose}
           >
-            {imageUrl ? (
-              <>
-                {imageLoading && (
-                  <View className="absolute inset-0 z-10">
-                    <Skeleton width="100%" height="100%" borderRadius={0} />
+            <Pressable
+              onPress={handlePress}
+              className="flex-row items-center py-3 pl-3 pr-4 active:bg-stone-100 border-b border-border-light bg-surface"
+            >
+              {/* Day Number */}
+              <View className="w-12 items-center justify-center mr-2">
+                <Text className="text-[48px] font-light font-playfair text-primary leading-none">
+                  {dayNumber}
+                </Text>
+              </View>
+
+              {/* Poster Image (2:3 aspect ratio) */}
+              <View
+                className="rounded-xl overflow-hidden bg-stone-200"
+                style={{
+                  width: 75,
+                  height: 75, // 2:3 aspect ratio
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: 2,
+                  elevation: 1,
+                }}
+              >
+                {imageUrl ? (
+                  <>
+                    {imageLoading && (
+                      <View className="absolute inset-0 z-10">
+                        <Skeleton width="100%" height="100%" borderRadius={0} />
+                      </View>
+                    )}
+                    <Image
+                      source={{ uri: imageUrl }}
+                      style={{ width: "100%", height: "100%" }}
+                      contentFit="cover"
+                      transition={200}
+                      onLoadStart={() => setImageLoading(true)}
+                      onLoad={() => setImageLoading(false)}
+                      onError={() => setImageLoading(false)}
+                    />
+                  </>
+                ) : (
+                  <View className="w-full h-full items-center justify-center">
+                    <ImageIcon size={20} color="#a8a29e" weight="duotone" />
                   </View>
                 )}
-                <Image
-                  source={{ uri: imageUrl }}
-                  style={{ width: "100%", height: "100%" }}
-                  contentFit="cover"
-                  transition={200}
-                  onLoadStart={() => setImageLoading(true)}
-                  onLoad={() => setImageLoading(false)}
-                  onError={() => setImageLoading(false)}
-                />
-              </>
-            ) : (
-              <View className="w-full h-full items-center justify-center">
-                <ImageIcon size={20} color="#a8a29e" weight="duotone" />
               </View>
-            )}
-          </View>
 
-          {/* Content */}
-          <View className="flex-1 h-full ml-4 justify-between">
-            {/* Title */}
-            <Text
-              className="text-base font-bold text-foreground-heading leading-tight"
-              numberOfLines={2}
-            >
-              {event.recipe_title}
-            </Text>
-            {event.rating && <StarRating rating={event.rating} size={16} editable={false} />}
+              {/* Content */}
+              <View className="flex-1 h-full ml-4 justify-between">
+                {/* Title */}
+                <Text
+                  className="text-base font-bold text-foreground-heading leading-tight"
+                  numberOfLines={2}
+                >
+                  {event.recipe_title}
+                </Text>
+                {event.rating && <StarRating rating={event.rating} size={16} editable={false} />}
 
-            {/* Meta Row: Rating, Duration, Times Cooked */}
-            <View className="flex-row items-center gap-3 mt-1.5">
-              {/* Duration */}
-              {event.duration_minutes && (
-                <View className="flex-row items-center">
-                  <Timer size={12} color="#78716c" weight="regular" />
-                  <Text className="text-xs text-foreground-tertiary ml-0.5">
-                    {formatDuration(event.duration_minutes)}
-                  </Text>
-                </View>
-              )}
+                {/* Meta Row: Rating, Duration, Times Cooked */}
+                <View className="flex-row items-center gap-3 mt-1.5">
+                  {/* Duration */}
+                  {event.duration_minutes && (
+                    <View className="flex-row items-center">
+                      <Timer size={12} color="#78716c" weight="regular" />
+                      <Text className="text-xs text-foreground-tertiary ml-0.5">
+                        {formatDuration(event.duration_minutes)}
+                      </Text>
+                    </View>
+                  )}
 
-              {/* Times Cooked (if > 1) */}
-              {/* {event.times_cooked > 1 && (
+                  {/* Times Cooked (if > 1) */}
+                  {/* {event.times_cooked > 1 && (
                 <View className="bg-primary/10 rounded-full px-2 py-0.5">
                   <Text className="text-[10px] text-primary font-semibold">
                     {t("cookingHistory.cookedTimes", { count: event.times_cooked })}
                   </Text>
                 </View>
               )} */}
-            </View>
+                </View>
 
-            {/* Year (Optional, if needed, but header has it) */}
-            {/* <Text className="text-xs text-foreground-tertiary mt-1">
+                {/* Year (Optional, if needed, but header has it) */}
+                {/* <Text className="text-xs text-foreground-tertiary mt-1">
                {dateObj.getFullYear()}
              </Text> */}
-          </View>
-        </Pressable>
-      </ReanimatedSwipeable>
-    </Animated.View>
-  );
+              </View>
+            </Pressable>
+          </ReanimatedSwipeable>
+        </Animated.View>
+      );
     }
   )
 );
