@@ -114,7 +114,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
                 contentFit="cover"
                 transition={200}
                 cachePolicy="memory-disk"
-                priority="normal"
+                priority="high"
                 onLoadStart={() => setImageLoading(true)}
                 onLoad={() => setImageLoading(false)}
                 onError={() => setImageLoading(false)}

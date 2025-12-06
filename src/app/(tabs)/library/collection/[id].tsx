@@ -153,7 +153,6 @@ export default function CollectionDetailScreen() {
               />
             }
             onScroll={scrollHandler}
-            refreshControlOffset={headerTopPadding}
             contentContainerStyle={{ paddingBottom: 100 }}
           />
         )}
