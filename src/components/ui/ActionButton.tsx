@@ -54,9 +54,6 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   const isDisabled = disabled || isLoading;
 
   const getVariantStyles = () => {
-    if (isDisabled) {
-      return "bg-surface-disabled";
-    }
     switch (variant) {
       case "primary":
         return "bg-primary";
@@ -70,9 +67,6 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   };
 
   const getTextStyles = () => {
-    if (isDisabled) {
-      return "text-foreground-disabled";
-    }
     switch (variant) {
       case "primary":
         return "text-white";
@@ -104,6 +98,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
       className={cn(
         "w-full flex-row items-center justify-center rounded-2xl",
         size === "default" ? "h-14" : "h-12",
+        isDisabled ? "opacity-50" : "",
         getVariantStyles(),
         className
       )}
