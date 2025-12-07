@@ -22,6 +22,8 @@ export interface MasonryGridProps {
   contentContainerStyle?: any;
   /** Custom key extractor for recipes. Defaults to recipe.id */
   keyExtractor?: (recipe: Recipe) => string;
+  /** Custom render function for recipe cards. Defaults to RecipeCard */
+  renderRecipeCard?: (recipe: Recipe, index: number) => ReactElement;
   /** Content inset for scroll view */
   contentInset?: { top?: number; left?: number; bottom?: number; right?: number };
   /** Initial content offset */
@@ -45,6 +47,7 @@ export function MasonryGrid({
   ListHeaderComponent,
   contentContainerStyle,
   keyExtractor = (recipe) => recipe.id,
+  renderRecipeCard,
   contentInset,
   contentOffset,
   scrollIndicatorInsets,
@@ -83,10 +86,10 @@ export function MasonryGrid({
           paddingHorizontal: 8,
         }}
       >
-        <RecipeCard recipe={item} index={index} />
+        {renderRecipeCard ? renderRecipeCard(item, index) : <RecipeCard recipe={item} index={index} />}
       </View>
     ),
-    []
+    [renderRecipeCard]
   );
 
   // Key extractor wrapped in useCallback

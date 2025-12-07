@@ -21,11 +21,12 @@ import {
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { MasonryGrid } from "@/components/home/MasonryGrid";
+import { RecipeCard } from "@/components/recipe/RecipeCard";
 import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { discoveryService } from "@/api/services/discovery.service";
 import type { Recipe } from "@/types/recipe";
-import type { DiscoverySectionType } from "@/types/discovery";
+import type { DiscoverySectionType, TrendingRecipe, ExtractedRecipe } from "@/types/discovery";
 
 const PAGE_SIZE = 20;
 
@@ -119,6 +120,30 @@ export default function DiscoverySeeAllScreen() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  // Render recipe card with stats badge for trending/socials/online sections
+  const renderRecipeCard = useCallback(
+    (recipe: Recipe, index: number) => {
+      // Determine stats badge based on section type
+      let statsBadge: { type: "cooking" | "extraction"; count: number } | undefined;
+
+      if (sectionType === "trending") {
+        const trendingRecipe = recipe as TrendingRecipe;
+        if (trendingRecipe.cooking_stats?.cook_count) {
+          statsBadge = { type: "cooking", count: trendingRecipe.cooking_stats.cook_count };
+        }
+      } else if (sectionType === "socials" || sectionType === "online") {
+        const extractedRecipe = recipe as ExtractedRecipe;
+        if (extractedRecipe.extraction_stats?.extraction_count) {
+          statsBadge = { type: "extraction", count: extractedRecipe.extraction_stats.extraction_count };
+        }
+      }
+      // "rated" section doesn't have stats badge
+
+      return <RecipeCard recipe={recipe} index={index} statsBadge={statsBadge} />;
+    },
+    [sectionType]
+  );
+
   const ListHeaderComponent = useMemo(
     () => (
       <PageHeader
@@ -202,6 +227,7 @@ export default function DiscoverySeeAllScreen() {
         onEndReached={handleEndReached}
         showLoadingFooter={isFetchingNextPage}
         ListHeaderComponent={ListHeaderComponent}
+        renderRecipeCard={renderRecipeCard}
         onScroll={scrollHandler}
         contentInset={{ top: headerTopPadding }}
         contentOffset={{ x: 0, y: -headerTopPadding }}
