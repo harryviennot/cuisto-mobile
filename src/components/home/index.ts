@@ -6,5 +6,4 @@ export * from "./SearchBar";
 export * from "./SearchButton";
 export * from "./TimeGreeting";
 export * from "./HomeEmptyState";
-export * from "./DiscoveryRecipeCard";
 export * from "./DiscoverySections";

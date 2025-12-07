@@ -8,12 +8,13 @@ import React from "react";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { HorizontalPreviewSection } from "@/components/ui/HorizontalPreviewSection";
-import { DiscoveryRecipeCard, DiscoveryRecipeCardSkeleton } from "./DiscoveryRecipeCard";
+import { RecipeCard, RecipeCardSkeleton } from "@/components/recipe/RecipeCard";
 import type { Recipe } from "@/types/recipe";
 import type { TrendingRecipe, ExtractedRecipe } from "@/types/discovery";
 import { DISCOVERY_CONSTANTS } from "@/types/discovery";
 
-const CARD_WIDTH = 140;
+const CARD_WIDTH = 280;
+const CARD_IMAGE_HEIGHT = 160;
 
 interface DiscoverySectionProps {
   data: Recipe[] | undefined;
@@ -40,14 +41,25 @@ export function TrendingThisWeekSection({
     <HorizontalPreviewSection<TrendingRecipe>
       title={t("discovery.sections.trending.title")}
       data={data as TrendingRecipe[] | undefined}
-      renderItem={(recipe) => (
-        <DiscoveryRecipeCard recipe={recipe} width={CARD_WIDTH} />
+      renderItem={(recipe, index) => (
+        <RecipeCard
+          recipe={recipe}
+          index={index}
+          width={CARD_WIDTH}
+          imageHeight={CARD_IMAGE_HEIGHT}
+          statsBadge={{
+            type: "cooking",
+            count: recipe.cooking_stats?.cook_count ?? 0,
+          }}
+        />
       )}
       keyExtractor={(recipe) => recipe.id}
       onSeeMore={handleSeeMore}
       isLoading={isLoading}
       isError={isError}
-      SkeletonComponent={DiscoveryRecipeCardSkeleton}
+      SkeletonComponent={() => (
+        <RecipeCardSkeleton width={CARD_WIDTH} imageHeight={CARD_IMAGE_HEIGHT} />
+      )}
       minItems={DISCOVERY_CONSTANTS.MIN_SECTION_RECIPES}
       cardWidth={CARD_WIDTH}
       style={{ marginBottom: 24 }}
@@ -74,14 +86,25 @@ export function TrendingOnSocialsSection({
     <HorizontalPreviewSection<ExtractedRecipe>
       title={t("discovery.sections.socials.title")}
       data={data as ExtractedRecipe[] | undefined}
-      renderItem={(recipe) => (
-        <DiscoveryRecipeCard recipe={recipe} width={CARD_WIDTH} />
+      renderItem={(recipe, index) => (
+        <RecipeCard
+          recipe={recipe}
+          index={index}
+          width={CARD_WIDTH}
+          imageHeight={CARD_IMAGE_HEIGHT}
+          statsBadge={{
+            type: "extraction",
+            count: recipe.extraction_stats?.extraction_count ?? 0,
+          }}
+        />
       )}
       keyExtractor={(recipe) => recipe.id}
       onSeeMore={handleSeeMore}
       isLoading={isLoading}
       isError={isError}
-      SkeletonComponent={DiscoveryRecipeCardSkeleton}
+      SkeletonComponent={() => (
+        <RecipeCardSkeleton width={CARD_WIDTH} imageHeight={CARD_IMAGE_HEIGHT} />
+      )}
       minItems={DISCOVERY_CONSTANTS.MIN_SECTION_RECIPES}
       cardWidth={CARD_WIDTH}
       style={{ marginBottom: 24 }}
@@ -108,14 +131,25 @@ export function PopularOnlineSection({
     <HorizontalPreviewSection<ExtractedRecipe>
       title={t("discovery.sections.online.title")}
       data={data as ExtractedRecipe[] | undefined}
-      renderItem={(recipe) => (
-        <DiscoveryRecipeCard recipe={recipe} width={CARD_WIDTH} />
+      renderItem={(recipe, index) => (
+        <RecipeCard
+          recipe={recipe}
+          index={index}
+          width={CARD_WIDTH}
+          imageHeight={CARD_IMAGE_HEIGHT}
+          statsBadge={{
+            type: "extraction",
+            count: recipe.extraction_stats?.extraction_count ?? 0,
+          }}
+        />
       )}
       keyExtractor={(recipe) => recipe.id}
       onSeeMore={handleSeeMore}
       isLoading={isLoading}
       isError={isError}
-      SkeletonComponent={DiscoveryRecipeCardSkeleton}
+      SkeletonComponent={() => (
+        <RecipeCardSkeleton width={CARD_WIDTH} imageHeight={CARD_IMAGE_HEIGHT} />
+      )}
       minItems={DISCOVERY_CONSTANTS.MIN_SECTION_RECIPES}
       cardWidth={CARD_WIDTH}
       style={{ marginBottom: 24 }}
@@ -142,14 +176,21 @@ export function HighestRatedSection({
     <HorizontalPreviewSection<Recipe>
       title={t("discovery.sections.rated.title")}
       data={data}
-      renderItem={(recipe) => (
-        <DiscoveryRecipeCard recipe={recipe} width={CARD_WIDTH} />
+      renderItem={(recipe, index) => (
+        <RecipeCard
+          recipe={recipe}
+          index={index}
+          width={CARD_WIDTH}
+          imageHeight={CARD_IMAGE_HEIGHT}
+        />
       )}
       keyExtractor={(recipe) => recipe.id}
       onSeeMore={handleSeeMore}
       isLoading={isLoading}
       isError={isError}
-      SkeletonComponent={DiscoveryRecipeCardSkeleton}
+      SkeletonComponent={() => (
+        <RecipeCardSkeleton width={CARD_WIDTH} imageHeight={CARD_IMAGE_HEIGHT} />
+      )}
       minItems={DISCOVERY_CONSTANTS.MIN_SECTION_RECIPES}
       cardWidth={CARD_WIDTH}
       style={{ marginBottom: 24 }}

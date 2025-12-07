@@ -6,7 +6,7 @@ import { memo, useState } from "react";
 import { View, Text, Pressable, Platform } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Image as ImageIcon, Clock, Bookmark } from "phosphor-react-native";
+import { Image as ImageIcon, Clock, Bookmark, Fire, Users } from "phosphor-react-native";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "expo-haptics";
@@ -14,12 +14,25 @@ import type { Recipe } from "@/types/recipe";
 import { Skeleton } from "../ui/Skeleton";
 import { useToggleFavorite } from "@/hooks/useCollections";
 
+interface StatsBadge {
+  type: "cooking" | "extraction";
+  count: number;
+}
+
 interface RecipeCardProps {
   recipe: Recipe;
   index: number;
+  width?: number;
+  imageHeight?: number;
+  statsBadge?: StatsBadge;
 }
 
-export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) {
+export const RecipeCard = memo(function RecipeCard({
+  recipe,
+  width,
+  imageHeight: fixedImageHeight,
+  statsBadge,
+}: RecipeCardProps) {
   const { t } = useTranslation();
   const [imageLoading, setImageLoading] = useState(true);
   const { mutate: toggleFavorite } = useToggleFavorite();
@@ -76,7 +89,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
     return baseHeight + offset;
   };
 
-  const imageHeight = getImageHeight();
+  const imageHeight = fixedImageHeight ?? getImageHeight();
 
   // Get category or first tag
   const categoryLabel = recipe.categories?.[0] || recipe.tags?.[0] || t("recipe.card.recipeLabel");
@@ -96,7 +109,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
   };
 
   return (
-    <View className="mb-6">
+    <View className="mb-6" style={width ? { width } : undefined}>
       <Pressable onPress={handlePress} className="relative active:opacity-90">
         {/* Image Container */}
         <View
@@ -177,6 +190,22 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
               </Pressable>
             )}
           </View>
+
+          {/* Stats Badge Overlay */}
+          {statsBadge && (
+            <View className="absolute bottom-2 left-2 right-2">
+              <View className="flex-row items-center bg-black/60 px-2 py-1 rounded-full self-start">
+                {statsBadge.type === "cooking" ? (
+                  <Fire size={12} weight="fill" color="#f97316" />
+                ) : (
+                  <Users size={12} weight="fill" color="#6366f1" />
+                )}
+                <Text className="text-white text-xs ml-1 font-medium">
+                  {statsBadge.count} {statsBadge.type === "cooking" ? "cooked" : "extracted"}
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Content Area - Minimalist & Editorial */}
@@ -239,3 +268,41 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
     </View>
   );
 });
+
+/**
+ * Skeleton for RecipeCard in horizontal sections
+ */
+export function RecipeCardSkeleton({
+  width = 280,
+  imageHeight = 160,
+}: {
+  width?: number;
+  imageHeight?: number;
+}) {
+  return (
+    <View style={{ width }} className="mb-6">
+      {/* Image skeleton */}
+      <Skeleton
+        width={width}
+        height={imageHeight}
+        borderRadius={16}
+        style={{ marginBottom: 12 }}
+      />
+      {/* Category and rating row */}
+      <View className="flex-row items-center justify-between mb-1 px-1">
+        <Skeleton width={60} height={10} borderRadius={4} />
+        <Skeleton width={30} height={10} borderRadius={4} />
+      </View>
+      {/* Title */}
+      <View className="px-1">
+        <Skeleton width="100%" height={17} borderRadius={4} style={{ marginBottom: 4 }} />
+        <Skeleton width="70%" height={17} borderRadius={4} style={{ marginBottom: 8 }} />
+      </View>
+      {/* Meta row */}
+      <View className="flex-row items-center gap-3 px-1">
+        <Skeleton width={50} height={12} borderRadius={4} />
+        <Skeleton width={50} height={12} borderRadius={4} />
+      </View>
+    </View>
+  );
+}
