@@ -1,0 +1,103 @@
+/**
+ * Discovery service for home page discovery features
+ */
+import { api } from "../api-client";
+import type { Recipe } from "@/types/recipe";
+import type {
+  TrendingRecipe,
+  ExtractedRecipe,
+  SourceCategory,
+  DISCOVERY_CONSTANTS,
+} from "@/types/discovery";
+
+const { SECTION_PREVIEW_LIMIT, RECENT_PAGE_SIZE } = {
+  SECTION_PREVIEW_LIMIT: 8,
+  RECENT_PAGE_SIZE: 20,
+};
+
+export const discoveryService = {
+  /**
+   * Get trending recipes (most cooked this week)
+   */
+  getTrendingThisWeek: async (
+    limit: number = SECTION_PREVIEW_LIMIT,
+    offset: number = 0,
+    timeWindowDays: number = 7
+  ): Promise<TrendingRecipe[]> => {
+    const response = await api.get<TrendingRecipe[]>("/discovery/trending", {
+      params: {
+        time_window_days: timeWindowDays,
+        limit,
+        offset,
+      },
+    });
+    return response.data;
+  },
+
+  /**
+   * Get most extracted recipes from video sources (TikTok, Instagram, YouTube)
+   * "Trending on Socials"
+   */
+  getTrendingOnSocials: async (
+    limit: number = SECTION_PREVIEW_LIMIT,
+    offset: number = 0
+  ): Promise<ExtractedRecipe[]> => {
+    const response = await api.get<ExtractedRecipe[]>("/discovery/most-extracted", {
+      params: {
+        source_category: "video" as SourceCategory,
+        limit,
+        offset,
+      },
+    });
+    return response.data;
+  },
+
+  /**
+   * Get most extracted recipes from website sources
+   * "Popular Recipes Online"
+   */
+  getPopularOnline: async (
+    limit: number = SECTION_PREVIEW_LIMIT,
+    offset: number = 0
+  ): Promise<ExtractedRecipe[]> => {
+    const response = await api.get<ExtractedRecipe[]>("/discovery/most-extracted", {
+      params: {
+        source_category: "website" as SourceCategory,
+        limit,
+        offset,
+      },
+    });
+    return response.data;
+  },
+
+  /**
+   * Get highest rated public recipes
+   */
+  getHighestRated: async (
+    limit: number = SECTION_PREVIEW_LIMIT,
+    offset: number = 0,
+    minRatingCount: number = 3
+  ): Promise<Recipe[]> => {
+    const response = await api.get<Recipe[]>("/discovery/highest-rated", {
+      params: {
+        min_rating_count: minRatingCount,
+        limit,
+        offset,
+      },
+    });
+    return response.data;
+  },
+
+  /**
+   * Get recently added public recipes (for infinite scroll grid)
+   */
+  getRecentlyAdded: async (
+    limit: number = RECENT_PAGE_SIZE,
+    offset: number = 0
+  ): Promise<Recipe[]> => {
+    const response = await api.get<Recipe[]>("/discovery/recent", {
+      params: { limit, offset },
+    });
+    return response.data;
+  },
+};

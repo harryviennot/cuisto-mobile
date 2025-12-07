@@ -15,17 +15,19 @@ export interface PageHeaderProps {
   subtitle?: string;
   /** Top padding (usually safe area + sticky header height) */
   topPadding: number;
+  /** Bottom margin (optional) */
+  bottomMargin?: number;
   /** Optional element to render on the right side of the header */
   rightElement?: React.ReactNode;
 }
 
-export function PageHeader({ title, subtitle, topPadding, rightElement }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, topPadding, rightElement, bottomMargin }: PageHeaderProps) {
   return (
     <View
       style={{
         paddingTop: topPadding,
         paddingHorizontal: 16,
-        paddingBottom: 24,
+        paddingBottom: bottomMargin ?? 24,
       }}
     >
       {subtitle && (
