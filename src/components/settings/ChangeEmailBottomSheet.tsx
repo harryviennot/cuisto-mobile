@@ -1,8 +1,9 @@
 import React, { forwardRef, useState, useCallback, useRef } from "react";
-import { View, Text, Alert, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { BottomSheetModal, BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "expo-haptics";
+import Toast from "react-native-toast-message";
 
 import { PremiumBottomSheet } from "@/components/ui/PremiumBottomSheet";
 import { ActionButton } from "@/components/ui/ActionButton";
@@ -101,7 +102,11 @@ export const ChangeEmailBottomSheet = forwardRef<BottomSheetModal>(
         setTimeout(() => otpInputRef.current?.focus(), 100);
       } catch (error: unknown) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-        Alert.alert(t("common.error"), getTranslatedError(error));
+        Toast.show({
+          type: "error",
+          text1: t("common.error"),
+          text2: getTranslatedError(error),
+        });
       } finally {
         setIsSubmitting(false);
       }
@@ -128,10 +133,11 @@ export const ChangeEmailBottomSheet = forwardRef<BottomSheetModal>(
         // Email change complete - refresh user data to get updated email
         await refreshUser();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert(
-          t("settings.changeEmail.successTitle"),
-          t("settings.changeEmail.successMessage")
-        );
+        Toast.show({
+          type: "success",
+          text1: t("settings.changeEmail.successTitle"),
+          text2: t("settings.changeEmail.successMessage"),
+        });
         handleDismiss();
       } catch (error: unknown) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -148,20 +154,22 @@ export const ChangeEmailBottomSheet = forwardRef<BottomSheetModal>(
       try {
         await authService.changeEmail(newEmail.trim());
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        Alert.alert(
-          t("settings.changeEmail.otpSent"),
-          t("settings.changeEmail.otpResent")
-        );
+        Toast.show({
+          type: "success",
+          text1: t("settings.changeEmail.otpSent"),
+          text2: t("settings.changeEmail.otpResent"),
+        });
       } catch (error: unknown) {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-        const errorMessage =
-          (error as { response?: { data?: { detail?: string } } })?.response?.data
-            ?.detail || t("settings.changeEmail.errorAlreadyUsed");
-        Alert.alert(t("common.error"), errorMessage);
+        Toast.show({
+          type: "error",
+          text1: t("common.error"),
+          text2: getTranslatedError(error),
+        });
       } finally {
         setIsSubmitting(false);
       }
-    }, [newEmail, t]);
+    }, [newEmail, t, getTranslatedError]);
 
     const handleBackToEmail = useCallback(() => {
       // If on the second OTP step, go back to first OTP step
