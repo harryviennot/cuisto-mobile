@@ -27,9 +27,7 @@ export function SettingsMenuItem({ item, isLast }: SettingsMenuItemProps) {
       <View className="flex-1 ml-4">
         <Text
           className={`text-base font-medium ${
-            item.variant === "destructive"
-              ? "text-state-error"
-              : "text-foreground-heading"
+            item.variant === "destructive" ? "text-state-error" : "text-foreground-heading"
           }`}
         >
           {item.title}

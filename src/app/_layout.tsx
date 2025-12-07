@@ -117,11 +117,11 @@ function ProtectedNavigation({ onReady }: { onReady: () => void }) {
       />
       <Stack.Screen
         name="settings"
-      // options={{
-      //   presentation: "transparentModal",
-      //   animation: "fade",
-      //   animationDuration: 200,
-      // }}
+        // options={{
+        //   presentation: "transparentModal",
+        //   animation: "fade",
+        //   animationDuration: 200,
+        // }}
       />
       <Stack.Screen name="test-creen" />
       <Stack.Screen name="recipe" />

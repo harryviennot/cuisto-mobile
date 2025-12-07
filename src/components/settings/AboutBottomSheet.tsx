@@ -28,27 +28,25 @@ export const AboutBottomSheet = forwardRef<BottomSheetModal, AboutBottomSheetPro
         onClose={handleDismiss}
         enableDynamicSizing
       >
-        <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: insets.bottom }} showsVerticalScrollIndicator={false}>
-
-
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: insets.bottom }}
+          showsVerticalScrollIndicator={false}
+        >
           {/* Story Section */}
           <View className="mb-12">
-            <Text className="text-lg text-stone-800 leading-8">
-              {t("settings.about.story")}
-            </Text>
+            <Text className="text-lg text-stone-800 leading-8">{t("settings.about.story")}</Text>
           </View>
-
 
           <Pressable
             onPress={onLinkedInPress}
             className="flex-row items-center justify-center py-3 px-6 rounded-full border border-stone-200 bg-transparent active:bg-stone-100"
           >
-            <LinkedinLogoIcon size={18} color="#0077B5" weight="fill" />
-            <Text className="ml-2 text-sm font-semibold text-stone-600">
+            <LinkedinLogoIcon size={24} color="#0077B5" weight="fill" />
+            <Text className="ml-2 text-sm font-semibold text-muted-foreground">
               {t("settings.about.connect")}
             </Text>
           </Pressable>
-
         </ScrollView>
       </PremiumBottomSheet>
     );

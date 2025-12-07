@@ -7,10 +7,7 @@ import Toast from "react-native-toast-message";
 
 import { PremiumBottomSheet } from "@/components/ui/PremiumBottomSheet";
 import { ActionButton } from "@/components/ui/ActionButton";
-import {
-  OTPInputField,
-  OTPInputFieldRef,
-} from "@/components/forms/OTPInputField";
+import { OTPInputField, OTPInputFieldRef } from "@/components/forms/OTPInputField";
 import { authService } from "@/api/services/auth.service";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -53,10 +50,7 @@ export const ChangeEmailBottomSheet = forwardRef<BottomSheetModal>(
         }
 
         // Invalid/expired OTP
-        if (
-          detail.toLowerCase().includes("invalid") ||
-          detail.toLowerCase().includes("expired")
-        ) {
+        if (detail.toLowerCase().includes("invalid") || detail.toLowerCase().includes("expired")) {
           return t("settings.changeEmail.invalidCode");
         }
 
@@ -196,7 +190,8 @@ export const ChangeEmailBottomSheet = forwardRef<BottomSheetModal>(
 
     const getSubtitle = () => {
       if (step === "email") return t("settings.changeEmail.subtitle").toUpperCase();
-      if (step === "otp_current") return t("settings.changeEmail.verifyCurrentSubtitle").toUpperCase();
+      if (step === "otp_current")
+        return t("settings.changeEmail.verifyCurrentSubtitle").toUpperCase();
       return t("settings.changeEmail.verifyNewSubtitle").toUpperCase();
     };
 
@@ -246,9 +241,7 @@ export const ChangeEmailBottomSheet = forwardRef<BottomSheetModal>(
 
               <ActionButton
                 title={
-                  isSubmitting
-                    ? t("common.loading")
-                    : t("settings.changeEmail.sendCodeButton")
+                  isSubmitting ? t("common.loading") : t("settings.changeEmail.sendCodeButton")
                 }
                 onPress={handleSendOTP}
                 isLoading={isSubmitting}
@@ -300,9 +293,7 @@ export const ChangeEmailBottomSheet = forwardRef<BottomSheetModal>(
               <View className="flex-row justify-center items-center mt-4 gap-4">
                 <Pressable onPress={handleBackToEmail} disabled={isSubmitting}>
                   <Text className="text-primary text-base">
-                    {step === "otp_new"
-                      ? t("common.back")
-                      : t("settings.changeEmail.changeEmail")}
+                    {step === "otp_new" ? t("common.back") : t("settings.changeEmail.changeEmail")}
                   </Text>
                 </Pressable>
                 {step === "otp_current" && (

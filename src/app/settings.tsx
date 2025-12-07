@@ -116,8 +116,8 @@ export default function SettingsScreen() {
             } catch (error: unknown) {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
               const errorMessage =
-                (error as { response?: { data?: { detail?: string } } })?.response?.data
-                  ?.detail || t("common.error");
+                (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+                t("common.error");
               Alert.alert(t("common.error"), errorMessage);
             }
           },
@@ -128,7 +128,7 @@ export default function SettingsScreen() {
 
   const handleLinkedIn = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Linking.openURL("https://www.linkedin.com/in/harryfabre/");
+    Linking.openURL("https://www.linkedin.com/in/harry-viennot/");
   }, []);
 
   // ============================================================================
@@ -249,15 +249,9 @@ export default function SettingsScreen() {
           topPadding={insets.top + 60}
         />
 
-        <SettingsSection
-          title={t("settings.sections.account")}
-          items={accountItems}
-        />
+        <SettingsSection title={t("settings.sections.account")} items={accountItems} />
 
-        <SettingsSection
-          title={t("settings.sections.app")}
-          items={appItems}
-        />
+        <SettingsSection title={t("settings.sections.app")} items={appItems} />
 
         <SettingsSection
           title={t("settings.sections.dangerZone")}
@@ -278,11 +272,7 @@ export default function SettingsScreen() {
 
       <ChangeEmailBottomSheet ref={emailSheetRef} />
 
-      <AboutBottomSheet
-        ref={aboutSheetRef}
-        appVersion={appVersion}
-        onLinkedInPress={handleLinkedIn}
-      />
+      <AboutBottomSheet ref={aboutSheetRef} onLinkedInPress={handleLinkedIn} />
     </View>
   );
 }

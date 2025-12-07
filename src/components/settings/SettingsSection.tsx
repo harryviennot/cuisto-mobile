@@ -10,11 +10,7 @@ interface SettingsSectionProps {
   variant?: "default" | "danger";
 }
 
-export function SettingsSection({
-  title,
-  items,
-  variant = "default",
-}: SettingsSectionProps) {
+export function SettingsSection({ title, items, variant = "default" }: SettingsSectionProps) {
   const isDanger = variant === "danger";
 
   return (
@@ -32,11 +28,7 @@ export function SettingsSection({
         }`}
       >
         {items.map((item, index) => (
-          <SettingsMenuItem
-            key={item.id}
-            item={item}
-            isLast={index === items.length - 1}
-          />
+          <SettingsMenuItem key={item.id} item={item} isLast={index === items.length - 1} />
         ))}
       </View>
     </View>

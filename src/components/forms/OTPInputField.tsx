@@ -21,15 +21,7 @@ export interface OTPInputFieldRef {
 
 export const OTPInputField = forwardRef<OTPInputFieldRef, OTPInputFieldProps>(
   (
-    {
-      otpCode,
-      setOtpCode,
-      maxInputLength,
-      error,
-      className,
-      variant = "dark",
-      autoFocus = false,
-    },
+    { otpCode, setOtpCode, maxInputLength, error, className, variant = "dark", autoFocus = false },
     ref
   ) => {
     const textInputRef = useRef<TextInput>(null);
@@ -93,9 +85,7 @@ export const OTPInputField = forwardRef<OTPInputFieldRef, OTPInputFieldProps>(
                   : "border-border-button bg-white"
           )}
         >
-          <Text className="text-2xl text-foreground font-bold">
-            {digit === " " ? "" : digit}
-          </Text>
+          <Text className="text-2xl text-foreground font-bold">{digit === " " ? "" : digit}</Text>
         </View>
       );
     };
@@ -115,19 +105,13 @@ export const OTPInputField = forwardRef<OTPInputFieldRef, OTPInputFieldProps>(
           autoFocus={autoFocus}
         />
 
-        <Pressable
-          onPress={handlePress}
-          className={cn("flex-row justify-between", className)}
-        >
+        <Pressable onPress={handlePress} className={cn("flex-row justify-between", className)}>
           {codeDigitsArray.map(toCodeDigitInput)}
         </Pressable>
 
         {error && (
           <Text
-            className={cn(
-              "text-sm mb-4",
-              isDark ? "text-red-400" : "text-red-500 text-center"
-            )}
+            className={cn("text-sm mb-4", isDark ? "text-red-400" : "text-red-500 text-center")}
           >
             {error}
           </Text>

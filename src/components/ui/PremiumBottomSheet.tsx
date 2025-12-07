@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, forwardRef } from "react";
+import React, { useCallback, forwardRef } from "react";
 import { View, Text, ViewStyle, StyleProp, Pressable } from "react-native";
 import {
   BottomSheetModal,
@@ -7,7 +7,6 @@ import {
   BottomSheetView,
   BottomSheetModalProps,
 } from "@gorhom/bottom-sheet";
-import { BlurView } from "expo-blur";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { X } from "phosphor-react-native";
 
@@ -24,18 +23,21 @@ interface PremiumBottomSheetProps extends Omit<BottomSheetModalProps, "snapPoint
 }
 
 export const PremiumBottomSheet = forwardRef<BottomSheetModal, PremiumBottomSheetProps>(
-  ({
-    children,
-    title,
-    subtitle,
-    snapPoints,
-    contentStyle,
-    onClose,
-    keyboardBehavior = "interactive",
-    keyboardBlurBehavior = "restore",
-    android_keyboardInputMode = "adjustResize",
-    ...props
-  }, ref) => {
+  (
+    {
+      children,
+      title,
+      subtitle,
+      snapPoints,
+      contentStyle,
+      onClose,
+      keyboardBehavior = "interactive",
+      keyboardBlurBehavior = "restore",
+      android_keyboardInputMode = "adjustResize",
+      ...props
+    },
+    ref
+  ) => {
     const insets = useSafeAreaInsets();
 
     const finalSnapPoints = snapPoints ? snapPoints : [];
@@ -75,10 +77,7 @@ export const PremiumBottomSheet = forwardRef<BottomSheetModal, PremiumBottomShee
         {...props}
       >
         <BottomSheetView
-          style={[
-            { paddingBottom: insets.bottom + 20, borderRadius: 32 },
-            contentStyle
-          ]}
+          style={[{ paddingBottom: insets.bottom + 20, borderRadius: 32 }, contentStyle]}
         >
           {/* Header matching DrawerHeader.tsx */}
           {(title || onClose) && (
@@ -88,7 +87,7 @@ export const PremiumBottomSheet = forwardRef<BottomSheetModal, PremiumBottomShee
                   {title && (
                     <Text
                       className="font-playfair-bold text-3xl tracking-tight text-stone-900"
-                      style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
+                      style={{ fontFamily: "PlayfairDisplay_700Bold" }}
                     >
                       {title}
                     </Text>
@@ -114,7 +113,7 @@ export const PremiumBottomSheet = forwardRef<BottomSheetModal, PremiumBottomShee
 
           {children}
         </BottomSheetView>
-      </BottomSheetModal >
+      </BottomSheetModal>
     );
   }
 );
