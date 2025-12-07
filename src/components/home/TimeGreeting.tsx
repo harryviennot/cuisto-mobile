@@ -5,8 +5,9 @@
  * Uses device local time for appropriate greeting.
  */
 import React, { useMemo } from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { PageHeader } from "../ui/PageHeader";
+import { MagnifyingGlassIcon } from "phosphor-react-native";
 
 type TimeOfDay = "morning" | "afternoon" | "evening" | "night";
 
@@ -18,7 +19,7 @@ interface GreetingConfig {
 const GREETINGS: Record<TimeOfDay, GreetingConfig> = {
   morning: {
     greeting: "Good morning!",
-    subtitle: "Ready to cook?",
+    subtitle: "Ready for a nice breakfast?",
   },
   afternoon: {
     greeting: "Good afternoon!",
@@ -26,7 +27,7 @@ const GREETINGS: Record<TimeOfDay, GreetingConfig> = {
   },
   evening: {
     greeting: "Good evening!",
-    subtitle: "Time for dinner?",
+    subtitle: "Time for some dinner?",
   },
   night: {
     greeting: "Late night cravings?",
@@ -46,18 +47,22 @@ function getTimeOfDay(): TimeOfDay {
 export interface TimeGreetingProps {
   /** Optional custom className for the container */
   className?: string;
+  rightElement?: React.ReactNode;
 }
 
-export function TimeGreeting({ className }: TimeGreetingProps) {
+export function TimeGreeting({ className, rightElement }: TimeGreetingProps) {
   const timeOfDay = useMemo(() => getTimeOfDay(), []);
   const { greeting, subtitle } = GREETINGS[timeOfDay];
 
   return (
     <PageHeader
-      title={greeting}
-      subtitle={subtitle}
+      title={subtitle}
+      subtitle={greeting}
       topPadding={0}
       bottomMargin={48}
+      highlightLastWord
+      newLine
+      rightElement={rightElement}
     />
   );
 }

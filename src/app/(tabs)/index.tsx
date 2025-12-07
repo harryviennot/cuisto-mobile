@@ -101,7 +101,7 @@ export default function Index() {
     () => (
       <View>
         {/* Time-based greeting */}
-        <TimeGreeting />
+        <TimeGreeting rightElement={headerRightElement} />
 
         {/* Discovery sections - each section hides itself if not enough data */}
         <TrendingThisWeekSection
