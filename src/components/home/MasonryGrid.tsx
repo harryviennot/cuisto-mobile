@@ -128,14 +128,14 @@ export function MasonryGrid({
       onScroll={onScroll}
       scrollEventThrottle={16}
       contentContainerStyle={{
-        paddingHorizontal: 12,
+        paddingHorizontal: 10,
         ...contentContainerStyle,
       }}
       onEndReached={onEndReached}
       onEndReachedThreshold={onEndReachedThreshold}
       ListHeaderComponent={ListHeaderComponent}
       ListHeaderComponentStyle={{
-        marginHorizontal: -12, // Counteract contentContainerStyle padding
+        marginHorizontal: -10, // Counteract contentContainerStyle padding
       }}
       ListFooterComponent={ListFooterComponent}
       refreshing={refreshing}

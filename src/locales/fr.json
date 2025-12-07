@@ -575,5 +575,70 @@
       "pleaseSelectOne": "Veuillez en sélectionner au moins un",
       "whereGetRecipes": "Où trouvez-vous habituellement vos recettes ?"
     }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "PRÉFÉRENCES",
+    "sections": {
+      "account": "Compte",
+      "app": "Application",
+      "dangerZone": "Zone de danger"
+    },
+    "language": {
+      "title": "Langue",
+      "description": "Changer la langue de l'application",
+      "selectLanguage": "Sélectionner la langue"
+    },
+    "changeEmail": {
+      "title": "Changer d'email",
+      "description": "Mettre à jour votre email",
+      "inputLabel": "Nouvelle adresse email",
+      "inputPlaceholder": "Entrez le nouvel email",
+      "submitButton": "Envoyer la vérification",
+      "successTitle": "Vérification envoyée",
+      "successMessage": "Veuillez vérifier votre nouvelle adresse email pour confirmer le changement.",
+      "errorAlreadyUsed": "Cet email est déjà associé à un autre compte."
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "description": "Gérer votre abonnement",
+      "comingSoon": "Bientôt disponible"
+    },
+    "feedback": {
+      "title": "Donner un avis",
+      "description": "Aidez-nous à améliorer Cuistudio"
+    },
+    "privacyPolicy": {
+      "title": "Politique de confidentialité",
+      "description": "Lire notre politique de confidentialité"
+    },
+    "termsOfService": {
+      "title": "Conditions d'utilisation",
+      "description": "Lire nos conditions d'utilisation"
+    },
+    "about": {
+      "title": "À propos",
+      "description": "En savoir plus sur Cuistudio",
+      "sheetTitle": "À propos de Cuistudio",
+      "story": "Comme vous, j'ai sauvegardé des centaines de recettes. Des TikToks, des Reels Instagram, des captures d'écran et des onglets de navigateur que je ne retrouverai jamais.\n\nUn soir, j'ai passé 30 minutes à faire défiler ma galerie photo à la recherche d'une recette de pâtes. Je savais que je l'avais. Je n'arrivais tout simplement pas à la trouver.\n\nC'est à ce moment que Cuisto est né. Je voulais créer un seul et bel endroit pour toutes les recettes — organisé, consultable, et vraiment utilisable quand vous êtes debout dans la cuisine avec les mains pleines de farine.",
+      "madeBy": "Fait avec ❤️ par Harry",
+      "connect": "Me suivre"
+    },
+    "logout": {
+      "title": "Déconnexion",
+      "description": "Se déconnecter de votre compte",
+      "confirmTitle": "Déconnexion",
+      "confirmMessage": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "confirmButton": "Se déconnecter"
+    },
+    "deleteAccount": {
+      "title": "Supprimer le compte",
+      "description": "Supprimer définitivement votre compte",
+      "confirmTitle": "Supprimer le compte",
+      "confirmMessage": "Cette action est permanente et irréversible. Toutes vos recettes et données seront supprimées.",
+      "confirmButton": "Supprimer mon compte",
+      "successMessage": "Votre compte a été supprimé."
+    },
+    "appVersion": "Version {{version}}"
   }
 }

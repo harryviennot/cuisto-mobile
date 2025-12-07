@@ -575,5 +575,70 @@
       "pleaseSelectOne": "Please select at least one",
       "whereGetRecipes": "Where do you usually find recipes?"
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "PREFERENCES",
+    "sections": {
+      "account": "Account",
+      "app": "App",
+      "dangerZone": "Danger Zone"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Change app language",
+      "selectLanguage": "Select Language"
+    },
+    "changeEmail": {
+      "title": "Change Email",
+      "description": "Update your account email",
+      "inputLabel": "New Email Address",
+      "inputPlaceholder": "Enter new email",
+      "submitButton": "Send Verification",
+      "successTitle": "Verification Sent",
+      "successMessage": "Please check your new email address to confirm the change.",
+      "errorAlreadyUsed": "This email is already registered to another account."
+    },
+    "subscription": {
+      "title": "Subscription",
+      "description": "Manage your subscription",
+      "comingSoon": "Coming soon"
+    },
+    "feedback": {
+      "title": "Give Feedback",
+      "description": "Help us improve Cuistudio"
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "description": "Read our privacy policy"
+    },
+    "termsOfService": {
+      "title": "Terms of Service",
+      "description": "Read our terms of service"
+    },
+    "about": {
+      "title": "About",
+      "description": "Learn more about Cuistudio",
+      "sheetTitle": "About Cuistudio",
+      "story": "Like you, I've saved hundreds of recipes. TikToks, Instagram Reels, random screenshots, and browser tabs I'll never find again.\n\nOne night, I spent 30 minutes scrolling through my camera roll looking for a specific pasta recipe. I knew I had it. I just couldn't find it.\n\nThat was the moment Cuisto was born. I wanted to build one beautiful place for all recipes — organized, searchable, and actually usable when you're standing in the kitchen with messy hands.",
+      "madeBy": "Made with ❤️ by Harry",
+      "connect": "Connect"
+    },
+    "logout": {
+      "title": "Log Out",
+      "description": "Sign out of your account",
+      "confirmTitle": "Log Out",
+      "confirmMessage": "Are you sure you want to log out?",
+      "confirmButton": "Log Out"
+    },
+    "deleteAccount": {
+      "title": "Delete Account",
+      "description": "Permanently delete your account",
+      "confirmTitle": "Delete Account",
+      "confirmMessage": "This action is permanent and cannot be undone. All your recipes and data will be deleted.",
+      "confirmButton": "Delete My Account",
+      "successMessage": "Your account has been deleted."
+    },
+    "appVersion": "Version {{version}}"
   }
 }

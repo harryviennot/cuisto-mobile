@@ -166,7 +166,7 @@ export default function CookingHistoryScreen() {
   }, []);
 
   // 52 is roughly the height of UnifiedStickyHeader content (40px button + 12px paddingBottom)
-  const headerTopPadding = insets.top + 47;
+  const headerTopPadding = insets.top + 60;
 
   // Adjust scrollY for the header animation because contentInset shifts the origin
   const adjustedScrollY = useDerivedValue(() => {
