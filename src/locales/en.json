@@ -384,6 +384,65 @@
       "title": "Let's Cook!"
     }
   },
+  "discovery": {
+    "greeting": {
+      "morning": {
+        "greeting": "Good morning!",
+        "subtitle": "Ready for a nice breakfast?"
+      },
+      "afternoon": {
+        "greeting": "Good afternoon!",
+        "subtitle": "What's cooking?"
+      },
+      "evening": {
+        "greeting": "Good evening!",
+        "subtitle": "Time for some dinner?"
+      },
+      "night": {
+        "greeting": "Late night cravings?",
+        "subtitle": "Find something delicious"
+      }
+    },
+    "sections": {
+      "trending": {
+        "title": "Trending This Week",
+        "subtitle": "Most Cooked"
+      },
+      "socials": {
+        "title": "Trending on Socials",
+        "subtitle": "From TikTok, Instagram & YouTube"
+      },
+      "online": {
+        "title": "Popular Recipes Online",
+        "subtitle": "From Recipe Websites"
+      },
+      "rated": {
+        "title": "Highest Rated",
+        "subtitle": "Top Quality Recipes"
+      },
+      "recent": {
+        "title": "Recently Added",
+        "subtitle": "Fresh Recipes"
+      }
+    },
+    "stats": {
+      "cooked": "{{count}} cooked",
+      "extracted": "{{count}} extracted"
+    },
+    "empty": {
+      "title": "You're one of the first here!",
+      "message": "Extract a recipe to get started and help build this community.",
+      "cta": "Extract a Recipe"
+    },
+    "error": {
+      "title": "Failed to load recipes",
+      "message": "Something went wrong"
+    },
+    "noRecipes": {
+      "title": "No recipes yet",
+      "message": "Check back later for more recipes"
+    }
+  },
   "search": {
     "placeholder": "Search recipes..."
   },

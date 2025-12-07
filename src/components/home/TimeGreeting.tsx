@@ -5,35 +5,10 @@
  * Uses device local time for appropriate greeting.
  */
 import React, { useMemo } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "react-i18next";
 import { PageHeader } from "../ui/PageHeader";
-import { MagnifyingGlassIcon } from "phosphor-react-native";
 
 type TimeOfDay = "morning" | "afternoon" | "evening" | "night";
-
-interface GreetingConfig {
-  greeting: string;
-  subtitle: string;
-}
-
-const GREETINGS: Record<TimeOfDay, GreetingConfig> = {
-  morning: {
-    greeting: "Good morning!",
-    subtitle: "Ready for a nice breakfast?",
-  },
-  afternoon: {
-    greeting: "Good afternoon!",
-    subtitle: "What's cooking?",
-  },
-  evening: {
-    greeting: "Good evening!",
-    subtitle: "Time for some dinner?",
-  },
-  night: {
-    greeting: "Late night cravings?",
-    subtitle: "Find something delicious",
-  },
-};
 
 function getTimeOfDay(): TimeOfDay {
   const hour = new Date().getHours();
@@ -51,8 +26,11 @@ export interface TimeGreetingProps {
 }
 
 export function TimeGreeting({ className, rightElement }: TimeGreetingProps) {
+  const { t } = useTranslation();
   const timeOfDay = useMemo(() => getTimeOfDay(), []);
-  const { greeting, subtitle } = GREETINGS[timeOfDay];
+
+  const greeting = t(`discovery.greeting.${timeOfDay}.greeting` as any) as string;
+  const subtitle = t(`discovery.greeting.${timeOfDay}.subtitle` as any) as string;
 
   return (
     <PageHeader
@@ -69,8 +47,17 @@ export function TimeGreeting({ className, rightElement }: TimeGreetingProps) {
 
 /**
  * Returns the current greeting text for use in sticky headers
+ * Note: This is a non-hook function, so it uses English as fallback
+ * For proper i18n support in components, use the TimeGreeting component
  */
 export function getGreetingText(): string {
   const timeOfDay = getTimeOfDay();
-  return GREETINGS[timeOfDay].greeting;
+  // Fallback to English for non-React contexts
+  const greetings: Record<TimeOfDay, string> = {
+    morning: "Good morning!",
+    afternoon: "Good afternoon!",
+    evening: "Good evening!",
+    night: "Late night cravings?",
+  };
+  return greetings[timeOfDay];
 }

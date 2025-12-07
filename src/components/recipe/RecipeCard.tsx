@@ -6,7 +6,7 @@ import { memo, useState } from "react";
 import { View, Text, Pressable, Platform } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Image as ImageIcon, Clock, Flame, Bookmark } from "phosphor-react-native";
+import { Image as ImageIcon, Clock, Bookmark } from "phosphor-react-native";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "expo-haptics";
@@ -81,8 +81,19 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
   // Get category or first tag
   const categoryLabel = recipe.categories?.[0] || recipe.tags?.[0] || t("recipe.card.recipeLabel");
 
-  // Get calories (placeholder - TODO: add nutrition field to Recipe type)
-  const calories = 450;
+  // Get translated difficulty label
+  const getDifficultyLabel = (difficulty?: string) => {
+    switch (difficulty?.toLowerCase()) {
+      case "easy":
+        return t("recipe.difficulty.easy");
+      case "medium":
+        return t("recipe.difficulty.medium");
+      case "hard":
+        return t("recipe.difficulty.hard");
+      default:
+        return null;
+    }
+  };
 
   return (
     <View className="mb-6">
@@ -170,18 +181,19 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
 
         {/* Content Area - Minimalist & Editorial */}
         <View className="mt-3 px-1">
-          {/* Category and Difficulty Row */}
+          {/* Category and Rating Row */}
           <View className="flex-row items-center justify-between mb-1">
             <Text className="text-[10px] font-bold tracking-widest uppercase text-stone-400">
               {categoryLabel}
             </Text>
 
-            {/* Difficulty Dot */}
-            {recipe.difficulty && (
-              <View className="flex-row items-center gap-1">
-                <View
-                  className={`w-1.5 h-1.5 rounded-full ${getDifficultyDotColor(recipe.difficulty)}`}
-                />
+            {/* Rating Badge */}
+            {recipe.average_rating && recipe.average_rating > 0 && (
+              <View className="flex-row items-center gap-0.5">
+                <Text className="text-yellow-500 text-[10px]">★</Text>
+                <Text className="text-[10px] font-medium text-stone-500">
+                  {recipe.average_rating.toFixed(1)}
+                </Text>
               </View>
             )}
           </View>
@@ -206,15 +218,21 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
               </View>
             )}
 
-            {totalTime > 0 && <View className="w-px h-2 bg-stone-300" />}
+            {totalTime > 0 && getDifficultyLabel(recipe.difficulty) && (
+              <View className="w-px h-2 bg-stone-300" />
+            )}
 
-            {/* Calories */}
-            <View className="flex-row items-center gap-1">
-              <Flame size={12} color="#a8a29e" weight="regular" />
-              <Text className="text-[11px] font-medium tracking-wide text-stone-500">
-                {calories} {t("common.kcal")}
-              </Text>
-            </View>
+            {/* Difficulty */}
+            {getDifficultyLabel(recipe.difficulty) && (
+              <View className="flex-row items-center gap-1">
+                <View
+                  className={`w-1.5 h-1.5 rounded-full ${getDifficultyDotColor(recipe.difficulty)}`}
+                />
+                <Text className="text-[11px] font-medium tracking-wide text-stone-500">
+                  {getDifficultyLabel(recipe.difficulty)}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
       </Pressable>

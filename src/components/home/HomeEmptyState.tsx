@@ -7,6 +7,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { ChefHat } from "phosphor-react-native";
 
 export interface HomeEmptyStateProps {
@@ -16,6 +17,7 @@ export interface HomeEmptyStateProps {
 
 export function HomeEmptyState({ className }: HomeEmptyStateProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleExtractRecipe = () => {
     router.push("/(tabs)/new-recipe");
@@ -28,12 +30,11 @@ export function HomeEmptyState({ className }: HomeEmptyStateProps) {
       </View>
 
       <Text className="text-foreground-heading font-display text-2xl text-center mb-2">
-        You're one of the first here!
+        {t("discovery.empty.title")}
       </Text>
 
       <Text className="text-foreground-secondary text-base text-center mb-8 leading-6">
-        Be a pioneer and extract your first recipe.{"\n"}
-        Your discoveries will inspire others.
+        {t("discovery.empty.message")}
       </Text>
 
       <TouchableOpacity
@@ -42,7 +43,7 @@ export function HomeEmptyState({ className }: HomeEmptyStateProps) {
         activeOpacity={0.8}
       >
         <Text className="text-white font-bold text-base">
-          Extract a Recipe
+          {t("discovery.empty.cta")}
         </Text>
       </TouchableOpacity>
     </View>

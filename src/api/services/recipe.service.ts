@@ -137,10 +137,10 @@ export const recipeService = {
   ): Promise<{ message: string }> => {
     const body = params
       ? {
-          rating: params.rating,
-          image_url: params.imageUrl,
-          duration_minutes: params.durationMinutes,
-        }
+        rating: params.rating,
+        image_url: params.imageUrl,
+        duration_minutes: params.durationMinutes,
+      }
       : undefined;
 
     const response = await api.post<{ message: string }>(`/recipes/${recipeId}/cooked`, body);
@@ -165,7 +165,7 @@ export const recipeService = {
     limit: number = 20,
     offset: number = 0
   ): Promise<CookingHistoryEvent[]> => {
-    const response = await api.get<CookingHistoryEvent[]>("/recipes/cooking-history", {
+    const response = await api.get<CookingHistoryEvent[]>("/discovery/cooking-history", {
       params: {
         time_window_days: timeWindowDays,
         limit,

@@ -385,6 +385,65 @@
       "title": "À vos fourneaux !"
     }
   },
+  "discovery": {
+    "greeting": {
+      "morning": {
+        "greeting": "Bonjour !",
+        "subtitle": "Prêt pour un bon petit-déjeuner ?"
+      },
+      "afternoon": {
+        "greeting": "Bon après-midi !",
+        "subtitle": "Qu'est-ce qu'on cuisine ?"
+      },
+      "evening": {
+        "greeting": "Bonsoir !",
+        "subtitle": "C'est l'heure du dîner ?"
+      },
+      "night": {
+        "greeting": "Envie de minuit ?",
+        "subtitle": "Trouvez quelque chose de délicieux"
+      }
+    },
+    "sections": {
+      "trending": {
+        "title": "Tendances de la semaine",
+        "subtitle": "Les plus cuisinées"
+      },
+      "socials": {
+        "title": "Tendances sur les réseaux",
+        "subtitle": "De TikTok, Instagram et YouTube"
+      },
+      "online": {
+        "title": "Recettes populaires en ligne",
+        "subtitle": "Des sites de recettes"
+      },
+      "rated": {
+        "title": "Les mieux notées",
+        "subtitle": "Recettes de qualité"
+      },
+      "recent": {
+        "title": "Ajoutées récemment",
+        "subtitle": "Recettes fraîches"
+      }
+    },
+    "stats": {
+      "cooked": "{{count}} cuisinées",
+      "extracted": "{{count}} extraites"
+    },
+    "empty": {
+      "title": "Vous êtes parmi les premiers !",
+      "message": "Extrayez une recette pour commencer et aidez à construire cette communauté.",
+      "cta": "Extraire une recette"
+    },
+    "error": {
+      "title": "Échec du chargement des recettes",
+      "message": "Une erreur s'est produite"
+    },
+    "noRecipes": {
+      "title": "Aucune recette pour le moment",
+      "message": "Revenez plus tard pour plus de recettes"
+    }
+  },
   "search": {
     "placeholder": "Rechercher des recettes..."
   },

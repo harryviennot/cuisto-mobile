@@ -6,10 +6,11 @@
  */
 import React from "react";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { HorizontalPreviewSection } from "@/components/ui/HorizontalPreviewSection";
 import { DiscoveryRecipeCard, DiscoveryRecipeCardSkeleton } from "./DiscoveryRecipeCard";
 import type { Recipe } from "@/types/recipe";
-import type { TrendingRecipe, ExtractedRecipe, DiscoverySectionType } from "@/types/discovery";
+import type { TrendingRecipe, ExtractedRecipe } from "@/types/discovery";
 import { DISCOVERY_CONSTANTS } from "@/types/discovery";
 
 const CARD_WIDTH = 140;
@@ -29,6 +30,7 @@ export function TrendingThisWeekSection({
   isError,
 }: DiscoverySectionProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleSeeMore = () => {
     router.push("/discovery/trending");
@@ -36,7 +38,7 @@ export function TrendingThisWeekSection({
 
   return (
     <HorizontalPreviewSection<TrendingRecipe>
-      title="Trending This Week"
+      title={t("discovery.sections.trending.title")}
       data={data as TrendingRecipe[] | undefined}
       renderItem={(recipe) => (
         <DiscoveryRecipeCard recipe={recipe} width={CARD_WIDTH} />
@@ -62,6 +64,7 @@ export function TrendingOnSocialsSection({
   isError,
 }: DiscoverySectionProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleSeeMore = () => {
     router.push("/discovery/socials");
@@ -69,7 +72,7 @@ export function TrendingOnSocialsSection({
 
   return (
     <HorizontalPreviewSection<ExtractedRecipe>
-      title="Trending on Socials"
+      title={t("discovery.sections.socials.title")}
       data={data as ExtractedRecipe[] | undefined}
       renderItem={(recipe) => (
         <DiscoveryRecipeCard recipe={recipe} width={CARD_WIDTH} />
@@ -95,6 +98,7 @@ export function PopularOnlineSection({
   isError,
 }: DiscoverySectionProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleSeeMore = () => {
     router.push("/discovery/online");
@@ -102,7 +106,7 @@ export function PopularOnlineSection({
 
   return (
     <HorizontalPreviewSection<ExtractedRecipe>
-      title="Popular Recipes Online"
+      title={t("discovery.sections.online.title")}
       data={data as ExtractedRecipe[] | undefined}
       renderItem={(recipe) => (
         <DiscoveryRecipeCard recipe={recipe} width={CARD_WIDTH} />
@@ -128,6 +132,7 @@ export function HighestRatedSection({
   isError,
 }: DiscoverySectionProps) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleSeeMore = () => {
     router.push("/discovery/rated");
@@ -135,7 +140,7 @@ export function HighestRatedSection({
 
   return (
     <HorizontalPreviewSection<Recipe>
-      title="Highest Rated"
+      title={t("discovery.sections.rated.title")}
       data={data}
       renderItem={(recipe) => (
         <DiscoveryRecipeCard recipe={recipe} width={CARD_WIDTH} />

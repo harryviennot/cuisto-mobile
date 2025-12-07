@@ -11,7 +11,8 @@ import React, { useMemo, useCallback } from "react";
 import { View, Text, ActivityIndicator, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { CaretLeft, WarningCircle } from "phosphor-react-native";
+import { WarningCircle } from "phosphor-react-native";
+import { useTranslation } from "react-i18next";
 import {
   useSharedValue,
   useAnimatedScrollHandler,
@@ -24,53 +25,42 @@ import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { discoveryService } from "@/api/services/discovery.service";
 import type { Recipe } from "@/types/recipe";
-import type { TrendingRecipe, ExtractedRecipe, DiscoverySectionType } from "@/types/discovery";
+import type { DiscoverySectionType } from "@/types/discovery";
 
 const PAGE_SIZE = 20;
 
-// Configuration for each discovery type
-const DISCOVERY_CONFIG: Record<
+// Translation keys for each discovery type
+const DISCOVERY_TRANSLATION_KEYS: Record<DiscoverySectionType, string> = {
+  trending: "trending",
+  socials: "socials",
+  online: "online",
+  rated: "rated",
+};
+
+// Fetch functions for each discovery type
+const DISCOVERY_FETCH_FNS: Record<
   DiscoverySectionType,
-  {
-    title: string;
-    subtitle: string;
-    fetchFn: (limit: number, offset: number) => Promise<Recipe[]>;
-    queryKey: string;
-  }
+  (limit: number, offset: number) => Promise<Recipe[]>
 > = {
-  trending: {
-    title: "Trending This Week",
-    subtitle: "Most Cooked",
-    fetchFn: (limit, offset) => discoveryService.getTrendingThisWeek(limit, offset),
-    queryKey: "trending-all",
-  },
-  socials: {
-    title: "Trending on Socials",
-    subtitle: "From TikTok, Instagram & YouTube",
-    fetchFn: (limit, offset) => discoveryService.getTrendingOnSocials(limit, offset),
-    queryKey: "socials-all",
-  },
-  online: {
-    title: "Popular Recipes Online",
-    subtitle: "From Recipe Websites",
-    fetchFn: (limit, offset) => discoveryService.getPopularOnline(limit, offset),
-    queryKey: "online-all",
-  },
-  rated: {
-    title: "Highest Rated",
-    subtitle: "Top Quality Recipes",
-    fetchFn: (limit, offset) => discoveryService.getHighestRated(limit, offset),
-    queryKey: "rated-all",
-  },
+  trending: (limit, offset) => discoveryService.getTrendingThisWeek(limit, offset),
+  socials: (limit, offset) => discoveryService.getTrendingOnSocials(limit, offset),
+  online: (limit, offset) => discoveryService.getPopularOnline(limit, offset),
+  rated: (limit, offset) => discoveryService.getHighestRated(limit, offset),
 };
 
 export default function DiscoverySeeAllScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { type } = useLocalSearchParams<{ type: DiscoverySectionType }>();
 
   // Get config for this discovery type
-  const config = DISCOVERY_CONFIG[type as DiscoverySectionType] ?? DISCOVERY_CONFIG.trending;
+  const sectionType = (type as DiscoverySectionType) || "trending";
+  const translationKey = DISCOVERY_TRANSLATION_KEYS[sectionType] || "trending";
+  const fetchFn = DISCOVERY_FETCH_FNS[sectionType] || DISCOVERY_FETCH_FNS.trending;
+
+  const title = t(`discovery.sections.${translationKey}.title` as any) as string;
+  const subtitle = t(`discovery.sections.${translationKey}.subtitle` as any) as string;
 
   // Scroll handler for sticky header
   const scrollY = useSharedValue(0);
@@ -97,10 +87,10 @@ export default function DiscoverySeeAllScreen() {
     refetch,
     isRefetching,
   } = useInfiniteQuery<Recipe[], Error>({
-    queryKey: ["discovery", config.queryKey],
+    queryKey: ["discovery", `${sectionType}-all`],
     queryFn: async ({ pageParam = 0 }) => {
       const offset = pageParam as number;
-      return config.fetchFn(PAGE_SIZE, offset);
+      return fetchFn(PAGE_SIZE, offset);
     },
     getNextPageParam: (lastPage, allPages) => {
       if (lastPage.length < PAGE_SIZE) {
@@ -132,12 +122,12 @@ export default function DiscoverySeeAllScreen() {
   const ListHeaderComponent = useMemo(
     () => (
       <PageHeader
-        subtitle={config.subtitle}
-        title={config.title}
+        subtitle={subtitle}
+        title={title}
         topPadding={0}
       />
     ),
-    [config.subtitle, config.title]
+    [subtitle, title]
   );
 
   // Loading state
@@ -148,7 +138,7 @@ export default function DiscoverySeeAllScreen() {
         style={{ paddingTop: insets.top }}
       >
         <ActivityIndicator size="large" color="#334d43" />
-        <Text className="mt-4 text-foreground-secondary">Loading recipes...</Text>
+        <Text className="mt-4 text-foreground-secondary">{t("common.loading")}</Text>
       </View>
     );
   }
@@ -161,22 +151,22 @@ export default function DiscoverySeeAllScreen() {
         style={{ paddingTop: insets.top }}
       >
         <UnifiedStickyHeader
-          title={config.title}
+          title={title}
           scrollY={adjustedScrollY}
           onBackPress={handleBack}
         />
         <WarningCircle size={64} color="#ef4444" weight="duotone" />
         <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
-          Failed to load recipes
+          {t("discovery.error.title")}
         </Text>
         <Text className="text-foreground-secondary text-center">
-          {error?.message || "Something went wrong"}
+          {error?.message || t("discovery.error.message")}
         </Text>
         <Pressable
           onPress={() => refetch()}
           className="bg-primary rounded-lg px-6 py-3 active:opacity-80"
         >
-          <Text className="text-white font-semibold">Try Again</Text>
+          <Text className="text-white font-semibold">{t("common.tryAgain")}</Text>
         </Pressable>
       </View>
     );
@@ -187,16 +177,16 @@ export default function DiscoverySeeAllScreen() {
     return (
       <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
         <UnifiedStickyHeader
-          title={config.title}
+          title={title}
           scrollY={adjustedScrollY}
           onBackPress={handleBack}
         />
         <View className="flex-1 items-center justify-center p-6">
           <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
-            No recipes yet
+            {t("discovery.noRecipes.title")}
           </Text>
           <Text className="text-foreground-secondary text-center mt-2">
-            Check back later for more recipes
+            {t("discovery.noRecipes.message")}
           </Text>
         </View>
       </View>
@@ -222,7 +212,7 @@ export default function DiscoverySeeAllScreen() {
       />
 
       <UnifiedStickyHeader
-        title={config.title}
+        title={title}
         scrollY={adjustedScrollY}
         onBackPress={handleBack}
       />
