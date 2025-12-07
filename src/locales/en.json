@@ -41,7 +41,7 @@
     "change": "Change"
   },
   "app": {
-    "title": "CuiStudio",
+    "title": "Cuisto",
     "description": "Edit app/index.tsx to edit this screen."
   },
   "language": {
@@ -358,7 +358,7 @@
       "failedToSend": "Failed to send code",
       "failedToResend": "Failed to resend code",
       "verified": "Email verified!",
-      "verifiedDescription": "Welcome to Cuistudio",
+      "verifiedDescription": "Welcome to Cuisto",
       "verificationFailed": "Verification failed",
       "invalidCode": "Invalid or expired code"
     },
@@ -625,7 +625,7 @@
     },
     "feedback": {
       "title": "Give Feedback",
-      "description": "Help us improve Cuistudio"
+      "description": "Help us improve Cuisto"
     },
     "privacyPolicy": {
       "title": "Privacy Policy",
@@ -637,8 +637,8 @@
     },
     "about": {
       "title": "About",
-      "description": "Learn more about Cuistudio",
-      "sheetTitle": "About Cuistudio",
+      "description": "Learn more about Cuisto",
+      "sheetTitle": "About Cuisto",
       "story": "Hi, I'm Harry 👋\n\nLike you, I've saved hundreds of recipes across Instagram, TikTok, random websites, screenshots, and notes, most of which I never actually cooked because I simply forgot they existed.\n\nI'd stand in my kitchen with no idea what to make, completely forgetting the dozens of dishes I already knew how to cook.\n\nSo I built Cuisto: one place where every recipe lives, organized and ready for when inspiration (or hunger) strikes.\n\nI hope it helps you as much as it helps me. And since I'm building this for the community, not just myself, I'd love to hear your feedback, feature ideas, or bug reports!",
       "madeBy": "Made with ❤️ by Harry",
       "connect": "Connect"
