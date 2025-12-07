@@ -64,7 +64,7 @@ function RightActions({ onEdit, onDelete }: { onEdit: () => void; onDelete: () =
       {/* Delete Action - closest to edge */}
       <Pressable onPress={onDelete}>
         <View
-          className="bg-red-500 justify-center items-center"
+          className="bg-state-error justify-center items-center"
           style={{ width: ACTION_WIDTH, height: "100%" }}
         >
           <Trash size={22} color="white" weight="bold" />
@@ -112,6 +112,7 @@ export const CookingHistoryListItem = memo(
       // Get Day Number
       const dateObj = new Date(event.cooked_at);
       const dayNumber = dateObj.getDate();
+      const dayName = dateObj.toLocaleString("en", { weekday: "short" });
 
       const handlePress = () => {
         router.push({
@@ -177,7 +178,8 @@ export const CookingHistoryListItem = memo(
               className="flex-row items-center py-3 pl-3 pr-4 active:bg-stone-100 border-b border-border-light bg-surface"
             >
               {/* Day Number */}
-              <View className="w-12 items-center justify-center mr-2">
+              <View className="w-12 items-center justify-center mr-2 gap-1">
+                <Text className="text-xs font-medium text-text-muted">{dayName}</Text>
                 <Text className="text-[48px] font-light font-playfair text-primary leading-none">
                   {dayNumber}
                 </Text>
@@ -242,21 +244,7 @@ export const CookingHistoryListItem = memo(
                       </Text>
                     </View>
                   )}
-
-                  {/* Times Cooked (if > 1) */}
-                  {/* {event.times_cooked > 1 && (
-                <View className="bg-primary/10 rounded-full px-2 py-0.5">
-                  <Text className="text-[10px] text-primary font-semibold">
-                    {t("cookingHistory.cookedTimes", { count: event.times_cooked })}
-                  </Text>
                 </View>
-              )} */}
-                </View>
-
-                {/* Year (Optional, if needed, but header has it) */}
-                {/* <Text className="text-xs text-foreground-tertiary mt-1">
-               {dateObj.getFullYear()}
-             </Text> */}
               </View>
             </Pressable>
           </ReanimatedSwipeable>
