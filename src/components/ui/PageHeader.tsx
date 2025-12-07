@@ -24,7 +24,7 @@ export function PageHeader({ title, subtitle, topPadding, rightElement }: PageHe
     <View
       style={{
         paddingTop: topPadding,
-        paddingHorizontal: 20,
+        paddingHorizontal: 16,
         paddingBottom: 24,
       }}
     >

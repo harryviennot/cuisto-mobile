@@ -12,6 +12,7 @@
     "error": "Error",
     "success": "Success",
     "ok": "OK",
+    "back": "Back",
     "retry": "Retry",
     "tryAgain": "Try Again",
     "of": "of",
@@ -40,7 +41,7 @@
     "change": "Change"
   },
   "app": {
-    "title": "CuiStudio",
+    "title": "Cuisto",
     "description": "Edit app/index.tsx to edit this screen."
   },
   "language": {
@@ -357,7 +358,7 @@
       "failedToSend": "Failed to send code",
       "failedToResend": "Failed to resend code",
       "verified": "Email verified!",
-      "verifiedDescription": "Welcome to Cuistudio",
+      "verifiedDescription": "Welcome to Cuisto",
       "verificationFailed": "Verification failed",
       "invalidCode": "Invalid or expired code"
     },
@@ -575,5 +576,88 @@
       "pleaseSelectOne": "Please select at least one",
       "whereGetRecipes": "Where do you usually find recipes?"
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "PREFERENCES",
+    "sections": {
+      "account": "Account",
+      "app": "App",
+      "dangerZone": "Danger Zone"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Change app language",
+      "selectLanguage": "Select Language"
+    },
+    "changeEmail": {
+      "title": "Change Email",
+      "subtitle": "Update account email",
+      "description": "Enter your new email address. For security, we'll verify both your current and new email addresses.",
+      "inputLabel": "New Email Address",
+      "inputPlaceholder": "Enter new email",
+      "sendCodeButton": "Send Verification Code",
+      "submitButton": "Send Verification",
+      "successTitle": "Email Changed!",
+      "successMessage": "Your email address has been successfully updated.",
+      "errorAlreadyUsed": "This email is already registered to another account.",
+      "errorRateLimit": "Please wait {{seconds}} seconds before requesting another code.",
+      "errorGeneric": "Something went wrong. Please try again.",
+      "errorNoEmail": "No email associated with this account.",
+      "otpTitleCurrent": "Verify Current Email",
+      "otpTitleNew": "Verify New Email",
+      "verifyCurrentSubtitle": "Step 1 of 2",
+      "verifyNewSubtitle": "Step 2 of 2",
+      "otpInstructionsCurrent": "Enter the 6-digit code we sent to {{email}}",
+      "otpInstructionsNew": "Now enter the 6-digit code we sent to {{email}}",
+      "otpSent": "Code Sent!",
+      "otpResent": "A new verification code has been sent to your current email.",
+      "verifyCurrentButton": "Verify & Continue",
+      "verifyNewButton": "Complete Change",
+      "resendCode": "Resend code",
+      "changeEmail": "Change email",
+      "invalidCode": "Invalid or expired code. Please try again."
+    },
+    "subscription": {
+      "title": "Subscription",
+      "description": "Manage your subscription",
+      "comingSoon": "Coming soon"
+    },
+    "feedback": {
+      "title": "Give Feedback",
+      "description": "Help us improve Cuisto"
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "description": "Read our privacy policy"
+    },
+    "termsOfService": {
+      "title": "Terms of Service",
+      "description": "Read our terms of service"
+    },
+    "about": {
+      "title": "About",
+      "description": "Learn more about Cuisto",
+      "sheetTitle": "About Cuisto",
+      "story": "Hi, I'm Harry 👋\n\nLike you, I've saved hundreds of recipes across Instagram, TikTok, random websites, screenshots, and notes, most of which I never actually cooked because I simply forgot they existed.\n\nI'd stand in my kitchen with no idea what to make, completely forgetting the dozens of dishes I already knew how to cook.\n\nSo I built Cuisto: one place where every recipe lives, organized and ready for when inspiration (or hunger) strikes.\n\nI hope it helps you as much as it helps me. And since I'm building this for the community, not just myself, I'd love to hear your feedback, feature ideas, or bug reports!",
+      "madeBy": "Made with ❤️ by Harry",
+      "connect": "Connect"
+    },
+    "logout": {
+      "title": "Log Out",
+      "description": "Sign out of your account",
+      "confirmTitle": "Log Out",
+      "confirmMessage": "Are you sure you want to log out?",
+      "confirmButton": "Log Out"
+    },
+    "deleteAccount": {
+      "title": "Delete Account",
+      "description": "Permanently delete your account",
+      "confirmTitle": "Delete Account",
+      "confirmMessage": "This action is permanent and cannot be undone. All your recipes and data will be deleted.",
+      "confirmButton": "Delete My Account",
+      "successMessage": "Your account has been deleted."
+    },
+    "appVersion": "Version {{version}}"
   }
 }

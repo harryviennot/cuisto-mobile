@@ -135,4 +135,36 @@ export const authService = {
     const response = await api.post<{ message: string }>("/auth/onboarding", data);
     return response.data;
   },
+
+  /**
+   * Request email change (authenticated endpoint)
+   * Sends OTP verification code to new address
+   */
+  changeEmail: async (newEmail: string) => {
+    const response = await api.post<{ message: string }>("/auth/email/change", {
+      new_email: newEmail,
+    });
+    return response.data;
+  },
+
+  /**
+   * Verify email change with OTP (authenticated endpoint)
+   * Completes the email change after user enters the 6-digit code
+   */
+  verifyEmailChange: async (email: string, token: string) => {
+    const response = await api.post<{ message: string }>("/auth/email/change/verify", {
+      email,
+      token,
+    });
+    return response.data;
+  },
+
+  /**
+   * Delete user account (authenticated endpoint)
+   * Permanently deletes account and associated data
+   */
+  deleteAccount: async () => {
+    const response = await api.delete<{ message: string }>("/auth/account");
+    return response.data;
+  },
 };

@@ -53,7 +53,7 @@ export default function LibraryScreen() {
 
   // Handle user/profile press
   const handleUserPress = useCallback(() => {
-    // TODO: Navigate to profile/settings
+    router.push("/settings");
   }, []);
 
   // 52 is roughly the height of UnifiedStickyHeader content (40px button + 12px paddingBottom)

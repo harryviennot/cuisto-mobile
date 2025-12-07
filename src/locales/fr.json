@@ -12,6 +12,7 @@
     "error": "Erreur",
     "success": "Succès",
     "ok": "OK",
+    "back": "Retour",
     "retry": "Réessayer",
     "tryAgain": "Réessayer",
     "of": "de",
@@ -40,7 +41,7 @@
     "change": "Modifier"
   },
   "app": {
-    "title": "CuiStudio",
+    "title": "Cuisto",
     "description": "Modifiez app/index.tsx pour éditer cet écran."
   },
   "language": {
@@ -358,7 +359,7 @@
       "failedToSend": "Échec de l'envoi du code",
       "failedToResend": "Échec du renvoi du code",
       "verified": "Email vérifié !",
-      "verifiedDescription": "Bienvenue sur Cuistudio",
+      "verifiedDescription": "Bienvenue sur Cuisto",
       "verificationFailed": "Échec de la vérification",
       "invalidCode": "Code invalide ou expiré"
     },
@@ -575,5 +576,88 @@
       "pleaseSelectOne": "Veuillez en sélectionner au moins un",
       "whereGetRecipes": "Où trouvez-vous habituellement vos recettes ?"
     }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "PRÉFÉRENCES",
+    "sections": {
+      "account": "Compte",
+      "app": "Application",
+      "dangerZone": "Zone de danger"
+    },
+    "language": {
+      "title": "Langue",
+      "description": "Changer la langue de l'application",
+      "selectLanguage": "Sélectionner la langue"
+    },
+    "changeEmail": {
+      "title": "Changer d'email",
+      "subtitle": "Modifier l'email du compte",
+      "description": "Entrez votre nouvelle adresse email. Pour votre sécurité, nous vérifierons vos adresses email actuelle et nouvelle.",
+      "inputLabel": "Nouvelle adresse email",
+      "inputPlaceholder": "Entrez le nouvel email",
+      "sendCodeButton": "Envoyer le code",
+      "submitButton": "Envoyer la vérification",
+      "successTitle": "Email modifié !",
+      "successMessage": "Votre adresse email a été mise à jour avec succès.",
+      "errorAlreadyUsed": "Cet email est déjà associé à un autre compte.",
+      "errorRateLimit": "Veuillez patienter {{seconds}} secondes avant de demander un nouveau code.",
+      "errorGeneric": "Une erreur s'est produite. Veuillez réessayer.",
+      "errorNoEmail": "Aucun email n'est associé à ce compte.",
+      "otpTitleCurrent": "Vérifier l'email actuel",
+      "otpTitleNew": "Vérifier le nouvel email",
+      "verifyCurrentSubtitle": "Étape 1 sur 2",
+      "verifyNewSubtitle": "Étape 2 sur 2",
+      "otpInstructionsCurrent": "Entrez le code à 6 chiffres envoyé à {{email}}",
+      "otpInstructionsNew": "Maintenant, entrez le code à 6 chiffres envoyé à {{email}}",
+      "otpSent": "Code envoyé !",
+      "otpResent": "Un nouveau code de vérification a été envoyé à votre email actuel.",
+      "verifyCurrentButton": "Vérifier et continuer",
+      "verifyNewButton": "Terminer le changement",
+      "resendCode": "Renvoyer le code",
+      "changeEmail": "Changer l'email",
+      "invalidCode": "Code invalide ou expiré. Veuillez réessayer."
+    },
+    "subscription": {
+      "title": "Abonnement",
+      "description": "Gérer votre abonnement",
+      "comingSoon": "Bientôt disponible"
+    },
+    "feedback": {
+      "title": "Donner un avis",
+      "description": "Aidez-nous à améliorer Cuisto"
+    },
+    "privacyPolicy": {
+      "title": "Politique de confidentialité",
+      "description": "Lire notre politique de confidentialité"
+    },
+    "termsOfService": {
+      "title": "Conditions d'utilisation",
+      "description": "Lire nos conditions d'utilisation"
+    },
+    "about": {
+      "title": "À propos",
+      "description": "En savoir plus sur Cuisto",
+      "sheetTitle": "À propos de Cuisto",
+      "story": "Salut, moi c'est Harry 👋\n\nComme vous, j'ai sauvegardé des centaines de recettes sur Instagram, TikTok, des sites web, des captures d'écran et des notes, dont la plupart je n'ai jamais cuisinées parce que je les avais tout simplement oubliées.\n\nJe me retrouvais dans ma cuisine sans aucune idée de quoi préparer, oubliant complètement les dizaines de plats que je savais déjà faire.\n\nAlors j'ai créé Cuisto : un seul endroit où toutes vos recettes sont réunies, organisées et prêtes quand l'inspiration (ou la faim) se manifeste.\n\nJ'espère que ça vous sera aussi utile qu'à moi. Et comme je développe cette app pour la communauté et pas seulement pour moi, n'hésitez pas à me faire part de vos retours, suggestions ou bugs !",
+      "madeBy": "Fait avec ❤️ par Harry",
+      "connect": "Me suivre"
+    },
+    "logout": {
+      "title": "Déconnexion",
+      "description": "Se déconnecter de votre compte",
+      "confirmTitle": "Déconnexion",
+      "confirmMessage": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "confirmButton": "Se déconnecter"
+    },
+    "deleteAccount": {
+      "title": "Supprimer le compte",
+      "description": "Supprimer définitivement votre compte",
+      "confirmTitle": "Supprimer le compte",
+      "confirmMessage": "Cette action est permanente et irréversible. Toutes vos recettes et données seront supprimées.",
+      "confirmButton": "Supprimer mon compte",
+      "successMessage": "Votre compte a été supprimé."
+    },
+    "appVersion": "Version {{version}}"
   }
 }
