@@ -38,8 +38,7 @@ export const PremiumBottomSheet = forwardRef<BottomSheetModal, PremiumBottomShee
   }, ref) => {
     const insets = useSafeAreaInsets();
 
-    const defaultSnapPoints = useMemo(() => ["50%"], []);
-    const finalSnapPoints = snapPoints || defaultSnapPoints;
+    const finalSnapPoints = snapPoints ? snapPoints : [];
 
     const renderBackdrop = useCallback(
       (props: BottomSheetBackdropProps) => (
