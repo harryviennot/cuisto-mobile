@@ -11,7 +11,7 @@ import type {
 } from "@/types/discovery";
 
 const { SECTION_PREVIEW_LIMIT, RECENT_PAGE_SIZE } = {
-  SECTION_PREVIEW_LIMIT: 8,
+  SECTION_PREVIEW_LIMIT: 5,
   RECENT_PAGE_SIZE: 20,
 };
 

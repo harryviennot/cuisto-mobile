@@ -14,7 +14,7 @@ import type { TrendingRecipe, ExtractedRecipe } from "@/types/discovery";
 import { DISCOVERY_CONSTANTS } from "@/types/discovery";
 
 const CARD_WIDTH = 280;
-const CARD_IMAGE_HEIGHT = 160;
+const CARD_IMAGE_HEIGHT = 210;
 
 interface DiscoverySectionProps {
   data: Recipe[] | undefined;
