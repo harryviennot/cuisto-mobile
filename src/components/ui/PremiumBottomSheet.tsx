@@ -33,7 +33,7 @@ export const PremiumBottomSheet = forwardRef<BottomSheetModal, PremiumBottomShee
           {...props}
           disappearsOnIndex={-1}
           appearsOnIndex={0}
-          opacity={0.6}
+          opacity={0.4}
           pressBehavior="close"
         />
       ),
@@ -49,76 +49,56 @@ export const PremiumBottomSheet = forwardRef<BottomSheetModal, PremiumBottomShee
         backdropComponent={renderBackdrop}
         handleComponent={null}
         backgroundStyle={{
-          backgroundColor: "transparent",
+          backgroundColor: "#f4f1e8",
+          borderTopLeftRadius: 32,
+          borderTopRightRadius: 32,
         }}
         style={{
           zIndex: 50,
         }}
         {...props}
       >
-        <BlurView
-          intensity={95}
-          tint="light"
-          style={{
-            flex: 1,
-            borderTopLeftRadius: 32,
-            borderTopRightRadius: 32,
-            overflow: "hidden",
-          }}
+        <BottomSheetView
+          style={[
+            { paddingBottom: insets.bottom + 20, borderRadius: 32 },
+            contentStyle
+          ]}
         >
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(255, 255, 255, 0.65)",
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: -10 },
-              shadowOpacity: 0.1,
-              shadowRadius: 10,
-            }}
-          >
-            <BottomSheetView
-              style={[
-                { paddingBottom: insets.bottom + 20 },
-                contentStyle
-              ]}
-            >
-              {/* Header matching DrawerHeader.tsx */}
-              {(title || onClose) && (
-                <View className="px-6 py-6" style={{ zIndex: 10 }}>
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-1">
-                      {title && (
-                        <Text
-                          className="font-playfair-bold text-3xl tracking-tight text-stone-900"
-                          style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
-                        >
-                          {title}
-                        </Text>
-                      )}
-                      {subtitle && (
-                        <Text className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-500">
-                          {subtitle}
-                        </Text>
-                      )}
-                    </View>
-                    {onClose && (
-                      <Pressable
-                        onPress={onClose}
-                        className="active:scale-90"
-                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      >
-                        <X size={24} color="#57534e" weight="bold" />
-                      </Pressable>
-                    )}
-                  </View>
+          {/* Header matching DrawerHeader.tsx */}
+          {(title || onClose) && (
+            <View className="px-6 py-6" style={{ zIndex: 10 }}>
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1">
+                  {title && (
+                    <Text
+                      className="font-playfair-bold text-3xl tracking-tight text-stone-900"
+                      style={{ fontFamily: 'PlayfairDisplay_700Bold' }}
+                    >
+                      {title}
+                    </Text>
+                  )}
+                  {subtitle && (
+                    <Text className="mt-1.5 text-[10px] font-bold uppercase tracking-widest text-stone-500">
+                      {subtitle}
+                    </Text>
+                  )}
                 </View>
-              )}
+                {onClose && (
+                  <Pressable
+                    onPress={onClose}
+                    className="active:scale-90"
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <X size={24} color="#57534e" weight="bold" />
+                  </Pressable>
+                )}
+              </View>
+            </View>
+          )}
 
-              {children}
-            </BottomSheetView>
-          </View>
-        </BlurView>
-      </BottomSheetModal>
+          {children}
+        </BottomSheetView>
+      </BottomSheetModal >
     );
   }
 );
