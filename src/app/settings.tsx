@@ -91,7 +91,6 @@ export default function SettingsScreen() {
         style: "destructive",
         onPress: async () => {
           await signOut();
-          router.replace("/welcome");
         },
       },
     ]);
@@ -239,7 +238,7 @@ export default function SettingsScreen() {
 
       <Animated.ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom }}
         showsVerticalScrollIndicator={false}
         onScroll={scrollHandler}
         scrollEventThrottle={16}

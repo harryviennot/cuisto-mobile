@@ -138,11 +138,23 @@ export const authService = {
 
   /**
    * Request email change (authenticated endpoint)
-   * Sends verification email to new address
+   * Sends OTP verification code to new address
    */
   changeEmail: async (newEmail: string) => {
     const response = await api.post<{ message: string }>("/auth/email/change", {
       new_email: newEmail,
+    });
+    return response.data;
+  },
+
+  /**
+   * Verify email change with OTP (authenticated endpoint)
+   * Completes the email change after user enters the 6-digit code
+   */
+  verifyEmailChange: async (email: string, token: string) => {
+    const response = await api.post<{ message: string }>("/auth/email/change/verify", {
+      email,
+      token,
     });
     return response.data;
   },

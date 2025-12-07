@@ -18,10 +18,24 @@ interface PremiumBottomSheetProps extends Omit<BottomSheetModalProps, "snapPoint
   snapPoints?: (string | number)[];
   contentStyle?: StyleProp<ViewStyle>;
   onClose?: () => void;
+  keyboardBehavior?: "extend" | "fillParent" | "interactive";
+  keyboardBlurBehavior?: "none" | "restore";
+  android_keyboardInputMode?: "adjustPan" | "adjustResize";
 }
 
 export const PremiumBottomSheet = forwardRef<BottomSheetModal, PremiumBottomSheetProps>(
-  ({ children, title, subtitle, snapPoints, contentStyle, onClose, ...props }, ref) => {
+  ({
+    children,
+    title,
+    subtitle,
+    snapPoints,
+    contentStyle,
+    onClose,
+    keyboardBehavior = "interactive",
+    keyboardBlurBehavior = "restore",
+    android_keyboardInputMode = "adjustResize",
+    ...props
+  }, ref) => {
     const insets = useSafeAreaInsets();
 
     const defaultSnapPoints = useMemo(() => ["50%"], []);
@@ -48,6 +62,9 @@ export const PremiumBottomSheet = forwardRef<BottomSheetModal, PremiumBottomShee
         enableDynamicSizing={!snapPoints}
         backdropComponent={renderBackdrop}
         handleComponent={null}
+        keyboardBehavior={keyboardBehavior}
+        keyboardBlurBehavior={keyboardBlurBehavior}
+        android_keyboardInputMode={android_keyboardInputMode}
         backgroundStyle={{
           backgroundColor: "#f4f1e8",
           borderTopLeftRadius: 32,
