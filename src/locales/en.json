@@ -147,12 +147,12 @@
       "17": "Crafting your masterpiece..."
     },
     "privacy": {
-      "title": "Save this recipe",
-      "description": "Choose how you'd like to save this recipe.",
-      "publicTitle": "Save Publicly",
-      "publicDesc": "Everyone can view and make variations of this recipe",
-      "privateTitle": "Save Privately",
-      "privateDesc": "Only you can see this recipe"
+      "title": "Share your creation?",
+      "description": "Public recipes help grow our community and inspire other home cooks.",
+      "publicTitle": "Share with Community",
+      "publicDesc": "Let others discover, cook, and remix your recipe",
+      "privateTitle": "Keep Private",
+      "privateDesc": "Save to your personal collection only"
     }
   },
   "recipe": {

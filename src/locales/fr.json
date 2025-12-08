@@ -147,12 +147,12 @@
       "17": "Création de votre chef-d'œuvre..."
     },
     "privacy": {
-      "title": "Enregistrer cette recette",
-      "description": "Choisissez comment enregistrer cette recette.",
-      "publicTitle": "Enregistrer publiquement",
-      "publicDesc": "Tout le monde pourra voir et créer des variations de cette recette",
-      "privateTitle": "Enregistrer en privé",
-      "privateDesc": "Vous seul pourrez voir cette recette"
+      "title": "Partager votre création ?",
+      "description": "Les recettes publiques enrichissent notre communauté et inspirent d'autres cuisiniers.",
+      "publicTitle": "Partager avec la communauté",
+      "publicDesc": "Permettre aux autres de découvrir, cuisiner et remixer votre recette",
+      "privateTitle": "Garder privée",
+      "privateDesc": "Enregistrer dans votre collection personnelle uniquement"
     }
   },
   "recipe": {
