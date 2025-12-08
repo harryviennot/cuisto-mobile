@@ -44,7 +44,14 @@ export function PageHeader({
     }
 
     const words = title.split(" ");
-    const lastWord = words.pop();
+    let lastWord = words.pop() || "";
+
+    // If the last "word" is just punctuation (e.g., "?" or "!"), include the previous word
+    const isPunctuationOnly = /^[?!.,;:]+$/.test(lastWord);
+    if (isPunctuationOnly && words.length > 0) {
+      lastWord = words.pop() + " " + lastWord;
+    }
+
     const mainText = words.join(" ");
 
     return (
