@@ -39,7 +39,7 @@ export function TimeGreeting({ className, rightElement }: TimeGreetingProps) {
       topPadding={0}
       bottomMargin={48}
       highlightLastWord
-      newLine
+      // newLine
       rightElement={rightElement}
     />
   );

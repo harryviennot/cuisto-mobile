@@ -69,7 +69,7 @@ export function PageHeader({
           {subtitle}
         </Text>
       )}
-      <View className={`flex-row justify-between ${newLine ? "items-end" : "items-center"}`}>
+      <View className={`flex-row justify-between ${newLine ? "items-end" : "items-center"} gap-3`}>
         {renderTitle()}
         {rightElement}
       </View>
