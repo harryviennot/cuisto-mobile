@@ -26,7 +26,6 @@ import {
   useDeleteCookingEvent,
 } from "@/hooks/useCookingHistory";
 import type { CookingHistoryEvent, UpdateCookingEventParams } from "@/types/cookingHistory";
-import { CollectionErrorState } from "@/components/library";
 import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
 import { PageHeader } from "@/components/ui/PageHeader";
 import {
@@ -40,6 +39,7 @@ import {
 } from "@/components/library/cooking-history";
 import { EditCookingEventBottomSheet } from "@/components/library/cooking-history/EditCookingEventBottomSheet";
 import type { SwipeableMethods } from "react-native-gesture-handler/ReanimatedSwipeable";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 const AnimatedSectionList = Animated.createAnimatedComponent(SectionList);
 
@@ -236,7 +236,7 @@ export default function CookingHistoryScreen() {
         {isLoading ? (
           <ListLoadingSkeleton />
         ) : error ? (
-          <CollectionErrorState errorMessage={error.message} onRetry={handleRefresh} />
+          <ErrorState title="Error" message={error.message} onRetry={handleRefresh} />
         ) : sections.length === 0 ? (
           <View style={{ paddingTop: headerTopPadding }}>
             <CookingHistoryEmpty variant="full" />

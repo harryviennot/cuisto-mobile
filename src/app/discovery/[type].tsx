@@ -13,11 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { WarningCircle } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
-import {
-  useSharedValue,
-  useAnimatedScrollHandler,
-  useDerivedValue,
-} from "react-native-reanimated";
+import { useSharedValue, useAnimatedScrollHandler, useDerivedValue } from "react-native-reanimated";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { MasonryGrid } from "@/components/home/MasonryGrid";
@@ -134,7 +130,10 @@ export default function DiscoverySeeAllScreen() {
       } else if (sectionType === "socials" || sectionType === "online") {
         const extractedRecipe = recipe as ExtractedRecipe;
         if (extractedRecipe.extraction_stats?.extraction_count) {
-          statsBadge = { type: "extraction", count: extractedRecipe.extraction_stats.extraction_count };
+          statsBadge = {
+            type: "extraction",
+            count: extractedRecipe.extraction_stats.extraction_count,
+          };
         }
       }
       // "rated" section doesn't have stats badge
@@ -145,13 +144,7 @@ export default function DiscoverySeeAllScreen() {
   );
 
   const ListHeaderComponent = useMemo(
-    () => (
-      <PageHeader
-        subtitle={subtitle}
-        title={title}
-        topPadding={0}
-      />
-    ),
+    () => <PageHeader subtitle={subtitle} title={title} topPadding={0} />,
     [subtitle, title]
   );
 
@@ -175,11 +168,7 @@ export default function DiscoverySeeAllScreen() {
         className="flex-1 items-center justify-center bg-surface p-6 gap-4"
         style={{ paddingTop: insets.top }}
       >
-        <UnifiedStickyHeader
-          title={title}
-          scrollY={adjustedScrollY}
-          onBackPress={handleBack}
-        />
+        <UnifiedStickyHeader title={title} scrollY={adjustedScrollY} onBackPress={handleBack} />
         <WarningCircle size={64} color="#ef4444" weight="duotone" />
         <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
           {t("discovery.error.title")}
@@ -201,11 +190,7 @@ export default function DiscoverySeeAllScreen() {
   if (recipes.length === 0) {
     return (
       <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
-        <UnifiedStickyHeader
-          title={title}
-          scrollY={adjustedScrollY}
-          onBackPress={handleBack}
-        />
+        <UnifiedStickyHeader title={title} scrollY={adjustedScrollY} onBackPress={handleBack} />
         <View className="flex-1 items-center justify-center p-6">
           <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
             {t("discovery.noRecipes.title")}
@@ -237,11 +222,7 @@ export default function DiscoverySeeAllScreen() {
         }}
       />
 
-      <UnifiedStickyHeader
-        title={title}
-        scrollY={adjustedScrollY}
-        onBackPress={handleBack}
-      />
+      <UnifiedStickyHeader title={title} scrollY={adjustedScrollY} onBackPress={handleBack} />
     </View>
   );
 }

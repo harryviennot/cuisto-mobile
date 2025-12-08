@@ -282,12 +282,7 @@ export function RecipeCardSkeleton({
   return (
     <View style={{ width }} className="mb-6">
       {/* Image skeleton */}
-      <Skeleton
-        width={width}
-        height={imageHeight}
-        borderRadius={16}
-        style={{ marginBottom: 12 }}
-      />
+      <Skeleton width={width} height={imageHeight} borderRadius={16} style={{ marginBottom: 12 }} />
       {/* Category and rating row */}
       <View className="flex-row items-center justify-between mb-1 px-1">
         <Skeleton width={60} height={10} borderRadius={4} />

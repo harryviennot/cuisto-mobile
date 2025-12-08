@@ -25,11 +25,7 @@ interface DiscoverySectionProps {
 /**
  * Trending This Week section - most cooked recipes
  */
-export function TrendingThisWeekSection({
-  data,
-  isLoading,
-  isError,
-}: DiscoverySectionProps) {
+export function TrendingThisWeekSection({ data, isLoading, isError }: DiscoverySectionProps) {
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -70,11 +66,7 @@ export function TrendingThisWeekSection({
 /**
  * Trending on Socials section - most extracted from video sources
  */
-export function TrendingOnSocialsSection({
-  data,
-  isLoading,
-  isError,
-}: DiscoverySectionProps) {
+export function TrendingOnSocialsSection({ data, isLoading, isError }: DiscoverySectionProps) {
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -115,11 +107,7 @@ export function TrendingOnSocialsSection({
 /**
  * Popular Recipes Online section - most extracted from website sources
  */
-export function PopularOnlineSection({
-  data,
-  isLoading,
-  isError,
-}: DiscoverySectionProps) {
+export function PopularOnlineSection({ data, isLoading, isError }: DiscoverySectionProps) {
   const router = useRouter();
   const { t } = useTranslation();
 
@@ -160,11 +148,7 @@ export function PopularOnlineSection({
 /**
  * Highest Rated section - top rated public recipes
  */
-export function HighestRatedSection({
-  data,
-  isLoading,
-  isError,
-}: DiscoverySectionProps) {
+export function HighestRatedSection({ data, isLoading, isError }: DiscoverySectionProps) {
   const router = useRouter();
   const { t } = useTranslation();
 

@@ -86,7 +86,11 @@ export function MasonryGrid({
           paddingHorizontal: 8,
         }}
       >
-        {renderRecipeCard ? renderRecipeCard(item, index) : <RecipeCard recipe={item} index={index} />}
+        {renderRecipeCard ? (
+          renderRecipeCard(item, index)
+        ) : (
+          <RecipeCard recipe={item} index={index} />
+        )}
       </View>
     ),
     [renderRecipeCard]

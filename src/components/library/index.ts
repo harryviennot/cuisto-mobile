@@ -10,27 +10,13 @@ export type { SectionHeaderProps } from "./SectionHeader";
 
 // Shared components (reusable across library features)
 export {
-  CollectionEmptyState,
-  CollectionErrorState,
   CollectionLoadingSkeleton,
   COLLECTION_ICONS,
   COLLECTION_SLUGS,
   DEFAULT_COLLECTION_ICON,
   getCountStyle,
 } from "./shared";
-export type {
-  CollectionSlug,
-  CollectionEmptyStateProps,
-  CollectionErrorStateProps,
-  CollectionLoadingSkeletonProps,
-} from "./shared";
-
-// Smart collection components (library main screen)
-export { SmartCollectionCard, SmartCollectionCardSkeleton } from "./smart-collections";
-export type {
-  SmartCollectionCardProps,
-  SmartCollectionCardSkeletonProps,
-} from "./smart-collections";
+export type { CollectionSlug, CollectionLoadingSkeletonProps } from "./shared";
 
 // Cooking history components
 export {
@@ -53,5 +39,5 @@ export type {
   ViewMode,
 } from "./cooking-history";
 
-// Legacy export alias for backwards compatibility
-export { SmartCollectionCardSkeleton as CollectionCardSkeleton } from "./smart-collections";
+export type { SmartCollectionCardProps } from "./SmartCollectionCard";
+export { SmartCollectionCard } from "./SmartCollectionCard";

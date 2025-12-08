@@ -137,10 +137,10 @@ export const recipeService = {
   ): Promise<{ message: string }> => {
     const body = params
       ? {
-        rating: params.rating,
-        image_url: params.imageUrl,
-        duration_minutes: params.durationMinutes,
-      }
+          rating: params.rating,
+          image_url: params.imageUrl,
+          duration_minutes: params.durationMinutes,
+        }
       : undefined;
 
     const response = await api.post<{ message: string }>(`/recipes/${recipeId}/cooked`, body);

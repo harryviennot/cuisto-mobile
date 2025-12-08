@@ -87,6 +87,11 @@ function HorizontalPreviewSectionInner<T>(
 ) {
   const { t } = useTranslation();
 
+  const renderListItem: ListRenderItem<T> = useCallback(
+    ({ item, index }) => <>{renderItem(item, index)}</>,
+    [renderItem]
+  );
+
   // Don't render section if there's an error
   if (isError) {
     return null;
@@ -125,11 +130,6 @@ function HorizontalPreviewSectionInner<T>(
     return null;
   }
 
-  const renderListItem: ListRenderItem<T> = useCallback(
-    ({ item, index }) => <>{renderItem(item, index)}</>,
-    [renderItem]
-  );
-
   return (
     <View style={style}>
       <SectionHeader
@@ -167,7 +167,10 @@ function SectionHeader({ title, onSeeMore, seeMoreText }: SectionHeaderProps) {
       </Text>
       <View className="h-px flex-1 bg-border-light" />
       {onSeeMore && (
-        <TouchableOpacity onPress={onSeeMore} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+        <TouchableOpacity
+          onPress={onSeeMore}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
           <Text className="text-xs font-bold text-primary">{seeMoreText}</Text>
         </TouchableOpacity>
       )}

@@ -4,10 +4,9 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { discoveryService } from "@/api/services/discovery.service";
 import type { Recipe } from "@/types/recipe";
-import type { TrendingRecipe, ExtractedRecipe, DISCOVERY_CONSTANTS } from "@/types/discovery";
+import { TrendingRecipe, ExtractedRecipe, DISCOVERY_CONSTANTS } from "@/types/discovery";
 
-const SECTION_PREVIEW_LIMIT = 8;
-const RECENT_PAGE_SIZE = 20;
+const { SECTION_PREVIEW_LIMIT, RECENT_PAGE_SIZE } = DISCOVERY_CONSTANTS;
 
 // Stale times for different query types
 const STALE_TIMES = {

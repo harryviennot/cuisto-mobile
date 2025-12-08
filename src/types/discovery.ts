@@ -42,11 +42,7 @@ export interface ExtractedRecipe extends Recipe {
 /**
  * Discovery section types
  */
-export type DiscoverySectionType =
-  | "trending"
-  | "socials"
-  | "online"
-  | "rated";
+export type DiscoverySectionType = "trending" | "socials" | "online" | "rated";
 
 /**
  * Discovery section metadata
@@ -68,7 +64,7 @@ export const DISCOVERY_CONSTANTS = {
   /** Minimum recipes to show a section */
   MIN_SECTION_RECIPES: 3,
   /** Max recipes in horizontal scroll preview */
-  SECTION_PREVIEW_LIMIT: 8,
+  SECTION_PREVIEW_LIMIT: 5,
   /** Pagination size for infinite grid */
   RECENT_PAGE_SIZE: 20,
 } as const;

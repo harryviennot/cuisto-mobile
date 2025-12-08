@@ -8,22 +8,23 @@
 import { View, Text, ActivityIndicator, Pressable, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCallback, useMemo } from "react";
-import { WarningIcon, MagnifyingGlassIcon } from "phosphor-react-native";
+import { WarningIcon, MagnifyingGlassIcon, ChefHatIcon } from "phosphor-react-native";
 import { router } from "expo-router";
 import { useAnimatedScrollHandler, useSharedValue, useDerivedValue } from "react-native-reanimated";
 
 import { MasonryGrid } from "@/components/home/MasonryGrid";
 import { useDiscovery } from "@/hooks/useDiscovery";
 import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 import {
   TimeGreeting,
-  HomeEmptyState,
   TrendingThisWeekSection,
   TrendingOnSocialsSection,
   PopularOnlineSection,
   HighestRatedSection,
 } from "@/components/home";
 import { DISCOVERY_CONSTANTS } from "@/types/discovery";
+import { t } from "i18next";
 
 export default function Index() {
   const insets = useSafeAreaInsets();
@@ -32,16 +33,8 @@ export default function Index() {
   const scrollY = useSharedValue(0);
 
   // Use discovery hook for all home page data
-  const {
-    trending,
-    socials,
-    online,
-    rated,
-    recent,
-    isInitialLoading,
-    isRefetching,
-    refetchAll,
-  } = useDiscovery();
+  const { trending, socials, online, rated, recent, isInitialLoading, isRefetching, refetchAll } =
+    useDiscovery();
 
   // Scroll handler for header animation
   const scrollHandler = useAnimatedScrollHandler({
@@ -68,7 +61,7 @@ export default function Index() {
     if (recent.hasNextPage && !recent.isFetchingNextPage) {
       recent.fetchNextPage();
     }
-  }, [recent.hasNextPage, recent.isFetchingNextPage, recent.fetchNextPage]);
+  }, [recent]);
 
   // Navigate to search overlay
   const handleSearchPress = useCallback(() => {
@@ -139,7 +132,7 @@ export default function Index() {
         )}
       </View>
     ),
-    [trending, socials, online, rated, recent.data.length, hasAnySectionData]
+    [trending, socials, online, rated, recent.data.length, hasAnySectionData, headerRightElement]
   );
 
   // Loading state (initial load)
@@ -187,15 +180,18 @@ export default function Index() {
   }
 
   // Empty state - no public recipes at all
-  const showEmptyState =
-    !isInitialLoading &&
-    !hasAnySectionData &&
-    recent.data.length === 0;
+  const showEmptyState = !isInitialLoading && !hasAnySectionData && recent.data.length === 0;
 
   if (showEmptyState) {
     return (
       <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
-        <HomeEmptyState />
+        <EmptyState
+          icon={ChefHatIcon}
+          title={t("discovery.empty.title")}
+          message={t("discovery.empty.message")}
+          ctaLabel={t("discovery.empty.cta")}
+          onCtaPress={() => router.push("/(tabs)/new-recipe")}
+        />
       </View>
     );
   }

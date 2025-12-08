@@ -234,7 +234,13 @@ export function useToggleFavorite() {
           return old;
         });
 
-        return { previousRecipe, previousRecipes, previousSavedCollections, previousCounts, previousDiscoveryQueries };
+        return {
+          previousRecipe,
+          previousRecipes,
+          previousSavedCollections,
+          previousCounts,
+          previousDiscoveryQueries,
+        };
       },
 
       onError: (_err, { recipeId }, context) => {

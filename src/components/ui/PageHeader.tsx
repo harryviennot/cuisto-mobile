@@ -32,7 +32,7 @@ export function PageHeader({
   rightElement,
   bottomMargin,
   highlightLastWord,
-  newLine
+  newLine,
 }: PageHeaderProps) {
   const renderTitle = () => {
     if (!highlightLastWord) {

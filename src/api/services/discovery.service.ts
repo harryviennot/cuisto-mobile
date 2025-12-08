@@ -3,17 +3,14 @@
  */
 import { api } from "../api-client";
 import type { Recipe } from "@/types/recipe";
-import type {
+import {
   TrendingRecipe,
   ExtractedRecipe,
   SourceCategory,
   DISCOVERY_CONSTANTS,
 } from "@/types/discovery";
 
-const { SECTION_PREVIEW_LIMIT, RECENT_PAGE_SIZE } = {
-  SECTION_PREVIEW_LIMIT: 5,
-  RECENT_PAGE_SIZE: 20,
-};
+const { SECTION_PREVIEW_LIMIT, RECENT_PAGE_SIZE } = DISCOVERY_CONSTANTS;
 
 export const discoveryService = {
   /**
