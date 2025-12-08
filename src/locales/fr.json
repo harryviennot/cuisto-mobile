@@ -145,6 +145,14 @@
       "15": "Déchiffrage des parchemins de recettes...",
       "16": "Invocation des souvenirs de goût...",
       "17": "Création de votre chef-d'œuvre..."
+    },
+    "privacy": {
+      "title": "Partager votre création ?",
+      "description": "Les recettes publiques enrichissent notre communauté et inspirent d'autres cuisiniers.",
+      "publicTitle": "Partager avec la communauté",
+      "publicDesc": "Permettre aux autres de découvrir, cuisiner et remixer votre recette",
+      "privateTitle": "Garder privée",
+      "privateDesc": "Enregistrer dans votre collection personnelle uniquement"
     }
   },
   "recipe": {

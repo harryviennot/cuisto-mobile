@@ -31,8 +31,12 @@ export default function LibraryScreen() {
   // Fetch only the recipe counts (lightweight)
   const { data: counts, refetch } = useCollectionCounts();
 
+  // 52 is roughly the height of UnifiedStickyHeader content (40px button + 12px paddingBottom)
+  const headerTopPadding = insets.top + 28;
+
   // Scroll handling for sticky header
-  const scrollY = useSharedValue(0);
+  // Initialize to -headerTopPadding to match contentOffset initial position
+  const scrollY = useSharedValue(-headerTopPadding);
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollY.value = event.contentOffset.y;
@@ -55,9 +59,6 @@ export default function LibraryScreen() {
   const handleUserPress = useCallback(() => {
     router.push("/settings");
   }, []);
-
-  // 52 is roughly the height of UnifiedStickyHeader content (40px button + 12px paddingBottom)
-  const headerTopPadding = insets.top + 28;
 
   // Adjust scrollY for the header animation because contentInset shifts the origin
   const adjustedScrollY = useDerivedValue(() => {

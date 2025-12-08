@@ -65,12 +65,16 @@ export const extractionService = {
    * it just adds them to the collection.
    *
    * @param recipeId - The recipe ID to save (from job.recipe_id)
-   * @param collectionId - Optional collection ID (defaults to "extracted")
+   * @param options - Optional save options (collectionId, isPublic)
    */
-  saveRecipe: async (recipeId: string, collectionId?: string): Promise<RecipeSaveResponse> => {
+  saveRecipe: async (
+    recipeId: string,
+    options?: { collectionId?: string; isPublic?: boolean }
+  ): Promise<RecipeSaveResponse> => {
     const request: SaveRecipeRequest = {
       recipe_id: recipeId,
-      collection_id: collectionId,
+      collection_id: options?.collectionId,
+      is_public: options?.isPublic,
     };
     const response = await api.post<RecipeSaveResponse>("/recipes/save", request);
     return response.data;

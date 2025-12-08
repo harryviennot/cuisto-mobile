@@ -66,7 +66,7 @@ export const IngredientsDrawer: React.FC<IngredientsDrawerProps> = ({
 
     // Min 45%, max 80% of available space (increased for bigger modal)
     const minHeight = availableSpace * 0.45;
-    const maxHeight = availableSpace * 0.8;
+    const maxHeight = availableSpace;
 
     const chosenHeight = Math.min(Math.max(contentHeight, minHeight), maxHeight);
     return chosenHeight;
