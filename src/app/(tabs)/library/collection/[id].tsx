@@ -22,15 +22,13 @@ import Toast from "react-native-toast-message";
 
 import { useCollectionBySlug } from "@/hooks/useCollections";
 import { MasonryGrid } from "@/components/home/MasonryGrid";
-import {
-  CollectionEmptyState,
-  CollectionErrorState,
-  CollectionLoadingSkeleton,
-} from "@/components/library";
+import { CollectionLoadingSkeleton } from "@/components/library";
 import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
 import { PageHeader } from "@/components/ui/PageHeader";
 import type { CollectionRecipe } from "@/types/collection";
 import type { Recipe } from "@/types/recipe";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 
 export default function CollectionDetailScreen() {
   const { t } = useTranslation();
@@ -138,13 +136,18 @@ export default function CollectionDetailScreen() {
         {isLoading ? (
           <CollectionLoadingSkeleton topPadding={headerTopPadding} />
         ) : error ? (
-          <CollectionErrorState errorMessage={error.message} onRetry={handleRefresh} />
+          <ErrorState
+            title={t("library.error.title")}
+            message={error?.message}
+            onRetry={handleRefresh}
+            retryLabel={t("common.tryAgain")}
+          />
         ) : (
           <MasonryGrid
             recipes={mappedRecipes}
             refreshing={isRefetching}
             onRefresh={handleRefresh}
-            ListEmptyComponent={<CollectionEmptyState {...emptyStateProps} />}
+            ListEmptyComponent={<EmptyState {...emptyStateProps} />}
             ListHeaderComponent={
               <PageHeader
                 subtitle={collectionSubtitle}

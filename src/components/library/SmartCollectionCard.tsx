@@ -9,8 +9,8 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SquaresFourIcon, BookmarkIcon } from "phosphor-react-native";
 
-import { getCountStyle } from "../shared/utils";
-import type { CollectionSlug } from "../shared/constants";
+import { getCountStyle } from "./shared/utils";
+import type { CollectionSlug } from "./shared/constants";
 
 export interface SmartCollectionCardProps {
   /** Collection slug identifier */

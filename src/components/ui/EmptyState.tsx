@@ -1,7 +1,7 @@
 /**
- * Collection Empty State
+ * Empty State
  *
- * Generic empty state component for collections.
+ * Generic empty state component.
  * Features a dashed border container with icon blob, title, message, and CTA button.
  */
 import React from "react";
@@ -9,7 +9,7 @@ import { View, Text, Pressable } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import type { Icon } from "phosphor-react-native";
 
-export interface CollectionEmptyStateProps {
+export interface EmptyStateProps {
   /** Icon component to display in the blob */
   icon: Icon;
   /** Color for the icon (default: #334d43) */
@@ -28,7 +28,7 @@ export interface CollectionEmptyStateProps {
   onCtaPress: () => void;
 }
 
-export function CollectionEmptyState({
+export function EmptyState({
   icon: IconComponent,
   iconColor = "#334d43",
   iconShadowColor = "#334d43",
@@ -37,10 +37,10 @@ export function CollectionEmptyState({
   ctaLabel,
   ctaIcon: CtaIconComponent,
   onCtaPress,
-}: CollectionEmptyStateProps) {
+}: EmptyStateProps) {
   return (
     <Animated.View
-      entering={FadeInDown.delay(200).duration(600)}
+      entering={FadeInDown.delay(200).duration(400)}
       className="flex-1 px-6 py-12 items-center justify-center"
     >
       {/* Empty Slot Container */}

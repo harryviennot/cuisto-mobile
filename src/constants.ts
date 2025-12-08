@@ -1,1 +1,1 @@
-export const APP_NAME = "Cuistudio";
+export const APP_NAME = "Cuisto";

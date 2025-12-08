@@ -165,7 +165,7 @@ export const recipeService = {
     limit: number = 20,
     offset: number = 0
   ): Promise<CookingHistoryEvent[]> => {
-    const response = await api.get<CookingHistoryEvent[]>("/recipes/cooking-history", {
+    const response = await api.get<CookingHistoryEvent[]>("/discovery/cooking-history", {
       params: {
         time_window_days: timeWindowDays,
         limit,

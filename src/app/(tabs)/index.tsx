@@ -1,45 +1,40 @@
 /**
- * Home Screen
+ * Home Screen - Discovery Feed
  *
- * Displays the user's recipe collection in a masonry grid layout.
- * Features animated sticky header with blur effect on scroll.
+ * Displays a discovery feed with trending, most extracted, and highest rated recipes.
+ * Features horizontal preview sections and an infinite scroll masonry grid.
+ * Sections only appear when they have sufficient content (minimum 3 recipes).
  */
-import { useTranslation } from "react-i18next";
 import { View, Text, ActivityIndicator, Pressable, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCallback, useMemo } from "react";
-import { PlusIcon, WarningIcon, MagnifyingGlassIcon } from "phosphor-react-native";
-import { useQueryClient } from "@tanstack/react-query";
+import { WarningIcon, MagnifyingGlassIcon, ChefHatIcon } from "phosphor-react-native";
 import { router } from "expo-router";
 import { useAnimatedScrollHandler, useSharedValue, useDerivedValue } from "react-native-reanimated";
 
 import { MasonryGrid } from "@/components/home/MasonryGrid";
-import { useRecipes } from "@/hooks/useRecipes";
-import { useAuth } from "@/contexts/AuthContext";
+import { useDiscovery } from "@/hooks/useDiscovery";
 import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
+import {
+  TimeGreeting,
+  TrendingThisWeekSection,
+  TrendingOnSocialsSection,
+  PopularOnlineSection,
+  HighestRatedSection,
+} from "@/components/home";
+import { DISCOVERY_CONSTANTS } from "@/types/discovery";
+import { t } from "i18next";
 
 export default function Index() {
-  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const queryClient = useQueryClient();
-  const { isAuthenticated } = useAuth();
 
   // Scroll tracking for header animation
   const scrollY = useSharedValue(0);
 
-  // Use recipes hook for all recipes view
-  // Only fetch when authenticated to prevent requests during auth redirect
-  const {
-    data,
-    isLoading,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    refetch,
-    isRefetching,
-  } = useRecipes({ enabled: isAuthenticated });
+  // Use discovery hook for all home page data
+  const { trending, socials, online, rated, recent, isInitialLoading, isRefetching, refetchAll } =
+    useDiscovery();
 
   // Scroll handler for header animation
   const scrollHandler = useAnimatedScrollHandler({
@@ -48,7 +43,7 @@ export default function Index() {
     },
   });
 
-  // 52 is roughly the height of UnifiedStickyHeader content (40px button + 12px paddingBottom)
+  // Header padding calculation
   const headerTopPadding = insets.top + 28;
 
   // Adjust scrollY for the header animation because contentInset shifts the origin
@@ -58,44 +53,31 @@ export default function Index() {
 
   // Handle pull-to-refresh
   const handleRefresh = useCallback(async () => {
-    queryClient.setQueryData(["recipes"], (oldData: any) => {
-      if (!oldData) return oldData;
-      return {
-        pages: oldData.pages.slice(0, 1),
-        pageParams: oldData.pageParams.slice(0, 1),
-      };
-    });
-    await refetch();
-  }, [refetch, queryClient]);
-
-  // All recipes - deduplicate by ID to handle any backend duplicates
-  const allRecipes = data?.pages.flatMap((page) => page) ?? [];
-  const uniqueRecipes = Array.from(
-    new Map(allRecipes.map((recipe) => [recipe.id, recipe])).values()
-  );
+    await refetchAll();
+  }, [refetchAll]);
 
   // Handle infinite scroll
   const handleEndReached = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
+    if (recent.hasNextPage && !recent.isFetchingNextPage) {
+      recent.fetchNextPage();
     }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [recent]);
 
   // Navigate to search overlay
   const handleSearchPress = useCallback(() => {
     router.push("/search");
   }, []);
 
-  const handleRetry = useCallback(async () => {
-    queryClient.setQueryData(["recipes"], (oldData: any) => {
-      if (!oldData) return oldData;
-      return {
-        pages: oldData.pages.slice(0, 1),
-        pageParams: oldData.pageParams.slice(0, 1),
-      };
-    });
-    await refetch();
-  }, [refetch, queryClient]);
+  // Check if any horizontal section has enough data
+  const hasAnySectionData = useMemo(() => {
+    const minItems = DISCOVERY_CONSTANTS.MIN_SECTION_RECIPES;
+    return (
+      (trending.data?.length ?? 0) >= minItems ||
+      (socials.data?.length ?? 0) >= minItems ||
+      (online.data?.length ?? 0) >= minItems ||
+      (rated.data?.length ?? 0) >= minItems
+    );
+  }, [trending.data, socials.data, online.data, rated.data]);
 
   // Header icon (shared between PageHeader and UnifiedStickyHeader)
   const headerRightElement = useMemo(
@@ -107,34 +89,74 @@ export default function Index() {
     [handleSearchPress]
   );
 
-  // Large header component
+  // Discovery sections header component
   const ListHeaderComponent = useMemo(
     () => (
-      <PageHeader
-        subtitle={t("home.subtitle", "HOME")}
-        title={t("home.title", "My Recipes")}
-        topPadding={0} // Content handled by contentInset
-        rightElement={headerRightElement}
-      />
+      <View>
+        {/* Time-based greeting */}
+        <TimeGreeting rightElement={headerRightElement} />
+
+        {/* Discovery sections - each section hides itself if not enough data */}
+        <TrendingThisWeekSection
+          data={trending.data}
+          isLoading={trending.isLoading}
+          isError={trending.isError}
+        />
+
+        <TrendingOnSocialsSection
+          data={socials.data}
+          isLoading={socials.isLoading}
+          isError={socials.isError}
+        />
+
+        <PopularOnlineSection
+          data={online.data}
+          isLoading={online.isLoading}
+          isError={online.isError}
+        />
+
+        <HighestRatedSection
+          data={rated.data}
+          isLoading={rated.isLoading}
+          isError={rated.isError}
+        />
+
+        {/* Section divider before recently added grid */}
+        {(recent.data.length > 0 || hasAnySectionData) && (
+          <View className="mb-4 flex-row items-center gap-3 px-6 mt-2">
+            <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary">
+              Recently Added
+            </Text>
+            <View className="h-px flex-1 bg-border-light" />
+          </View>
+        )}
+      </View>
     ),
-    [t, headerRightElement]
+    [trending, socials, online, rated, recent.data.length, hasAnySectionData, headerRightElement]
   );
 
   // Loading state (initial load)
-  if (isLoading) {
+  if (isInitialLoading && recent.data.length === 0) {
     return (
       <View
         className="flex-1 items-center justify-center bg-surface"
         style={{ paddingTop: insets.top }}
       >
         <ActivityIndicator size="large" color="#334d43" />
-        <Text className="mt-4 text-foreground-secondary">Loading recipes...</Text>
+        <Text className="mt-4 text-foreground-secondary">Discovering recipes...</Text>
       </View>
     );
   }
 
-  // Error state
-  if (error) {
+  // Error state (only show if all sections fail and no cached data)
+  if (
+    trending.isError &&
+    socials.isError &&
+    online.isError &&
+    rated.isError &&
+    recent.isError &&
+    recent.data.length === 0
+  ) {
     return (
       <View
         className="flex-1 items-center justify-center bg-surface p-6 gap-4"
@@ -145,10 +167,10 @@ export default function Index() {
           Oops! Something went wrong
         </Text>
         <Text className="text-foreground-secondary text-center">
-          {error.message || "Failed to load recipes"}
+          Failed to load recipes. Please try again.
         </Text>
         <Pressable
-          onPress={handleRetry}
+          onPress={handleRefresh}
           className="bg-primary rounded-lg px-6 py-3 active:opacity-80"
         >
           <Text className="text-white font-semibold">Try Again</Text>
@@ -157,29 +179,42 @@ export default function Index() {
     );
   }
 
-  // Empty state component for MasonryGrid
-  const EmptyComponent = (
-    <View className="flex-1 items-center justify-center p-6 gap-4">
-      <PlusIcon size={64} color="#334d43" weight="duotone" />
-      <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
-        No recipes yet!
-      </Text>
-      <Text className="text-foreground-secondary text-center">
-        Tap the + button below to create your first recipe
-      </Text>
-    </View>
-  );
+  // Empty state - no public recipes at all
+  const showEmptyState = !isInitialLoading && !hasAnySectionData && recent.data.length === 0;
+
+  if (showEmptyState) {
+    return (
+      <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
+        <EmptyState
+          icon={ChefHatIcon}
+          title={t("discovery.empty.title")}
+          message={t("discovery.empty.message")}
+          ctaLabel={t("discovery.empty.cta")}
+          onCtaPress={() => router.push("/(tabs)/new-recipe")}
+        />
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-surface">
-      {/* Recipe Grid */}
+      {/* Recipe Grid with discovery sections as header */}
       <MasonryGrid
-        recipes={uniqueRecipes}
+        recipes={recent.data}
         refreshing={isRefetching}
         onRefresh={handleRefresh}
         onEndReached={handleEndReached}
-        showLoadingFooter={isFetchingNextPage}
-        ListEmptyComponent={EmptyComponent}
+        showLoadingFooter={recent.isFetchingNextPage}
+        ListEmptyComponent={
+          // Only show if we have section data but no recent recipes
+          hasAnySectionData ? (
+            <View className="py-8 items-center">
+              <Text className="text-foreground-tertiary text-center">
+                No recent recipes to show
+              </Text>
+            </View>
+          ) : undefined
+        }
         ListHeaderComponent={ListHeaderComponent}
         onScroll={scrollHandler}
         contentInset={{ top: headerTopPadding }}
@@ -192,9 +227,9 @@ export default function Index() {
 
       {/* Animated Sticky Header */}
       <UnifiedStickyHeader
-        title={t("home.title", "My Recipes")}
+        title="Discover"
         scrollY={adjustedScrollY}
-        leftElement={<View className="w-10" />} // No back button on tab screen
+        leftElement={<View className="w-10" />}
         rightElement={headerRightElement}
       />
     </View>

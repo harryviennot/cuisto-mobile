@@ -85,6 +85,7 @@ interface ToggleFavoriteContext {
   previousRecipes: InfiniteData<Recipe[]> | undefined;
   previousSavedCollections: [readonly unknown[], CollectionWithRecipes | undefined][];
   previousCounts: CollectionCountsResponse | undefined;
+  previousDiscoveryQueries: [readonly unknown[], unknown][];
 }
 
 /**
@@ -111,6 +112,7 @@ export function useToggleFavorite() {
         await queryClient.cancelQueries({ queryKey: ["recipes"] });
         await queryClient.cancelQueries({ queryKey: [COLLECTIONS_KEY, "by-slug", "saved"] });
         await queryClient.cancelQueries({ queryKey: [COLLECTIONS_KEY, "counts"] });
+        await queryClient.cancelQueries({ queryKey: ["discovery"] });
 
         // 2. Snapshot previous values for rollback
         const previousRecipe = queryClient.getQueryData<Recipe>(["recipe", recipeId]);
@@ -126,6 +128,12 @@ export function useToggleFavorite() {
         });
         const previousSavedCollections = savedCollectionQueries.map(
           ([key, data]) => [key, data] as [readonly unknown[], CollectionWithRecipes | undefined]
+        );
+
+        // Snapshot all discovery queries for rollback
+        const discoveryQueries = queryClient.getQueriesData({ queryKey: ["discovery"] });
+        const previousDiscoveryQueries = discoveryQueries.map(
+          ([key, data]) => [key, data] as [readonly unknown[], unknown]
         );
 
         // 3. Optimistically update individual recipe cache
@@ -192,7 +200,47 @@ export function useToggleFavorite() {
           };
         });
 
-        return { previousRecipe, previousRecipes, previousSavedCollections, previousCounts };
+        // 7. Optimistically update discovery queries (both regular and infinite)
+        // Helper to update recipe in an array
+        const updateRecipeInArray = (recipes: Recipe[]): Recipe[] =>
+          recipes.map((recipe) =>
+            recipe.id === recipeId
+              ? {
+                  ...recipe,
+                  user_data: {
+                    ...recipe.user_data,
+                    is_favorite: !isFavorite,
+                    times_cooked: recipe.user_data?.times_cooked ?? 0,
+                  },
+                }
+              : recipe
+          );
+
+        // Update all discovery queries (handles both array and infinite query formats)
+        queryClient.setQueriesData({ queryKey: ["discovery"] }, (old: unknown) => {
+          if (!old) return old;
+          // Handle infinite query format (has pages array)
+          if (typeof old === "object" && old !== null && "pages" in old) {
+            const infiniteData = old as InfiniteData<Recipe[]>;
+            return {
+              ...infiniteData,
+              pages: infiniteData.pages.map(updateRecipeInArray),
+            };
+          }
+          // Handle regular array format
+          if (Array.isArray(old)) {
+            return updateRecipeInArray(old as Recipe[]);
+          }
+          return old;
+        });
+
+        return {
+          previousRecipe,
+          previousRecipes,
+          previousSavedCollections,
+          previousCounts,
+          previousDiscoveryQueries,
+        };
       },
 
       onError: (_err, { recipeId }, context) => {
@@ -212,6 +260,12 @@ export function useToggleFavorite() {
         // Rollback counts
         if (context?.previousCounts) {
           queryClient.setQueryData([COLLECTIONS_KEY, "counts"], context.previousCounts);
+        }
+        // Rollback discovery queries
+        if (context?.previousDiscoveryQueries) {
+          for (const [key, data] of context.previousDiscoveryQueries) {
+            queryClient.setQueryData(key, data);
+          }
         }
         Toast.show({ type: "error", text1: t("recipe.bookmark.error") });
       },
