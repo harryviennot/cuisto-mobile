@@ -177,13 +177,11 @@ export default function CookingHistoryScreen() {
   // Header component
   const ListHeaderComponent = useMemo(
     () => (
-      <View>
-        <PageHeader
-          subtitle={t("cookingHistory.subtitle") || "RECENTLY COOKED"}
-          title={t("cookingHistory.title")}
-          topPadding={0} // Content handled by contentInset
-        />
-      </View>
+      <PageHeader
+        subtitle={t("cookingHistory.subtitle") || "RECENTLY COOKED"}
+        title={t("cookingHistory.title")}
+        topPadding={0} // Content handled by contentInset
+      />
     ),
     [t]
   );
@@ -261,8 +259,8 @@ export default function CookingHistoryScreen() {
             initialNumToRender={10}
             updateCellsBatchingPeriod={50}
             // Use contentInset to handle sticky header offset below navbar
-            contentInset={{ top: headerTopPadding }}
-            contentOffset={{ x: 0, y: -headerTopPadding }}
+            contentInset={{ top: headerTopPadding - 10 }}
+            contentOffset={{ x: 0, y: -headerTopPadding + 10 }}
             scrollIndicatorInsets={{ top: headerTopPadding }}
             refreshControl={
               <RefreshControl
