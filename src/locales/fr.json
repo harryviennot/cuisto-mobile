@@ -145,6 +145,14 @@
       "15": "Déchiffrage des parchemins de recettes...",
       "16": "Invocation des souvenirs de goût...",
       "17": "Création de votre chef-d'œuvre..."
+    },
+    "privacy": {
+      "title": "Enregistrer cette recette",
+      "description": "Choisissez comment enregistrer cette recette.",
+      "publicTitle": "Enregistrer publiquement",
+      "publicDesc": "Tout le monde pourra voir et créer des variations de cette recette",
+      "privateTitle": "Enregistrer en privé",
+      "privateDesc": "Vous seul pourrez voir cette recette"
     }
   },
   "recipe": {

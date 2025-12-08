@@ -29,8 +29,12 @@ import { t } from "i18next";
 export default function Index() {
   const insets = useSafeAreaInsets();
 
+  // Header padding calculation
+  const headerTopPadding = insets.top + 28;
+
   // Scroll tracking for header animation
-  const scrollY = useSharedValue(0);
+  // Initialize to -headerTopPadding to match contentOffset initial position
+  const scrollY = useSharedValue(-headerTopPadding);
 
   // Use discovery hook for all home page data
   const { trending, socials, online, rated, recent, isInitialLoading, isRefetching, refetchAll } =
@@ -42,9 +46,6 @@ export default function Index() {
       scrollY.value = event.contentOffset.y;
     },
   });
-
-  // Header padding calculation
-  const headerTopPadding = insets.top + 28;
 
   // Adjust scrollY for the header animation because contentInset shifts the origin
   const adjustedScrollY = useDerivedValue(() => {

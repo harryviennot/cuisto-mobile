@@ -59,15 +59,17 @@ export default function DiscoverySeeAllScreen() {
   const title = t(`discovery.sections.${translationKey}.title` as any) as string;
   const subtitle = t(`discovery.sections.${translationKey}.subtitle` as any) as string;
 
+  const headerTopPadding = insets.top + 60;
+
   // Scroll handler for sticky header
-  const scrollY = useSharedValue(0);
+  // Initialize to -headerTopPadding to match contentOffset initial position
+  const scrollY = useSharedValue(-headerTopPadding);
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollY.value = event.contentOffset.y;
     },
   });
 
-  const headerTopPadding = insets.top + 60;
   const adjustedScrollY = useDerivedValue(() => {
     return scrollY.value + headerTopPadding;
   });
