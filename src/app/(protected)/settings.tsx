@@ -22,7 +22,6 @@ import {
 
 import { useAuth } from "@/contexts/AuthContext";
 import { authService } from "@/api/services/auth.service";
-import { tokenManager } from "@/api/token-manager";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
 import {
@@ -108,11 +107,12 @@ export default function SettingsScreen() {
           style: "destructive",
           onPress: async () => {
             try {
+              // Delete account on backend first
               await authService.deleteAccount();
-              await tokenManager.clearTokens();
+              // Then sign out (skip backend logout since account is already deleted)
+              await signOut({ skipBackendLogout: true });
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               Alert.alert(t("common.success"), t("settings.deleteAccount.successMessage"));
-              router.replace("/welcome");
             } catch (error: unknown) {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
               const errorMessage =
@@ -124,7 +124,7 @@ export default function SettingsScreen() {
         },
       ]
     );
-  }, [t]);
+  }, [t, signOut]);
 
   const handleLinkedIn = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

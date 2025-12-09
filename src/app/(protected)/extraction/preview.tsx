@@ -152,7 +152,7 @@ export default function UnifiedRecipePreviewScreen() {
       });
 
       // Navigate immediately - don't wait for API
-      router.dismissTo("/(tabs)");
+      router.dismissTo("/(protected)/(tabs)");
 
       // Save in background (fire and forget)
       extractionService

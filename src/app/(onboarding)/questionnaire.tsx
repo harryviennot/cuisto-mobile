@@ -30,11 +30,15 @@ import {
 } from "@/components/onboarding";
 import type { OnboardingFormData } from "@/components/onboarding";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePrefetchDiscovery } from "@/hooks/useDiscovery";
 
 export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { submitOnboarding } = useAuth();
+
+  // Prefetch discovery data in background so it's ready when onboarding completes
+  usePrefetchDiscovery();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,7 +100,7 @@ export default function Onboarding() {
         text2: t("onboarding.toast.accountSetUp"),
       });
 
-      // Navigation is handled automatically by ProtectedNavigation
+      // Navigation is handled automatically by Stack.Protected guards
       // after submitOnboarding updates the user's is_new_user flag
     } catch (err: unknown) {
       console.error("Onboarding submission error:", err);

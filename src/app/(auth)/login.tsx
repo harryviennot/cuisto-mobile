@@ -5,18 +5,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ArrowLeftIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { useTranslation } from "react-i18next";
-import { authService } from "@/api/services/auth.service";
 import { useAuth } from "@/contexts/AuthContext";
 import Toast from "react-native-toast-message";
 import { AuthBackground, EmailStepCard, OTPStepCard } from "@/components/auth";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 
 type AuthStep = "email" | "otp";
 
 export default function AuthScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { setTokens, setUser } = useAuth();
+  const { sendEmailOTP, verifyEmailOTP } = useAuth();
 
   // Current step
   const [currentStep, setCurrentStep] = useState<AuthStep>("email");
@@ -67,7 +66,7 @@ export default function AuthScreen() {
     setIsSendingOtp(true);
 
     try {
-      await authService.sendEmailOTP({ email: email.trim().toLowerCase() });
+      await sendEmailOTP(email.trim().toLowerCase());
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
@@ -83,10 +82,11 @@ export default function AuthScreen() {
     } catch (err: any) {
       console.error("Send OTP error:", err);
 
-      if (err.response?.status === 429) {
+      // Supabase error format
+      if (err.status === 429 || err.message?.includes("rate limit")) {
         setEmailError(t("auth.errors.tooManyAttempts"));
-      } else if (err.response?.data?.message) {
-        setEmailError(err.response.data.message);
+      } else if (err.message) {
+        setEmailError(err.message);
       } else {
         setEmailError(t("auth.errors.failedToSendCode"));
       }
@@ -94,7 +94,7 @@ export default function AuthScreen() {
       Toast.show({
         type: "error",
         text1: t("auth.toast.failedToSend"),
-        text2: err.response?.data?.message || t("common.tryAgain"),
+        text2: err.message || t("common.tryAgain"),
       });
     } finally {
       setIsSendingOtp(false);
@@ -111,14 +111,8 @@ export default function AuthScreen() {
     setOtpError("");
 
     try {
-      const response = await authService.verifyEmailOTP({
-        email: email.trim().toLowerCase(),
-        token: otpCode,
-        type: "email",
-      });
-
-      await setTokens(response.access_token, response.refresh_token, response.expires_in);
-      setUser(response.user);
+      // verifyEmailOTP now handles everything: Supabase auth + fetching user info
+      await verifyEmailOTP(email.trim().toLowerCase(), otpCode);
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
@@ -128,20 +122,21 @@ export default function AuthScreen() {
         text2: t("auth.toast.verifiedDescription"),
       });
 
-      // Navigation is handled automatically by ProtectedNavigation
-      // based on isAuthenticated and is_new_user state
+      // Navigation is handled automatically by Stack.Protected guards
+      // in _layout.tsx based on authStatus from AuthContext
     } catch (err: any) {
       console.error("Verify OTP error:", err);
       setOtpCode("");
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
-      if (err.response?.status === 401) {
+      // Supabase error format
+      if (err.message?.includes("Invalid") || err.message?.includes("expired")) {
         setOtpError(t("auth.errors.invalidOrExpired"));
-      } else if (err.response?.status === 429) {
+      } else if (err.status === 429 || err.message?.includes("rate limit")) {
         setOtpError(t("auth.errors.tooManyAttempts"));
-      } else if (err.response?.data?.message) {
-        setOtpError(err.response.data.message);
+      } else if (err.message) {
+        setOtpError(err.message);
       } else {
         setOtpError(t("auth.errors.verificationFailed"));
       }
@@ -149,12 +144,12 @@ export default function AuthScreen() {
       Toast.show({
         type: "error",
         text1: t("auth.toast.verificationFailed"),
-        text2: err.response?.data?.message || t("auth.toast.invalidCode"),
+        text2: err.message || t("auth.toast.invalidCode"),
       });
     } finally {
       setIsVerifying(false);
     }
-  }, [otpCode, email, setTokens, setUser, t]);
+  }, [otpCode, email, verifyEmailOTP, t]);
 
   // Auto-submit OTP when complete
   useEffect(() => {
@@ -170,7 +165,7 @@ export default function AuthScreen() {
     setOtpError("");
 
     try {
-      await authService.sendEmailOTP({ email: email.trim().toLowerCase() });
+      await sendEmailOTP(email.trim().toLowerCase());
 
       Toast.show({
         type: "success",
@@ -187,7 +182,7 @@ export default function AuthScreen() {
       Toast.show({
         type: "error",
         text1: t("auth.toast.failedToResend"),
-        text2: err.response?.data?.message || t("common.tryAgain"),
+        text2: err.message || t("common.tryAgain"),
       });
     } finally {
       setIsResending(false);
@@ -261,9 +256,14 @@ export default function AuthScreen() {
           {currentStep === "email" ? (
             <Text className="text-xs text-white/30 text-center leading-5">
               {t("auth.footer.termsPrefix")}
-              <Text className="text-white/50 underline">{t("auth.footer.termsOfService")}</Text>
+              <Link href="https://cuisto.app/terms" className="text-white/50 underline">
+                {t("auth.footer.termsOfService")}
+              </Link>
               {t("auth.footer.and")}
-              <Text className="text-white/50 underline">{t("auth.footer.privacyPolicy")}</Text>.
+              <Link href="https://cuisto.app/privacy" className="text-white/50 underline">
+                {t("auth.footer.privacyPolicy")}
+              </Link>
+              .
             </Text>
           ) : (
             <View className="items-center">
