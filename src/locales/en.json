@@ -341,6 +341,10 @@
     "createdAt": "Created At",
     "metadata": "Metadata",
     "authenticationStatus": "Authentication Status",
+    "chooseMethod": "Get Started",
+    "chooseMethodSubtitle": "SIGN IN OR CREATE ACCOUNT",
+    "continueWithApple": "Continue with Apple",
+    "continueWithEmail": "Continue with Email",
     "emailStep": {
       "title": "Welcome",
       "subtitle": "Sign in to continue",

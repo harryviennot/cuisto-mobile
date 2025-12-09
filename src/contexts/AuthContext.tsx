@@ -14,7 +14,9 @@
  * - authenticated: Valid session, onboarding completed
  */
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { Platform } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
+import * as AppleAuthentication from "expo-apple-authentication";
 import type { User, OnboardingData } from "@/types/auth";
 import { supabase } from "@/lib/supabase";
 import { authService } from "@/api/services/auth.service";
@@ -36,8 +38,11 @@ interface AuthContextType {
   isNewUser: boolean;
   /** Computed auth status for Stack.Protected guards */
   authStatus: AuthStatus;
+  /** Whether Apple Sign In is available on this device (iOS only) */
+  isAppleSignInAvailable: boolean;
   sendEmailOTP: (email: string) => Promise<void>;
   verifyEmailOTP: (email: string, token: string) => Promise<void>;
+  signInWithApple: () => Promise<void>;
   submitOnboarding: (data: OnboardingData) => Promise<void>;
   signOut: (options?: SignOutOptions) => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -49,9 +54,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAppleSignInAvailable, setIsAppleSignInAvailable] = useState(false);
   const initializingRef = useRef(false);
   // Flag to prevent onAuthStateChange from interfering during active auth operations
   const isAuthenticatingRef = useRef(false);
+
+  // Check Apple Sign In availability on mount (iOS only)
+  useEffect(() => {
+    if (Platform.OS === "ios") {
+      AppleAuthentication.isAvailableAsync().then(setIsAppleSignInAvailable);
+    }
+  }, []);
 
   /**
    * Fetch user info from backend (includes is_new_user from onboarding_completed check)
@@ -200,6 +213,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   /**
+   * Sign in with Apple (iOS only)
+   * Uses native Apple Sign In and exchanges the identity token with Supabase
+   */
+  const signInWithApple = async () => {
+    if (Platform.OS !== "ios") {
+      throw new Error("Apple Sign In is only available on iOS");
+    }
+
+    isAuthenticatingRef.current = true;
+
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (!credential.identityToken) {
+        throw new Error("No identity token received from Apple");
+      }
+
+      // Exchange Apple identity token with Supabase
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: "apple",
+        token: credential.identityToken,
+      });
+
+      if (error) {
+        console.error("Supabase Apple sign in failed:", error);
+        throw error;
+      }
+
+      if (!data.user || !data.session) {
+        throw new Error("Apple sign in succeeded but no user/session returned");
+      }
+
+      // Save full name if available (Apple only provides this on FIRST sign-in ever)
+      if (credential.fullName?.givenName || credential.fullName?.familyName) {
+        const fullName = `${credential.fullName.givenName || ""} ${credential.fullName.familyName || ""}`.trim();
+        if (fullName) {
+          await supabase.auth.updateUser({
+            data: { full_name: fullName },
+          });
+        }
+      }
+
+      // Fetch user info from backend (includes is_new_user status)
+      const userInfo = await fetchUserInfo();
+
+      if (userInfo) {
+        setUser(userInfo);
+      } else {
+        // Fallback: create user from Supabase data
+        setUser({
+          id: data.user.id,
+          email: data.user.email ?? undefined,
+          phone: data.user.phone ?? undefined,
+          created_at: data.user.created_at,
+          user_metadata: data.user.user_metadata ?? {},
+          is_new_user: true, // Safe default - will redirect to onboarding
+          is_anonymous: false,
+        });
+      }
+    } finally {
+      isAuthenticatingRef.current = false;
+    }
+  };
+
+  /**
    * Submit onboarding questionnaire
    */
   const submitOnboarding = async (data: OnboardingData) => {
@@ -325,8 +408,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated,
     isNewUser,
     authStatus,
+    isAppleSignInAvailable,
     sendEmailOTP,
     verifyEmailOTP,
+    signInWithApple,
     submitOnboarding,
     signOut,
     refreshUser,

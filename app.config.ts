@@ -44,6 +44,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     supportsTablet: true,
     bundleIdentifier: getUniqueIdentifier(),
     icon: "./assets/cuisto.icon",
+    usesAppleSignIn: true,
     config: {
       usesNonExemptEncryption: false
     }
@@ -85,7 +86,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         photosPermission: "The app accesses your photos to let you upload them to your recipes."
       }
     ],
-    "expo-web-browser"
+    "expo-web-browser",
+    "expo-apple-authentication"
   ],
   experiments: {
     typedRoutes: true,

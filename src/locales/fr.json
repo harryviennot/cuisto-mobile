@@ -342,6 +342,10 @@
     "createdAt": "Créé le",
     "metadata": "Métadonnées",
     "authenticationStatus": "Statut d'authentification",
+    "chooseMethod": "Commencer",
+    "chooseMethodSubtitle": "CONNEXION OU CRÉATION DE COMPTE",
+    "continueWithApple": "Continuer avec Apple",
+    "continueWithEmail": "Continuer avec Email",
     "emailStep": {
       "title": "Bienvenue",
       "subtitle": "Connectez-vous pour continuer",

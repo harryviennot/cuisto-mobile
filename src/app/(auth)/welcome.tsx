@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import Animated, { useAnimatedStyle, withTiming, withDelay, Easing } from "react-native-reanimated";
 import { ArrowRightIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { SHOWCASE_DATA, ShowcaseItem } from "@components/welcome/ShowcaseItems";
 import { CentralDeck } from "@components/welcome/CentralDeck";
 import { SatelliteSource } from "@components/welcome/SatelliteSource";
+import { AuthMethodSheet } from "@/components/auth";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -19,6 +20,17 @@ export default function WelcomeScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
   // Track which variant to show for each category
   const [variantIndices, setVariantIndices] = useState([0, 0, 0, 0]);
+
+  // Auth method bottom sheet ref
+  const authMethodSheetRef = useRef<BottomSheetModal>(null);
+
+  const handleStartCollecting = useCallback(() => {
+    authMethodSheetRef.current?.present();
+  }, []);
+
+  const handleCloseAuthSheet = useCallback(() => {
+    authMethodSheetRef.current?.dismiss();
+  }, []);
 
   // Build current showcase items from SHOWCASE_DATA using variant indices
   const currentItems: ShowcaseItem[] = SHOWCASE_DATA.map((categoryItems, categoryIdx) => {
@@ -107,7 +119,7 @@ export default function WelcomeScreen() {
         {/* CTA */}
         <Animated.View style={ctaStyle} className="w-full items-center space-y-4">
           <AnimatedPressable
-            onPress={() => router.push("/(auth)/login")}
+            onPress={handleStartCollecting}
             className="group relative w-full h-16 bg-primary rounded-2xl flex-row items-center justify-center gap-3 overflow-hidden active:scale-95 transition-transform"
           >
             <Text className="text-white font-bold text-sm uppercase tracking-[0.2em] z-10">
@@ -121,6 +133,9 @@ export default function WelcomeScreen() {
           </Text>
         </Animated.View>
       </View>
+
+      {/* Auth Method Selection Bottom Sheet */}
+      <AuthMethodSheet ref={authMethodSheetRef} onClose={handleCloseAuthSheet} />
     </View>
   );
 }
