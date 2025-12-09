@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { extractionService } from "@/api/services/extraction.service";
-import { tokenManager } from "@/api/token-manager";
+import { supabase } from "@/lib/supabase";
 import { API_URL } from "@/api/api-client";
 import { useSSE, isSSESupported } from "./useSSE";
 import { usePolling } from "./usePolling";
@@ -48,11 +48,11 @@ export function useExtractionJob(config: UseExtractionJobConfig): UseExtractionJ
 
   const hasCompletedRef = useRef(false);
 
-  // Load auth token
+  // Load auth token from Supabase session
   useEffect(() => {
     const loadToken = async () => {
-      const accessToken = await tokenManager.getAccessToken();
-      setToken(accessToken);
+      const { data: { session } } = await supabase.auth.getSession();
+      setToken(session?.access_token ?? null);
     };
     loadToken();
   }, []);

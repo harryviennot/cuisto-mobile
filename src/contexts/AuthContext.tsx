@@ -14,6 +14,7 @@
  * - authenticated: Valid session, onboarding completed
  */
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { User, OnboardingData } from "@/types/auth";
 import { supabase } from "@/lib/supabase";
 import { authService } from "@/api/services/auth.service";
@@ -40,6 +41,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const initializingRef = useRef(false);
@@ -203,6 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   /**
    * Sign out the current user
+   * Clears Supabase session, React Query cache, and local state
    */
   const signOut = async () => {
     try {
@@ -221,6 +224,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         console.log("Supabase signOut error (non-critical):", error);
       }
+
+      // Clear ALL React Query cache to prevent data leaking between accounts
+      queryClient.clear();
 
       setUser(null);
     } catch (error) {
