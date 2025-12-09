@@ -87,7 +87,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       }
     ],
     "expo-web-browser",
-    "expo-apple-authentication"
+    "expo-apple-authentication",
+    [
+      "@react-native-google-signin/google-signin",
+      {
+        iosUrlScheme: "com.googleusercontent.apps.576860647918-nm7ghog299kfj4dirlln5a7s7dotto95"
+      }
+    ]
   ],
   experiments: {
     typedRoutes: true,

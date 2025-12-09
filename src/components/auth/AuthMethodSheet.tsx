@@ -2,7 +2,7 @@ import React, { forwardRef, useState, useCallback } from "react";
 import { View, Text, Pressable, ActivityIndicator, Platform } from "react-native";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
-import { AppleLogo, EnvelopeSimple } from "phosphor-react-native";
+import { AppleLogoIcon, EnvelopeSimpleIcon, GoogleLogoIcon } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { useTranslation } from "react-i18next";
@@ -96,8 +96,9 @@ const AuthMethodButton: React.FC<AuthMethodButtonProps> = ({
 export const AuthMethodSheet = forwardRef<BottomSheetModal, AuthMethodSheetProps>(
   ({ onClose }, ref) => {
     const { t } = useTranslation();
-    const { signInWithApple, isAppleSignInAvailable } = useAuth();
+    const { signInWithApple, signInWithGoogle, isAppleSignInAvailable } = useAuth();
     const [isAppleLoading, setIsAppleLoading] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
     const handleAppleSignIn = useCallback(async () => {
       setIsAppleLoading(true);
@@ -126,6 +127,21 @@ export const AuthMethodSheet = forwardRef<BottomSheetModal, AuthMethodSheetProps
       }
     }, [signInWithApple, onClose]);
 
+    const handleGoogleSignIn = useCallback(async () => {
+      setIsGoogleLoading(true);
+      try {
+        await signInWithGoogle();
+        // Success - AuthContext will update user state, navigation happens automatically
+        onClose?.();
+      } catch (error) {
+        // User cancellation is handled silently in AuthContext
+        console.error("Google Sign In error:", error);
+        // Could show a toast here for real errors
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    }, [signInWithGoogle, onClose]);
+
     const handleEmailPress = useCallback(() => {
       onClose?.();
       router.push("/(auth)/login");
@@ -143,7 +159,7 @@ export const AuthMethodSheet = forwardRef<BottomSheetModal, AuthMethodSheetProps
         <View className="px-6 pb-4 pt-4 space-y-3 gap-4">
           {showAppleButton && (
             <AuthMethodButton
-              icon={<AppleLogo size={24} color="#ffffff" weight="fill" />}
+              icon={<AppleLogoIcon size={24} color="#ffffff" weight="fill" />}
               label={t("auth.continueWithApple")}
               onPress={handleAppleSignIn}
               isLoading={isAppleLoading}
@@ -152,7 +168,14 @@ export const AuthMethodSheet = forwardRef<BottomSheetModal, AuthMethodSheetProps
           )}
 
           <AuthMethodButton
-            icon={<EnvelopeSimple size={22} color="#1c1917" weight="bold" />}
+            icon={<GoogleLogoIcon size={22} color="#1c1917" weight="bold" />}
+            label={t("auth.continueWithGoogle")}
+            onPress={handleGoogleSignIn}
+            isLoading={isGoogleLoading}
+          />
+
+          <AuthMethodButton
+            icon={<EnvelopeSimpleIcon size={22} color="#1c1917" weight="bold" />}
             label={t("auth.continueWithEmail")}
             onPress={handleEmailPress}
           />
