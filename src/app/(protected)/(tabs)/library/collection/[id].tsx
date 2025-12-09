@@ -110,7 +110,7 @@ export default function CollectionDetailScreen() {
   }, [router]);
 
   const handleExploreRecipes = useCallback(() => {
-    router.push("/(tabs)");
+    router.push("/(protected)/(tabs)");
   }, [router]);
 
   const { recipes = [] } = data || {};

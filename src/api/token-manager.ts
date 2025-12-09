@@ -1,107 +1,55 @@
 /**
- * Token manager for mobile using expo-secure-store
+ * Token manager - DEPRECATED
+ *
+ * Token management is now handled automatically by Supabase.
+ * This file is kept for backward compatibility but should not be used.
+ *
+ * Supabase stores tokens in expo-secure-store via the adapter in lib/supabase.ts
+ * and handles refresh automatically.
+ *
+ * To get the current access token, use:
+ *   const { data: { session } } = await supabase.auth.getSession();
+ *   const token = session?.access_token;
  */
-import * as SecureStore from "expo-secure-store";
 
-const ACCESS_TOKEN_KEY = "access_token";
-const REFRESH_TOKEN_KEY = "refresh_token";
-const TOKEN_EXPIRY_KEY = "token_expiry";
-
+// This export is kept for any code that might still import tokenManager
+// but all methods are now no-ops or return safe defaults
 export const tokenManager = {
   /**
-   * Store access token securely
-   */
-  async setAccessToken(token: string, expiresIn: number): Promise<void> {
-    try {
-      await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, token);
-
-      // Calculate and store expiry time
-      const expiryTime = Date.now() + expiresIn * 1000;
-      await SecureStore.setItemAsync(TOKEN_EXPIRY_KEY, expiryTime.toString());
-    } catch (error) {
-      console.error("Error storing access token:", error);
-      throw error;
-    }
-  },
-
-  /**
-   * Get access token
+   * @deprecated Use supabase.auth.getSession() instead
    */
   async getAccessToken(): Promise<string | null> {
-    try {
-      return await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
-    } catch (error) {
-      console.error("Error retrieving access token:", error);
-      return null;
-    }
+    console.warn("tokenManager.getAccessToken() is deprecated. Use supabase.auth.getSession() instead.");
+    return null;
   },
 
   /**
-   * Store refresh token securely
-   */
-  async setRefreshToken(token: string): Promise<void> {
-    try {
-      await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
-    } catch (error) {
-      console.error("Error storing refresh token:", error);
-      throw error;
-    }
-  },
-
-  /**
-   * Get refresh token
+   * @deprecated Use supabase.auth.getSession() instead
    */
   async getRefreshToken(): Promise<string | null> {
-    try {
-      return await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-    } catch (error) {
-      console.error("Error retrieving refresh token:", error);
-      return null;
-    }
+    console.warn("tokenManager.getRefreshToken() is deprecated. Supabase handles refresh automatically.");
+    return null;
   },
 
   /**
-   * Update access token (used during refresh)
+   * @deprecated Tokens are managed by Supabase
    */
-  async updateAccessToken(token: string, expiresIn: number): Promise<void> {
-    await this.setAccessToken(token, expiresIn);
+  async setTokens(_accessToken: string, _refreshToken: string, _expiresIn: number): Promise<void> {
+    console.warn("tokenManager.setTokens() is deprecated. Supabase manages tokens automatically.");
   },
 
   /**
-   * Clear all tokens
+   * @deprecated Use supabase.auth.signOut() instead
    */
   async clearTokens(): Promise<void> {
-    try {
-      await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-      await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-      await SecureStore.deleteItemAsync(TOKEN_EXPIRY_KEY);
-    } catch (error) {
-      console.error("Error clearing tokens:", error);
-    }
+    console.warn("tokenManager.clearTokens() is deprecated. Use supabase.auth.signOut() instead.");
   },
 
   /**
-   * Check if access token is expired or about to expire
+   * @deprecated Supabase handles token expiry automatically
    */
   async isTokenExpired(): Promise<boolean> {
-    try {
-      const expiryStr = await SecureStore.getItemAsync(TOKEN_EXPIRY_KEY);
-      if (!expiryStr) return true;
-
-      const expiry = parseInt(expiryStr, 10);
-      // Consider token expired if it expires in less than 5 minutes
-      return Date.now() >= expiry - 5 * 60 * 1000;
-    } catch (error) {
-      console.error("Error checking token expiry:", error);
-      return true;
-    }
-  },
-
-  /**
-   * Store both tokens
-   */
-  async setTokens(accessToken: string, refreshToken: string, expiresIn: number): Promise<void> {
-    await this.setAccessToken(accessToken, expiresIn);
-    await this.setRefreshToken(refreshToken);
+    console.warn("tokenManager.isTokenExpired() is deprecated. Supabase handles refresh automatically.");
+    return false;
   },
 };

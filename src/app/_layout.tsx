@@ -1,11 +1,20 @@
+/**
+ * Root Layout
+ *
+ * Uses Expo Router's Stack.Protected pattern for declarative auth routing.
+ * Screens only mount when their guard condition is true, preventing:
+ * - API calls before authentication
+ * - Race conditions between auth state and navigation
+ * - White flash during transitions
+ */
 import "@/global.css";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack, Redirect, useSegments } from "expo-router";
+import { Stack } from "expo-router";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { SearchProvider } from "@/contexts/SearchContext";
-import { StatusBar, View } from "react-native";
+import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -22,6 +31,7 @@ import {
   PlayfairDisplay_600SemiBold,
   PlayfairDisplay_500Medium,
 } from "@expo-google-fonts/playfair-display";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Configure Reanimated logger (disable strict mode warnings)
 configureReanimatedLogger({
@@ -42,97 +52,66 @@ const queryClient = new QueryClient({
 });
 
 /**
- * Protected navigation component that handles auth routing
- * Keeps splash screen visible until auth state is determined
+ * SplashScreenController
+ * Hides splash screen when auth state is determined
  */
-function ProtectedNavigation({ onReady }: { onReady: () => void }) {
-  const segments = useSegments();
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const hasCalledReady = useRef(false);
-  const [isNavigationReady, setIsNavigationReady] = useState(false);
-
-  // Wait for navigation tree to fully mount before allowing redirects
-  // Using setTimeout to defer to the next event loop tick after all effects have run
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsNavigationReady(true);
-    }, 0);
-    return () => clearTimeout(timeout);
-  }, []);
+function SplashScreenController() {
+  const { isLoading } = useAuth();
+  const splashHiddenRef = useRef(false);
 
   useEffect(() => {
-    if (!isLoading && !hasCalledReady.current) {
-      hasCalledReady.current = true;
-      onReady();
+    if (!isLoading && !splashHiddenRef.current) {
+      splashHiddenRef.current = true;
+      SplashScreen.hideAsync().catch((error) => {
+        console.debug("Splash screen hide error (non-critical):", error.message);
+      });
     }
-  }, [isLoading, onReady]);
+  }, [isLoading]);
 
-  // While loading auth state, render nothing (keep splash screen visible)
-  if (isLoading) {
-    return <View style={{ flex: 1 }} />;
+  return null;
+}
+
+/**
+ * RootNavigator
+ * Uses Stack.Protected for declarative auth-based routing.
+ * Screens only mount when their guard is true.
+ */
+function RootNavigator() {
+  const { authStatus, isAuthenticated, isNewUser } = useAuth();
+
+  // Keep splash visible during loading - return null so nothing renders
+  if (authStatus === "loading") {
+    return null;
   }
 
-  // Determine redirect target (only after navigation is ready)
-  const inAuthGroup = segments[0] === "auth";
-  const inWelcomeScreen = segments[0] === "welcome";
-  const onOnboardingScreen = (segments as string[])[1] === "onboarding";
-
-  let redirectTarget: string | null = null;
-  if (isNavigationReady) {
-    if (!isAuthenticated && !inAuthGroup && !inWelcomeScreen) {
-      redirectTarget = "/welcome";
-    } else if (isAuthenticated && user?.is_new_user && !onOnboardingScreen) {
-      redirectTarget = "/auth/onboarding";
-    } else if (isAuthenticated && !user?.is_new_user && (inAuthGroup || inWelcomeScreen)) {
-      redirectTarget = "/(tabs)";
-    }
-  }
-
-  if (redirectTarget) {
-    return (
-      <Redirect href={redirectTarget as "/(tabs)" | "/auth" | "/auth/onboarding" | "/welcome"} />
-    );
-  }
+  // Guard conditions for route groups
+  const showAuth = !isAuthenticated;
+  const showOnboarding = isAuthenticated && isNewUser;
+  const showProtected = isAuthenticated && !isNewUser;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="welcome" />
-      <Stack.Screen name="auth" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen
-        name="search"
-        options={{
-          presentation: "transparentModal",
-          animation: "fade",
-          animationDuration: 200,
-        }}
-      />
-      <Stack.Screen
-        name="extraction"
-        options={{
-          presentation: "fullScreenModal",
-          animation: "fade_from_bottom",
-          animationDuration: 350,
-        }}
-      />
-      <Stack.Screen
-        name="settings"
-        // options={{
-        //   presentation: "transparentModal",
-        //   animation: "fade",
-        //   animationDuration: 200,
-        // }}
-      />
-      <Stack.Screen name="test-creen" />
-      <Stack.Screen name="recipe" />
+      {/* Unauthenticated routes - welcome and login */}
+      <Stack.Protected guard={showAuth}>
+        <Stack.Screen name="(auth)" />
+      </Stack.Protected>
+
+      {/* Authenticated but needs onboarding */}
+      <Stack.Protected guard={showOnboarding}>
+        <Stack.Screen name="(onboarding)" />
+      </Stack.Protected>
+
+      {/* Fully authenticated routes - main app */}
+      <Stack.Protected guard={showProtected}>
+        <Stack.Screen name="(protected)" />
+      </Stack.Protected>
     </Stack>
   );
 }
 
 export default function RootLayout() {
+  const insets = useSafeAreaInsets();
   const [i18nInitialized, setI18nInitialized] = useState(false);
-  const [authReady, setAuthReady] = useState(false);
-  const splashHiddenRef = useRef(false);
   const [fontsLoaded] = useFonts({
     PlayfairDisplay_400Regular,
     PlayfairDisplay_700Bold,
@@ -157,22 +136,7 @@ export default function RootLayout() {
     }
   }, []);
 
-  // Hide splash screen only when fonts, i18n, AND auth are all ready
-  useEffect(() => {
-    if (fontsLoaded && i18nInitialized && authReady && !splashHiddenRef.current) {
-      splashHiddenRef.current = true;
-      SplashScreen.hideAsync().catch((error) => {
-        // Silently handle - splash screen errors are non-critical
-        // The error often occurs if splash is already hidden
-        console.debug("Splash screen hide error (non-critical):", error.message);
-      });
-    }
-  }, [fontsLoaded, i18nInitialized, authReady]);
-
-  const handleAuthReady = useCallback(() => {
-    setAuthReady(true);
-  }, []);
-
+  // Don't render anything until fonts and i18n are ready
   if (!fontsLoaded || !i18nInitialized) {
     return null;
   }
@@ -184,14 +148,15 @@ export default function RootLayout() {
           <BottomSheetModalProvider>
             <AuthProvider>
               <SearchProvider>
-                <ProtectedNavigation onReady={handleAuthReady} />
+                <SplashScreenController />
+                <RootNavigator />
               </SearchProvider>
             </AuthProvider>
             <StatusBar barStyle="dark-content" />
           </BottomSheetModalProvider>
         </QueryClientProvider>
       </KeyboardProvider>
-      <Toast config={toastConfig} topOffset={60} />
+      <Toast config={toastConfig} topOffset={insets.top} />
     </GestureHandlerRootView>
   );
 }

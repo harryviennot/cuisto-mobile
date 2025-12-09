@@ -112,7 +112,7 @@ export default function SettingsScreen() {
               await tokenManager.clearTokens();
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               Alert.alert(t("common.success"), t("settings.deleteAccount.successMessage"));
-              router.replace("/welcome");
+              router.replace("/");
             } catch (error: unknown) {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
               const errorMessage =

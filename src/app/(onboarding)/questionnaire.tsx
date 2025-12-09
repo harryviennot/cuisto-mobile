@@ -96,7 +96,7 @@ export default function Onboarding() {
         text2: t("onboarding.toast.accountSetUp"),
       });
 
-      // Navigation is handled automatically by ProtectedNavigation
+      // Navigation is handled automatically by Stack.Protected guards
       // after submitOnboarding updates the user's is_new_user flag
     } catch (err: unknown) {
       console.error("Onboarding submission error:", err);

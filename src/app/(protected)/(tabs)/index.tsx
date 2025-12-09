@@ -191,7 +191,7 @@ export default function Index() {
           title={t("discovery.empty.title")}
           message={t("discovery.empty.message")}
           ctaLabel={t("discovery.empty.cta")}
-          onCtaPress={() => router.push("/(tabs)/new-recipe")}
+          onCtaPress={() => router.push("/(protected)/(tabs)/new-recipe")}
         />
       </View>
     );

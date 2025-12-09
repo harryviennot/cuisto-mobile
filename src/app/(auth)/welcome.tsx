@@ -107,7 +107,7 @@ export default function WelcomeScreen() {
         {/* CTA */}
         <Animated.View style={ctaStyle} className="w-full items-center space-y-4">
           <AnimatedPressable
-            onPress={() => router.push("/auth")}
+            onPress={() => router.push("/(auth)/login")}
             className="group relative w-full h-16 bg-primary rounded-2xl flex-row items-center justify-center gap-3 overflow-hidden active:scale-95 transition-transform"
           >
             <Text className="text-white font-bold text-sm uppercase tracking-[0.2em] z-10">

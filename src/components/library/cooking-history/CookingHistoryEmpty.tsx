@@ -19,7 +19,7 @@ export function CookingHistoryEmpty({ variant = "full" }: CookingHistoryEmptyPro
 
   const handleBrowseRecipes = () => {
     // Navigate to the home/recipes tab
-    router.push("/(tabs)");
+    router.push("/(protected)/(tabs)");
   };
 
   if (variant === "preview") {
