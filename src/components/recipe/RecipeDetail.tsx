@@ -3,7 +3,7 @@
  * Uses split components for better maintainability and performance
  */
 import React, { useState, useEffect, memo } from "react";
-import { View, ScrollView, Alert } from "react-native";
+import { View, ScrollView, Alert, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedScrollHandler,
@@ -12,19 +12,28 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
-import { ShareNetworkIcon, PencilIcon, TrashIcon } from "phosphor-react-native";
+import {
+  ShareNetworkIcon,
+  PencilIcon,
+  TrashIcon,
+  Bookmark,
+  DotsThreeIcon,
+} from "phosphor-react-native";
+import * as Haptics from "expo-haptics";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDeleteRecipe } from "@/hooks/useRecipes";
+import { useToggleFavorite } from "@/hooks/useCollections";
 
 import type { Recipe } from "@/types/recipe";
-import { AnimatedPageHeader } from "@/components/ui/AnimatedPageHeader";
+import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ActionSheet } from "@/components/ui/ActionSheet";
 
 // Import recipe components using barrel exports
 import { CookingMode } from "@/components/recipe/CookingMode";
+import { CookingSessionProvider } from "@/contexts/CookingSessionContext";
 import {
   RecipeHeader,
   RecipeMetadata,
@@ -69,6 +78,10 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   const insets = useSafeAreaInsets();
   const { isTablet, isTabletLandscape } = useDeviceType(isEditing);
   const deleteRecipeMutation = useDeleteRecipe();
+  const { mutate: toggleFavorite } = useToggleFavorite();
+
+  // Get favorite status from user_data
+  const isFavorite = recipe?.user_data?.is_favorite ?? false;
 
   // State
   const [isCooking, setIsCooking] = useState(false);
@@ -125,16 +138,11 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     return (
       <View className="flex-1 bg-surface">
         {showHeader && (
-          <AnimatedPageHeader
-            title=""
+          <UnifiedStickyHeader
             scrollY={scrollY}
             onBackPress={onBack}
-            animationConfig={{
-              scrollThresholdStart: 200,
-              scrollThresholdEnd: 244,
-              titleTranslateYStart: 16,
-              titleTranslateYEnd: 0,
-            }}
+            scrollThresholdStart={0}
+            scrollThresholdEnd={100}
           />
         )}
         <ErrorState
@@ -336,17 +344,25 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     <View className="flex-1 bg-black">
       <Animated.View className="flex-1 bg-surface" style={detailAnimatedStyle}>
         {showHeader && (
-          <AnimatedPageHeader
+          <UnifiedStickyHeader
             title={displayRecipe.title}
             scrollY={scrollY}
             onBackPress={!isDraft ? onBack : undefined}
-            onMenuPress={!isDraft ? () => setIsActionsModalVisible(true) : undefined}
-            animationConfig={{
-              scrollThresholdStart,
-              scrollThresholdEnd,
-              titleTranslateYStart: 16,
-              titleTranslateYEnd: 0,
-            }}
+            scrollThresholdStart={scrollThresholdStart}
+            scrollThresholdEnd={scrollThresholdEnd}
+            showButtonBackdrop={true}
+            rightElement={
+              !isDraft ? (
+                <TouchableOpacity
+                  onPress={() => setIsActionsModalVisible(true)}
+                  className="w-11 h-11 rounded-full items-center justify-center"
+                  activeOpacity={0.7}
+                >
+                  <DotsThreeIcon size={24} color="#334d43" weight="bold" />
+                </TouchableOpacity>
+              ) : undefined
+            }
+            rightElementAlwaysVisible={true}
           />
         )}
 
@@ -368,7 +384,9 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         <Animated.View
           style={[{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }, cookingModeStyle]}
         >
-          <CookingMode recipe={recipe} onClose={() => setIsCooking(false)} />
+          <CookingSessionProvider>
+            <CookingMode recipe={recipe} onClose={() => setIsCooking(false)} />
+          </CookingSessionProvider>
         </Animated.View>
       )}
       {/* Actions Modal */}
@@ -376,6 +394,17 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         visible={isActionsModalVisible}
         onClose={() => setIsActionsModalVisible(false)}
         actions={[
+          {
+            label: isFavorite ? t("recipe.bookmark.remove") : t("recipe.bookmark.save"),
+            icon: <Bookmark size={24} color="#334d43" weight={isFavorite ? "fill" : "regular"} />,
+            onPress: () => {
+              if (recipe) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                toggleFavorite({ recipeId: recipe.id, isFavorite });
+              }
+              setIsActionsModalVisible(false);
+            },
+          },
           {
             label: t("recipe.actions.share"),
             description: t("recipe.actions.shareDescription"),

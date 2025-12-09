@@ -74,4 +74,6 @@ export interface SaveRecipeRequest {
   recipe_id: string;
   /** Optional - defaults to user's "extracted" collection */
   collection_id?: string;
+  /** Whether the recipe should be publicly visible. Defaults to true if not specified. */
+  is_public?: boolean;
 }

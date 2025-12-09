@@ -6,14 +6,15 @@
  * NEW FLOW (isDraft architecture):
  * 1. Job completes with recipe_id (draft recipe created on server)
  * 2. Preview fetches recipe using recipe_id
- * 3. User clicks "Save" -> calls saveRecipe API to publish and add to collection
- * 4. User clicks "Discard" -> calls delete API to remove draft
+ * 3. User clicks "Save" -> shows privacy prompt for private sources (photo/paste/voice)
+ * 4. User chooses public/private -> saves in background and navigates immediately
+ * 5. User clicks "Discard" -> calls delete API to remove draft
  *
  * For duplicate videos:
  * - recipe_id is set to the existing public recipe
  * - User can add the existing recipe to their collection
  */
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { View, Text, Pressable } from "react-native";
 import Toast from "react-native-toast-message";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -24,16 +25,31 @@ import {
   ArrowCounterClockwiseIcon,
   MagnifyingGlassIcon,
   LockIcon,
+  GlobeIcon,
+  LockSimpleIcon,
 } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { recipeService } from "@/api/services/recipe.service";
 import { extractionService } from "@/api/services/extraction.service";
 import { useExtractionJob } from "@/hooks/useExtractionJob";
 import { ExtractionProgress } from "@/components/extraction/ExtractionProgress";
-import { ExtractionStatus } from "@/types/extraction";
+import { ExtractionStatus, SourceType } from "@/types/extraction";
 import type { Recipe } from "@/types/recipe";
 import { RecipeDetail } from "@/components/recipe/RecipeDetail";
+import { PremiumBottomSheet } from "@/components/ui/PremiumBottomSheet";
+
+/**
+ * Check if source type requires privacy prompt (private/personal content)
+ */
+function isPrivateSourceType(sourceType?: string): boolean {
+  return (
+    sourceType === SourceType.PHOTO ||
+    sourceType === SourceType.PASTE ||
+    sourceType === SourceType.VOICE
+  );
+}
 
 export default function UnifiedRecipePreviewScreen() {
   const { t } = useTranslation();
@@ -47,6 +63,9 @@ export default function UnifiedRecipePreviewScreen() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [recipeId, setRecipeId] = useState<string | null>(null);
   const [initialJobLoaded, setInitialJobLoaded] = useState(false);
+
+  // Privacy bottom sheet state
+  const privacySheetRef = useRef<BottomSheetModal>(null);
 
   // Monitor extraction job with SSE and polling fallback
   const { job, error: jobError } = useExtractionJob({
@@ -115,37 +134,69 @@ export default function UnifiedRecipePreviewScreen() {
     }
   }, [recipeId, loadRecipe]);
   /**
-   * Save the recipe to collection.
-   * This publishes the draft (is_draft=false) and adds to user's collection.
+   * Execute the save with the specified privacy setting.
+   * Uses optimistic UI - navigates immediately and saves in background.
    */
-  const handleSave = async () => {
-    if (!recipeId) return;
+  const executeSave = useCallback(
+    (isPublic: boolean) => {
+      if (!recipeId) return;
 
-    setIsSaving(true);
-    try {
-      await extractionService.saveRecipe(recipeId);
+      // Close the privacy sheet if open
+      privacySheetRef.current?.dismiss();
 
-      // Navigate to home
-      router.dismissTo("/(tabs)");
-
-      // Invalidate recipes query to refresh home page
-      queryClient.invalidateQueries({ queryKey: ["recipes"] });
-      queryClient.invalidateQueries({ queryKey: ["collections"] });
-
+      // Show success toast immediately (optimistic)
       Toast.show({
         type: "success",
         text1: t("common.success"),
         text2: t("recipe.savedSuccessfully"),
       });
-    } catch {
-      setIsSaving(false);
-      Toast.show({
-        type: "error",
-        text1: t("common.error"),
-        text2: t("recipe.failedToSave"),
-      });
+
+      // Navigate immediately - don't wait for API
+      router.dismissTo("/(tabs)");
+
+      // Save in background (fire and forget)
+      extractionService
+        .saveRecipe(recipeId, { isPublic })
+        .then(() => {
+          // Invalidate queries in background for fresh data
+          queryClient.invalidateQueries({ queryKey: ["recipes"] });
+          queryClient.invalidateQueries({ queryKey: ["collections", "counts"] });
+          queryClient.invalidateQueries({ queryKey: ["collections", "by-slug", "extracted"] });
+        })
+        .catch(() => {
+          // Show error toast if save fails in background
+          Toast.show({
+            type: "error",
+            text1: t("common.error"),
+            text2: t("recipe.failedToSave"),
+          });
+        });
+    },
+    [recipeId, router, queryClient, t]
+  );
+
+  /**
+   * Handle save button press.
+   * For private sources (photo/paste/voice): show privacy prompt
+   * For public sources (link): save directly as public
+   */
+  const handleSave = useCallback(() => {
+    if (!recipeId) return;
+
+    // Use recipe.source_type since recipe is always loaded when save button is visible
+    // Fall back to job.source_type for safety
+    const sourceType = recipe?.source_type || job?.source_type;
+
+    // For private sources, show the privacy choice bottom sheet
+    if (isPrivateSourceType(sourceType)) {
+      privacySheetRef.current?.present();
+      return;
     }
-  };
+
+    // For public sources (link/video), save directly as public
+    setIsSaving(true);
+    executeSave(true);
+  }, [recipeId, recipe?.source_type, job?.source_type, executeSave]);
 
   /**
    * Discard the draft recipe.
@@ -172,8 +223,6 @@ export default function UnifiedRecipePreviewScreen() {
 
     router.replace("/");
   };
-
-  console.log(job?.progress_percentage);
 
   // Validate jobId
   if (!jobId) {
@@ -309,14 +358,65 @@ export default function UnifiedRecipePreviewScreen() {
   // Recipe loaded - show with animations
   if (recipe) {
     return (
-      <RecipeDetail
-        recipe={recipe}
-        onBack={() => {}}
-        isDraft={true}
-        onDiscard={isDeleting ? undefined : handleDiscard}
-        onSave={isSaving ? undefined : handleSave}
-        showHeader={false}
-      />
+      <>
+        <RecipeDetail
+          recipe={recipe}
+          onBack={() => {}}
+          isDraft={true}
+          onDiscard={isDeleting ? undefined : handleDiscard}
+          onSave={isSaving ? undefined : handleSave}
+          showHeader={false}
+        />
+
+        {/* Privacy Choice Bottom Sheet */}
+        <PremiumBottomSheet
+          ref={privacySheetRef}
+          title={t("extraction.privacy.title")}
+          onClose={() => privacySheetRef.current?.dismiss()}
+        >
+          <View className="px-6 pb-4">
+            <Text className="text-foreground-secondary text-base mb-6">
+              {t("extraction.privacy.description")}
+            </Text>
+
+            {/* Save Publicly Option */}
+            <Pressable
+              onPress={() => executeSave(true)}
+              className="flex-row items-center p-4 rounded-2xl bg-surface-overlay mb-3 active:opacity-80"
+            >
+              <View className="w-12 h-12 rounded-full bg-primary/10 items-center justify-center mr-4">
+                <GlobeIcon size={24} color="#334d43" weight="bold" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-foreground font-semibold text-base">
+                  {t("extraction.privacy.publicTitle")}
+                </Text>
+                <Text className="text-foreground-secondary text-sm mt-0.5">
+                  {t("extraction.privacy.publicDesc")}
+                </Text>
+              </View>
+            </Pressable>
+
+            {/* Save Privately Option */}
+            <Pressable
+              onPress={() => executeSave(false)}
+              className="flex-row items-center p-4 rounded-2xl bg-surface-overlay active:opacity-80"
+            >
+              <View className="w-12 h-12 rounded-full bg-accent/10 items-center justify-center mr-4">
+                <LockSimpleIcon size={24} color="#c65d47" weight="bold" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-foreground font-semibold text-base">
+                  {t("extraction.privacy.privateTitle")}
+                </Text>
+                <Text className="text-foreground-secondary text-sm mt-0.5">
+                  {t("extraction.privacy.privateDesc")}
+                </Text>
+              </View>
+            </Pressable>
+          </View>
+        </PremiumBottomSheet>
+      </>
     );
   }
 

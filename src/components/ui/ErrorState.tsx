@@ -34,7 +34,7 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
 
       {onRetry && (
         <TouchableOpacity
-          className="flex-row items-center bg-red-500 px-6 py-3 rounded-xl gap-2"
+          className="flex-row items-center bg-primary px-6 py-3 rounded-xl gap-2 mt-8"
           onPress={onRetry}
           activeOpacity={0.7}
         >

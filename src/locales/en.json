@@ -12,6 +12,7 @@
     "error": "Error",
     "success": "Success",
     "ok": "OK",
+    "back": "Back",
     "retry": "Retry",
     "tryAgain": "Try Again",
     "of": "of",
@@ -33,10 +34,14 @@
     "upNext": "Up Next",
     "photo": "Photo",
     "share": "Share",
-    "warning": "Warning"
+    "warning": "Warning",
+    "seeMore": "See more",
+    "uploading": "Uploading...",
+    "pleaseWait": "Please Wait",
+    "change": "Change"
   },
   "app": {
-    "title": "CuiStudio",
+    "title": "Cuisto",
     "description": "Edit app/index.tsx to edit this screen."
   },
   "language": {
@@ -140,6 +145,14 @@
       "15": "Deciphering recipe scrolls...",
       "16": "Summoning taste memories...",
       "17": "Crafting your masterpiece..."
+    },
+    "privacy": {
+      "title": "Share your creation?",
+      "description": "Public recipes help grow our community and inspire other home cooks.",
+      "publicTitle": "Share with Community",
+      "publicDesc": "Let others discover, cook, and remix your recipe",
+      "privateTitle": "Keep Private",
+      "privateDesc": "Save to your personal collection only"
     }
   },
   "recipe": {
@@ -181,7 +194,10 @@
       "finishedMessage": "You've successfully cooked {{title}}!",
       "mastered": "You've mastered",
       "completeSession": "Dinner's ready!",
-      "activeTimersWarning": "You have active timers running. Are you sure you want to finish?"
+      "activeTimersWarning": "You have active timers running. Are you sure you want to finish?",
+      "photoAdded": "Photo Added",
+      "uploadingPhoto": "Please wait while your photo uploads...",
+      "photoUploadFailed": "Failed to upload photo. You can try again or continue without a photo."
     },
     "card": {
       "recipeLabel": "RECIPE",
@@ -293,6 +309,13 @@
         "consistency": "It should look smooth and consistent. If it's too thick, add a splash of liquid. If too thin, let it simmer a bit longer.",
         "default": "That's a great question! While I'm just a demo AI right now, normally I'd give you a detailed culinary answer based on the recipe context. Keep cooking!"
       }
+    },
+    "bookmark": {
+      "added": "Successfully saved to your bookmarks",
+      "removed": "Successfully removed from your bookmarks",
+      "error": "Failed to update bookmark",
+      "save": "Save to Bookmarks",
+      "remove": "Remove from Bookmarks"
     }
   },
   "errors": {
@@ -343,7 +366,7 @@
       "failedToSend": "Failed to send code",
       "failedToResend": "Failed to resend code",
       "verified": "Email verified!",
-      "verifiedDescription": "Welcome to Cuistudio",
+      "verifiedDescription": "Welcome to Cuisto",
       "verificationFailed": "Verification failed",
       "invalidCode": "Invalid or expired code"
     },
@@ -369,6 +392,65 @@
       "title": "Let's Cook!"
     }
   },
+  "discovery": {
+    "greeting": {
+      "morning": {
+        "greeting": "Good morning!",
+        "subtitle": "Ready for a nice breakfast?"
+      },
+      "afternoon": {
+        "greeting": "Good afternoon!",
+        "subtitle": "What's cooking?"
+      },
+      "evening": {
+        "greeting": "Good evening!",
+        "subtitle": "Time for some dinner?"
+      },
+      "night": {
+        "greeting": "Late night cravings?",
+        "subtitle": "Find something delicious"
+      }
+    },
+    "sections": {
+      "trending": {
+        "title": "Trending This Week",
+        "subtitle": "Most Cooked"
+      },
+      "socials": {
+        "title": "Trending on Socials",
+        "subtitle": "From TikTok, Instagram & YouTube"
+      },
+      "online": {
+        "title": "Popular Recipes Online",
+        "subtitle": "From Recipe Websites"
+      },
+      "rated": {
+        "title": "Highest Rated",
+        "subtitle": "Top Quality Recipes"
+      },
+      "recent": {
+        "title": "Recently Added",
+        "subtitle": "Fresh Recipes"
+      }
+    },
+    "stats": {
+      "cooked": "{{count}} cooked",
+      "extracted": "{{count}} extracted"
+    },
+    "empty": {
+      "title": "You're one of the first here!",
+      "message": "Extract a recipe to get started and help build this community.",
+      "cta": "Extract a Recipe"
+    },
+    "error": {
+      "title": "Failed to load recipes",
+      "message": "Something went wrong"
+    },
+    "noRecipes": {
+      "title": "No recipes yet",
+      "message": "Check back later for more recipes"
+    }
+  },
   "search": {
     "placeholder": "Search recipes..."
   },
@@ -380,6 +462,78 @@
     "cta": "Start Collecting",
     "socialProof": "Join 10,000+ Organized Chefs",
     "imported": "Imported"
+  },
+  "library": {
+    "subtitle": "YOUR ARCHIVE",
+    "title": "My Library",
+    "search": {
+      "placeholder": "Search collections..."
+    },
+    "collections": {
+      "allRecipes": "All Your Recipes",
+      "allRecipesSubtitle": "EXTRACTED",
+      "favorites": "Favorites",
+      "favoritesSubtitle": "CURATED BY YOU"
+    },
+    "cookbooks": {
+      "title": "Cookbooks",
+      "comingSoon": "Cookbooks coming soon..."
+    },
+    "error": {
+      "title": "Failed to load library"
+    },
+    "empty": {
+      "title": "No collections yet",
+      "message": "Start extracting recipes to build your library"
+    },
+    "extracted": {
+      "empty": {
+        "title": "No recipes yet",
+        "message": "Extract your first recipe from a video, photo, or link",
+        "cta": "Extract Recipe"
+      }
+    },
+    "saved": {
+      "empty": {
+        "title": "No bookmarks yet",
+        "message": "Save recipes you love to find them quickly",
+        "cta": "Explore Recipes"
+      }
+    }
+  },
+  "cookingHistory": {
+    "subtitle": "RECENTLY COOKED",
+    "title": "Cooking History",
+    "seeMore": "See more",
+    "empty": {
+      "title": "No cooking history yet",
+      "message": "Recipes you cook will appear here",
+      "cta": "Browse Recipes"
+    },
+    "cookedTimes_one": "Cooked {{count}} time",
+    "cookedTimes_other": "Cooked {{count}} times",
+    "duration": "{{minutes}} min",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago",
+    "viewGrid": "Grid",
+    "viewList": "List",
+    "deleteConfirmTitle": "Delete Cooking Event",
+    "deleteConfirmMessage": "Are you sure you want to delete this cooking event? This cannot be undone.",
+    "editTitle": "Edit Cooking Event",
+    "dateLabel": "Date Cooked",
+    "ratingLabel": "Rating",
+    "imageLabel": "Photo",
+    "removeImage": "Remove",
+    "changeImage": "Change",
+    "takePhoto": "Camera",
+    "choosePhoto": "Gallery",
+    "noImage": "No photo for this cooking session",
+    "clearRating": "Clear rating",
+    "uploading": "Uploading...",
+    "uploadFailed": "Failed to upload image",
+    "addPhoto": "Add Photo"
   },
   "onboarding": {
     "step": "Step {{current}} of {{total}}",
@@ -489,5 +643,88 @@
       "pleaseSelectOne": "Please select at least one",
       "whereGetRecipes": "Where do you usually find recipes?"
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "PREFERENCES",
+    "sections": {
+      "account": "Account",
+      "app": "App",
+      "dangerZone": "Danger Zone"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Change app language",
+      "selectLanguage": "Select Language"
+    },
+    "changeEmail": {
+      "title": "Change Email",
+      "subtitle": "Update account email",
+      "description": "Enter your new email address. For security, we'll verify both your current and new email addresses.",
+      "inputLabel": "New Email Address",
+      "inputPlaceholder": "Enter new email",
+      "sendCodeButton": "Send Verification Code",
+      "submitButton": "Send Verification",
+      "successTitle": "Email Changed!",
+      "successMessage": "Your email address has been successfully updated.",
+      "errorAlreadyUsed": "This email is already registered to another account.",
+      "errorRateLimit": "Please wait {{seconds}} seconds before requesting another code.",
+      "errorGeneric": "Something went wrong. Please try again.",
+      "errorNoEmail": "No email associated with this account.",
+      "otpTitleCurrent": "Verify Current Email",
+      "otpTitleNew": "Verify New Email",
+      "verifyCurrentSubtitle": "Step 1 of 2",
+      "verifyNewSubtitle": "Step 2 of 2",
+      "otpInstructionsCurrent": "Enter the 6-digit code we sent to {{email}}",
+      "otpInstructionsNew": "Now enter the 6-digit code we sent to {{email}}",
+      "otpSent": "Code Sent!",
+      "otpResent": "A new verification code has been sent to your current email.",
+      "verifyCurrentButton": "Verify & Continue",
+      "verifyNewButton": "Complete Change",
+      "resendCode": "Resend code",
+      "changeEmail": "Change email",
+      "invalidCode": "Invalid or expired code. Please try again."
+    },
+    "subscription": {
+      "title": "Subscription",
+      "description": "Manage your subscription",
+      "comingSoon": "Coming soon"
+    },
+    "feedback": {
+      "title": "Give Feedback",
+      "description": "Help us improve Cuisto"
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy",
+      "description": "Read our privacy policy"
+    },
+    "termsOfService": {
+      "title": "Terms of Service",
+      "description": "Read our terms of service"
+    },
+    "about": {
+      "title": "About",
+      "description": "Learn more about Cuisto",
+      "sheetTitle": "About Cuisto",
+      "story": "Hi, I'm Harry 👋\n\nLike you, I've saved hundreds of recipes across Instagram, TikTok, random websites, screenshots, and notes, most of which I never actually cooked because I simply forgot they existed.\n\nI'd stand in my kitchen with no idea what to make, completely forgetting the dozens of dishes I already knew how to cook.\n\nSo I built Cuisto: one place where every recipe lives, organized and ready for when inspiration (or hunger) strikes.\n\nI hope it helps you as much as it helps me. And since I'm building this for the community, not just myself, I'd love to hear your feedback, feature ideas, or bug reports!",
+      "madeBy": "Made with ❤️ by Harry",
+      "connect": "Connect"
+    },
+    "logout": {
+      "title": "Log Out",
+      "description": "Sign out of your account",
+      "confirmTitle": "Log Out",
+      "confirmMessage": "Are you sure you want to log out?",
+      "confirmButton": "Log Out"
+    },
+    "deleteAccount": {
+      "title": "Delete Account",
+      "description": "Permanently delete your account",
+      "confirmTitle": "Delete Account",
+      "confirmMessage": "This action is permanent and cannot be undone. All your recipes and data will be deleted.",
+      "confirmButton": "Delete My Account",
+      "successMessage": "Your account has been deleted."
+    },
+    "appVersion": "Version {{version}}"
   }
 }

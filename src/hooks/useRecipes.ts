@@ -296,6 +296,11 @@ export function useDeleteRecipe() {
       queryClient.removeQueries({ queryKey: ["recipe", recipeId] });
       // Invalidate the recipes list to refetch
       queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      // Invalidate collection counts and extracted collection
+      queryClient.invalidateQueries({ queryKey: ["collections", "counts"] });
+      queryClient.invalidateQueries({ queryKey: ["collections", "by-slug", "extracted"] });
+      // Also invalidate saved collection in case it was favorited
+      queryClient.invalidateQueries({ queryKey: ["collections", "by-slug", "saved"] });
 
       Toast.show({
         type: "success",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StatusBar, Alert } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Image } from "expo-image";
@@ -7,6 +7,7 @@ import { Gesture } from "react-native-gesture-handler";
 import Animated, { runOnJS, useAnimatedStyle } from "react-native-reanimated";
 import type { Recipe } from "@/types/recipe";
 import { useCookingController } from "./cooking/hooks/useCookingController";
+import { useCookingSession } from "@/contexts/CookingSessionContext";
 import { CookingHeader } from "./cooking/CookingHeader";
 import { TimerDock } from "./cooking/TimerDock";
 import { StepCard } from "./cooking/StepCard";
@@ -28,6 +29,13 @@ interface CookingModeProps {
 export const CookingMode: React.FC<CookingModeProps> = ({ recipe, onClose }) => {
   const { t } = useTranslation();
   const [controlsHeight, setControlsHeight] = useState(120); // Default estimate
+  const { startSession } = useCookingSession();
+
+  // Start cooking session when component mounts
+  useEffect(() => {
+    console.log("[CookingMode] Starting cooking session for:", recipe.id, recipe.title);
+    startSession(recipe.id, recipe.title);
+  }, [recipe.id, recipe.title, startSession]);
 
   // Main controller provides orchestration and complex interactions
   const {

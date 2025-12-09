@@ -6,20 +6,44 @@ import { memo, useState } from "react";
 import { View, Text, Pressable, Platform } from "react-native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Image as ImageIcon, Clock, Flame, Bookmark } from "phosphor-react-native";
+import { Image as ImageIcon, Clock, Bookmark, Fire, Users } from "phosphor-react-native";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
+import * as Haptics from "expo-haptics";
 import type { Recipe } from "@/types/recipe";
 import { Skeleton } from "../ui/Skeleton";
+import { useToggleFavorite } from "@/hooks/useCollections";
+
+interface StatsBadge {
+  type: "cooking" | "extraction";
+  count: number;
+}
 
 interface RecipeCardProps {
   recipe: Recipe;
   index: number;
+  width?: number;
+  imageHeight?: number;
+  statsBadge?: StatsBadge;
 }
 
-export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) {
+export const RecipeCard = memo(function RecipeCard({
+  recipe,
+  width,
+  imageHeight: fixedImageHeight,
+  statsBadge,
+}: RecipeCardProps) {
   const { t } = useTranslation();
   const [imageLoading, setImageLoading] = useState(true);
+  const { mutate: toggleFavorite } = useToggleFavorite();
+
+  // Get favorite status from user_data
+  const isFavorite = recipe.user_data?.is_favorite ?? false;
+
+  const handleBookmarkPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    toggleFavorite({ recipeId: recipe.id, isFavorite });
+  };
 
   const handlePress = () => {
     // Navigate to recipe detail page with optimistic data
@@ -65,19 +89,27 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
     return baseHeight + offset;
   };
 
-  const imageHeight = getImageHeight();
+  const imageHeight = fixedImageHeight ?? getImageHeight();
 
   // Get category or first tag
   const categoryLabel = recipe.categories?.[0] || recipe.tags?.[0] || t("recipe.card.recipeLabel");
 
-  // Get calories (placeholder - TODO: add nutrition field to Recipe type)
-  const calories = 450;
-
-  // Check if favorited (TODO: add user_recipe_data to Recipe type)
-  const isFavorite = false;
+  // Get translated difficulty label
+  const getDifficultyLabel = (difficulty?: string) => {
+    switch (difficulty?.toLowerCase()) {
+      case "easy":
+        return t("recipe.difficulty.easy");
+      case "medium":
+        return t("recipe.difficulty.medium");
+      case "hard":
+        return t("recipe.difficulty.hard");
+      default:
+        return null;
+    }
+  };
 
   return (
-    <View className="mb-6">
+    <View className="mb-6" style={width ? { width } : undefined}>
       <Pressable onPress={handlePress} className="relative active:opacity-90">
         {/* Image Container */}
         <View
@@ -106,7 +138,7 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
                 contentFit="cover"
                 transition={200}
                 cachePolicy="memory-disk"
-                priority="normal"
+                priority="high"
                 onLoadStart={() => setImageLoading(true)}
                 onLoad={() => setImageLoading(false)}
                 onError={() => setImageLoading(false)}
@@ -125,16 +157,17 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
               <BlurView
                 intensity={20}
                 tint="light"
-                className="h-8 w-8 rounded-full overflow-hidden border border-white/20"
+                className="h-10 w-10 rounded-full overflow-hidden border border-white/20"
               >
                 <Pressable
                   className="h-full w-full items-center justify-center active:opacity-70"
+                  hitSlop={10}
                   onPress={(e) => {
                     e.stopPropagation();
-                    // TODO: Implement bookmark toggle
+                    handleBookmarkPress();
                   }}
                 >
-                  <Bookmark size={14} color="#ffffff" weight={isFavorite ? "fill" : "regular"} />
+                  <Bookmark size={18} color="#ffffff" weight={isFavorite ? "fill" : "regular"} />
                 </Pressable>
               </BlurView>
             ) : (
@@ -150,29 +183,46 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
                 }}
                 onPress={(e) => {
                   e.stopPropagation();
-                  // TODO: Implement bookmark toggle
+                  handleBookmarkPress();
                 }}
               >
                 <Bookmark size={14} color="#ffffff" weight={isFavorite ? "fill" : "regular"} />
               </Pressable>
             )}
           </View>
+
+          {/* Stats Badge Overlay */}
+          {statsBadge && (
+            <View className="absolute bottom-2 left-2 right-2">
+              <View className="flex-row items-center bg-black/60 px-2 py-1 rounded-full self-start">
+                {statsBadge.type === "cooking" ? (
+                  <Fire size={12} weight="fill" color="#f97316" />
+                ) : (
+                  <Users size={12} weight="fill" color="#6366f1" />
+                )}
+                <Text className="text-white text-xs ml-1 font-medium">
+                  {statsBadge.count} {statsBadge.type === "cooking" ? "cooked" : "extracted"}
+                </Text>
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Content Area - Minimalist & Editorial */}
         <View className="mt-3 px-1">
-          {/* Category and Difficulty Row */}
+          {/* Category and Rating Row */}
           <View className="flex-row items-center justify-between mb-1">
             <Text className="text-[10px] font-bold tracking-widest uppercase text-stone-400">
               {categoryLabel}
             </Text>
 
-            {/* Difficulty Dot */}
-            {recipe.difficulty && (
-              <View className="flex-row items-center gap-1">
-                <View
-                  className={`w-1.5 h-1.5 rounded-full ${getDifficultyDotColor(recipe.difficulty)}`}
-                />
+            {/* Rating Badge */}
+            {recipe.average_rating && recipe.average_rating > 0 && (
+              <View className="flex-row items-center gap-0.5">
+                <Text className="text-yellow-500 text-[10px]">★</Text>
+                <Text className="text-[10px] font-medium text-stone-500">
+                  {recipe.average_rating.toFixed(1)}
+                </Text>
               </View>
             )}
           </View>
@@ -197,18 +247,57 @@ export const RecipeCard = memo(function RecipeCard({ recipe }: RecipeCardProps) 
               </View>
             )}
 
-            {totalTime > 0 && <View className="w-px h-2 bg-stone-300" />}
+            {totalTime > 0 && getDifficultyLabel(recipe.difficulty) && (
+              <View className="w-px h-2 bg-stone-300" />
+            )}
 
-            {/* Calories */}
-            <View className="flex-row items-center gap-1">
-              <Flame size={12} color="#a8a29e" weight="regular" />
-              <Text className="text-[11px] font-medium tracking-wide text-stone-500">
-                {calories} {t("common.kcal")}
-              </Text>
-            </View>
+            {/* Difficulty */}
+            {getDifficultyLabel(recipe.difficulty) && (
+              <View className="flex-row items-center gap-1">
+                <View
+                  className={`w-1.5 h-1.5 rounded-full ${getDifficultyDotColor(recipe.difficulty)}`}
+                />
+                <Text className="text-[11px] font-medium tracking-wide text-stone-500">
+                  {getDifficultyLabel(recipe.difficulty)}
+                </Text>
+              </View>
+            )}
           </View>
         </View>
       </Pressable>
     </View>
   );
 });
+
+/**
+ * Skeleton for RecipeCard in horizontal sections
+ */
+export function RecipeCardSkeleton({
+  width = 280,
+  imageHeight = 160,
+}: {
+  width?: number;
+  imageHeight?: number;
+}) {
+  return (
+    <View style={{ width }} className="mb-6">
+      {/* Image skeleton */}
+      <Skeleton width={width} height={imageHeight} borderRadius={16} style={{ marginBottom: 12 }} />
+      {/* Category and rating row */}
+      <View className="flex-row items-center justify-between mb-1 px-1">
+        <Skeleton width={60} height={10} borderRadius={4} />
+        <Skeleton width={30} height={10} borderRadius={4} />
+      </View>
+      {/* Title */}
+      <View className="px-1">
+        <Skeleton width="100%" height={17} borderRadius={4} style={{ marginBottom: 4 }} />
+        <Skeleton width="70%" height={17} borderRadius={4} style={{ marginBottom: 8 }} />
+      </View>
+      {/* Meta row */}
+      <View className="flex-row items-center gap-3 px-1">
+        <Skeleton width={50} height={12} borderRadius={4} />
+        <Skeleton width={50} height={12} borderRadius={4} />
+      </View>
+    </View>
+  );
+}
