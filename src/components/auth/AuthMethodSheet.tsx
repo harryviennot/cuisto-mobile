@@ -43,11 +43,11 @@ const AuthMethodButton: React.FC<AuthMethodButtonProps> = ({
   }));
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.97, { damping: 15, stiffness: 400 });
+    scale.value = withSpring(0.97, { damping: 50, stiffness: 400 });
   };
 
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 15, stiffness: 400 });
+    scale.value = withSpring(1, { damping: 50, stiffness: 400 });
   };
 
   const handlePress = () => {
@@ -65,7 +65,7 @@ const AuthMethodButton: React.FC<AuthMethodButtonProps> = ({
       disabled={isLoading}
       style={animatedStyle}
       className={cn(
-        "h-14 flex-row items-center justify-center rounded-2xl px-6",
+        "h-16 flex-row items-center justify-center rounded-2xl px-6",
         isApple ? "bg-black" : "bg-white border border-stone-200",
         isLoading && "opacity-70"
       )}
@@ -73,8 +73,8 @@ const AuthMethodButton: React.FC<AuthMethodButtonProps> = ({
       {isLoading ? (
         <ActivityIndicator color={isApple ? "#ffffff" : "#1c1917"} size="small" />
       ) : (
-        <>
-          <View className="mr-3">{icon}</View>
+        <View className="flex-row items-center gap-3 h-16">
+          {icon}
           <Text
             className={cn(
               "text-base font-semibold",
@@ -83,7 +83,7 @@ const AuthMethodButton: React.FC<AuthMethodButtonProps> = ({
           >
             {label}
           </Text>
-        </>
+        </View>
       )}
     </AnimatedPressable>
   );
@@ -140,10 +140,10 @@ export const AuthMethodSheet = forwardRef<BottomSheetModal, AuthMethodSheetProps
         subtitle={t("auth.chooseMethodSubtitle")}
         onClose={onClose}
       >
-        <View className="px-6 pb-4 space-y-3">
+        <View className="px-6 pb-4 pt-4 space-y-3 gap-4">
           {showAppleButton && (
             <AuthMethodButton
-              icon={<AppleLogo size={22} color="#ffffff" weight="fill" />}
+              icon={<AppleLogo size={24} color="#ffffff" weight="fill" />}
               label={t("auth.continueWithApple")}
               onPress={handleAppleSignIn}
               isLoading={isAppleLoading}
