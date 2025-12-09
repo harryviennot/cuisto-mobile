@@ -76,10 +76,7 @@ const AuthMethodButton: React.FC<AuthMethodButtonProps> = ({
         <View className="flex-row items-center gap-3 h-16">
           {icon}
           <Text
-            className={cn(
-              "text-base font-semibold",
-              isApple ? "text-white" : "text-stone-900"
-            )}
+            className={cn("text-base font-semibold", isApple ? "text-white" : "text-stone-900")}
           >
             {label}
           </Text>
@@ -110,7 +107,8 @@ export const AuthMethodSheet = forwardRef<BottomSheetModal, AuthMethodSheetProps
         // Check if user cancelled (not a real error)
         if (
           error instanceof Error &&
-          (error as any).code === AppleAuthentication.AppleAuthenticationCredentialState.REVOKED.toString()
+          (error as any).code ===
+            AppleAuthentication.AppleAuthenticationCredentialState.REVOKED.toString()
         ) {
           // User cancelled, silently ignore
           return;

@@ -262,7 +262,8 @@ export default function AuthScreen() {
               {t("auth.footer.and")}
               <Link href="https://cuisto.app/privacy" className="text-white/50 underline">
                 {t("auth.footer.privacyPolicy")}
-              </Link>.
+              </Link>
+              .
             </Text>
           ) : (
             <View className="items-center">

@@ -51,7 +51,9 @@ export function useExtractionJob(config: UseExtractionJobConfig): UseExtractionJ
   // Load auth token from Supabase session
   useEffect(() => {
     const loadToken = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setToken(session?.access_token ?? null);
     };
     loadToken();

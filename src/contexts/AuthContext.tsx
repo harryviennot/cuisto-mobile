@@ -13,7 +13,15 @@
  * - authenticated_new_user: Valid session, but onboarding not completed
  * - authenticated: Valid session, onboarding completed
  */
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from "react";
 import { Platform } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
@@ -264,7 +272,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Save full name if available (Apple only provides this on FIRST sign-in ever)
       if (credential.fullName?.givenName || credential.fullName?.familyName) {
-        const fullName = `${credential.fullName.givenName || ""} ${credential.fullName.familyName || ""}`.trim();
+        const fullName =
+          `${credential.fullName.givenName || ""} ${credential.fullName.familyName || ""}`.trim();
         if (fullName) {
           await supabase.auth.updateUser({
             data: { full_name: fullName },
