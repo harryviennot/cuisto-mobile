@@ -22,6 +22,11 @@ import { authService } from "@/api/services/auth.service";
 /** Auth status for route guards */
 export type AuthStatus = "loading" | "unauthenticated" | "authenticated_new_user" | "authenticated";
 
+interface SignOutOptions {
+  /** Skip calling backend logout (e.g., when account was already deleted) */
+  skipBackendLogout?: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   /** True only during initial app load while checking for existing session */
@@ -34,7 +39,7 @@ interface AuthContextType {
   sendEmailOTP: (email: string) => Promise<void>;
   verifyEmailOTP: (email: string, token: string) => Promise<void>;
   submitOnboarding: (data: OnboardingData) => Promise<void>;
-  signOut: () => Promise<void>;
+  signOut: (options?: SignOutOptions) => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -206,16 +211,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   /**
    * Sign out the current user
    * Clears Supabase session, React Query cache, and local state
+   * @param options.skipBackendLogout - Skip backend logout call (e.g., after account deletion)
    */
-  const signOut = async () => {
+  const signOut = async (options?: SignOutOptions) => {
     try {
       // Notify backend FIRST while we still have a valid token
-      // This is non-critical, just for cleanup/logging
-      try {
-        await authService.logout();
-      } catch (backendError) {
-        // Expected to fail if token already expired, that's fine
-        console.log("Backend logout (non-critical):", backendError);
+      // Skip if account was already deleted or explicitly requested
+      if (!options?.skipBackendLogout) {
+        try {
+          await authService.logout();
+        } catch (backendError) {
+          // Expected to fail if token already expired, that's fine
+          console.log("Backend logout (non-critical):", backendError);
+        }
       }
 
       // Then sign out from Supabase (clears local session)

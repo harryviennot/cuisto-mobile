@@ -30,11 +30,15 @@ import {
 } from "@/components/onboarding";
 import type { OnboardingFormData } from "@/components/onboarding";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePrefetchDiscovery } from "@/hooks/useDiscovery";
 
 export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { submitOnboarding } = useAuth();
+
+  // Prefetch discovery data in background so it's ready when onboarding completes
+  usePrefetchDiscovery();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);

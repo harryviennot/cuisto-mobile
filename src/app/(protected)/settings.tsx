@@ -109,8 +109,8 @@ export default function SettingsScreen() {
             try {
               // Delete account on backend first
               await authService.deleteAccount();
-              // Then sign out (clears Supabase session, React Query cache, etc.)
-              await signOut();
+              // Then sign out (skip backend logout since account is already deleted)
+              await signOut({ skipBackendLogout: true });
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
               Alert.alert(t("common.success"), t("settings.deleteAccount.successMessage"));
             } catch (error: unknown) {
