@@ -16,15 +16,19 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Platform } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
+import Constants from "expo-constants";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
 import type { User, OnboardingData } from "@/types/auth";
 import { supabase } from "@/lib/supabase";
 import { authService } from "@/api/services/auth.service";
 
-// Configure Google Sign In
+// Get Google iOS Client ID from app.config.ts extra (varies by APP_VARIANT)
+const googleIosClientId = Constants.expoConfig?.extra?.googleIosClientId as string | undefined;
+
+// Configure Google Sign In with environment-specific client ID
 GoogleSignin.configure({
-  iosClientId: "576860647918-nm7ghog299kfj4dirlln5a7s7dotto95.apps.googleusercontent.com",
+  iosClientId: googleIosClientId,
   // webClientId is needed for Android, but we're iOS-only for now
 });
 

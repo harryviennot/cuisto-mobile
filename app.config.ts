@@ -4,6 +4,23 @@ import { ConfigContext, ExpoConfig } from "expo/config";
 const IS_DEV = process.env.APP_VARIANT === 'development';
 const IS_PREVIEW = process.env.APP_VARIANT === 'preview';
 
+// Google OAuth iOS Client IDs per environment
+const GOOGLE_IOS_CLIENT_IDS = {
+  development: '576860647918-nm7ghog299kfj4dirlln5a7s7dotto95',
+  preview: '576860647918-hf9vfimbv7bnenvtcgeecepeub1lko1p',
+  production: '576860647918-qn7ok48tfb5q2iopjb56pf1mqcp3s109',
+};
+
+const getGoogleIosClientId = () => {
+  if (IS_DEV) {
+    return GOOGLE_IOS_CLIENT_IDS.development;
+  }
+  if (IS_PREVIEW) {
+    return GOOGLE_IOS_CLIENT_IDS.preview;
+  }
+  return GOOGLE_IOS_CLIENT_IDS.production;
+};
+
 const getUniqueIdentifier = () => {
   if (IS_DEV) {
     return 'com.hryvnt.cuistudio.dev';
@@ -91,7 +108,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       "@react-native-google-signin/google-signin",
       {
-        iosUrlScheme: "com.googleusercontent.apps.576860647918-nm7ghog299kfj4dirlln5a7s7dotto95"
+        iosUrlScheme: `com.googleusercontent.apps.${getGoogleIosClientId()}`
       }
     ]
   ],
@@ -101,6 +118,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     router: {},
+    googleIosClientId: `${getGoogleIosClientId()}.apps.googleusercontent.com`,
     eas: {
       projectId: "1ec87d29-438e-494a-87aa-d1b1ed577f15"
     }
