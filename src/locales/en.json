@@ -398,6 +398,8 @@
     }
   },
   "discovery": {
+    "loading": "Discovering recipes...",
+    "stickyHeader": "Discover",
     "greeting": {
       "morning": {
         "greeting": "Good morning!",

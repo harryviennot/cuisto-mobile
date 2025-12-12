@@ -85,16 +85,39 @@ export default function WelcomeScreen() {
         style={{ paddingTop: insets.top + 24, paddingBottom: insets.bottom + 32 }}
       >
         {/* HEADER */}
-        <Animated.View style={headerStyle} className="items-center space-y-5 mt-4">
-          <Text className="font-serif text-5xl leading-[1.05] tracking-tight text-stone-800 text-center">
-            {t("welcome.headline")}
-            {"\n"}
-            <Text className="italic text-[#334d43]">{t("welcome.headlineHighlight")}</Text>
-          </Text>
-          <Text className="text-stone-500 text-sm font-medium max-w-[280px] text-center leading-relaxed mt-4">
+        <Animated.View style={headerStyle} className="items-center space-y-5 mt-4 w-full px-2">
+          <View className="w-full items-center">
+            <Text
+              className="font-serif text-5xl leading-[1.05] tracking-tight text-stone-800 text-center"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+            >
+              {t("welcome.headline")}
+            </Text>
+            <Text
+              className="font-serif italic text-5xl leading-[1.05] tracking-tight text-[#334d43] text-center"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+            >
+              {t("welcome.headlineHighlight")}
+            </Text>
+          </View>
+          <Text
+            className="text-stone-500 text-sm font-medium text-center leading-relaxed mt-4"
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
             {t("welcome.subtitle1")}
           </Text>
-          <Text className="text-stone-500 text-sm font-medium max-w-[280px] text-center leading-relaxed">
+          <Text
+            className="text-stone-500 text-sm font-medium text-center leading-relaxed"
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
             {t("welcome.subtitle2")}
           </Text>
         </Animated.View>
