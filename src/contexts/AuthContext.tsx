@@ -26,19 +26,36 @@ import { Platform } from "react-native";
 import { useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import * as AppleAuthentication from "expo-apple-authentication";
-import { GoogleSignin, statusCodes } from "@react-native-google-signin/google-signin";
 import type { User, OnboardingData } from "@/types/auth";
 import { supabase } from "@/lib/supabase";
 import { authService } from "@/api/services/auth.service";
 
+// Detect if running in Expo Go (where native modules aren't available)
+const isExpoGo = Constants.executionEnvironment === "storeClient";
+
 // Get Google iOS Client ID from app.config.ts extra (varies by APP_VARIANT)
 const googleIosClientId = Constants.expoConfig?.extra?.googleIosClientId as string | undefined;
 
-// Configure Google Sign In with environment-specific client ID
-GoogleSignin.configure({
-  iosClientId: googleIosClientId,
-  // webClientId is needed for Android, but we're iOS-only for now
-});
+// Conditionally import Google Sign-in only in development/production builds (not Expo Go)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let GoogleSignin: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let googleStatusCodes: any = null;
+
+if (!isExpoGo) {
+  try {
+    const googleModule = require("@react-native-google-signin/google-signin");
+    GoogleSignin = googleModule.GoogleSignin;
+    googleStatusCodes = googleModule.statusCodes;
+    // Configure Google Sign In with environment-specific client ID
+    GoogleSignin.configure({
+      iosClientId: googleIosClientId,
+      // webClientId is needed for Android, but we're iOS-only for now
+    });
+  } catch (error) {
+    console.log("Google Sign-in module not available:", error);
+  }
+}
 
 /** Auth status for route guards */
 export type AuthStatus = "loading" | "unauthenticated" | "authenticated_new_user" | "authenticated";
@@ -59,6 +76,8 @@ interface AuthContextType {
   authStatus: AuthStatus;
   /** Whether Apple Sign In is available on this device (iOS only) */
   isAppleSignInAvailable: boolean;
+  /** Whether Google Sign In is available (not in Expo Go) */
+  isGoogleSignInAvailable: boolean;
   sendEmailOTP: (email: string) => Promise<void>;
   verifyEmailOTP: (email: string, token: string) => Promise<void>;
   signInWithApple: () => Promise<void>;
@@ -308,6 +327,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * Uses native Google Sign In and exchanges the ID token with Supabase
    */
   const signInWithGoogle = async () => {
+    // Check if Google Sign-in is available (not in Expo Go)
+    if (!GoogleSignin) {
+      throw new Error("Google Sign-in is not available in Expo Go. Please use a development build.");
+    }
+
     isAuthenticatingRef.current = true;
 
     try {
@@ -356,21 +380,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
       }
     } catch (error) {
-      // Handle specific Google Sign In errors
-      if ((error as { code?: string })?.code === statusCodes.SIGN_IN_CANCELLED) {
-        // User cancelled the sign-in flow - silently ignore
-        console.log("Google Sign In cancelled by user");
-        return;
-      }
-      if ((error as { code?: string })?.code === statusCodes.IN_PROGRESS) {
-        // Sign-in is already in progress
-        console.log("Google Sign In already in progress");
-        return;
-      }
-      if ((error as { code?: string })?.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        // Play services not available (Android only)
-        console.error("Google Play Services not available");
-        throw new Error("Google Play Services not available");
+      // Handle specific Google Sign In errors (only if statusCodes is available)
+      if (googleStatusCodes) {
+        if ((error as { code?: string })?.code === googleStatusCodes.SIGN_IN_CANCELLED) {
+          // User cancelled the sign-in flow - silently ignore
+          console.log("Google Sign In cancelled by user");
+          return;
+        }
+        if ((error as { code?: string })?.code === googleStatusCodes.IN_PROGRESS) {
+          // Sign-in is already in progress
+          console.log("Google Sign In already in progress");
+          return;
+        }
+        if ((error as { code?: string })?.code === googleStatusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+          // Play services not available (Android only)
+          console.error("Google Play Services not available");
+          throw new Error("Google Play Services not available");
+        }
       }
       // Re-throw other errors
       throw error;
@@ -499,6 +525,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return "authenticated";
   }, [isLoading, user]);
 
+  // Google Sign-in is available only when the module loaded successfully (not in Expo Go)
+  const isGoogleSignInAvailable = GoogleSignin !== null;
+
   const value: AuthContextType = {
     user,
     isLoading,
@@ -506,6 +535,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isNewUser,
     authStatus,
     isAppleSignInAvailable,
+    isGoogleSignInAvailable,
     sendEmailOTP,
     verifyEmailOTP,
     signInWithApple,
