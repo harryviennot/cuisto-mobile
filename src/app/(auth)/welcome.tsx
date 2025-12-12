@@ -133,7 +133,10 @@ export default function WelcomeScreen() {
         </Animated.View>
 
         <Animated.View
-          style={[graphicStyle, { maxHeight: BASE_GRAPHIC_HEIGHT, minHeight: BASE_GRAPHIC_HEIGHT * MIN_SCALE }]}
+          style={[
+            graphicStyle,
+            { maxHeight: BASE_GRAPHIC_HEIGHT, minHeight: BASE_GRAPHIC_HEIGHT * MIN_SCALE },
+          ]}
           className="relative w-full flex-1 items-center justify-center my-2"
           onLayout={(e) => setGraphicHeight(e.nativeEvent.layout.height)}
         >

@@ -27,7 +27,12 @@ const BASE_POSITIONS = [
   { bottom: 25, left: 12 },
 ];
 
-export const SatelliteSource = ({ item, isActive, index, scale: sizeScale = 1 }: SatelliteSourceProps) => {
+export const SatelliteSource = ({
+  item,
+  isActive,
+  index,
+  scale: sizeScale = 1,
+}: SatelliteSourceProps) => {
   const IconComponent = item.source.icon;
   const [textWidth, setTextWidth] = useState(0);
 

@@ -329,7 +329,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     // Check if Google Sign-in is available (not in Expo Go)
     if (!GoogleSignin) {
-      throw new Error("Google Sign-in is not available in Expo Go. Please use a development build.");
+      throw new Error(
+        "Google Sign-in is not available in Expo Go. Please use a development build."
+      );
     }
 
     isAuthenticatingRef.current = true;

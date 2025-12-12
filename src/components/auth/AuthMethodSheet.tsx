@@ -93,7 +93,8 @@ const AuthMethodButton: React.FC<AuthMethodButtonProps> = ({
 export const AuthMethodSheet = forwardRef<BottomSheetModal, AuthMethodSheetProps>(
   ({ onClose }, ref) => {
     const { t } = useTranslation();
-    const { signInWithApple, signInWithGoogle, isAppleSignInAvailable, isGoogleSignInAvailable } = useAuth();
+    const { signInWithApple, signInWithGoogle, isAppleSignInAvailable, isGoogleSignInAvailable } =
+      useAuth();
     const [isAppleLoading, setIsAppleLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
