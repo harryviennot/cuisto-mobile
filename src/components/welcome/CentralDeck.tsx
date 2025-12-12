@@ -11,6 +11,7 @@ import { ShowcaseItem } from "./ShowcaseItems";
 interface CentralDeckProps {
   activeIndex: number;
   currentItems: ShowcaseItem[];
+  scale?: number;
 }
 
 // Extracted component to properly use hooks
@@ -94,11 +95,14 @@ const AnimatedCaloriesItem = ({
   );
 };
 
-export const CentralDeck = ({ activeIndex, currentItems }: CentralDeckProps) => {
+const BASE_WIDTH = 248;
+
+export const CentralDeck = ({ activeIndex, currentItems, scale = 1 }: CentralDeckProps) => {
   const { t } = useTranslation();
+  const width = BASE_WIDTH * scale;
 
   return (
-    <View className="relative z-20 w-[248px]" style={{ aspectRatio: 3 / 4 }}>
+    <View className="relative z-20" style={{ width, aspectRatio: 3 / 4 }}>
       {/* Main Card */}
       <View
         className="absolute inset-0 bg-white rounded-2xl flex-col"

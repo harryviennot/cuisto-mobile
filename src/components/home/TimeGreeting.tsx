@@ -37,7 +37,7 @@ export function TimeGreeting({ className, rightElement }: TimeGreetingProps) {
       title={subtitle}
       subtitle={greeting}
       topPadding={0}
-      bottomMargin={48}
+      bottomMargin={32}
       highlightLastWord
       // newLine
       rightElement={rightElement}
