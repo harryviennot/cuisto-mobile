@@ -24,9 +24,10 @@ import {
   HighestRatedSection,
 } from "@/components/home";
 import { DISCOVERY_CONSTANTS } from "@/types/discovery";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
 
 export default function Index() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   // Header padding calculation
@@ -124,16 +125,16 @@ export default function Index() {
 
         {/* Section divider before recently added grid */}
         {(recent.data.length > 0 || hasAnySectionData) && (
-          <View className="mb-4 flex-row items-center gap-3 px-6 mt-2">
+          <View className="mb-4 flex-row items-center gap-3 px-6">
             <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary">
-              Recently Added
+              {t("discovery.sections.recent.title")}
             </Text>
             <View className="h-px flex-1 bg-border-light" />
           </View>
         )}
       </View>
     ),
-    [trending, socials, online, rated, recent.data.length, hasAnySectionData, headerRightElement]
+    [trending, socials, online, rated, recent.data.length, hasAnySectionData, headerRightElement, t]
   );
 
   // Loading state (initial load)
@@ -144,7 +145,7 @@ export default function Index() {
         style={{ paddingTop: insets.top }}
       >
         <ActivityIndicator size="large" color="#334d43" />
-        <Text className="mt-4 text-foreground-secondary">Discovering recipes...</Text>
+        <Text className="mt-4 text-foreground-secondary">{t("discovery.loading")}</Text>
       </View>
     );
   }
@@ -165,16 +166,16 @@ export default function Index() {
       >
         <WarningIcon size={64} color="#ef4444" weight="duotone" />
         <Text className="text-xl font-playfair-bold text-foreground-heading text-center">
-          Oops! Something went wrong
+          {t("discovery.error.title")}
         </Text>
         <Text className="text-foreground-secondary text-center">
-          Failed to load recipes. Please try again.
+          {t("discovery.error.message")}
         </Text>
         <Pressable
           onPress={handleRefresh}
           className="bg-primary rounded-lg px-6 py-3 active:opacity-80"
         >
-          <Text className="text-white font-semibold">Try Again</Text>
+          <Text className="text-white font-semibold">{t("common.tryAgain")}</Text>
         </Pressable>
       </View>
     );
@@ -207,11 +208,11 @@ export default function Index() {
         onEndReached={handleEndReached}
         showLoadingFooter={recent.isFetchingNextPage}
         ListEmptyComponent={
-          // Only show if we have section data but no recent recipes
-          hasAnySectionData ? (
+          // Only show if we're done loading and have section data but no recent recipes
+          !recent.isLoading && hasAnySectionData ? (
             <View className="py-8 items-center">
               <Text className="text-foreground-tertiary text-center">
-                No recent recipes to show
+                {t("discovery.noRecipes.message")}
               </Text>
             </View>
           ) : undefined
@@ -228,7 +229,7 @@ export default function Index() {
 
       {/* Animated Sticky Header */}
       <UnifiedStickyHeader
-        title="Discover"
+        title={t("discovery.stickyHeader")}
         scrollY={adjustedScrollY}
         leftElement={<View className="w-10" />}
         rightElement={headerRightElement}

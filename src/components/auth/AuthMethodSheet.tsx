@@ -93,7 +93,8 @@ const AuthMethodButton: React.FC<AuthMethodButtonProps> = ({
 export const AuthMethodSheet = forwardRef<BottomSheetModal, AuthMethodSheetProps>(
   ({ onClose }, ref) => {
     const { t } = useTranslation();
-    const { signInWithApple, signInWithGoogle, isAppleSignInAvailable } = useAuth();
+    const { signInWithApple, signInWithGoogle, isAppleSignInAvailable, isGoogleSignInAvailable } =
+      useAuth();
     const [isAppleLoading, setIsAppleLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
@@ -165,12 +166,14 @@ export const AuthMethodSheet = forwardRef<BottomSheetModal, AuthMethodSheetProps
             />
           )}
 
-          <AuthMethodButton
-            icon={<GoogleLogoIcon size={22} color="#1c1917" weight="bold" />}
-            label={t("auth.continueWithGoogle")}
-            onPress={handleGoogleSignIn}
-            isLoading={isGoogleLoading}
-          />
+          {isGoogleSignInAvailable && (
+            <AuthMethodButton
+              icon={<GoogleLogoIcon size={22} color="#1c1917" weight="bold" />}
+              label={t("auth.continueWithGoogle")}
+              onPress={handleGoogleSignIn}
+              isLoading={isGoogleLoading}
+            />
+          )}
 
           <AuthMethodButton
             icon={<EnvelopeSimpleIcon size={22} color="#1c1917" weight="bold" />}

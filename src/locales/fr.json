@@ -399,6 +399,8 @@
     }
   },
   "discovery": {
+    "loading": "Recherche des recettes...",
+    "stickyHeader": "Découvrir",
     "greeting": {
       "morning": {
         "greeting": "Bonjour !",

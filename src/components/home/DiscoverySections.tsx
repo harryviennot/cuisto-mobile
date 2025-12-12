@@ -58,7 +58,7 @@ export function TrendingThisWeekSection({ data, isLoading, isError }: DiscoveryS
       )}
       minItems={DISCOVERY_CONSTANTS.MIN_SECTION_RECIPES}
       cardWidth={CARD_WIDTH}
-      style={{ marginBottom: 24 }}
+      style={{ marginBottom: 16 }}
     />
   );
 }
@@ -99,7 +99,7 @@ export function TrendingOnSocialsSection({ data, isLoading, isError }: Discovery
       )}
       minItems={DISCOVERY_CONSTANTS.MIN_SECTION_RECIPES}
       cardWidth={CARD_WIDTH}
-      style={{ marginBottom: 24 }}
+      style={{ marginBottom: 16 }}
     />
   );
 }
@@ -140,7 +140,7 @@ export function PopularOnlineSection({ data, isLoading, isError }: DiscoverySect
       )}
       minItems={DISCOVERY_CONSTANTS.MIN_SECTION_RECIPES}
       cardWidth={CARD_WIDTH}
-      style={{ marginBottom: 24 }}
+      style={{ marginBottom: 16 }}
     />
   );
 }
@@ -177,7 +177,7 @@ export function HighestRatedSection({ data, isLoading, isError }: DiscoverySecti
       )}
       minItems={DISCOVERY_CONSTANTS.MIN_SECTION_RECIPES}
       cardWidth={CARD_WIDTH}
-      style={{ marginBottom: 24 }}
+      style={{ marginBottom: 16 }}
     />
   );
 }
