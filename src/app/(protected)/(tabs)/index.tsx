@@ -125,7 +125,7 @@ export default function Index() {
 
         {/* Section divider before recently added grid */}
         {(recent.data.length > 0 || hasAnySectionData) && (
-          <View className="mb-4 flex-row items-center gap-3 px-6 mt-2">
+          <View className="mb-4 flex-row items-center gap-3 px-6">
             <Text className="font-bold shrink-0 text-sm uppercase tracking-widest text-foreground-tertiary">
               {t("discovery.sections.recent.title")}
             </Text>
