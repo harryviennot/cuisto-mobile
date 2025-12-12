@@ -16,42 +16,51 @@ interface SatelliteSourceProps {
   item: ShowcaseItem;
   isActive: boolean;
   index: number;
+  scale?: number;
 }
 
-export const SatelliteSource = ({ item, isActive, index }: SatelliteSourceProps) => {
+// Base positions for satellites (designed for scale = 1)
+const BASE_POSITIONS = [
+  { top: 10, left: -10 },
+  { top: 48, right: -16 },
+  { bottom: 90, right: -12 },
+  { bottom: 25, left: -10 },
+];
+
+export const SatelliteSource = ({ item, isActive, index, scale: sizeScale = 1 }: SatelliteSourceProps) => {
   const IconComponent = item.source.icon;
 
-  const scale = useSharedValue(0.9);
+  const animScale = useSharedValue(0.9);
   const opacity = useSharedValue(0.6);
   const labelWidth = useSharedValue(0);
 
   useEffect(() => {
-    scale.value = withSpring(isActive ? 1.1 : 0.9, { damping: 20, stiffness: 150 });
+    animScale.value = withSpring(isActive ? 1.1 : 0.9, { damping: 20, stiffness: 150 });
     opacity.value = withTiming(isActive ? 1 : 0.6, { duration: 500 });
-    labelWidth.value = withTiming(isActive ? 80 : 0, {
+    labelWidth.value = withTiming(isActive ? 80 * sizeScale : 0, {
       duration: 500,
       easing: Easing.out(Easing.cubic),
     });
-  }, [isActive, scale, opacity, labelWidth]);
+  }, [isActive, animScale, opacity, labelWidth, sizeScale]);
 
   const containerStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [{ scale: animScale.value }],
     opacity: opacity.value,
   }));
 
   const labelStyle = useAnimatedStyle(() => ({
     width: labelWidth.value,
-    opacity: interpolate(labelWidth.value, [0, 80], [0, 1]),
+    opacity: interpolate(labelWidth.value, [0, 80 * sizeScale], [0, 1]),
   }));
 
-  const positions = [
-    { top: 10, left: -10 },
-    { top: 48, right: -16 },
-    { bottom: 90, right: -12 },
-    { bottom: 25, left: -10 },
-  ];
-
-  const pos = positions[index];
+  // Scale positions based on the size scale
+  const basePos = BASE_POSITIONS[index];
+  const pos: Record<string, number> = {};
+  for (const [key, value] of Object.entries(basePos)) {
+    if (value !== undefined) {
+      pos[key] = value * sizeScale;
+    }
+  }
 
   return (
     <Animated.View style={[containerStyle, { position: "absolute", zIndex: 30, ...pos }]}>
@@ -75,8 +84,10 @@ export const SatelliteSource = ({ item, isActive, index }: SatelliteSourceProps)
 
         <Animated.View style={[labelStyle, { overflow: "hidden" }]}>
           <Text
-            className="pl-2 text-[10px] font-bold uppercase tracking-wider text-stone-600 whitespace-nowrap"
+            className="pl-2 text-[10px] font-bold uppercase tracking-wider text-stone-600"
             numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
           >
             {item.source.name}
           </Text>

@@ -13,6 +13,11 @@ import { AuthMethodSheet } from "@/components/auth";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+// Base height for the graphic area (design reference)
+const BASE_GRAPHIC_HEIGHT = 420;
+const MIN_SCALE = 0.65;
+const MAX_SCALE = 1;
+
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
@@ -20,6 +25,11 @@ export default function WelcomeScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
   // Track which variant to show for each category
   const [variantIndices, setVariantIndices] = useState([0, 0, 0, 0]);
+  // Track graphic container height for dynamic scaling
+  const [graphicHeight, setGraphicHeight] = useState(BASE_GRAPHIC_HEIGHT);
+
+  // Calculate scale factor based on available height
+  const scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, graphicHeight / BASE_GRAPHIC_HEIGHT));
 
   // Auth method bottom sheet ref
   const authMethodSheetRef = useRef<BottomSheetModal>(null);
@@ -123,8 +133,9 @@ export default function WelcomeScreen() {
         </Animated.View>
 
         <Animated.View
-          style={graphicStyle}
-          className="relative w-full max-w-[320px] h-[420px] items-center justify-center my-4"
+          style={[graphicStyle, { maxHeight: BASE_GRAPHIC_HEIGHT, minHeight: BASE_GRAPHIC_HEIGHT * MIN_SCALE }]}
+          className="relative w-full flex-1 items-center justify-center my-2"
+          onLayout={(e) => setGraphicHeight(e.nativeEvent.layout.height)}
         >
           {/* SATELLITE SOURCES */}
           {currentItems.map((item, idx) => (
@@ -133,10 +144,11 @@ export default function WelcomeScreen() {
               item={item}
               isActive={idx === activeIndex}
               index={idx}
+              scale={scale}
             />
           ))}
           {/* CENTRAL DECK */}
-          <CentralDeck activeIndex={activeIndex} currentItems={currentItems} />
+          <CentralDeck activeIndex={activeIndex} currentItems={currentItems} scale={scale} />
         </Animated.View>
 
         {/* CTA */}
