@@ -20,11 +20,12 @@ interface SatelliteSourceProps {
 }
 
 // Base positions for satellites (designed for scale = 1)
+// Positive values keep satellites within the container bounds
 const BASE_POSITIONS = [
-  { top: 10, left: -10 },
-  { top: 48, right: -16 },
-  { bottom: 90, right: -12 },
-  { bottom: 25, left: -10 },
+  { top: 10, left: 12 },
+  { top: 48, right: 12 },
+  { bottom: 90, right: 12 },
+  { bottom: 25, left: 12 },
 ];
 
 export const SatelliteSource = ({ item, isActive, index, scale: sizeScale = 1 }: SatelliteSourceProps) => {
