@@ -16,9 +16,13 @@ import type {
 export const recipeService = {
   /**
    * Get a recipe by ID
+   * @param recipeId - The recipe ID
+   * @param language - Optional target language for translation (ISO 639-1, e.g., 'en', 'fr')
    */
-  getRecipe: async (recipeId: string): Promise<Recipe> => {
-    const response = await api.get<Recipe>(`/recipes/${recipeId}`);
+  getRecipe: async (recipeId: string, language?: string): Promise<Recipe> => {
+    const response = await api.get<Recipe>(`/recipes/${recipeId}`, {
+      params: language ? { language } : undefined,
+    });
     return response.data;
   },
 

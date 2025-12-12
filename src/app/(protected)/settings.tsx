@@ -18,9 +18,11 @@ import {
   InfoIcon,
   SignOutIcon,
   TrashIcon,
+  TranslateIcon,
 } from "phosphor-react-native";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useSettings } from "@/contexts/SettingsContext";
 import { authService } from "@/api/services/auth.service";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
@@ -36,6 +38,7 @@ export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
+  const { settings, updateSetting } = useSettings();
 
   // Animations
   const scrollY = useSharedValue(0);
@@ -168,6 +171,22 @@ export default function SettingsScreen() {
     },
   ];
 
+  const recipeItems: SettingsItem[] = [
+    {
+      id: "autoTranslate",
+      icon: <TranslateIcon size={24} color="white" weight="fill" />,
+      title: t("settings.autoTranslate.title"),
+      description: t("settings.autoTranslate.description"),
+      isToggle: true,
+      toggleValue: settings.autoTranslateRecipes,
+      onToggleChange: (value) => {
+        Haptics.selectionAsync();
+        updateSetting("autoTranslateRecipes", value);
+      },
+      onPress: () => {},
+    },
+  ];
+
   const appItems: SettingsItem[] = [
     {
       id: "feedback",
@@ -250,6 +269,8 @@ export default function SettingsScreen() {
         />
 
         <SettingsSection title={t("settings.sections.account")} items={accountItems} />
+
+        <SettingsSection title={t("settings.sections.recipes")} items={recipeItems} />
 
         <SettingsSection title={t("settings.sections.app")} items={appItems} />
 

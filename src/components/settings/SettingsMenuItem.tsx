@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Switch } from "react-native";
 import { CaretRightIcon } from "phosphor-react-native";
 
 import { SettingsItem } from "./types";
@@ -10,9 +10,17 @@ interface SettingsMenuItemProps {
 }
 
 export function SettingsMenuItem({ item, isLast }: SettingsMenuItemProps) {
+  const handlePress = () => {
+    if (item.isToggle && item.onToggleChange) {
+      item.onToggleChange(!item.toggleValue);
+    } else {
+      item.onPress();
+    }
+  };
+
   return (
     <Pressable
-      onPress={item.onPress}
+      onPress={handlePress}
       className={`flex-row items-center px-5 py-4 active:bg-surface-elevated ${
         !isLast ? "border-b border-border-light" : ""
       }`}
@@ -33,12 +41,22 @@ export function SettingsMenuItem({ item, isLast }: SettingsMenuItemProps) {
           {item.title}
         </Text>
         {item.description && (
-          <Text className="text-sm text-foreground-muted mt-0.5" numberOfLines={1}>
+          <Text className="text-sm text-foreground-muted mt-0.5" numberOfLines={2}>
             {item.description}
           </Text>
         )}
       </View>
-      <CaretRightIcon size={20} color="#9a8b7a" />
+      {item.isToggle ? (
+        <Switch
+          value={item.toggleValue}
+          onValueChange={item.onToggleChange}
+          trackColor={{ false: "#d4c4b0", true: "#b89a6a" }}
+          thumbColor={item.toggleValue ? "#ffffff" : "#ffffff"}
+          ios_backgroundColor="#d4c4b0"
+        />
+      ) : (
+        <CaretRightIcon size={20} color="#9a8b7a" />
+      )}
     </Pressable>
   );
 }

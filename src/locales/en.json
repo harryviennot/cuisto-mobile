@@ -654,8 +654,13 @@
     "subtitle": "PREFERENCES",
     "sections": {
       "account": "Account",
+      "recipes": "Recipes",
       "app": "App",
       "dangerZone": "Danger Zone"
+    },
+    "autoTranslate": {
+      "title": "Auto-Translate Recipes",
+      "description": "Automatically translate recipes to your app language"
     },
     "language": {
       "title": "Language",

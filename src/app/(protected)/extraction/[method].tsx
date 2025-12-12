@@ -9,6 +9,8 @@ import { useTranslation } from "react-i18next";
 
 import { extractionService } from "@/api/services/extraction.service";
 import { SourceType } from "@/types/extraction";
+import { useSettings } from "@/contexts/SettingsContext";
+import i18n from "@/locales/i18n";
 import {
   LinkInput,
   TextInputMethod,
@@ -27,6 +29,7 @@ export default function ExtractionScreen() {
   const { method } = useLocalSearchParams<{ method: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { settings } = useSettings();
 
   const METHOD_CONFIG = {
     link: {
@@ -93,6 +96,9 @@ export default function ExtractionScreen() {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
+    // Only send user_locale if auto-translate is enabled
+    const userLocale = settings.autoTranslateRecipes ? i18n.language : undefined;
+
     try {
       if (validMethod === "image" && selectedImages.length > 0) {
         // Set all images to uploading state
@@ -111,7 +117,7 @@ export default function ExtractionScreen() {
           } as unknown as Blob);
         });
 
-        const response = await extractionService.submitImages(formData);
+        const response = await extractionService.submitImages(formData, userLocale);
 
         // Mark all as completed on success
         const completedStates: Record<number, UploadState> = {};
@@ -144,6 +150,7 @@ export default function ExtractionScreen() {
         const response = await extractionService.submit({
           source_type: sourceType,
           ...payload,
+          user_locale: userLocale,
         });
 
         if (response && response.id) {

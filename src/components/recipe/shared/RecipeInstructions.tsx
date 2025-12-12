@@ -8,13 +8,18 @@ import { Skeleton } from "@/components/ui/Skeleton";
 interface RecipeInstructionsProps {
   instructions: Instruction[];
   isLoading?: boolean;
+  /** Language code for UI labels (ISO 639-1). Falls back to current app language. */
+  displayLanguage?: string;
 }
 
 export const RecipeInstructions = memo(function RecipeInstructions({
   instructions,
   isLoading = false,
+  displayLanguage,
 }: RecipeInstructionsProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  // Use displayLanguage if provided, otherwise fall back to current app language
+  const lng = displayLanguage || i18n.language;
 
   if (isLoading) {
     return (
@@ -68,7 +73,7 @@ export const RecipeInstructions = memo(function RecipeInstructions({
         className="font-playfair-bold mb-8 text-2xl uppercase tracking-wide text-foreground-heading"
         style={{ fontFamily: "PlayfairDisplay_700Bold" }}
       >
-        {t("recipe.instructions").toUpperCase()}
+        {t("recipe.instructions", { lng }).toUpperCase()}
       </Text>
 
       <View className="relative gap-0">

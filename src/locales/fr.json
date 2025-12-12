@@ -654,8 +654,13 @@
     "subtitle": "PRÉFÉRENCES",
     "sections": {
       "account": "Compte",
+      "recipes": "Recettes",
       "app": "Application",
       "dangerZone": "Zone de danger"
+    },
+    "autoTranslate": {
+      "title": "Traduction automatique",
+      "description": "Traduire automatiquement les recettes dans la langue de l'application"
     },
     "language": {
       "title": "Langue",

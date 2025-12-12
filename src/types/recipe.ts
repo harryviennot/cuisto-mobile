@@ -72,6 +72,8 @@ export interface Recipe {
   created_by: string;
   title: string;
   description?: string;
+  /** ISO 639-1 language code of the recipe content (e.g., 'en', 'fr'). Defaults to 'en' if not set. */
+  language?: string;
   ingredients: Ingredient[];
   instructions: Instruction[];
   timings?: Timings;

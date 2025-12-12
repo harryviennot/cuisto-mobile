@@ -15,6 +15,8 @@ export interface SubmitExtractionRequest {
   source_url?: string;
   text_content?: string;
   file_url?: string;
+  /** User's locale for translated response (ISO 639-1, e.g., 'en', 'fr') */
+  user_locale?: string;
 }
 
 export const extractionService = {
@@ -31,8 +33,17 @@ export const extractionService = {
 
   /**
    * Submit images for recipe extraction
+   * @param files - FormData containing image files
+   * @param userLocale - Optional user locale for translation (ISO 639-1)
    */
-  submitImages: async (files: FormData): Promise<ImageExtractionResponse> => {
+  submitImages: async (
+    files: FormData,
+    userLocale?: string
+  ): Promise<ImageExtractionResponse> => {
+    // Add user_locale to FormData if provided
+    if (userLocale) {
+      files.append("user_locale", userLocale);
+    }
     const response = await api.post<ImageExtractionResponse>("/extraction/submit-images", files, {
       headers: {
         "Content-Type": "multipart/form-data",

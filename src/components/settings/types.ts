@@ -8,4 +8,10 @@ export interface SettingsItem {
   onPress: () => void;
   variant?: "default" | "destructive";
   rightText?: string;
+  /** If true, renders as a toggle switch instead of a navigation item */
+  isToggle?: boolean;
+  /** Current value for toggle items */
+  toggleValue?: boolean;
+  /** Callback for toggle items */
+  onToggleChange?: (value: boolean) => void;
 }
