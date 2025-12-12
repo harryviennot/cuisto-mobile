@@ -8,6 +8,8 @@ import { useQuery } from "@tanstack/react-query";
 import { recipeService } from "@/api/services";
 import { RecipeDetail } from "@/components/recipe/RecipeDetail";
 import { useDeviceType } from "@/hooks/useDeviceType";
+import { useSettings } from "@/contexts/SettingsContext";
+import i18n from "@/locales/i18n";
 
 export default function RecipeDetailScreen() {
   const { id, title, imageUrl } = useLocalSearchParams<{
@@ -17,15 +19,22 @@ export default function RecipeDetailScreen() {
   }>();
   const router = useRouter();
   const { isTablet } = useDeviceType();
+  const { settings } = useSettings();
 
+  // Get user locale for auto-translation
+  const userLocale = i18n.language?.split("-")[0] || "en";
+
+  // Fetch recipe with optional translation if auto-translate is enabled
+  // If auto-translate is ON and a cached translation exists, it will be returned
+  // If no translation exists, the original recipe is returned (no new translation created)
   const {
     data: recipe,
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: ["recipe", id],
-    queryFn: () => recipeService.getRecipe(id!),
+    queryKey: ["recipe", id, settings.autoTranslateRecipes ? userLocale : null],
+    queryFn: () => recipeService.getRecipe(id!, settings.autoTranslateRecipes ? userLocale : undefined),
     enabled: !!id,
   });
 

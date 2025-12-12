@@ -30,7 +30,7 @@ interface FinishedScreenProps {
 export const FinishedScreen: React.FC<FinishedScreenProps> = ({ recipe, onClose }) => {
   const { t } = useTranslation();
 
-  // Subscribe to cache updates for this recipe
+  // Subscribe to cache updates for this recipe (always fetch original)
   const { data: cachedRecipe } = useQuery({
     queryKey: ["recipe", recipe.id],
     queryFn: () => recipeService.getRecipe(recipe.id),

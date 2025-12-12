@@ -3,7 +3,7 @@
  * Uses split components for better maintainability and performance
  */
 import React, { useState, useEffect, memo } from "react";
-import { View, ScrollView, Alert, TouchableOpacity } from "react-native";
+import { View, ScrollView, Alert, TouchableOpacity, ActivityIndicator, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedScrollHandler,
@@ -18,12 +18,16 @@ import {
   TrashIcon,
   Bookmark,
   DotsThreeIcon,
+  TranslateIcon,
+  ArrowUUpLeftIcon,
 } from "phosphor-react-native";
 import * as Haptics from "expo-haptics";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDeleteRecipe } from "@/hooks/useRecipes";
 import { useToggleFavorite } from "@/hooks/useCollections";
+import { translationService, recipeService } from "@/api/services";
+import i18n from "@/locales/i18n";
 
 import type { Recipe } from "@/types/recipe";
 import { UnifiedStickyHeader } from "@/components/ui/UnifiedStickyHeader";
@@ -90,6 +94,89 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
 
   const [isActionsModalVisible, setIsActionsModalVisible] = useState(false);
 
+  // Translation state
+  const [displayedRecipe, setDisplayedRecipe] = useState<Recipe | null>(null);
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [isViewingTranslation, setIsViewingTranslation] = useState(false);
+
+  // Current user locale (normalize to 2-letter code, e.g., "en-US" -> "en")
+  const userLocale = i18n.language?.split("-")[0] || "en";
+
+  // Determine if translation is available
+  // Recipe's original language (from the language field)
+  const recipeOriginalLanguage = recipe?.language?.split("-")[0];
+  // Check if the recipe content is different from user's locale
+  const recipeNeedsTranslation = recipe && recipeOriginalLanguage && recipeOriginalLanguage !== userLocale;
+  // Check if the recipe is already being displayed as translated (from backend's is_translated field or local state)
+  const isAlreadyTranslated = recipe?.is_translated === true || isViewingTranslation;
+
+  // Debug logging for translation
+  console.log("[RecipeDetail] Translation check:", {
+    recipeOriginalLanguage,
+    userLocale,
+    recipeNeedsTranslation,
+    isAlreadyTranslated,
+    backendIsTranslated: recipe?.is_translated,
+    localIsViewingTranslation: isViewingTranslation,
+  });
+
+  // Get language display name
+  const getLanguageName = (code: string): string => {
+    return t(`language.names.${code}`, { defaultValue: code.toUpperCase() });
+  };
+
+  // Sync displayedRecipe with recipe prop changes
+  useEffect(() => {
+    if (recipe) {
+      setDisplayedRecipe(recipe);
+      setIsViewingTranslation(false);
+    }
+  }, [recipe]);
+
+  // Handle translate to user's language
+  const handleTranslate = async () => {
+    if (!recipe) return;
+
+    setIsTranslating(true);
+    setIsActionsModalVisible(false);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    try {
+      const translatedRecipe = await translationService.translateRecipe(recipe.id, userLocale);
+      setDisplayedRecipe(translatedRecipe);
+      setIsViewingTranslation(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (error) {
+      console.error("Failed to translate recipe:", error);
+      Alert.alert(t("common.error"), t("discovery.error.message"));
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  // Handle view original - fetch the original recipe without translation
+  const handleViewOriginal = async () => {
+    if (!recipe) return;
+
+    setIsTranslating(true); // Reuse loading state
+    setIsActionsModalVisible(false);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    try {
+      // Fetch original recipe without language parameter
+      const originalRecipe = await recipeService.getRecipe(recipe.id);
+      setDisplayedRecipe(originalRecipe);
+      setIsViewingTranslation(false);
+    } catch (error) {
+      console.error("Failed to fetch original recipe:", error);
+      Alert.alert(t("common.error"), t("discovery.error.message"));
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   // Animation values
   const scrollY = useSharedValue(0);
   const transitionProgress = useSharedValue(0);
@@ -155,7 +242,7 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   }
 
   // If we don't have a recipe but have optimistic data, create a minimal recipe object
-  const displayRecipe =
+  const baseRecipe =
     recipe ||
     (optimisticTitle || optimisticImageUrl
       ? ({
@@ -173,9 +260,12 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
       : undefined);
 
   // If still no recipe data at all, return null
-  if (!displayRecipe) {
+  if (!baseRecipe) {
     return null;
   }
+
+  // Use translated recipe if available, otherwise use base recipe
+  const displayRecipe = displayedRecipe || baseRecipe;
 
   // Check ownership
   const isOwner = user?.id === displayRecipe.created_by;
@@ -369,12 +459,12 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         {isTabletLandscape ? (
           <View className="flex-1 flex-row">
             {renderLeftColumn()}
-            {recipe && <RecipeContent recipe={recipe} isTabletLandscape={true} />}
+            {displayRecipe && <RecipeContent recipe={displayRecipe} isTabletLandscape={true} />}
           </View>
         ) : (
           <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler}>
             {renderLeftColumn()}
-            {recipe && <RecipeContent recipe={recipe} isTabletLandscape={false} />}
+            {displayRecipe && <RecipeContent recipe={displayRecipe} isTabletLandscape={false} />}
           </Animated.ScrollView>
         )}
       </Animated.View>
@@ -389,6 +479,22 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
           </CookingSessionProvider>
         </Animated.View>
       )}
+
+      {/* Translation Loading Overlay */}
+      {isTranslating && (
+        <View
+          className="absolute inset-0 bg-black/50 items-center justify-center z-50"
+          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
+        >
+          <View className="bg-surface rounded-2xl p-6 items-center shadow-lg">
+            <ActivityIndicator size="large" color="#334d43" />
+            <Text className="text-foreground mt-3 font-medium">
+              {t("recipe.actions.translating")}
+            </Text>
+          </View>
+        </View>
+      )}
+
       {/* Actions Modal */}
       <ActionSheet
         visible={isActionsModalVisible}
@@ -405,6 +511,24 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
               setIsActionsModalVisible(false);
             },
           },
+          // Translation action: Show "Translate" or "View Original" based on state
+          ...(recipeNeedsTranslation
+            ? [
+                isAlreadyTranslated
+                  ? {
+                      label: t("recipe.actions.viewOriginal"),
+                      description: t("recipe.actions.viewOriginalDescription"),
+                      icon: <ArrowUUpLeftIcon size={24} color="#334d43" />,
+                      onPress: handleViewOriginal,
+                    }
+                  : {
+                      label: t("recipe.actions.translate", { language: getLanguageName(userLocale) }),
+                      description: t("recipe.actions.translateDescription"),
+                      icon: <TranslateIcon size={24} color="#334d43" />,
+                      onPress: handleTranslate,
+                    },
+              ]
+            : []),
           {
             label: t("recipe.actions.share"),
             description: t("recipe.actions.shareDescription"),

@@ -39,6 +39,8 @@ import { ExtractionStatus, SourceType } from "@/types/extraction";
 import type { Recipe } from "@/types/recipe";
 import { RecipeDetail } from "@/components/recipe/RecipeDetail";
 import { PremiumBottomSheet } from "@/components/ui/PremiumBottomSheet";
+import { useSettings } from "@/contexts/SettingsContext";
+import i18n from "@/locales/i18n";
 
 /**
  * Check if source type requires privacy prompt (private/personal content)
@@ -57,6 +59,7 @@ export default function UnifiedRecipePreviewScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
+  const { settings } = useSettings();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -114,7 +117,10 @@ export default function UnifiedRecipePreviewScreen() {
   const loadRecipe = useCallback(
     async (id: string) => {
       try {
-        const data = await recipeService.getRecipe(id);
+        // For preview, request translation if auto-translate is enabled
+        // This uses the translation created during extraction (no extra cost)
+        const language = settings.autoTranslateRecipes ? i18n.language : undefined;
+        const data = await recipeService.getRecipe(id, language);
         setRecipe(data);
       } catch {
         Toast.show({
@@ -124,7 +130,7 @@ export default function UnifiedRecipePreviewScreen() {
         });
       }
     },
-    [t]
+    [t, settings.autoTranslateRecipes]
   );
 
   // Fetch recipe when recipe_id is available

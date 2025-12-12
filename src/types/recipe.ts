@@ -74,6 +74,10 @@ export interface Recipe {
   description?: string;
   /** ISO 639-1 language code of the recipe content (e.g., 'en', 'fr'). Defaults to 'en' if not set. */
   language?: string;
+  /** Language of content in this response (may differ from 'language' if translated) */
+  displayed_language?: string;
+  /** True if content is from a translation, False if original */
+  is_translated?: boolean;
   ingredients: Ingredient[];
   instructions: Instruction[];
   timings?: Timings;

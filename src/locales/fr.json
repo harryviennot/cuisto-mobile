@@ -48,7 +48,22 @@
     "title": "Langue",
     "current": "Langue actuelle",
     "english": "English",
-    "french": "Français"
+    "french": "Français",
+    "names": {
+      "en": "anglais",
+      "fr": "français",
+      "es": "espagnol",
+      "de": "allemand",
+      "it": "italien",
+      "pt": "portugais",
+      "nl": "néerlandais",
+      "pl": "polonais",
+      "ru": "russe",
+      "ja": "japonais",
+      "ko": "coréen",
+      "zh": "chinois",
+      "ar": "arabe"
+    }
   },
   "extraction": {
     "addRecipe": "Ajouter une recette",
@@ -211,7 +226,12 @@
       "shareDescription": "Partager cette recette avec vos amis",
       "edit": "Modifier la recette",
       "delete": "Supprimer la recette",
-      "deleteDescription": "Cette action ne peut pas être annulée"
+      "deleteDescription": "Cette action ne peut pas être annulée",
+      "translate": "Traduire en {{language}}",
+      "translateDescription": "Traduire cette recette avec l'IA",
+      "viewOriginal": "Voir l'original",
+      "viewOriginalDescription": "Voir la recette dans sa langue d'origine",
+      "translating": "Traduction en cours..."
     },
     "quickInfo": {
       "tapToEdit": "Appuyer pour modifier"
