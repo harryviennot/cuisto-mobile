@@ -1,13 +1,16 @@
 /**
- * Mobile-optimized Axios API client with token management
- * Supports flexible configuration for any API routes
+ * Mobile-optimized Axios API client
+ *
+ * This client now uses Supabase for token management:
+ * - Gets access tokens from Supabase session
+ * - Token refresh is handled automatically by Supabase
+ * - No more manual refresh logic or race conditions
  */
-import type { AuthResponse } from "@/types/auth";
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import Constants from "expo-constants";
 import { router } from "expo-router";
 import { Alert } from "react-native";
-import { tokenManager } from "./token-manager";
+import { supabase } from "@/lib/supabase";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -22,12 +25,6 @@ export interface ApiRequestConfig extends AxiosRequestConfig {
    * Useful for public endpoints
    */
   skipAuth?: boolean;
-
-  /**
-   * Skip automatic token refresh retry on 401
-   * Useful for login/refresh endpoints
-   */
-  skipAuthRetry?: boolean;
 
   /**
    * Skip automatic redirect to login on auth failure
@@ -51,12 +48,6 @@ export interface ApiRequestConfig extends AxiosRequestConfig {
    * Disable error alerts for this request
    */
   silent?: boolean;
-
-  /**
-   * Internal flag to track retry attempts
-   * @internal
-   */
-  _retry?: boolean;
 }
 
 /**
@@ -112,34 +103,12 @@ const apiClient: AxiosInstance = axios.create({
 });
 
 // ============================================================================
-// TOKEN REFRESH QUEUE
-// ============================================================================
-
-// Track ongoing refresh requests to prevent multiple simultaneous refreshes
-let isRefreshing = false;
-let failedQueue: {
-  resolve: (value: unknown) => void;
-  reject: (error: unknown) => void;
-}[] = [];
-
-const processQueue = (error: AxiosError | null) => {
-  failedQueue.forEach(({ resolve, reject }) => {
-    if (error) {
-      reject(error);
-    } else {
-      resolve(null);
-    }
-  });
-
-  failedQueue = [];
-};
-
-// ============================================================================
 // REQUEST INTERCEPTOR
 // ============================================================================
 
 /**
  * Request interceptor for authentication and configuration
+ * Gets access token from Supabase session (auto-refreshed by Supabase)
  */
 apiClient.interceptors.request.use(
   async (config) => {
@@ -155,11 +124,20 @@ apiClient.interceptors.request.use(
       config.baseURL = "";
     }
 
-    // Add auth token if available and not skipped
+    // Add auth token from Supabase session if available and not skipped
     if (!customConfig.skipAuth) {
-      const token = await tokenManager.getAccessToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      try {
+        // getSession() returns a valid session with auto-refreshed token
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session?.access_token) {
+          config.headers.Authorization = `Bearer ${session.access_token}`;
+        }
+      } catch (error) {
+        console.log("Failed to get session for request:", error);
+        // Continue without token - backend will return 401 if needed
       }
     }
 
@@ -189,6 +167,9 @@ apiClient.interceptors.request.use(
 
 /**
  * Response interceptor for handling responses and errors
+ *
+ * Note: Token refresh is now handled automatically by Supabase.
+ * If we get a 401, it means the session is truly invalid (not just expired).
  */
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
@@ -210,73 +191,11 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle 401 errors with token refresh
-    // Skip if: already retried, skipAuthRetry is set, or it's an auth endpoint
-    const shouldAttemptRefresh =
-      error.response?.status === 401 && !originalRequest._retry && !originalRequest.skipAuthRetry;
-
-    if (shouldAttemptRefresh) {
-      if (isRefreshing) {
-        // If already refreshing, queue this request
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then(() => {
-            return apiClient(originalRequest);
-          })
-          .catch((err) => {
-            return Promise.reject(err);
-          });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        // Perform token refresh
-        const refreshToken = await tokenManager.getRefreshToken();
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
-        }
-
-        const response = await apiClient.post<AuthResponse>(
-          "/auth/refresh",
-          {
-            refresh_token: refreshToken,
-          },
-          {
-            skipAuthRetry: true,
-          } as ApiRequestConfig
-        );
-
-        const { access_token, refresh_token, expires_in } = response.data;
-
-        // Update tokens in manager
-        await tokenManager.setTokens(access_token, refresh_token, expires_in);
-
-        if (__DEV__) {
-          console.log("🔄 Tokens refreshed successfully");
-        }
-
-        // Retry the original request with new token
-        const token = await tokenManager.getAccessToken();
-        if (token && originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          processQueue(null);
-          return apiClient(originalRequest);
-        } else {
-          throw new Error("Token refresh failed");
-        }
-      } catch (refreshError) {
-        processQueue(refreshError as AxiosError);
-        // Only redirect if not explicitly skipped
-        if (!originalRequest.skipAuthRedirect) {
-          await handleAuthFailure();
-        }
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+    // Handle 401 errors - session is invalid
+    // With Supabase auto-refresh, a 401 means the session is truly invalid
+    if (error.response?.status === 401 && !originalRequest.skipAuthRedirect) {
+      await handleAuthFailure();
+      return Promise.reject(error);
     }
 
     // Handle other errors
@@ -286,7 +205,7 @@ apiClient.interceptors.response.use(
     let details: unknown;
 
     if (error.response) {
-      const { status, data } = error.response;
+      const { data } = error.response;
 
       // Backend returns errors in format: { error: { code, message }, timestamp, path }
       // or { message, detail }
@@ -360,7 +279,12 @@ apiClient.interceptors.response.use(
  * Handle authentication failure (redirect to login)
  */
 async function handleAuthFailure(): Promise<void> {
-  await tokenManager.clearTokens();
+  // Sign out from Supabase to clear local session
+  try {
+    await supabase.auth.signOut();
+  } catch (error) {
+    console.log("Error signing out:", error);
+  }
 
   // Show alert on mobile
   Alert.alert("Session Expired", "Your session has expired. Please login again.", [{ text: "OK" }]);

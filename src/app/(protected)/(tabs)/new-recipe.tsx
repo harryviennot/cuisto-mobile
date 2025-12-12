@@ -57,7 +57,7 @@ export default function NewRecipeScreen() {
             >
               <View className="absolute inset-0">
                 <Image
-                  source={require("../../../assets/images/cookingimage.png")}
+                  source={require("../../../../assets/images/cookingimage.png")}
                   className="w-full h-full opacity-70"
                 />
                 <LinearGradient

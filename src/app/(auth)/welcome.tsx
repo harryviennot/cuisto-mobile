@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import Animated, { useAnimatedStyle, withTiming, withDelay, Easing } from "react-native-reanimated";
 import { ArrowRightIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
@@ -9,8 +9,14 @@ import { useTranslation } from "react-i18next";
 import { SHOWCASE_DATA, ShowcaseItem } from "@components/welcome/ShowcaseItems";
 import { CentralDeck } from "@components/welcome/CentralDeck";
 import { SatelliteSource } from "@components/welcome/SatelliteSource";
+import { AuthMethodSheet } from "@/components/auth";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+// Base height for the graphic area (design reference)
+const BASE_GRAPHIC_HEIGHT = 420;
+const MIN_SCALE = 0.65;
+const MAX_SCALE = 1;
 
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
@@ -19,6 +25,22 @@ export default function WelcomeScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
   // Track which variant to show for each category
   const [variantIndices, setVariantIndices] = useState([0, 0, 0, 0]);
+  // Track graphic container height for dynamic scaling
+  const [graphicHeight, setGraphicHeight] = useState(BASE_GRAPHIC_HEIGHT);
+
+  // Calculate scale factor based on available height
+  const scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, graphicHeight / BASE_GRAPHIC_HEIGHT));
+
+  // Auth method bottom sheet ref
+  const authMethodSheetRef = useRef<BottomSheetModal>(null);
+
+  const handleStartCollecting = useCallback(() => {
+    authMethodSheetRef.current?.present();
+  }, []);
+
+  const handleCloseAuthSheet = useCallback(() => {
+    authMethodSheetRef.current?.dismiss();
+  }, []);
 
   // Build current showcase items from SHOWCASE_DATA using variant indices
   const currentItems: ShowcaseItem[] = SHOWCASE_DATA.map((categoryItems, categoryIdx) => {
@@ -73,23 +95,50 @@ export default function WelcomeScreen() {
         style={{ paddingTop: insets.top + 24, paddingBottom: insets.bottom + 32 }}
       >
         {/* HEADER */}
-        <Animated.View style={headerStyle} className="items-center space-y-5 mt-4">
-          <Text className="font-serif text-5xl leading-[1.05] tracking-tight text-stone-800 text-center">
-            {t("welcome.headline")}
-            {"\n"}
-            <Text className="italic text-[#334d43]">{t("welcome.headlineHighlight")}</Text>
-          </Text>
-          <Text className="text-stone-500 text-sm font-medium max-w-[280px] text-center leading-relaxed mt-4">
+        <Animated.View style={headerStyle} className="items-center space-y-5 mt-4 w-full px-2">
+          <View className="w-full items-center">
+            <Text
+              className="font-serif text-5xl leading-[1.05] tracking-tight text-stone-800 text-center"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+            >
+              {t("welcome.headline")}
+            </Text>
+            <Text
+              className="font-serif italic text-5xl leading-[1.05] tracking-tight text-[#334d43] text-center"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+            >
+              {t("welcome.headlineHighlight")}
+            </Text>
+          </View>
+          <Text
+            className="text-stone-500 text-sm font-medium text-center leading-relaxed mt-4"
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
             {t("welcome.subtitle1")}
           </Text>
-          <Text className="text-stone-500 text-sm font-medium max-w-[280px] text-center leading-relaxed">
+          <Text
+            className="text-stone-500 text-sm font-medium text-center leading-relaxed"
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
             {t("welcome.subtitle2")}
           </Text>
         </Animated.View>
 
         <Animated.View
-          style={graphicStyle}
-          className="relative w-full max-w-[320px] h-[420px] items-center justify-center my-4"
+          style={[
+            graphicStyle,
+            { maxHeight: BASE_GRAPHIC_HEIGHT, minHeight: BASE_GRAPHIC_HEIGHT * MIN_SCALE },
+          ]}
+          className="relative w-full flex-1 items-center justify-center my-2"
+          onLayout={(e) => setGraphicHeight(e.nativeEvent.layout.height)}
         >
           {/* SATELLITE SOURCES */}
           {currentItems.map((item, idx) => (
@@ -98,16 +147,17 @@ export default function WelcomeScreen() {
               item={item}
               isActive={idx === activeIndex}
               index={idx}
+              scale={scale}
             />
           ))}
           {/* CENTRAL DECK */}
-          <CentralDeck activeIndex={activeIndex} currentItems={currentItems} />
+          <CentralDeck activeIndex={activeIndex} currentItems={currentItems} scale={scale} />
         </Animated.View>
 
         {/* CTA */}
         <Animated.View style={ctaStyle} className="w-full items-center space-y-4">
           <AnimatedPressable
-            onPress={() => router.push("/auth")}
+            onPress={handleStartCollecting}
             className="group relative w-full h-16 bg-primary rounded-2xl flex-row items-center justify-center gap-3 overflow-hidden active:scale-95 transition-transform"
           >
             <Text className="text-white font-bold text-sm uppercase tracking-[0.2em] z-10">
@@ -121,6 +171,9 @@ export default function WelcomeScreen() {
           </Text>
         </Animated.View>
       </View>
+
+      {/* Auth Method Selection Bottom Sheet */}
+      <AuthMethodSheet ref={authMethodSheetRef} onClose={handleCloseAuthSheet} />
     </View>
   );
 }

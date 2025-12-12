@@ -341,6 +341,11 @@
     "createdAt": "Created At",
     "metadata": "Metadata",
     "authenticationStatus": "Authentication Status",
+    "chooseMethod": "Get Started",
+    "chooseMethodSubtitle": "SIGN IN OR CREATE ACCOUNT",
+    "continueWithApple": "Continue with Apple",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithEmail": "Continue with Email",
     "emailStep": {
       "title": "Welcome",
       "subtitle": "Sign in to continue",
@@ -393,6 +398,8 @@
     }
   },
   "discovery": {
+    "loading": "Discovering recipes...",
+    "stickyHeader": "Discover",
     "greeting": {
       "morning": {
         "greeting": "Good morning!",

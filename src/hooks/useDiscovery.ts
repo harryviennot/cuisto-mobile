@@ -1,7 +1,8 @@
 /**
  * Custom hooks for discovery features on the home page
  */
-import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { discoveryService } from "@/api/services/discovery.service";
 import type { Recipe } from "@/types/recipe";
 import { TrendingRecipe, ExtractedRecipe, DISCOVERY_CONSTANTS } from "@/types/discovery";
@@ -161,4 +162,49 @@ export function useDiscovery() {
     isRefetching,
     refetchAll,
   };
+}
+
+/**
+ * Hook to prefetch discovery data in the background
+ * Use this during onboarding so data is ready when user finishes
+ */
+export function usePrefetchDiscovery() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    // Prefetch all discovery sections in parallel
+    // These will be cached and ready when the home page loads
+    const prefetch = async () => {
+      await Promise.all([
+        queryClient.prefetchQuery({
+          queryKey: ["discovery", "trending", SECTION_PREVIEW_LIMIT],
+          queryFn: () => discoveryService.getTrendingThisWeek(SECTION_PREVIEW_LIMIT),
+          staleTime: STALE_TIMES.trending,
+        }),
+        queryClient.prefetchQuery({
+          queryKey: ["discovery", "socials", SECTION_PREVIEW_LIMIT],
+          queryFn: () => discoveryService.getTrendingOnSocials(SECTION_PREVIEW_LIMIT),
+          staleTime: STALE_TIMES.extracted,
+        }),
+        queryClient.prefetchQuery({
+          queryKey: ["discovery", "online", SECTION_PREVIEW_LIMIT],
+          queryFn: () => discoveryService.getPopularOnline(SECTION_PREVIEW_LIMIT),
+          staleTime: STALE_TIMES.extracted,
+        }),
+        queryClient.prefetchQuery({
+          queryKey: ["discovery", "rated", SECTION_PREVIEW_LIMIT],
+          queryFn: () => discoveryService.getHighestRated(SECTION_PREVIEW_LIMIT),
+          staleTime: STALE_TIMES.rated,
+        }),
+        queryClient.prefetchInfiniteQuery({
+          queryKey: ["discovery", "recent"],
+          queryFn: () => discoveryService.getRecentlyAdded(RECENT_PAGE_SIZE, 0),
+          staleTime: STALE_TIMES.recent,
+          initialPageParam: 0,
+        }),
+      ]);
+    };
+
+    prefetch();
+  }, [queryClient]);
 }
