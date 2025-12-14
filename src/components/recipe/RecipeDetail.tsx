@@ -94,10 +94,14 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
 
   const [isActionsModalVisible, setIsActionsModalVisible] = useState(false);
 
-  // Translation state
-  const [displayedRecipe, setDisplayedRecipe] = useState<Recipe | null>(null);
+  // Translation state - cache both versions for instant switching
+  const [cachedOriginal, setCachedOriginal] = useState<Recipe | null>(null);
+  const [cachedTranslated, setCachedTranslated] = useState<Recipe | null>(null);
   const [isTranslating, setIsTranslating] = useState(false);
   const [isViewingTranslation, setIsViewingTranslation] = useState(false);
+
+  // Computed displayed recipe from cache
+  const displayedRecipe = isViewingTranslation ? cachedTranslated : cachedOriginal;
 
   // Current user locale (normalize to 2-letter code, e.g., "en-US" -> "en")
   const userLocale = i18n.language?.split("-")[0] || "en";
@@ -125,11 +129,19 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     return t(`language.names.${code}`, { defaultValue: code.toUpperCase() });
   };
 
-  // Sync displayedRecipe with recipe prop changes
+  // Sync cache with recipe prop changes
   useEffect(() => {
     if (recipe) {
-      setDisplayedRecipe(recipe);
-      setIsViewingTranslation(false);
+      // If recipe comes in already translated (auto-translate ON), cache as translated
+      if (recipe.is_translated) {
+        setCachedTranslated(recipe);
+        setIsViewingTranslation(true);
+        // Don't clear original cache - user might have it from previous view
+      } else {
+        setCachedOriginal(recipe);
+        setIsViewingTranslation(false);
+        // Don't clear translated cache - user might have it from previous view
+      }
     }
   }, [recipe]);
 
@@ -137,13 +149,21 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   const handleTranslate = async () => {
     if (!recipe) return;
 
-    setIsTranslating(true);
     setIsActionsModalVisible(false);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
+    // Check cache first - instant switch if already fetched
+    if (cachedTranslated) {
+      setIsViewingTranslation(true);
+      return;
+    }
+
+    // Fetch and cache translation
+    setIsTranslating(true);
+
     try {
-      const translatedRecipe = await translationService.translateRecipe(recipe.id, userLocale);
-      setDisplayedRecipe(translatedRecipe);
+      const translated = await translationService.translateRecipe(recipe.id, userLocale);
+      setCachedTranslated(translated);
       setIsViewingTranslation(true);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
@@ -159,14 +179,21 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   const handleViewOriginal = async () => {
     if (!recipe) return;
 
-    setIsTranslating(true); // Reuse loading state
     setIsActionsModalVisible(false);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
+    // Check cache first - instant switch if already fetched
+    if (cachedOriginal) {
+      setIsViewingTranslation(false);
+      return;
+    }
+
+    // Fetch and cache original
+    setIsTranslating(true); // Reuse loading state
+
     try {
-      // Fetch original recipe without language parameter
-      const originalRecipe = await recipeService.getRecipe(recipe.id);
-      setDisplayedRecipe(originalRecipe);
+      const original = await recipeService.getRecipe(recipe.id);
+      setCachedOriginal(original);
       setIsViewingTranslation(false);
     } catch (error) {
       console.error("Failed to fetch original recipe:", error);
