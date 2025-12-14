@@ -682,7 +682,7 @@
     },
     "autoTranslate": {
       "title": "Traduction automatique",
-      "description": "Traduire automatiquement les recettes dans la langue de l'application"
+      "description": "Afficher les recettes dans votre langue si disponible"
     },
     "language": {
       "title": "Langue",
