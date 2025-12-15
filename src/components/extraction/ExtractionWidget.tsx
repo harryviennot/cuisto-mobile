@@ -115,9 +115,12 @@ function ExtractionWidgetComponent({ jobs, onExpand }: ExtractionWidgetProps) {
       style={{
         position: "absolute",
         bottom: bottomOffset,
-        left: 8,
-        right: 8,
+        left: 0,
+        right: 0,
         zIndex: 1000,
+        marginHorizontal: 8,
+        maxWidth: 500,
+        alignSelf: "center",
         // Shadow container - no overflow hidden here so shadow renders
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 8 },
