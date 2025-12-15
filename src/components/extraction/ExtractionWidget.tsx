@@ -65,7 +65,7 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
   // Calculate bottom offset to position above tab bar
   const bottomOffset = isTabBarVisible
     ? 90 // Above tab bar
-    : insets.bottom + 16; // Bottom of screen + padding
+    : insets.bottom + 12; // Bottom of screen + padding
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -79,8 +79,8 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
       style={{
         position: "absolute",
         bottom: bottomOffset,
-        left: 16,
-        right: 16,
+        left: 8,
+        right: 8,
         zIndex: 1000,
         borderRadius: 12,
         shadowColor: "#000",

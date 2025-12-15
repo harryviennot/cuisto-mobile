@@ -167,7 +167,7 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
 
           {/* Row 2: Progress bar (only for in-progress jobs) */}
           {isInProgress ? (
-            <View className="h-2 w-full overflow-hidden rounded-full bg-white/20 mt-2">
+            <View className="h-2 w-full overflow-hidden rounded-full bg-white/20 mt-2 mb-1">
               <Animated.View style={progressBarStyle} className="h-full rounded-full bg-white" />
             </View>
           ) : (
