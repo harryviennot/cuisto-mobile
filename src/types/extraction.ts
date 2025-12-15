@@ -21,6 +21,46 @@ export enum ExtractionStatus {
 }
 
 /**
+ * Extraction step codes sent by the server.
+ * These are used by the frontend to display localized progress messages.
+ */
+export enum ExtractionStep {
+  // General steps
+  STARTING = "starting",
+  COMPLETE = "complete",
+
+  // Video extraction (0-50% range in extraction phase)
+  VIDEO_DOWNLOADING = "video_downloading",
+  VIDEO_EXTRACTING_AUDIO = "video_extracting_audio",
+  VIDEO_TRANSCRIBING = "video_transcribing",
+  VIDEO_COMBINING = "video_combining",
+
+  // Photo extraction
+  PHOTO_OCR_SINGLE = "photo_ocr_single",
+  PHOTO_OCR_MULTIPLE = "photo_ocr_multiple",
+  PHOTO_EXTRACTING = "photo_extracting",
+
+  // Voice extraction
+  VOICE_TRANSCRIBING = "voice_transcribing",
+
+  // Link extraction
+  LINK_FETCHING = "link_fetching",
+  LINK_PARSING = "link_parsing",
+  LINK_EXTRACTING = "link_extracting",
+  LINK_FINDING_IMAGE = "link_finding_image",
+  LINK_EXTRACTING_TEXT = "link_extracting_text",
+
+  // Paste extraction
+  PASTE_PROCESSING = "paste_processing",
+
+  // Normalization phase (50-100% range)
+  NORMALIZING = "normalizing",
+  PREPARING = "preparing",
+  GENERATING_IMAGE = "generating_image",
+  SAVING = "saving",
+}
+
+/**
  * Extraction job response from the server.
  *
  * The server creates a draft recipe during extraction, so when the job

@@ -51,7 +51,7 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
 
   // Calculate bottom offset to position above tab bar
   const bottomOffset = isTabBarVisible
-    ? 90 // Above tab bar
+    ? 45 + insets.bottom + 12 // Above tab bar
     : insets.bottom + 12; // Bottom of screen + padding
 
   const toggleExpand = () => {
@@ -145,4 +145,3 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
     </Animated.View>
   );
 }
-

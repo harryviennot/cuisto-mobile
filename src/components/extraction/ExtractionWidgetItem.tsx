@@ -24,6 +24,7 @@ import { CheckCircleIcon, WarningCircleIcon, SpinnerIcon, CaretRightIcon } from 
 import { useTranslation } from "react-i18next";
 import type { ExtractionJob } from "@/contexts/ExtractionContext";
 import { ExtractionStatus } from "@/types/extraction";
+import { getExtractionStepText } from "@/utils/extraction-steps";
 
 interface ExtractionWidgetItemProps {
   job: ExtractionJob;
@@ -155,7 +156,7 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
               className="text-white font-bold text-sm flex-1 mr-4"
               numberOfLines={1}
             >
-              {job.current_step || getStatusText()}
+              {getExtractionStepText(t, job.current_step) || getStatusText()}
             </Animated.Text>
 
             {isInProgress && (

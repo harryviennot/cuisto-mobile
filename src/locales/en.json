@@ -153,6 +153,28 @@
       "publicDesc": "Let others discover, cook, and remix your recipe",
       "privateTitle": "Keep Private",
       "privateDesc": "Save to your personal collection only"
+    },
+    "steps": {
+      "starting": "Starting extraction...",
+      "complete": "Done!",
+      "video_downloading": "Downloading video...",
+      "video_extracting_audio": "Extracting audio...",
+      "video_transcribing": "Transcribing audio...",
+      "video_combining": "Processing content...",
+      "photo_ocr_single": "Reading text from image...",
+      "photo_ocr_multiple": "Reading text from images...",
+      "photo_extracting": "Extracting recipe...",
+      "voice_transcribing": "Transcribing audio...",
+      "link_fetching": "Fetching webpage...",
+      "link_parsing": "Parsing content...",
+      "link_extracting": "Extracting recipe data...",
+      "link_finding_image": "Finding recipe image...",
+      "link_extracting_text": "Extracting text content...",
+      "paste_processing": "Processing text...",
+      "normalizing": "Analyzing recipe...",
+      "preparing": "Preparing recipe data...",
+      "generating_image": "Generating recipe image...",
+      "saving": "Saving recipe..."
     }
   },
   "recipe": {
