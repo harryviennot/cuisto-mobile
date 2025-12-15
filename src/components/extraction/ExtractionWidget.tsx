@@ -8,13 +8,16 @@
  * - Multiple jobs (premium): Expandable container with summary header
  * - Dynamic positioning: Above tab bar (if visible) or at bottom (+12px)
  */
-import React, { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, Pressable, LayoutChangeEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   FadeInDown,
   FadeOutDown,
-  LinearTransition,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  Easing,
 } from "react-native-reanimated";
 import { useSegments } from "expo-router";
 import {
@@ -37,6 +40,12 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
   const segments = useSegments();
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Track the measured content height
+  const [contentHeight, setContentHeight] = useState(0);
+
+  // Animated height for expand/collapse
+  const expandedHeight = useSharedValue(0);
+
   // Check if we are on a tab page
   const isTabBarVisible = segments.some((segment) => segment === "(tabs)");
 
@@ -45,6 +54,7 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
   const activeCount = jobs.filter(
     (j) => j.status === ExtractionStatus.PENDING || j.status === ExtractionStatus.PROCESSING
   ).length;
+  const erroredCount = jobs.filter((j) => j.status === ExtractionStatus.FAILED || j.status === ExtractionStatus.NOT_A_RECIPE || j.status === ExtractionStatus.WEBSITE_BLOCKED).length;
 
   // Newest job determines the "face" of the collapsed widget if single
   const sortedJobs = [...jobs].sort((a, b) => b.createdAt - a.createdAt);
@@ -54,9 +64,28 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
     ? 45 + insets.bottom + 12 // Above tab bar
     : insets.bottom + 12; // Bottom of screen + padding
 
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
+  // Measure the actual content height
+  const onContentLayout = useCallback((event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    if (height > 0 && height !== contentHeight) {
+      setContentHeight(height);
+    }
+  }, [contentHeight]);
+
+  const toggleExpand = useCallback(() => {
+    const newExpanded = !isExpanded;
+    setIsExpanded(newExpanded);
+    expandedHeight.value = withTiming(newExpanded ? contentHeight : 0, {
+      duration: 250,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    });
+  }, [isExpanded, expandedHeight, contentHeight]);
+
+  // Animated style for the expanded content container
+  const expandedContentStyle = useAnimatedStyle(() => ({
+    height: expandedHeight.value,
+    overflow: "hidden",
+  }));
 
   // Single job mode (free tier) - show just the widget item directly
   const isSingleJob = jobs.length === 1;
@@ -65,7 +94,6 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
     <Animated.View
       entering={FadeInDown.damping(20).stiffness(150)}
       exiting={FadeOutDown.duration(150)}
-      layout={LinearTransition.damping(15).stiffness(20)}
       style={{
         position: "absolute",
         bottom: bottomOffset,
@@ -83,7 +111,7 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
       {/* Inner container with overflow hidden for rounded corners */}
       <View
         style={{
-          borderRadius: 16,
+          borderRadius: 12,
           overflow: "hidden",
           // Secondary subtle shadow for depth
           shadowColor: "#000",
@@ -99,29 +127,49 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
           <ExtractionWidgetItem job={sortedJobs[0]} onPress={() => onExpand(sortedJobs[0].id)} />
         ) : (
           <>
-            {/* Multiple jobs: Collapsed Header / Summary */}
+            {/* Hidden measurement container - renders off-screen to measure actual height */}
+            <View
+              style={{ position: "absolute", opacity: 0, pointerEvents: "none" }}
+              onLayout={onContentLayout}
+            >
+              {sortedJobs.map((job, index) => (
+                <View key={job.id}>
+                  <ExtractionWidgetItem job={job} onPress={() => { }} />
+                  {index < sortedJobs.length - 1 && <View className="h-[1px] bg-border-dark/10" />}
+                </View>
+              ))}
+            </View>
+
+            {/* Expanded Content - positioned ABOVE the header using animated height */}
+            <Animated.View style={expandedContentStyle} className="bg-black/10">
+              {sortedJobs.map((job, index) => (
+                <View key={job.id}>
+                  <ExtractionWidgetItem job={job} onPress={() => onExpand(job.id)} />
+                  {index < sortedJobs.length - 1 && <View className="h-[1px] bg-border-dark/10" />}
+                </View>
+              ))}
+            </Animated.View>
+
+            {/* Multiple jobs: Header / Summary - always at bottom */}
             <Pressable onPress={toggleExpand} className="flex-row items-center justify-between p-5">
               <View className="flex-row items-center gap-3">
-                {/* Summary Icon Indicator */}
-                <View className="flex-row -space-x-2">
-                  {activeCount > 0 && (
-                    <View className="h-8 w-8 items-center justify-center rounded-full bg-white/20">
-                      <SpinnerIcon color="white" size={16} weight="bold" />
-                    </View>
-                  )}
-                  {completedCount > 0 && (
-                    <View className="h-8 w-8 items-center justify-center rounded-full bg-emerald-500">
-                      <CheckCircleIcon color="white" size={16} weight="fill" />
-                    </View>
-                  )}
-                </View>
+                {/* Summary Icon - single icon showing primary state */}
+                {activeCount > 0 ? (
+                  <View className="h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                    <SpinnerIcon color="white" size={20} weight="bold" />
+                  </View>
+                ) : (
+                  <View className="h-10 w-10 items-center justify-center rounded-full bg-emerald-500">
+                    <CheckCircleIcon color="white" size={20} weight="fill" />
+                  </View>
+                )}
 
                 <View>
                   <Text className="text-base font-bold text-white">
                     {activeCount > 0 ? "Extraction in progress" : "Extraction complete"}
                   </Text>
                   <Text className="text-xs text-white/70 font-medium">
-                    {activeCount} active • {completedCount} ready
+                    {activeCount} active • {completedCount} ready • {completedCount} failed
                   </Text>
                 </View>
               </View>
@@ -134,24 +182,6 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
                 )}
               </View>
             </Pressable>
-
-            {/* Expanded Content */}
-            {isExpanded && (
-              <Animated.View
-                entering={FadeInDown.duration(300).springify()}
-                exiting={FadeOutDown.duration(200)}
-                className="bg-black/10"
-              >
-                <View className="max-h-72">
-                  {sortedJobs.map((job, index) => (
-                    <View key={job.id}>
-                      <ExtractionWidgetItem job={job} onPress={() => onExpand(job.id)} />
-                      {index < sortedJobs.length - 1 && <View className="h-[1px] bg-border-dark/10" />}
-                    </View>
-                  ))}
-                </View>
-              </Animated.View>
-            )}
           </>
         )}
       </View>

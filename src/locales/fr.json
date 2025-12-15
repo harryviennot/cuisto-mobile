@@ -500,10 +500,10 @@
       "placeholder": "Rechercher dans les collections..."
     },
     "collections": {
-      "allRecipes": "Toutes vos recettes",
+      "allRecipes": "Mes recettes",
       "allRecipesSubtitle": "EXTRAITES",
       "favorites": "Favoris",
-      "favoritesSubtitle": "SÉLECTIONNÉES PAR VOUS"
+      "favoritesSubtitle": "SÉLECTIONNÉES"
     },
     "cookbooks": {
       "title": "Livres de cuisine",

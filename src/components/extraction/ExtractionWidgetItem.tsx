@@ -133,7 +133,7 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
   return (
     <Pressable
       onPress={onPress}
-      className="flex-row items-center py-4 px-5 min-h-16"
+      className="flex-row items-center py-4 px-5 min-h-16 active:bg-white/10"
     >
       <View className="flex-row items-center flex-1">
         {/* Icon */}
