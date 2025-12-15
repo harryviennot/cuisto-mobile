@@ -18,8 +18,9 @@ import Animated, {
   withRepeat,
   withSequence,
   Easing,
+  interpolate,
 } from "react-native-reanimated";
-import { CheckCircleIcon, WarningCircleIcon, SpinnerIcon } from "phosphor-react-native";
+import { CheckCircleIcon, WarningCircleIcon, SpinnerIcon, CaretRightIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import type { ExtractionJob } from "@/contexts/ExtractionContext";
 import { ExtractionStatus } from "@/types/extraction";
@@ -47,16 +48,19 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
     job.status === ExtractionStatus.FAILED ||
     job.status === ExtractionStatus.NOT_A_RECIPE ||
     job.status === ExtractionStatus.WEBSITE_BLOCKED;
-  const isInProgress =
-    job.status === ExtractionStatus.PENDING || job.status === ExtractionStatus.PROCESSING;
+  const isInProgress = job.status === ExtractionStatus.PENDING || job.status === ExtractionStatus.PROCESSING;
 
-  // Animate progress bar
+  // Animate to the real progress value with smooth transition
   useEffect(() => {
     animatedProgress.value = withTiming(job.progress_percentage, {
       duration: 400,
       easing: Easing.out(Easing.cubic),
     });
   }, [job.progress_percentage, animatedProgress]);
+
+  const progressBarStyle = useAnimatedStyle(() => ({
+    width: `${Math.min(animatedProgress.value, 100)}%`,
+  }));
 
   // Animate spinner for in-progress state
   useEffect(() => {
@@ -79,10 +83,6 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
     }
   }, [isComplete, pulseScale]);
 
-  const progressBarStyle = useAnimatedStyle(() => ({
-    width: `${Math.min(animatedProgress.value, 100)}%`,
-  }));
-
   const spinnerStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${spinnerRotation.value}deg` }],
   }));
@@ -91,10 +91,31 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
     transform: [{ scale: pulseScale.value }],
   }));
 
+  // Shimmer animation for title
+  const shimmerAnimation = useSharedValue(0);
+
+  useEffect(() => {
+    if (isInProgress) {
+      shimmerAnimation.value = withRepeat(
+        withSequence(
+          withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+          withTiming(0, { duration: 1500, easing: Easing.inOut(Easing.ease) })
+        ),
+        -1,
+        false
+      );
+    }
+  }, [isInProgress, shimmerAnimation]);
+
+  const shimmerStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(shimmerAnimation.value, [0, 0.5, 1], [0.5, 1, 0.5]);
+    return { opacity };
+  });
+
   // Get status text
   const getStatusText = () => {
     if (isComplete) {
-      return t("extraction.widget.recipeReady", "Recipe ready! Tap to view");
+      return t("extraction.widget.recipeReady", "Recipe ready!");
     }
     if (isFailed) {
       if (job.status === ExtractionStatus.NOT_A_RECIPE) {
@@ -108,67 +129,60 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
     return t("extraction.widget.extracting", "Extracting recipe...");
   };
 
-  // Get background color based on state
-  const getBackgroundColor = () => {
-    if (isFailed) {
-      return "bg-state-error";
-    }
-    return "bg-primary";
-  };
-
   return (
     <Pressable
       onPress={onPress}
-      className={`${getBackgroundColor()} rounded-2xl px-4 py-3 mb-2 shadow-lg active:opacity-90`}
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-        elevation: 4,
-      }}
+      className="flex-row items-center py-4 px-5 min-h-16"
     >
-      <View className="flex-row items-center">
+      <View className="flex-row items-center flex-1">
         {/* Icon */}
-        <Animated.View style={iconContainerStyle} className="mr-3">
-          {isComplete && <CheckCircleIcon size={24} color="#FFFFFF" weight="fill" />}
-          {isFailed && <WarningCircleIcon size={24} color="#FFFFFF" weight="fill" />}
+        <Animated.View style={iconContainerStyle} className="mr-4">
+          {isComplete && <CheckCircleIcon size={28} color="white" weight="fill" />}
+          {isFailed && <WarningCircleIcon size={28} color="white" weight="fill" />}
           {isInProgress && (
             <Animated.View style={spinnerStyle}>
-              <SpinnerIcon size={24} color="#FFFFFF" weight="bold" />
+              <SpinnerIcon size={28} color="white" weight="bold" />
             </Animated.View>
           )}
         </Animated.View>
 
         {/* Content */}
-        <View className="flex-1">
-          {/* Status text */}
-          <Text className="text-white font-semibold text-sm" numberOfLines={1}>
-            {getStatusText()}
-          </Text>
+        <View className="flex-1 justify-center">
+          {/* Row 1: Current step (left) & Percentage (right) */}
+          <View className="flex-row items-center justify-between">
+            <Animated.Text
+              style={isInProgress ? shimmerStyle : { opacity: 1, color: "white" }}
+              className="text-white font-bold text-sm flex-1 mr-4"
+              numberOfLines={1}
+            >
+              {job.current_step || getStatusText()}
+            </Animated.Text>
 
-          {/* Progress bar (only for in-progress jobs) */}
-          {isInProgress && (
-            <View className="mt-2 h-1.5 bg-white/30 rounded-full overflow-hidden">
-              <Animated.View
-                style={progressBarStyle}
-                className="h-full bg-white rounded-full"
-              />
+            {isInProgress && (
+              <Text className="text-white font-bold text-xs tabular-nums">
+                {Math.round(job.progress_percentage)}%
+              </Text>
+            )}
+          </View>
+
+          {/* Row 2: Progress bar (only for in-progress jobs) */}
+          {isInProgress ? (
+            <View className="h-2 w-full overflow-hidden rounded-full bg-white/20 mt-2">
+              <Animated.View style={progressBarStyle} className="h-full rounded-full bg-white" />
             </View>
-          )}
-
-          {/* Progress percentage (only for in-progress jobs) */}
-          {isInProgress && (
-            <Text className="text-white/80 text-xs mt-1">
-              {job.progress_percentage}%
-              {job.current_step ? ` - ${job.current_step}` : ""}
+          ) : (
+            /* Subtext for completed/failed state */
+            <Text className="text-white/70 text-sm" numberOfLines={1}>
+              {isComplete
+                ? t("extraction.widget.tapToView", "Tap to view recipe")
+                : (job.error_message || t("extraction.widget.tapRetry", "Tap to try again"))}
             </Text>
           )}
         </View>
 
         {/* Chevron indicator */}
-        <View className="ml-2">
-          <Text className="text-white/60 text-lg">&gt;</Text>
+        <View className="ml-4">
+          <CaretRightIcon size={20} color="white" weight="bold" />
         </View>
       </View>
     </Pressable>

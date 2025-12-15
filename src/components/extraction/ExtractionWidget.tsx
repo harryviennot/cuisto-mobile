@@ -1,22 +1,39 @@
 /**
  * Extraction Widget
  *
- * A floating widget that displays minimized extraction jobs above the tab bar.
- * Allows users to see extraction progress while navigating the app.
+ * A floating widget that displays minimized extraction jobs.
  *
  * Features:
- * - Positioned above the tab bar
- * - Animated entrance/exit
- * - Shows all minimized extraction jobs stacked
- * - Tap to expand (navigate to full preview)
+ * - Single expandable container
+ * - Glassmorphism effect with BlurView
+ * - Collapsed state: Shows summary (e.g. "X active • Y ready")
+ * - Expanded state: Shows detailed list of all jobs
+ * - Dynamic positioning: Above tab bar (if visible) or at bottom (+12px)
  */
-import React from "react";
-import { View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { FadeInDown, FadeOutDown, Layout } from "react-native-reanimated";
-import { useDeviceType } from "@/hooks/useDeviceType";
+import Animated, {
+  FadeInDown,
+  FadeOutDown,
+  Layout,
+  useAnimatedStyle,
+  withSpring,
+  useSharedValue,
+  LinearTransition,
+} from "react-native-reanimated";
+import { useSegments } from "expo-router";
+import {
+  CaretUpIcon,
+  CaretDownIcon,
+  SpinnerIcon,
+  CheckCircleIcon,
+} from "phosphor-react-native";
+import { useTranslation } from "react-i18next";
 import type { ExtractionJob } from "@/contexts/ExtractionContext";
+import { ExtractionStatus } from "@/types/extraction";
 import { ExtractionWidgetItem } from "./ExtractionWidgetItem";
+import { Line } from "react-native-svg";
 
 interface ExtractionWidgetProps {
   jobs: ExtractionJob[];
@@ -24,46 +41,117 @@ interface ExtractionWidgetProps {
 }
 
 export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { isTablet } = useDeviceType();
+  const segments = useSegments();
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Check if we are on a tab page
+  const isTabBarVisible = segments.some(segment => segment === "(tabs)");
+
+  // Calculate stats
+  const completedCount = jobs.filter(
+    (j) => j.status === ExtractionStatus.COMPLETED
+  ).length;
+  const activeCount = jobs.filter(
+    (j) =>
+      j.status === ExtractionStatus.PENDING ||
+      j.status === ExtractionStatus.PROCESSING
+  ).length;
+
+  // Newest job determines the "face" of the collapsed widget if single
+  const sortedJobs = [...jobs].sort((a, b) => b.createdAt - a.createdAt);
 
   // Calculate bottom offset to position above tab bar
-  // Phone: 45px tab bar + safe area + padding
-  // Tablet: Floating capsule is ~60px + safe area + padding
-  const bottomOffset = isTablet
-    ? insets.bottom + 80  // Above floating capsule tab bar
-    : insets.bottom + 60; // Above standard tab bar (45 + padding)
+  const bottomOffset = isTabBarVisible
+    ? 90 // Above tab bar
+    : insets.bottom + 16; // Bottom of screen + padding
 
-  // Sort jobs by creation time (newest first)
-  const sortedJobs = [...jobs].sort((a, b) => b.createdAt - a.createdAt);
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   return (
     <Animated.View
-      entering={FadeInDown.springify().damping(15).stiffness(150)}
-      exiting={FadeOutDown.duration(200)}
-      layout={Layout.springify()}
+      entering={FadeInDown.damping(20).stiffness(150)}
+      exiting={FadeOutDown.duration(150)}
+      layout={LinearTransition.damping(15).stiffness(20)}
       style={{
         position: "absolute",
         bottom: bottomOffset,
         left: 16,
         right: 16,
         zIndex: 1000,
+        borderRadius: 12,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.25,
+        shadowRadius: 20,
+        elevation: 10,
+        overflow: "hidden",
       }}
+      className="bg-primary"
     >
-      <View>
-        {sortedJobs.map((job, index) => (
-          <Animated.View
-            key={job.id}
-            entering={FadeInDown.delay(index * 50).springify()}
-            layout={Layout.springify()}
-          >
-            <ExtractionWidgetItem
-              job={job}
-              onPress={() => onExpand(job.id)}
-            />
-          </Animated.View>
-        ))}
-      </View>
+      {/* Collapsed Header / Summary */}
+      <Pressable
+        onPress={toggleExpand}
+        className="flex-row items-center justify-between p-5"
+      >
+        <View className="flex-row items-center gap-3">
+          {/* Summary Icon Indicator */}
+          <View className="flex-row -space-x-2">
+            {activeCount > 0 && (
+              <View className="h-8 w-8 items-center justify-center rounded-full bg-white/20">
+                <SpinnerIcon color="white" size={16} weight="bold" />
+              </View>
+            )}
+            {completedCount > 0 && (
+              <View className="h-8 w-8 items-center justify-center rounded-full bg-emerald-500">
+                <CheckCircleIcon color="white" size={16} weight="fill" />
+              </View>
+            )}
+          </View>
+
+          <View>
+            <Text className="text-base font-bold text-white">
+              {activeCount > 0 ? "Extraction in progress" : "Extraction complete"}
+            </Text>
+            <Text className="text-xs text-white/70 font-medium">
+              {activeCount} active • {completedCount} ready
+            </Text>
+          </View>
+        </View>
+
+        <View className="h-8 w-8 items-center justify-center rounded-full bg-white/10">
+          {isExpanded ? (
+            <CaretDownIcon size={16} color="white" weight="bold" />
+          ) : (
+            <CaretUpIcon size={16} color="white" weight="bold" />
+          )}
+        </View>
+      </Pressable>
+
+      {/* Expanded Content */}
+      {isExpanded && (
+        <Animated.View
+          entering={FadeInDown.duration(300).springify()}
+          exiting={FadeOutDown.duration(200)}
+          className="bg-black/10" // Slight darken for the list area
+        >
+          {/* <View className="h-[1px] bg-white/10 mx-5" /> */}
+          <View className="max-h-72">
+            {sortedJobs.map((job, index) => (
+              <View key={job.id}>
+                <ExtractionWidgetItem job={job} onPress={() => onExpand(job.id)} />
+                {index < sortedJobs.length - 1 && (
+                  <View className="h-[1px] bg-border-dark/10" />
+                )}
+              </View>
+            ))}
+          </View>
+        </Animated.View>
+      )}
     </Animated.View>
   );
 }
+
