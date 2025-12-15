@@ -7,7 +7,7 @@ import Animated, { FadeIn } from "react-native-reanimated";
 import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
 
-import { extractionService } from "@/api/services/extraction.service";
+import { useExtraction } from "@/contexts/ExtractionContext";
 import { SourceType } from "@/types/extraction";
 import {
   LinkInput,
@@ -27,6 +27,9 @@ export default function ExtractionScreen() {
   const { method } = useLocalSearchParams<{ method: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  // Use extraction context for submission
+  const { startExtraction, startImageExtraction, canStartNewExtraction } = useExtraction();
 
   const METHOD_CONFIG = {
     link: {
@@ -91,6 +94,20 @@ export default function ExtractionScreen() {
 
   const handleExtract = async () => {
     if (isSubmitting) return;
+
+    // Check if user can start a new extraction (premium feature gate)
+    if (!canStartNewExtraction()) {
+      Toast.show({
+        type: "info",
+        text1: t("extraction.errors.alreadyInProgress", "Extraction in progress"),
+        text2: t(
+          "extraction.errors.waitForCompletion",
+          "Please wait for the current extraction to complete."
+        ),
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -111,7 +128,8 @@ export default function ExtractionScreen() {
           } as unknown as Blob);
         });
 
-        const response = await extractionService.submitImages(formData);
+        // Use context to start extraction (handles SSE connection)
+        const jobId = await startImageExtraction(formData);
 
         // Mark all as completed on success
         const completedStates: Record<number, UploadState> = {};
@@ -120,10 +138,10 @@ export default function ExtractionScreen() {
         });
         setUploadStates(completedStates);
 
-        if (response && response.job_id) {
+        if (jobId) {
           router.replace({
             pathname: "/extraction/preview",
-            params: { jobId: response.job_id },
+            params: { jobId },
           });
         }
       } else if (inputValue.trim()) {
@@ -141,15 +159,16 @@ export default function ExtractionScreen() {
           payload = { text_content: inputValue };
         }
 
-        const response = await extractionService.submit({
+        // Use context to start extraction (handles SSE connection)
+        const jobId = await startExtraction({
           source_type: sourceType,
           ...payload,
         });
 
-        if (response && response.id) {
+        if (jobId) {
           router.replace({
             pathname: "/extraction/preview",
-            params: { jobId: response.id },
+            params: { jobId },
           });
         }
       }
