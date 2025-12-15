@@ -28,11 +28,16 @@ function ProtectedContent() {
     // Mark as expanded
     expandJob(jobId);
 
-    // Always go to preview - it handles all states appropriately
-    // (progress for in-progress, recipe with save/discard for completed)
+    // For completed jobs, pass recipeId so preview can load recipe immediately
+    // without showing progress state first
+    const recipeId = job.existing_recipe_id || job.recipe_id;
+
     router.push({
       pathname: "/extraction/preview",
-      params: { jobId },
+      params: {
+        jobId,
+        ...(job.status === "completed" && recipeId ? { recipeId, isCompleted: "true" } : {}),
+      },
     });
   };
 

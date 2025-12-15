@@ -60,7 +60,11 @@ function isPrivateSourceType(sourceType?: string): boolean {
 
 export default function UnifiedRecipePreviewScreen() {
   const { t } = useTranslation();
-  const { jobId } = useLocalSearchParams<{ jobId: string }>();
+  const { jobId, recipeId: passedRecipeId, isCompleted } = useLocalSearchParams<{
+    jobId: string;
+    recipeId?: string;
+    isCompleted?: string;
+  }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
@@ -68,8 +72,9 @@ export default function UnifiedRecipePreviewScreen() {
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [recipeId, setRecipeId] = useState<string | null>(null);
-  const [initialJobLoaded, setInitialJobLoaded] = useState(false);
+  // Initialize recipeId from URL params if provided (for completed jobs from widget)
+  const [recipeId, setRecipeId] = useState<string | null>(passedRecipeId || null);
+  const [initialJobLoaded, setInitialJobLoaded] = useState(isCompleted === "true");
 
   // Privacy bottom sheet state
   const privacySheetRef = useRef<BottomSheetModal>(null);
@@ -232,7 +237,7 @@ export default function UnifiedRecipePreviewScreen() {
 
     // For duplicates, just navigate away
     if (isDuplicate) {
-      router.replace("/");
+      router.dismissTo("/(protected)/(tabs)");
       return;
     }
 
@@ -247,7 +252,7 @@ export default function UnifiedRecipePreviewScreen() {
       }
     }
 
-    router.replace("/");
+    router.dismissTo("/(protected)/(tabs)");
   };
 
   /**
@@ -430,6 +435,20 @@ export default function UnifiedRecipePreviewScreen() {
           </View>
         </PremiumBottomSheet>
       </>
+    );
+  }
+
+  // If we have recipeId but recipe not loaded yet, show recipe loading state
+  // (this happens when coming from widget for completed job)
+  if (recipeId && !recipe) {
+    return (
+      <RecipeDetail
+        recipe={undefined}
+        isLoading={true}
+        onBack={() => router.dismissTo("/(protected)/(tabs)")}
+        isDraft={true}
+        showHeader={false}
+      />
     );
   }
 

@@ -2,7 +2,7 @@ import "@/global.css";
 import { View, Text, Linking } from "react-native";
 import {
   CheckIcon,
-  TrashIcon,
+  XIcon,
   ShareNetworkIcon,
   // PencilIcon,
   PlayIcon,
@@ -100,7 +100,7 @@ export function RecipeActionButtons({
       {/* Share Button */}
       {isDraft ? (
         <ShadowItem onPress={onDecline} className="w-14 h-14  border border-danger ">
-          <TrashIcon size={20} color="#c65d47" weight="regular" />
+          <XIcon size={20} color="#c65d47" weight="regular" />
         </ShadowItem>
       ) : (
         <ShadowItem onPress={onShare} className="w-14 h-14">
