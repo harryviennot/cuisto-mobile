@@ -85,8 +85,8 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
         borderRadius: 12,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.25,
-        shadowRadius: 20,
+        shadowOpacity: 0.6,
+        shadowRadius: 30,
         elevation: 10,
         overflow: "hidden",
       }}
