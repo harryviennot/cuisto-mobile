@@ -186,6 +186,10 @@
       "extracting": "Extracting recipe...",
       "tapToView": "Tap to view recipe",
       "tapRetry": "Tap to try again"
+    },
+    "limitReached": {
+      "title": "Extraction in progress",
+      "message": "Please wait for your current extraction to finish before starting a new one."
     }
   },
   "recipe": {

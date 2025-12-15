@@ -319,8 +319,8 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
     );
     // For now, allow only 1 concurrent extraction
     // TODO: Check isPremium from auth/subscription context
-    const isPremium = true;
-    return isPremium || inProgressJobs.length === 0;
+    const isPremium = false;
+    return isPremium || activeJobs.length === 0;
   }, [activeJobs]);
 
   /**

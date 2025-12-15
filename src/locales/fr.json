@@ -186,6 +186,10 @@
       "extracting": "Extraction de la recette...",
       "tapToView": "Appuyez pour voir la recette",
       "tapRetry": "Appuyez pour réessayer"
+    },
+    "limitReached": {
+      "title": "Extraction en cours",
+      "message": "Veuillez attendre la fin de l'extraction actuelle avant d'en commencer une nouvelle."
     }
   },
   "recipe": {

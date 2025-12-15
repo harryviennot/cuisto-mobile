@@ -16,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
+import { useExtraction } from "@/contexts/ExtractionContext";
 
 type ExtractionMethod = "image" | "link" | "voice" | "text";
 
@@ -24,8 +25,18 @@ export default function NewRecipeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { isTablet } = useDeviceType();
+  const { canStartNewExtraction } = useExtraction();
 
   const handleMethodSelect = (method: ExtractionMethod) => {
+    // Check if user can start a new extraction (free users limited to 1 concurrent)
+    if (!canStartNewExtraction()) {
+      Toast.show({
+        type: "info",
+        text1: t("extraction.limitReached.title"),
+        text2: t("extraction.limitReached.message"),
+      });
+      return;
+    }
     router.push(`/extraction/${method}`);
   };
 
