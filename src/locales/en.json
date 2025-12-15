@@ -175,6 +175,17 @@
       "preparing": "Preparing recipe data...",
       "generating_image": "Generating recipe image...",
       "saving": "Saving recipe..."
+    },
+    "widget": {
+      "inProgress": "Extraction in progress",
+      "complete": "Extraction complete",
+      "activeCount": "{{count}} active",
+      "readyCount": "{{count}} ready",
+      "failedCount": "{{count}} failed",
+      "recipeReady": "Recipe ready!",
+      "extracting": "Extracting recipe...",
+      "tapToView": "Tap to view recipe",
+      "tapRetry": "Tap to try again"
     }
   },
   "recipe": {

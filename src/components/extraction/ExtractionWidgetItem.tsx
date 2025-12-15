@@ -19,6 +19,7 @@ import Animated, {
   withSequence,
   Easing,
   interpolate,
+  cancelAnimation,
 } from "react-native-reanimated";
 import { CheckCircleIcon, WarningCircleIcon, SpinnerIcon, CaretRightIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
@@ -29,9 +30,11 @@ import { getExtractionStepText } from "@/utils/extraction-steps";
 interface ExtractionWidgetItemProps {
   job: ExtractionJob;
   onPress: () => void;
+  /** When true, skips running animations (for measurement containers) */
+  disableAnimations?: boolean;
 }
 
-export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps) {
+function ExtractionWidgetItemComponent({ job, onPress, disableAnimations = false }: ExtractionWidgetItemProps) {
   const { t } = useTranslation();
 
   // Animated progress value
@@ -65,14 +68,16 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
 
   // Animate spinner for in-progress state
   useEffect(() => {
-    if (isInProgress) {
+    if (isInProgress && !disableAnimations) {
       spinnerRotation.value = withRepeat(
         withTiming(360, { duration: 1000, easing: Easing.linear }),
         -1,
         false
       );
+    } else {
+      cancelAnimation(spinnerRotation);
     }
-  }, [isInProgress, spinnerRotation]);
+  }, [isInProgress, disableAnimations, spinnerRotation]);
 
   // Pulse animation on completion
   useEffect(() => {
@@ -96,7 +101,7 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
   const shimmerAnimation = useSharedValue(0);
 
   useEffect(() => {
-    if (isInProgress) {
+    if (isInProgress && !disableAnimations) {
       shimmerAnimation.value = withRepeat(
         withSequence(
           withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
@@ -105,8 +110,10 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
         -1,
         false
       );
+    } else {
+      cancelAnimation(shimmerAnimation);
     }
-  }, [isInProgress, shimmerAnimation]);
+  }, [isInProgress, disableAnimations, shimmerAnimation]);
 
   const shimmerStyle = useAnimatedStyle(() => {
     const opacity = interpolate(shimmerAnimation.value, [0, 0.5, 1], [0.5, 1, 0.5]);
@@ -116,18 +123,18 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
   // Get status text
   const getStatusText = () => {
     if (isComplete) {
-      return t("extraction.widget.recipeReady", "Recipe ready!");
+      return t("extraction.widget.recipeReady");
     }
     if (isFailed) {
       if (job.status === ExtractionStatus.NOT_A_RECIPE) {
-        return t("extraction.widget.notARecipe", "Not a recipe");
+        return t("errors.notARecipe");
       }
       if (job.status === ExtractionStatus.WEBSITE_BLOCKED) {
-        return t("extraction.widget.websiteBlocked", "Website blocked");
+        return t("errors.websiteBlocked");
       }
-      return t("extraction.widget.failed", "Extraction failed");
+      return t("errors.extractionFailed");
     }
-    return t("extraction.widget.extracting", "Extracting recipe...");
+    return t("extraction.widget.extracting");
   };
 
   return (
@@ -189,3 +196,5 @@ export function ExtractionWidgetItem({ job, onPress }: ExtractionWidgetItemProps
     </Pressable>
   );
 }
+
+export const ExtractionWidgetItem = React.memo(ExtractionWidgetItemComponent);

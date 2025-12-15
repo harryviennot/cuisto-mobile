@@ -175,6 +175,17 @@
       "preparing": "Préparation des données...",
       "generating_image": "Génération de l'image...",
       "saving": "Enregistrement de la recette..."
+    },
+    "widget": {
+      "inProgress": "Extraction en cours",
+      "complete": "Extraction terminée",
+      "activeCount": "{{count}} en cours",
+      "readyCount": "{{count}} prête(s)",
+      "failedCount": "{{count}} échouée(s)",
+      "recipeReady": "Recette prête !",
+      "extracting": "Extraction de la recette...",
+      "tapToView": "Appuyez pour voir la recette",
+      "tapRetry": "Appuyez pour réessayer"
     }
   },
   "recipe": {

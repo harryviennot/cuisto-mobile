@@ -260,7 +260,9 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
               : event.data;
 
             console.log(
-              `[Extraction] SSE update for ${jobId}: ${data.progress_percentage}% - ${data.current_step}`
+              `[Extraction] SSE update for ${jobId}: ${data.progress_percentage}% - ${data.current_step}`,
+              data.recipe_id ? `recipe_id=${data.recipe_id}` : '',
+              data.existing_recipe_id ? `existing_recipe_id=${data.existing_recipe_id}` : ''
             );
 
             // Update job state

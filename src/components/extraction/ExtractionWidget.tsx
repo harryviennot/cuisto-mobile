@@ -26,6 +26,7 @@ import {
   SpinnerIcon,
   CheckCircleIcon,
 } from "phosphor-react-native";
+import { useTranslation } from "react-i18next";
 import type { ExtractionJob } from "@/contexts/ExtractionContext";
 import { ExtractionStatus } from "@/types/extraction";
 import { ExtractionWidgetItem } from "./ExtractionWidgetItem";
@@ -35,7 +36,8 @@ interface ExtractionWidgetProps {
   onExpand: (jobId: string) => void;
 }
 
-export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
+function ExtractionWidgetComponent({ jobs, onExpand }: ExtractionWidgetProps) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const segments = useSegments();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -56,8 +58,24 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
   ).length;
   const erroredCount = jobs.filter((j) => j.status === ExtractionStatus.FAILED || j.status === ExtractionStatus.NOT_A_RECIPE || j.status === ExtractionStatus.WEBSITE_BLOCKED).length;
 
-  // Newest job determines the "face" of the collapsed widget if single
-  const sortedJobs = [...jobs].sort((a, b) => b.createdAt - a.createdAt);
+  // Helper to check if job is in-progress
+  const isJobInProgress = (job: ExtractionJob) =>
+    job.status === ExtractionStatus.PENDING || job.status === ExtractionStatus.PROCESSING;
+
+  // Sort jobs: finished (completed/failed/etc) at top, in-progress at bottom
+  // Within each group, sort by createdAt (newest first)
+  const sortedJobs = [...jobs].sort((a, b) => {
+    const aInProgress = isJobInProgress(a);
+    const bInProgress = isJobInProgress(b);
+
+    // Different groups: finished jobs come first (top)
+    if (aInProgress !== bInProgress) {
+      return aInProgress ? 1 : -1; // In-progress goes to bottom
+    }
+
+    // Same group: sort by createdAt (newest first)
+    return b.createdAt - a.createdAt;
+  });
 
   // Calculate bottom offset to position above tab bar
   const bottomOffset = isTabBarVisible
@@ -134,7 +152,7 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
             >
               {sortedJobs.map((job, index) => (
                 <View key={job.id}>
-                  <ExtractionWidgetItem job={job} onPress={() => { }} />
+                  <ExtractionWidgetItem job={job} onPress={() => { }} disableAnimations />
                   {index < sortedJobs.length - 1 && <View className="h-[1px] bg-border-dark/10" />}
                 </View>
               ))}
@@ -166,10 +184,10 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
 
                 <View>
                   <Text className="text-base font-bold text-white">
-                    {activeCount > 0 ? "Extraction in progress" : "Extraction complete"}
+                    {activeCount > 0 ? t("extraction.widget.inProgress") : t("extraction.widget.complete")}
                   </Text>
                   <Text className="text-xs text-white/70 font-medium">
-                    {activeCount} active • {completedCount} ready • {completedCount} failed
+                    {t("extraction.widget.activeCount", { count: activeCount })} • {t("extraction.widget.readyCount", { count: completedCount })}{erroredCount > 0 ? ` • ${t("extraction.widget.failedCount", { count: erroredCount })}` : ""}
                   </Text>
                 </View>
               </View>
@@ -188,3 +206,5 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
     </Animated.View>
   );
 }
+
+export const ExtractionWidget = React.memo(ExtractionWidgetComponent);
