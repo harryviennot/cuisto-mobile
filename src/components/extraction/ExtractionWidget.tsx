@@ -72,76 +72,89 @@ export function ExtractionWidget({ jobs, onExpand }: ExtractionWidgetProps) {
         left: 8,
         right: 8,
         zIndex: 1000,
-        borderRadius: 12,
+        // Shadow container - no overflow hidden here so shadow renders
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.6,
-        shadowRadius: 30,
-        elevation: 10,
-        overflow: "hidden",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.45,
+        shadowRadius: 16,
+        elevation: 24, // Higher elevation for more prominent Android shadow
       }}
-      className="bg-primary"
     >
-      {isSingleJob ? (
-        // Single job: show widget item directly without header
-        <ExtractionWidgetItem job={sortedJobs[0]} onPress={() => onExpand(sortedJobs[0].id)} />
-      ) : (
-        <>
-          {/* Multiple jobs: Collapsed Header / Summary */}
-          <Pressable onPress={toggleExpand} className="flex-row items-center justify-between p-5">
-            <View className="flex-row items-center gap-3">
-              {/* Summary Icon Indicator */}
-              <View className="flex-row -space-x-2">
-                {activeCount > 0 && (
-                  <View className="h-8 w-8 items-center justify-center rounded-full bg-white/20">
-                    <SpinnerIcon color="white" size={16} weight="bold" />
-                  </View>
+      {/* Inner container with overflow hidden for rounded corners */}
+      <View
+        style={{
+          borderRadius: 16,
+          overflow: "hidden",
+          // Secondary subtle shadow for depth
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.45,
+          shadowRadius: 16,
+          elevation: 24, // Higher elevation for more prominent Android shadow
+        }}
+        className="bg-primary"
+      >
+        {isSingleJob ? (
+          // Single job: show widget item directly without header
+          <ExtractionWidgetItem job={sortedJobs[0]} onPress={() => onExpand(sortedJobs[0].id)} />
+        ) : (
+          <>
+            {/* Multiple jobs: Collapsed Header / Summary */}
+            <Pressable onPress={toggleExpand} className="flex-row items-center justify-between p-5">
+              <View className="flex-row items-center gap-3">
+                {/* Summary Icon Indicator */}
+                <View className="flex-row -space-x-2">
+                  {activeCount > 0 && (
+                    <View className="h-8 w-8 items-center justify-center rounded-full bg-white/20">
+                      <SpinnerIcon color="white" size={16} weight="bold" />
+                    </View>
+                  )}
+                  {completedCount > 0 && (
+                    <View className="h-8 w-8 items-center justify-center rounded-full bg-emerald-500">
+                      <CheckCircleIcon color="white" size={16} weight="fill" />
+                    </View>
+                  )}
+                </View>
+
+                <View>
+                  <Text className="text-base font-bold text-white">
+                    {activeCount > 0 ? "Extraction in progress" : "Extraction complete"}
+                  </Text>
+                  <Text className="text-xs text-white/70 font-medium">
+                    {activeCount} active • {completedCount} ready
+                  </Text>
+                </View>
+              </View>
+
+              <View className="h-8 w-8 items-center justify-center rounded-full bg-white/10">
+                {isExpanded ? (
+                  <CaretDownIcon size={16} color="white" weight="bold" />
+                ) : (
+                  <CaretUpIcon size={16} color="white" weight="bold" />
                 )}
-                {completedCount > 0 && (
-                  <View className="h-8 w-8 items-center justify-center rounded-full bg-emerald-500">
-                    <CheckCircleIcon color="white" size={16} weight="fill" />
-                  </View>
-                )}
               </View>
+            </Pressable>
 
-              <View>
-                <Text className="text-base font-bold text-white">
-                  {activeCount > 0 ? "Extraction in progress" : "Extraction complete"}
-                </Text>
-                <Text className="text-xs text-white/70 font-medium">
-                  {activeCount} active • {completedCount} ready
-                </Text>
-              </View>
-            </View>
-
-            <View className="h-8 w-8 items-center justify-center rounded-full bg-white/10">
-              {isExpanded ? (
-                <CaretDownIcon size={16} color="white" weight="bold" />
-              ) : (
-                <CaretUpIcon size={16} color="white" weight="bold" />
-              )}
-            </View>
-          </Pressable>
-
-          {/* Expanded Content */}
-          {isExpanded && (
-            <Animated.View
-              entering={FadeInDown.duration(300).springify()}
-              exiting={FadeOutDown.duration(200)}
-              className="bg-black/10"
-            >
-              <View className="max-h-72">
-                {sortedJobs.map((job, index) => (
-                  <View key={job.id}>
-                    <ExtractionWidgetItem job={job} onPress={() => onExpand(job.id)} />
-                    {index < sortedJobs.length - 1 && <View className="h-[1px] bg-border-dark/10" />}
-                  </View>
-                ))}
-              </View>
-            </Animated.View>
-          )}
-        </>
-      )}
+            {/* Expanded Content */}
+            {isExpanded && (
+              <Animated.View
+                entering={FadeInDown.duration(300).springify()}
+                exiting={FadeOutDown.duration(200)}
+                className="bg-black/10"
+              >
+                <View className="max-h-72">
+                  {sortedJobs.map((job, index) => (
+                    <View key={job.id}>
+                      <ExtractionWidgetItem job={job} onPress={() => onExpand(job.id)} />
+                      {index < sortedJobs.length - 1 && <View className="h-[1px] bg-border-dark/10" />}
+                    </View>
+                  ))}
+                </View>
+              </Animated.View>
+            )}
+          </>
+        )}
+      </View>
     </Animated.View>
   );
 }
