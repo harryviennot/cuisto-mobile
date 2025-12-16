@@ -76,7 +76,7 @@ export const videoDownloadService = {
     }
 
     const fileInfo = await getInfoAsync(result.uri);
-    const size = fileInfo.exists && "size" in fileInfo ? fileInfo.size ?? 0 : 0;
+    const size = fileInfo.exists && "size" in fileInfo ? (fileInfo.size ?? 0) : 0;
 
     console.log(`[VideoDownload] Download complete: ${size} bytes`);
 
@@ -177,11 +177,18 @@ export const videoDownloadService = {
 
     try {
       // Step 1: Download video
-      const downloadResult = await videoDownloadService.downloadVideo(downloadUrl, onDownloadProgress);
+      const downloadResult = await videoDownloadService.downloadVideo(
+        downloadUrl,
+        onDownloadProgress
+      );
       localUri = downloadResult.localUri;
 
       // Step 2: Upload to server
-      const uploadResult = await videoDownloadService.uploadVideo(localUri, jobId, onUploadProgress);
+      const uploadResult = await videoDownloadService.uploadVideo(
+        localUri,
+        jobId,
+        onUploadProgress
+      );
 
       // Step 3: Resume extraction
       await videoDownloadService.resumeExtraction(jobId, uploadResult.path);

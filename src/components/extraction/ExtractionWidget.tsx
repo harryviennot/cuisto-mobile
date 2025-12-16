@@ -20,12 +20,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { useSegments } from "expo-router";
-import {
-  CaretUpIcon,
-  CaretDownIcon,
-  SpinnerIcon,
-  CheckCircleIcon,
-} from "phosphor-react-native";
+import { CaretUpIcon, CaretDownIcon, SpinnerIcon, CheckCircleIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import type { ExtractionJob } from "@/contexts/ExtractionContext";
 import { ExtractionStatus } from "@/types/extraction";
@@ -56,7 +51,12 @@ function ExtractionWidgetComponent({ jobs, onExpand }: ExtractionWidgetProps) {
   const activeCount = jobs.filter(
     (j) => j.status === ExtractionStatus.PENDING || j.status === ExtractionStatus.PROCESSING
   ).length;
-  const erroredCount = jobs.filter((j) => j.status === ExtractionStatus.FAILED || j.status === ExtractionStatus.NOT_A_RECIPE || j.status === ExtractionStatus.WEBSITE_BLOCKED).length;
+  const erroredCount = jobs.filter(
+    (j) =>
+      j.status === ExtractionStatus.FAILED ||
+      j.status === ExtractionStatus.NOT_A_RECIPE ||
+      j.status === ExtractionStatus.WEBSITE_BLOCKED
+  ).length;
 
   // Helper to check if job is in-progress
   const isJobInProgress = (job: ExtractionJob) =>
@@ -83,12 +83,15 @@ function ExtractionWidgetComponent({ jobs, onExpand }: ExtractionWidgetProps) {
     : insets.bottom + 12; // Bottom of screen + padding
 
   // Measure the actual content height
-  const onContentLayout = useCallback((event: LayoutChangeEvent) => {
-    const { height } = event.nativeEvent.layout;
-    if (height > 0 && height !== contentHeight) {
-      setContentHeight(height);
-    }
-  }, [contentHeight]);
+  const onContentLayout = useCallback(
+    (event: LayoutChangeEvent) => {
+      const { height } = event.nativeEvent.layout;
+      if (height > 0 && height !== contentHeight) {
+        setContentHeight(height);
+      }
+    },
+    [contentHeight]
+  );
 
   const toggleExpand = useCallback(() => {
     const newExpanded = !isExpanded;
@@ -155,7 +158,7 @@ function ExtractionWidgetComponent({ jobs, onExpand }: ExtractionWidgetProps) {
             >
               {sortedJobs.map((job, index) => (
                 <View key={job.id}>
-                  <ExtractionWidgetItem job={job} onPress={() => { }} disableAnimations />
+                  <ExtractionWidgetItem job={job} onPress={() => {}} disableAnimations />
                   {index < sortedJobs.length - 1 && <View className="h-[1px] bg-border-dark/10" />}
                 </View>
               ))}
@@ -187,10 +190,16 @@ function ExtractionWidgetComponent({ jobs, onExpand }: ExtractionWidgetProps) {
 
                 <View>
                   <Text className="text-base font-bold text-white">
-                    {activeCount > 0 ? t("extraction.widget.inProgress") : t("extraction.widget.complete")}
+                    {activeCount > 0
+                      ? t("extraction.widget.inProgress")
+                      : t("extraction.widget.complete")}
                   </Text>
                   <Text className="text-xs text-white/70 font-medium">
-                    {t("extraction.widget.activeCount", { count: activeCount })} • {t("extraction.widget.readyCount", { count: completedCount })}{erroredCount > 0 ? ` • ${t("extraction.widget.failedCount", { count: erroredCount })}` : ""}
+                    {t("extraction.widget.activeCount", { count: activeCount })} •{" "}
+                    {t("extraction.widget.readyCount", { count: completedCount })}
+                    {erroredCount > 0
+                      ? ` • ${t("extraction.widget.failedCount", { count: erroredCount })}`
+                      : ""}
                   </Text>
                 </View>
               </View>

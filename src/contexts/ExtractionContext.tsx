@@ -11,20 +11,13 @@
  * - Minimize/expand functionality for non-blocking UX
  * - Premium feature gate for multiple concurrent extractions
  */
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-} from "react";
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
 import RNEventSource from "react-native-sse";
 import { supabase } from "@/lib/supabase";
 import { API_URL } from "@/api/api-client";
 import { extractionService, SubmitExtractionRequest } from "@/api/services/extraction.service";
 import { videoDownloadService, VideoDownloadProgress } from "@/api/services/video-download.service";
-import type { ExtractionJob as BaseExtractionJob, ExtractionStatus, ExtractionStep } from "@/types/extraction";
+import type { ExtractionJob as BaseExtractionJob, ExtractionStatus } from "@/types/extraction";
 
 // ============================================================================
 // TYPES
@@ -146,9 +139,7 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
    * Update a job in the active jobs list
    */
   const updateJob = useCallback((jobId: string, updates: Partial<ExtractionJob>) => {
-    setActiveJobs((prev) =>
-      prev.map((job) => (job.id === jobId ? { ...job, ...updates } : job))
-    );
+    setActiveJobs((prev) => prev.map((job) => (job.id === jobId ? { ...job, ...updates } : job)));
   }, []);
 
   /**
@@ -234,16 +225,14 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
         if (createSSEConnectionRef.current) {
           createSSEConnectionRef.current(jobId);
         }
-
       } catch (error) {
         console.error(`[Extraction] Client download failed for job ${jobId}:`, error);
 
         updateJob(jobId, {
           isClientDownloading: false,
           status: "failed" as ExtractionStatus,
-          error_message: error instanceof Error
-            ? error.message
-            : "Failed to download video from Instagram",
+          error_message:
+            error instanceof Error ? error.message : "Failed to download video from Instagram",
           progress_percentage: 0,
         });
       }
@@ -263,7 +252,9 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
       }
 
       // Get auth token
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       const token = session?.access_token;
 
       if (!token) {
@@ -294,16 +285,16 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
           if (isUnmountedRef.current || isCompleted) return;
 
           try {
-            const data = typeof event.data === "string"
-              ? JSON.parse(event.data)
-              : event.data;
+            const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
 
             console.log(
               `[Extraction] SSE update for ${jobId}: ${data.progress_percentage}% - ${data.current_step}`,
               `status=${data.status}`,
-              data.video_download_url ? `video_url=${data.video_download_url.substring(0, 50)}...` : '',
-              data.recipe_id ? `recipe_id=${data.recipe_id}` : '',
-              data.existing_recipe_id ? `existing_recipe_id=${data.existing_recipe_id}` : ''
+              data.video_download_url
+                ? `video_url=${data.video_download_url.substring(0, 50)}...`
+                : "",
+              data.recipe_id ? `recipe_id=${data.recipe_id}` : "",
+              data.existing_recipe_id ? `existing_recipe_id=${data.existing_recipe_id}` : ""
             );
 
             // Update job state
@@ -376,9 +367,9 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
    * TODO: Integrate with premium/subscription status
    */
   const canStartNewExtraction = useCallback((): boolean => {
-    const inProgressJobs = activeJobs.filter(
-      (job) => job.status === ("pending" as ExtractionStatus) || job.status === ("processing" as ExtractionStatus)
-    );
+    // const inProgressJobs = activeJobs.filter(
+    //   (job) => job.status === ("pending" as ExtractionStatus) || job.status === ("processing" as ExtractionStatus)
+    // );
     // For now, allow only 1 concurrent extraction
     // TODO: Check isPremium from auth/subscription context
     const isPremium = false;
@@ -442,16 +433,22 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
   /**
    * Minimize a job to the widget
    */
-  const minimizeJob = useCallback((jobId: string) => {
-    updateJob(jobId, { isMinimized: true });
-  }, [updateJob]);
+  const minimizeJob = useCallback(
+    (jobId: string) => {
+      updateJob(jobId, { isMinimized: true });
+    },
+    [updateJob]
+  );
 
   /**
    * Expand a job from the widget
    */
-  const expandJob = useCallback((jobId: string) => {
-    updateJob(jobId, { isMinimized: false });
-  }, [updateJob]);
+  const expandJob = useCallback(
+    (jobId: string) => {
+      updateJob(jobId, { isMinimized: false });
+    },
+    [updateJob]
+  );
 
   /**
    * Dismiss/remove a job from tracking
@@ -510,7 +507,9 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
   const minimizedJobs = activeJobs.filter((job) => job.isMinimized);
   const hasMinimizedJobs = minimizedJobs.length > 0;
   const inProgressCount = activeJobs.filter(
-    (job) => job.status === ("pending" as ExtractionStatus) || job.status === ("processing" as ExtractionStatus)
+    (job) =>
+      job.status === ("pending" as ExtractionStatus) ||
+      job.status === ("processing" as ExtractionStatus)
   ).length;
 
   // ============================================================================
@@ -551,11 +550,7 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
     inProgressCount,
   };
 
-  return (
-    <ExtractionContext.Provider value={value}>
-      {children}
-    </ExtractionContext.Provider>
-  );
+  return <ExtractionContext.Provider value={value}>{children}</ExtractionContext.Provider>;
 }
 
 // ============================================================================

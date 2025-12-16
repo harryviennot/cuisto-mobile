@@ -67,9 +67,7 @@ function ProtectedContent() {
       </Stack>
 
       {/* Extraction widget for minimized jobs */}
-      {hasMinimizedJobs && (
-        <ExtractionWidget jobs={minimizedJobs} onExpand={handleExpandJob} />
-      )}
+      {hasMinimizedJobs && <ExtractionWidget jobs={minimizedJobs} onExpand={handleExpandJob} />}
     </>
   );
 }

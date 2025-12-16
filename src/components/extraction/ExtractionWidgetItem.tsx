@@ -21,7 +21,12 @@ import Animated, {
   interpolate,
   cancelAnimation,
 } from "react-native-reanimated";
-import { CheckCircleIcon, WarningCircleIcon, SpinnerIcon, CaretRightIcon } from "phosphor-react-native";
+import {
+  CheckCircleIcon,
+  WarningCircleIcon,
+  SpinnerIcon,
+  CaretRightIcon,
+} from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import type { ExtractionJob } from "@/contexts/ExtractionContext";
 import { ExtractionStatus } from "@/types/extraction";
@@ -34,7 +39,11 @@ interface ExtractionWidgetItemProps {
   disableAnimations?: boolean;
 }
 
-function ExtractionWidgetItemComponent({ job, onPress, disableAnimations = false }: ExtractionWidgetItemProps) {
+function ExtractionWidgetItemComponent({
+  job,
+  onPress,
+  disableAnimations = false,
+}: ExtractionWidgetItemProps) {
   const { t } = useTranslation();
 
   // Animated progress value
@@ -52,7 +61,8 @@ function ExtractionWidgetItemComponent({ job, onPress, disableAnimations = false
     job.status === ExtractionStatus.FAILED ||
     job.status === ExtractionStatus.NOT_A_RECIPE ||
     job.status === ExtractionStatus.WEBSITE_BLOCKED;
-  const isInProgress = job.status === ExtractionStatus.PENDING || job.status === ExtractionStatus.PROCESSING;
+  const isInProgress =
+    job.status === ExtractionStatus.PENDING || job.status === ExtractionStatus.PROCESSING;
 
   // Animate to the real progress value with smooth transition
   useEffect(() => {
@@ -183,7 +193,7 @@ function ExtractionWidgetItemComponent({ job, onPress, disableAnimations = false
             <Text className="text-white/70 text-sm" numberOfLines={1}>
               {isComplete
                 ? t("extraction.widget.tapToView", "Tap to view recipe")
-                : (job.error_message || t("extraction.widget.tapRetry", "Tap to try again"))}
+                : job.error_message || t("extraction.widget.tapRetry", "Tap to try again")}
             </Text>
           )}
         </View>

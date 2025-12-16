@@ -60,7 +60,11 @@ function isPrivateSourceType(sourceType?: string): boolean {
 
 export default function UnifiedRecipePreviewScreen() {
   const { t } = useTranslation();
-  const { jobId, recipeId: passedRecipeId, isCompleted } = useLocalSearchParams<{
+  const {
+    jobId,
+    recipeId: passedRecipeId,
+    isCompleted,
+  } = useLocalSearchParams<{
     jobId: string;
     recipeId?: string;
     isCompleted?: string;
