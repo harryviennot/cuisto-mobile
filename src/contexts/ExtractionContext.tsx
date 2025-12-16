@@ -192,8 +192,8 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
           (progress: VideoDownloadProgress) => {
             updateJob(jobId, {
               clientDownloadProgress: progress.percentage,
-              // Scale download to 25-50% of total progress
-              progress_percentage: 25 + Math.round(progress.percentage * 0.25),
+              // Scale download to 10-35% of total progress (25% range)
+              progress_percentage: 10 + Math.round(progress.percentage * 0.25),
             });
           }
         );
@@ -210,8 +210,8 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
           (percentage: number) => {
             updateJob(jobId, {
               clientUploadProgress: percentage,
-              // Scale upload to 50-60% of total progress
-              progress_percentage: 50 + Math.round(percentage * 0.1),
+              // Scale upload to 35-50% of total progress (15% range)
+              progress_percentage: 35 + Math.round(percentage * 0.15),
             });
           }
         );
@@ -222,12 +222,12 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
         // Step 4: Resume extraction on server
         await videoDownloadService.resumeExtraction(jobId, uploadResult.path);
 
-        // Update job - SSE will pick up remaining progress
+        // Update job - SSE will pick up remaining progress from backend (starts at 50%)
         updateJob(jobId, {
           isClientDownloading: false,
           status: "processing" as ExtractionStatus,
           current_step: "video_extracting_audio",
-          progress_percentage: 60,
+          // Don't set progress_percentage - let SSE provide it from backend
         });
 
         // Reconnect SSE to get remaining updates
