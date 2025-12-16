@@ -1,7 +1,7 @@
 /**
  * Unified recipe preview screen
  * Handles extraction progress and recipe display in a single view
- * Accepts jobId as parameter, polls for completion, then shows recipe with animations
+ * Accepts jobId as parameter, uses context for job state, then shows recipe with animations
  *
  * NEW FLOW (isDraft architecture):
  * 1. Job completes with recipe_id (draft recipe created on server)
@@ -9,6 +9,12 @@
  * 3. User clicks "Save" -> shows privacy prompt for private sources (photo/paste/voice)
  * 4. User chooses public/private -> saves in background and navigates immediately
  * 5. User clicks "Discard" -> calls delete API to remove draft
+ *
+ * MINIMIZE FEATURE:
+ * - User can tap minimize button (top-right) during extraction
+ * - Job continues in background with SSE managed by ExtractionContext
+ * - Widget appears above tab bar showing progress
+ * - Tapping widget returns to this screen
  *
  * For duplicate videos:
  * - recipe_id is set to the existing public recipe
@@ -27,13 +33,14 @@ import {
   LockIcon,
   GlobeIcon,
   LockSimpleIcon,
+  MinusIcon,
 } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { recipeService } from "@/api/services/recipe.service";
 import { extractionService } from "@/api/services/extraction.service";
-import { useExtractionJob } from "@/hooks/useExtractionJob";
+import { useExtraction } from "@/contexts/ExtractionContext";
 import { ExtractionProgress } from "@/components/extraction/ExtractionProgress";
 import { ExtractionStatus, SourceType } from "@/types/extraction";
 import type { Recipe } from "@/types/recipe";
@@ -53,7 +60,15 @@ function isPrivateSourceType(sourceType?: string): boolean {
 
 export default function UnifiedRecipePreviewScreen() {
   const { t } = useTranslation();
-  const { jobId } = useLocalSearchParams<{ jobId: string }>();
+  const {
+    jobId,
+    recipeId: passedRecipeId,
+    isCompleted,
+  } = useLocalSearchParams<{
+    jobId: string;
+    recipeId?: string;
+    isCompleted?: string;
+  }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
@@ -61,33 +76,22 @@ export default function UnifiedRecipePreviewScreen() {
   const [isDuplicate, setIsDuplicate] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [recipeId, setRecipeId] = useState<string | null>(null);
-  const [initialJobLoaded, setInitialJobLoaded] = useState(false);
+  // Initialize recipeId from URL params if provided (for completed jobs from widget)
+  const [recipeId, setRecipeId] = useState<string | null>(passedRecipeId || null);
+  const [initialJobLoaded, setInitialJobLoaded] = useState(isCompleted === "true");
 
   // Privacy bottom sheet state
   const privacySheetRef = useRef<BottomSheetModal>(null);
 
-  // Monitor extraction job with SSE and polling fallback
-  const { job, error: jobError } = useExtractionJob({
-    jobId: jobId || "",
-    onComplete: async (completedJob) => {
-      // Handle completed or duplicate status
-      if (completedJob.status === ExtractionStatus.COMPLETED) {
-        // Check for existing_recipe_id (duplicate) or recipe_id (new extraction)
-        const foundRecipeId = completedJob.existing_recipe_id || completedJob.recipe_id;
-        if (foundRecipeId) {
-          setRecipeId(foundRecipeId);
-          // It's a duplicate if existing_recipe_id is set
-          setIsDuplicate(!!completedJob.existing_recipe_id);
-        }
-      }
-    },
-    enableSSE: true,
-  });
+  // Use extraction context for job state and minimize functionality
+  const { getJob, minimizeJob, cancelJob, dismissJob } = useExtraction();
 
-  // Fetch initial job state immediately on mount (backup for SSE race condition)
+  // Get job from context
+  const job = jobId ? getJob(jobId) : undefined;
+
+  // Fetch initial job state if not in context yet (e.g., returning from widget)
   useEffect(() => {
-    if (!jobId || initialJobLoaded) return;
+    if (!jobId || initialJobLoaded || job) return;
 
     const fetchInitialJob = async () => {
       try {
@@ -109,7 +113,19 @@ export default function UnifiedRecipePreviewScreen() {
     };
 
     fetchInitialJob();
-  }, [jobId, initialJobLoaded]);
+  }, [jobId, initialJobLoaded, job]);
+
+  // Handle job completion from context (or already completed on mount)
+  useEffect(() => {
+    if (job?.status === ExtractionStatus.COMPLETED) {
+      const foundRecipeId = job.existing_recipe_id || job.recipe_id;
+      if (foundRecipeId && foundRecipeId !== recipeId) {
+        console.log("[Preview] Job completed, loading recipe:", foundRecipeId);
+        setRecipeId(foundRecipeId);
+        setIsDuplicate(!!job.existing_recipe_id);
+      }
+    }
+  }, [job, recipeId]); // Use job object to trigger on any job change
 
   const loadRecipe = useCallback(
     async (id: string) => {
@@ -133,16 +149,30 @@ export default function UnifiedRecipePreviewScreen() {
       loadRecipe(recipeId);
     }
   }, [recipeId, loadRecipe]);
+
+  /**
+   * Handle minimize button press
+   * Minimizes the job to the widget and navigates back to tabs
+   */
+  const handleMinimize = useCallback(() => {
+    if (!jobId) return;
+    minimizeJob(jobId);
+    router.dismissTo("/(protected)/(tabs)");
+  }, [jobId, minimizeJob, router]);
+
   /**
    * Execute the save with the specified privacy setting.
    * Uses optimistic UI - navigates immediately and saves in background.
    */
   const executeSave = useCallback(
     (isPublic: boolean) => {
-      if (!recipeId) return;
+      if (!recipeId || !jobId) return;
 
       // Close the privacy sheet if open
       privacySheetRef.current?.dismiss();
+
+      // Dismiss job from context (cleanup SSE/polling)
+      dismissJob(jobId);
 
       // Show success toast immediately (optimistic)
       Toast.show({
@@ -172,7 +202,7 @@ export default function UnifiedRecipePreviewScreen() {
           });
         });
     },
-    [recipeId, router, queryClient, t]
+    [recipeId, jobId, dismissJob, router, queryClient, t]
   );
 
   /**
@@ -204,9 +234,14 @@ export default function UnifiedRecipePreviewScreen() {
    * For duplicates: just navigates away (no deletion needed).
    */
   const handleDiscard = async () => {
+    // Dismiss job from context first
+    if (jobId) {
+      dismissJob(jobId);
+    }
+
     // For duplicates, just navigate away
     if (isDuplicate) {
-      router.replace("/");
+      router.dismissTo("/(protected)/(tabs)");
       return;
     }
 
@@ -221,7 +256,17 @@ export default function UnifiedRecipePreviewScreen() {
       }
     }
 
-    router.replace("/");
+    router.dismissTo("/(protected)/(tabs)");
+  };
+
+  /**
+   * Handle cancel button press during extraction
+   */
+  const handleCancel = async () => {
+    if (!jobId) return;
+    await cancelJob(jobId);
+    // Use dismissTo for safer navigation back to tabs
+    router.dismissTo("/(protected)/(tabs)");
   };
 
   // Validate jobId
@@ -235,6 +280,7 @@ export default function UnifiedRecipePreviewScreen() {
 
   // Error state with retry option
   if (job?.status === ExtractionStatus.FAILED) {
+    // Dismiss job from context on error view render
     return (
       <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
         <View className="flex-1 items-center justify-center px-6">
@@ -250,7 +296,9 @@ export default function UnifiedRecipePreviewScreen() {
             </Text>
             <Pressable
               onPress={() => {
-                router.dismissAll();
+                dismissJob(jobId);
+                // Navigate back to tabs first, then push extraction
+                router.dismissTo("/(protected)/(tabs)");
                 router.push(`/extraction/${job.source_type}`);
               }}
               className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
@@ -283,7 +331,10 @@ export default function UnifiedRecipePreviewScreen() {
               {t("errors.notARecipeHint")}
             </Text>
             <Pressable
-              onPress={() => router.dismissAll()}
+              onPress={() => {
+                dismissJob(jobId);
+                router.dismissTo("/(protected)/(tabs)");
+              }}
               className="rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
             >
               <Text className="text-base font-semibold text-white">{t("common.ok")}</Text>
@@ -311,6 +362,7 @@ export default function UnifiedRecipePreviewScreen() {
             </Text>
             <Pressable
               onPress={() => {
+                dismissJob(jobId);
                 router.replace("/extraction/text");
               }}
               className="rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
@@ -318,36 +370,6 @@ export default function UnifiedRecipePreviewScreen() {
               <Text className="text-base font-semibold text-white">
                 {t("errors.tryManualEntry")}
               </Text>
-            </Pressable>
-          </Animated.View>
-        </View>
-      </View>
-    );
-  }
-
-  // Connection error state (only shown after multiple consecutive failures)
-  if (jobError && !job) {
-    return (
-      <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
-        <View className="flex-1 items-center justify-center px-6">
-          <Animated.View entering={FadeIn.delay(200)} className="items-center">
-            <View className="mb-4 h-16 w-16 items-center justify-center rounded-full bg-state-warning/10">
-              <XIcon size={32} color="#f59e0b" weight="bold" />
-            </View>
-            <Text className="mb-2 text-center text-xl font-semibold text-state-warning">
-              {t("errors.connectionIssue")}
-            </Text>
-            <Text className="mb-6 text-center text-foreground-secondary">
-              {t("errors.connectionMessage")}
-            </Text>
-            <Pressable
-              onPress={() => {
-                router.dismissAll();
-              }}
-              className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
-            >
-              <ArrowCounterClockwiseIcon size={20} color="#FFFFFF" weight="bold" />
-              <Text className="text-base font-semibold text-white">{t("common.retry")}</Text>
             </Pressable>
           </Animated.View>
         </View>
@@ -420,12 +442,37 @@ export default function UnifiedRecipePreviewScreen() {
     );
   }
 
+  // If we have recipeId but recipe not loaded yet, show recipe loading state
+  // (this happens when coming from widget for completed job)
+  if (recipeId && !recipe) {
+    return (
+      <RecipeDetail
+        recipe={undefined}
+        isLoading={true}
+        onBack={() => router.dismissTo("/(protected)/(tabs)")}
+        isDraft={true}
+        showHeader={false}
+      />
+    );
+  }
+
   // Loading state - show progress (always render with default 0% if job not yet loaded)
   return (
     <View
       className="flex-1 bg-surface"
       style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
     >
+      {/* Header with minimize button */}
+      <View className="flex-row justify-end px-4 py-2">
+        <Pressable
+          onPress={handleMinimize}
+          className="w-10 h-10 rounded-full bg-surface-elevated items-center justify-center active:bg-surface-overlay"
+          hitSlop={12}
+        >
+          <MinusIcon size={20} color="#78716c" weight="bold" />
+        </Pressable>
+      </View>
+
       {/* Progress indicator - always show, even before first SSE event */}
       <Animated.View entering={FadeIn} exiting={FadeOut} className="flex-1">
         <ExtractionProgress
@@ -436,10 +483,7 @@ export default function UnifiedRecipePreviewScreen() {
 
       <View className="items-center justify-center px-6">
         <Pressable
-          onPress={async () => {
-            router.dismissAll();
-            await extractionService.cancelJob(jobId);
-          }}
+          onPress={handleCancel}
           className="flex-row items-center gap-2 rounded-xl bg-primary px-6 py-3 active:bg-primary-hover"
         >
           <ArrowCounterClockwiseIcon size={20} color="#FFFFFF" weight="bold" />

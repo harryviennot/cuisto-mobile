@@ -153,6 +153,45 @@
       "publicDesc": "Permettre aux autres de découvrir, cuisiner et remixer votre recette",
       "privateTitle": "Garder privée",
       "privateDesc": "Enregistrer dans votre collection personnelle uniquement"
+    },
+    "steps": {
+      "starting": "Démarrage de l'extraction...",
+      "complete": "Terminé !",
+      "client_downloading": "Téléchargement de la vidéo...",
+      "client_uploading": "Envoi de la vidéo...",
+      "video_downloading": "Téléchargement de la vidéo...",
+      "video_extracting_audio": "Extraction de l'audio...",
+      "video_transcribing": "Transcription de l'audio...",
+      "video_combining": "Traitement du contenu...",
+      "photo_ocr_single": "Lecture du texte de l'image...",
+      "photo_ocr_multiple": "Lecture du texte des images...",
+      "photo_extracting": "Extraction de la recette...",
+      "voice_transcribing": "Transcription de l'audio...",
+      "link_fetching": "Récupération de la page web...",
+      "link_parsing": "Analyse du contenu...",
+      "link_extracting": "Extraction des données...",
+      "link_finding_image": "Recherche de l'image...",
+      "link_extracting_text": "Extraction du texte...",
+      "paste_processing": "Traitement du texte...",
+      "normalizing": "Analyse de la recette...",
+      "preparing": "Préparation des données...",
+      "generating_image": "Génération de l'image...",
+      "saving": "Enregistrement de la recette..."
+    },
+    "widget": {
+      "inProgress": "Extraction en cours",
+      "complete": "Extraction terminée",
+      "activeCount": "{{count}} en cours",
+      "readyCount": "{{count}} prête(s)",
+      "failedCount": "{{count}} échouée(s)",
+      "recipeReady": "Recette prête !",
+      "extracting": "Extraction de la recette...",
+      "tapToView": "Appuyez pour voir la recette",
+      "tapRetry": "Appuyez pour réessayer"
+    },
+    "limitReached": {
+      "title": "Extraction en cours",
+      "message": "Veuillez attendre la fin de l'extraction actuelle avant d'en commencer une nouvelle."
     }
   },
   "recipe": {
@@ -478,10 +517,10 @@
       "placeholder": "Rechercher dans les collections..."
     },
     "collections": {
-      "allRecipes": "Toutes vos recettes",
+      "allRecipes": "Mes recettes",
       "allRecipesSubtitle": "EXTRAITES",
       "favorites": "Favoris",
-      "favoritesSubtitle": "SÉLECTIONNÉES PAR VOUS"
+      "favoritesSubtitle": "SÉLECTIONNÉES"
     },
     "cookbooks": {
       "title": "Livres de cuisine",

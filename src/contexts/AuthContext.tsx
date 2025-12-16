@@ -37,13 +37,12 @@ const isExpoGo = Constants.executionEnvironment === "storeClient";
 const googleIosClientId = Constants.expoConfig?.extra?.googleIosClientId as string | undefined;
 
 // Conditionally import Google Sign-in only in development/production builds (not Expo Go)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let GoogleSignin: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let googleStatusCodes: any = null;
 
 if (!isExpoGo) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const googleModule = require("@react-native-google-signin/google-signin");
     GoogleSignin = googleModule.GoogleSignin;
     googleStatusCodes = googleModule.statusCodes;

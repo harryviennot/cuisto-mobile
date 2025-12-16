@@ -153,6 +153,45 @@
       "publicDesc": "Let others discover, cook, and remix your recipe",
       "privateTitle": "Keep Private",
       "privateDesc": "Save to your personal collection only"
+    },
+    "steps": {
+      "starting": "Starting extraction...",
+      "complete": "Done!",
+      "video_downloading": "Downloading video...",
+      "video_extracting_audio": "Extracting audio...",
+      "video_transcribing": "Transcribing audio...",
+      "video_combining": "Processing content...",
+      "photo_ocr_single": "Reading text from image...",
+      "photo_ocr_multiple": "Reading text from images...",
+      "photo_extracting": "Extracting recipe...",
+      "voice_transcribing": "Transcribing audio...",
+      "link_fetching": "Fetching webpage...",
+      "link_parsing": "Parsing content...",
+      "link_extracting": "Extracting recipe data...",
+      "link_finding_image": "Finding recipe image...",
+      "link_extracting_text": "Extracting text content...",
+      "paste_processing": "Processing text...",
+      "normalizing": "Analyzing recipe...",
+      "preparing": "Preparing recipe data...",
+      "generating_image": "Generating recipe image...",
+      "saving": "Saving recipe...",
+      "client_downloading": "Downloading video...",
+      "client_uploading": "Uploading video..."
+    },
+    "widget": {
+      "inProgress": "Extraction in progress",
+      "complete": "Extraction complete",
+      "activeCount": "{{count}} active",
+      "readyCount": "{{count}} ready",
+      "failedCount": "{{count}} failed",
+      "recipeReady": "Recipe ready!",
+      "extracting": "Extracting recipe...",
+      "tapToView": "Tap to view recipe",
+      "tapRetry": "Tap to try again"
+    },
+    "limitReached": {
+      "title": "Extraction in progress",
+      "message": "Please wait for your current extraction to finish before starting a new one."
     }
   },
   "recipe": {
@@ -477,7 +516,7 @@
       "placeholder": "Search collections..."
     },
     "collections": {
-      "allRecipes": "All Your Recipes",
+      "allRecipes": "My Recipes",
       "allRecipesSubtitle": "EXTRACTED",
       "favorites": "Favorites",
       "favoritesSubtitle": "CURATED BY YOU"

@@ -18,6 +18,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { ShimmeringTextRotator } from "../loading";
+import { getExtractionStepText } from "@/utils/extraction-steps";
 
 interface ExtractionProgressProps {
   progress: number;
@@ -85,9 +86,11 @@ export function ExtractionProgress({ progress, currentStep }: ExtractionProgress
           <Animated.View style={progressBarStyle} className="h-full rounded-full bg-primary" />
         </View>
 
-        {/* Current step */}
+        {/* Current step - translated from step code */}
         {currentStep && (
-          <Text className="text-center text-sm text-foreground-secondary">{currentStep}</Text>
+          <Text className="text-center text-sm text-foreground-secondary">
+            {getExtractionStepText(t, currentStep)}
+          </Text>
         )}
       </View>
 
