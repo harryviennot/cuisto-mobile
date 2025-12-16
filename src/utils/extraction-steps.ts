@@ -31,6 +31,9 @@ const KNOWN_STEP_CODES = new Set([
   "preparing",
   "generating_image",
   "saving",
+  // Client-side download steps (Instagram flow)
+  "client_downloading",
+  "client_uploading",
 ]);
 
 /**
