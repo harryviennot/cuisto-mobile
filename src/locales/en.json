@@ -108,8 +108,8 @@
       "title": "Add to your",
       "titleHighlight": "collection.",
       "scanDish": {
-        "title": "Scan Dish",
-        "subtitle": "FROM PHOTO OR MENU"
+        "title": "Scan Recipe",
+        "subtitle": "FROM a Recipe Book or Screenshot"
       },
       "importWeb": {
         "title": "Import from Web",
