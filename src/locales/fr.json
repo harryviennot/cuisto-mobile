@@ -157,6 +157,8 @@
     "steps": {
       "starting": "Démarrage de l'extraction...",
       "complete": "Terminé !",
+      "client_downloading": "Téléchargement de la vidéo...",
+      "client_uploading": "Envoi de la vidéo...",
       "video_downloading": "Téléchargement de la vidéo...",
       "video_extracting_audio": "Extraction de l'audio...",
       "video_transcribing": "Transcription de l'audio...",

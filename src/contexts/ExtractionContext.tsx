@@ -8,7 +8,6 @@
  * Features:
  * - Global state for all active extraction jobs
  * - SSE connections managed at root level (survive navigation)
- * - Polling fallback when SSE fails
  * - Minimize/expand functionality for non-blocking UX
  * - Premium feature gate for multiple concurrent extractions
  */
@@ -24,7 +23,8 @@ import RNEventSource from "react-native-sse";
 import { supabase } from "@/lib/supabase";
 import { API_URL } from "@/api/api-client";
 import { extractionService, SubmitExtractionRequest } from "@/api/services/extraction.service";
-import type { ExtractionJob as BaseExtractionJob, ExtractionStatus } from "@/types/extraction";
+import { videoDownloadService, VideoDownloadProgress } from "@/api/services/video-download.service";
+import type { ExtractionJob as BaseExtractionJob, ExtractionStatus, ExtractionStep } from "@/types/extraction";
 
 // ============================================================================
 // TYPES
@@ -38,6 +38,12 @@ export interface ExtractionJob extends BaseExtractionJob {
   isMinimized: boolean;
   /** Timestamp for ordering multiple jobs */
   createdAt: number;
+  /** Client-side download progress (0-100) - for Instagram */
+  clientDownloadProgress?: number;
+  /** Client-side upload progress (0-100) - for Instagram */
+  clientUploadProgress?: number;
+  /** Whether client download is in progress */
+  isClientDownloading?: boolean;
 }
 
 /**
@@ -126,11 +132,11 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
   // Track SSE connections by job ID
   const sseConnectionsRef = useRef<Map<string, SSEConnection>>(new Map());
 
-  // Track polling intervals for fallback
-  const pollingIntervalsRef = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
-
   // Refs for cleanup
   const isUnmountedRef = useRef(false);
+
+  // Ref for createSSEConnection to avoid circular dependency
+  const createSSEConnectionRef = useRef<((jobId: string) => Promise<void>) | null>(null);
 
   // ============================================================================
   // HELPER FUNCTIONS
@@ -146,18 +152,6 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   /**
-   * Stop polling for a job
-   */
-  const stopPolling = useCallback((jobId: string) => {
-    const interval = pollingIntervalsRef.current.get(jobId);
-    if (interval) {
-      clearInterval(interval);
-      pollingIntervalsRef.current.delete(jobId);
-      console.log(`[Extraction] Stopped polling for job ${jobId}`);
-    }
-  }, []);
-
-  /**
    * Close SSE connection for a job
    */
   const closeSSEConnection = useCallback((jobId: string) => {
@@ -170,49 +164,91 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   /**
-   * Start polling for a job (fallback when SSE fails)
+   * Handle client-side video download flow (Instagram)
+   * Downloads video using user's IP, uploads to server, resumes extraction
    */
-  const startPolling = useCallback(
-    (jobId: string) => {
-      // Don't start if already polling
-      if (pollingIntervalsRef.current.has(jobId)) return;
+  const handleClientDownload = useCallback(
+    async (jobId: string, downloadUrl: string) => {
+      // Check if already downloading
+      const job = activeJobs.find((j) => j.id === jobId);
+      if (job?.isClientDownloading) {
+        console.log(`[Extraction] Already downloading for job ${jobId}`);
+        return;
+      }
 
-      console.log(`[Extraction] Starting polling fallback for job ${jobId}`);
+      console.log(`[Extraction] Starting client download for job ${jobId}`);
 
-      const interval = setInterval(async () => {
-        if (isUnmountedRef.current) {
-          stopPolling(jobId);
-          return;
-        }
+      // Mark as downloading
+      updateJob(jobId, {
+        isClientDownloading: true,
+        current_step: "client_downloading",
+        clientDownloadProgress: 0,
+      });
 
-        try {
-          const job = await extractionService.getJob(jobId);
-
-          if (isUnmountedRef.current) return;
-
-          // Update the job state
-          updateJob(jobId, {
-            status: job.status,
-            progress_percentage: job.progress_percentage,
-            current_step: job.current_step,
-            recipe_id: job.recipe_id,
-            existing_recipe_id: job.existing_recipe_id,
-            error_message: job.error_message,
-          });
-
-          // Stop polling if job is complete
-          if (TERMINAL_STATUSES.includes(job.status)) {
-            console.log(`[Extraction] Job ${jobId} completed via polling`);
-            stopPolling(jobId);
+      try {
+        // Step 1: Download video
+        const downloadResult = await videoDownloadService.downloadVideo(
+          downloadUrl,
+          (progress: VideoDownloadProgress) => {
+            updateJob(jobId, {
+              clientDownloadProgress: progress.percentage,
+              // Scale download to 25-50% of total progress
+              progress_percentage: 25 + Math.round(progress.percentage * 0.25),
+            });
           }
-        } catch (error) {
-          console.error(`[Extraction] Polling error for job ${jobId}:`, error);
-        }
-      }, 2000); // Poll every 2 seconds
+        );
 
-      pollingIntervalsRef.current.set(jobId, interval);
+        // Step 2: Upload to server
+        updateJob(jobId, {
+          current_step: "client_uploading",
+          clientUploadProgress: 0,
+        });
+
+        const uploadResult = await videoDownloadService.uploadVideo(
+          downloadResult.localUri,
+          jobId,
+          (percentage: number) => {
+            updateJob(jobId, {
+              clientUploadProgress: percentage,
+              // Scale upload to 50-60% of total progress
+              progress_percentage: 50 + Math.round(percentage * 0.1),
+            });
+          }
+        );
+
+        // Step 3: Cleanup local file
+        await videoDownloadService.cleanupLocalVideo(downloadResult.localUri);
+
+        // Step 4: Resume extraction on server
+        await videoDownloadService.resumeExtraction(jobId, uploadResult.path);
+
+        // Update job - SSE will pick up remaining progress
+        updateJob(jobId, {
+          isClientDownloading: false,
+          status: "processing" as ExtractionStatus,
+          current_step: "video_extracting_audio",
+          progress_percentage: 60,
+        });
+
+        // Reconnect SSE to get remaining updates
+        if (createSSEConnectionRef.current) {
+          createSSEConnectionRef.current(jobId);
+        }
+
+      } catch (error) {
+        console.error(`[Extraction] Client download failed for job ${jobId}:`, error);
+
+        updateJob(jobId, {
+          isClientDownloading: false,
+          status: "failed" as ExtractionStatus,
+          error_message: error instanceof Error
+            ? error.message
+            : "Failed to download video from Instagram",
+          progress_percentage: 0,
+        });
+      }
     },
-    [updateJob, stopPolling]
+    [activeJobs, updateJob]
   );
 
   /**
@@ -231,8 +267,11 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
       const token = session?.access_token;
 
       if (!token) {
-        console.warn(`[Extraction] No auth token, using polling for job ${jobId}`);
-        startPolling(jobId);
+        console.error(`[Extraction] No auth token for job ${jobId}`);
+        updateJob(jobId, {
+          status: "failed" as ExtractionStatus,
+          error_message: "Authentication required. Please log in again.",
+        });
         return;
       }
 
@@ -261,6 +300,8 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
 
             console.log(
               `[Extraction] SSE update for ${jobId}: ${data.progress_percentage}% - ${data.current_step}`,
+              `status=${data.status}`,
+              data.video_download_url ? `video_url=${data.video_download_url.substring(0, 50)}...` : '',
               data.recipe_id ? `recipe_id=${data.recipe_id}` : '',
               data.existing_recipe_id ? `existing_recipe_id=${data.existing_recipe_id}` : ''
             );
@@ -273,7 +314,19 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
               recipe_id: data.recipe_id,
               existing_recipe_id: data.existing_recipe_id,
               error_message: data.error_message,
+              video_download_url: data.video_download_url,
+              video_metadata: data.video_metadata,
             });
+
+            // Handle needs_client_download status (Instagram)
+            if (data.status === "needs_client_download" && data.video_download_url) {
+              console.log(`[Extraction] Job ${jobId} needs client download`);
+              isCompleted = true;
+              closeSSEConnection(jobId);
+              // Trigger client-side download flow
+              handleClientDownload(jobId, data.video_download_url);
+              return;
+            }
 
             // Close connection on terminal states
             if (TERMINAL_STATUSES.includes(data.status)) {
@@ -290,19 +343,28 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
         eventSource.onerror = () => {
           if (isUnmountedRef.current || isCompleted) return;
 
-          console.warn(`[Extraction] SSE error for job ${jobId}, falling back to polling`);
+          console.error(`[Extraction] SSE connection error for job ${jobId}`);
           closeSSEConnection(jobId);
-          startPolling(jobId);
+          updateJob(jobId, {
+            status: "failed" as ExtractionStatus,
+            error_message: "Connection lost. Please try again.",
+          });
         };
 
         sseConnectionsRef.current.set(jobId, { eventSource, cleanup });
       } catch (error) {
         console.error(`[Extraction] Failed to create SSE for job ${jobId}:`, error);
-        startPolling(jobId);
+        updateJob(jobId, {
+          status: "failed" as ExtractionStatus,
+          error_message: "Failed to connect. Please try again.",
+        });
       }
     },
-    [updateJob, closeSSEConnection, startPolling]
+    [updateJob, closeSSEConnection, handleClientDownload]
   );
+
+  // Store createSSEConnection in ref to break circular dependency
+  createSSEConnectionRef.current = createSSEConnection;
 
   // ============================================================================
   // PUBLIC API
@@ -398,12 +460,11 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
     (jobId: string) => {
       // Clean up connections
       closeSSEConnection(jobId);
-      stopPolling(jobId);
 
       // Remove from active jobs
       setActiveJobs((prev) => prev.filter((job) => job.id !== jobId));
     },
-    [closeSSEConnection, stopPolling]
+    [closeSSEConnection]
   );
 
   /**
@@ -457,9 +518,8 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
   // ============================================================================
 
   useEffect(() => {
-    // Copy refs to local variables for cleanup
+    // Copy ref to local variable for cleanup
     const sseConnections = sseConnectionsRef.current;
-    const pollingIntervals = pollingIntervalsRef.current;
 
     return () => {
       isUnmountedRef.current = true;
@@ -469,12 +529,6 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
         connection.cleanup();
       });
       sseConnections.clear();
-
-      // Clean up all polling intervals
-      pollingIntervals.forEach((interval) => {
-        clearInterval(interval);
-      });
-      pollingIntervals.clear();
     };
   }, []);
 

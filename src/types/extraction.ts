@@ -18,6 +18,7 @@ export enum ExtractionStatus {
   DUPLICATE = "duplicate", // Video already extracted by someone else
   NOT_A_RECIPE = "not_a_recipe", // Content doesn't contain a recipe
   WEBSITE_BLOCKED = "website_blocked", // Website blocks automated extraction
+  NEEDS_CLIENT_DOWNLOAD = "needs_client_download", // Client needs to download video (Instagram)
 }
 
 /**
@@ -58,6 +59,10 @@ export enum ExtractionStep {
   PREPARING = "preparing",
   GENERATING_IMAGE = "generating_image",
   SAVING = "saving",
+
+  // Client-side download steps (Instagram)
+  CLIENT_DOWNLOADING = "client_downloading",
+  CLIENT_UPLOADING = "client_uploading",
 }
 
 /**
@@ -86,6 +91,27 @@ export interface ExtractionJob {
   error_message?: string;
   progress_percentage: number;
   current_step?: string;
+  /**
+   * Direct MP4 URL for client-side download (Instagram).
+   * Present when status is NEEDS_CLIENT_DOWNLOAD.
+   */
+  video_download_url?: string;
+  /**
+   * Video metadata from URL extraction (thumbnail, description, etc.)
+   * Present when status is NEEDS_CLIENT_DOWNLOAD.
+   */
+  video_metadata?: {
+    thumbnail_url?: string;
+    description?: string;
+    title?: string;
+    platform?: string;
+    duration?: number;
+    uploader?: string;
+  };
+  /**
+   * Path in temp storage for uploaded video.
+   */
+  temp_video_path?: string;
   created_at: string;
   updated_at: string;
 }
