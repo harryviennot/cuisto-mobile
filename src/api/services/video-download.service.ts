@@ -8,6 +8,8 @@
  * 3. Client uploads video to server
  * 4. Server processes uploaded video
  */
+
+// TODO: Replace with expo-file-system
 import {
   createDownloadResumable,
   getInfoAsync,
@@ -15,7 +17,6 @@ import {
   cacheDirectory,
 } from "expo-file-system/legacy";
 import { api } from "../api-client";
-import { Platform } from "react-native";
 
 export interface VideoDownloadProgress {
   totalBytes: number;
@@ -100,9 +101,6 @@ export const videoDownloadService = {
 
     // Create form data
     const formData = new FormData();
-
-    // Format file for upload (platform-specific URI handling)
-    const fileUri = Platform.OS === "ios" ? localUri.replace("file://", "") : localUri;
 
     formData.append("file", {
       uri: localUri,
