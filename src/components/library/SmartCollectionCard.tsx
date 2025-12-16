@@ -60,17 +60,16 @@ export function SmartCollectionCard({
 
   return (
     <View
-      className={`relative flex-1 max-h-48 rounded-2xl overflow-hidden aspect-[4/3] ${
-        isPrimary ? "bg-primary" : "bg-white border border-border-light"
-      }`}
+      className={`relative flex-1 max-h-48 rounded-2xl overflow-hidden aspect-[4/3] ${isPrimary ? "bg-primary" : "bg-white border border-border-light"
+        }`}
       testID={testID}
     >
       {/* Background Count Number */}
       <Text
-        className={`absolute -right-4 font-playfair font-bold leading-none opacity-10 ${
-          isPrimary ? "text-surface-texture-light" : "text-surface-texture-dark"
-        }`}
+        className={`absolute -right-4 font-playfair font-bold leading-none opacity-10 ${isPrimary ? "text-surface-texture-light" : "text-surface-texture-dark"
+          }`}
         style={countStyle}
+        allowFontScaling={false}
       >
         {count}
       </Text>
@@ -82,9 +81,8 @@ export function SmartCollectionCard({
       >
         {/* Icon Container */}
         <View
-          className={`w-10 h-10 rounded-full items-center justify-center ${
-            isPrimary ? "bg-white/10" : "bg-stone-50"
-          }`}
+          className={`w-10 h-10 rounded-full items-center justify-center ${isPrimary ? "bg-white/10" : "bg-stone-50"
+            }`}
         >
           <IconComponent size={20} color={isPrimary ? "#fff" : "#3a3226"} weight="duotone" />
         </View>
@@ -92,16 +90,14 @@ export function SmartCollectionCard({
         {/* Title & Subtitle */}
         <View>
           <Text
-            className={`font-playfair-bold text-lg mb-0.5 ${
-              isPrimary ? "text-white" : "text-foreground-heading"
-            }`}
+            className={`font-playfair-bold text-lg mb-0.5 ${isPrimary ? "text-white" : "text-foreground-heading"
+              }`}
           >
             {t(i18nKeys.title)}
           </Text>
           <Text
-            className={`text-[10px] font-bold tracking-widest uppercase ${
-              isPrimary ? "text-white/60" : "text-foreground-tertiary"
-            }`}
+            className={`text-[10px] font-bold tracking-widest uppercase ${isPrimary ? "text-white/60" : "text-foreground-tertiary"
+              }`}
           >
             {t(i18nKeys.subtitle)}
           </Text>
