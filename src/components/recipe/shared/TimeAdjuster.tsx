@@ -58,7 +58,6 @@ export const TimeAdjuster = memo(function TimeAdjuster({
     setDisplayValue(value);
   }, [value]);
 
-
   // Clear any running interval and delay timeout
   const clearAutoIncrement = useCallback(() => {
     if (intervalRef.current) {

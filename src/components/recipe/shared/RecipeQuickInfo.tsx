@@ -28,9 +28,7 @@ export function RecipeQuickInfo({
       {/* Time - Editable */}
       <Pressable onPress={onTimePress} className="items-center flex-1">
         {!enableUpdate && <ClockIcon size={20} color="#6B6456" weight="regular" />}
-        <Text className="text-sm text-[#6B6456] mt-1">
-          {formatDuration(time ?? 0, { t })}
-        </Text>
+        <Text className="text-sm text-[#6B6456] mt-1">{formatDuration(time ?? 0, { t })}</Text>
         {enableUpdate && (
           <Text className="text-xs text-[#334d43] font-medium mt-0.5 text-center">
             {t("recipe.quickInfo.tapToEdit")}

@@ -23,7 +23,7 @@ export const RecipeContent = memo(function RecipeContent({
   isTabletLandscape = false,
   isDraft = false,
   isEditing = false,
-  onStartCooking = () => { },
+  onStartCooking = () => {},
 }: RecipeContentProps) {
   const { t } = useTranslation();
   const { isTablet } = useDeviceType();
@@ -72,7 +72,11 @@ export const RecipeContent = memo(function RecipeContent({
             className="flex-1 py-4 flex-row"
           >
             <PlayIcon size={20} color="white" weight="fill" />
-            <Text className="text-white font-semibold text-base ml-2" adjustsFontSizeToFit numberOfLines={1}>
+            <Text
+              className="text-white font-semibold text-base ml-2"
+              adjustsFontSizeToFit
+              numberOfLines={1}
+            >
               {t("recipe.actions.startCooking")}
             </Text>
           </ShadowItem>

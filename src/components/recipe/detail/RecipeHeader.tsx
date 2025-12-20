@@ -20,7 +20,6 @@ interface RecipeHeaderProps {
   scrollY?: SharedValue<number>;
 }
 
-
 export const RecipeHeader = memo(function RecipeHeader({
   recipe,
   isLoading = false,
@@ -36,12 +35,7 @@ export const RecipeHeader = memo(function RecipeHeader({
   const imageAnimatedStyle = useAnimatedStyle(() => {
     if (!scrollY) return {};
 
-    const scale = interpolate(
-      scrollY.value,
-      [-windowHeight, 0],
-      [2, 1],
-      Extrapolation.CLAMP
-    );
+    const scale = interpolate(scrollY.value, [-windowHeight, 0], [2, 1], Extrapolation.CLAMP);
 
     const translateY = interpolate(
       scrollY.value,

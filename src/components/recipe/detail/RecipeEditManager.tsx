@@ -14,7 +14,11 @@ interface RecipeEditManagerProps {
     displayRestingTime: number;
     handleRatingChange: (rating: number) => void;
     handleOpenTimeEdit: () => void;
-    handleSaveTimings: (prepMinutes: number, cookMinutes: number, restingMinutes: number) => Promise<void>;
+    handleSaveTimings: (
+      prepMinutes: number,
+      cookMinutes: number,
+      restingMinutes: number
+    ) => Promise<void>;
     isTimeEditVisible: boolean;
     setIsTimeEditVisible: (visible: boolean) => void;
   }) => React.ReactNode;
@@ -61,7 +65,11 @@ export const RecipeEditManager = memo(function RecipeEditManager({
   };
 
   // Handler for saving custom timings
-  const handleSaveTimings = async (prepMinutes: number, cookMinutes: number, restingMinutes: number) => {
+  const handleSaveTimings = async (
+    prepMinutes: number,
+    cookMinutes: number,
+    restingMinutes: number
+  ) => {
     try {
       // Calculate new values
       const newPrepMinutes = Math.max(0, prepMinutes);

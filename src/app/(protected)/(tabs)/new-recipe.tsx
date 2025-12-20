@@ -51,7 +51,10 @@ export default function NewRecipeScreen() {
           <Text className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-tertiary mb-3">
             {t("extraction.newRecipe.subtitle")}
           </Text>
-          <Text className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1]" allowFontScaling={false}>
+          <Text
+            className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1]"
+            allowFontScaling={false}
+          >
             {t("extraction.newRecipe.title")}
             {"\n"}
             <Text className="text-primary italic">{t("extraction.newRecipe.titleHighlight")}</Text>
@@ -87,7 +90,10 @@ export default function NewRecipeScreen() {
                     >
                       <Camera size={24} color="#fff" weight="duotone" />
                     </BlurView>
-                    <Text className="font-playfair-bold text-3xl text-white mb-1" allowFontScaling={false}>
+                    <Text
+                      className="font-playfair-bold text-3xl text-white mb-1"
+                      allowFontScaling={false}
+                    >
                       {t("extraction.newRecipe.scanDish.title")}
                     </Text>
                     <Text className="text-white/80 text-[10px] font-bold tracking-widest uppercase">
@@ -121,10 +127,14 @@ export default function NewRecipeScreen() {
                 />
               </View>
               <View>
-                <Text className="font-playfair-bold text-xl text-foreground-heading mb-1" >
+                <Text className="font-playfair-bold text-xl text-foreground-heading mb-1">
                   {t("extraction.newRecipe.importWeb.title")}
                 </Text>
-                <Text className="text-[10px] font-bold tracking-widest text-foreground-muted uppercase" adjustsFontSizeToFit numberOfLines={1}>
+                <Text
+                  className="text-[10px] font-bold tracking-widest text-foreground-muted uppercase"
+                  adjustsFontSizeToFit
+                  numberOfLines={1}
+                >
                   {t("extraction.newRecipe.importWeb.subtitle")}
                 </Text>
               </View>
@@ -153,7 +163,11 @@ export default function NewRecipeScreen() {
                   <Text className="font-playfair-bold text-lg text-white mb-0.5">
                     {t("extraction.newRecipe.dictate.title")}
                   </Text>
-                  <Text className="text-white/60 text-[10px] font-bold tracking-widest uppercase" adjustsFontSizeToFit numberOfLines={1}>
+                  <Text
+                    className="text-white/60 text-[10px] font-bold tracking-widest uppercase"
+                    adjustsFontSizeToFit
+                    numberOfLines={1}
+                  >
                     {t("extraction.newRecipe.dictate.subtitle")}
                   </Text>
                 </View>
@@ -173,7 +187,11 @@ export default function NewRecipeScreen() {
                   <Text className="font-playfair-bold text-lg text-foreground-heading mb-0.5">
                     {t("extraction.newRecipe.write.title")}
                   </Text>
-                  <Text className="text-foreground-tertiary text-[10px] font-bold tracking-widest uppercase" adjustsFontSizeToFit numberOfLines={1}>
+                  <Text
+                    className="text-foreground-tertiary text-[10px] font-bold tracking-widest uppercase"
+                    adjustsFontSizeToFit
+                    numberOfLines={1}
+                  >
                     {t("extraction.newRecipe.write.subtitle")}
                   </Text>
                 </View>

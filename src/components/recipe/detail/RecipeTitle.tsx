@@ -8,10 +8,7 @@ interface RecipeTitleProps {
   onTitleLayout?: (layout: { y: number; height: number }) => void;
 }
 
-export const RecipeTitle = memo(function RecipeTitle({
-  recipe,
-  onTitleLayout,
-}: RecipeTitleProps) {
+export const RecipeTitle = memo(function RecipeTitle({ recipe, onTitleLayout }: RecipeTitleProps) {
   const { isTablet } = useDeviceType();
 
   return (

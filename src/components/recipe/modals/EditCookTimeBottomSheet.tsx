@@ -136,7 +136,9 @@ export function EditCookTimeBottomSheet({
           </ShadowItem>
 
           <ShadowItem onPress={handleSave} className="flex-1 py-4 rounded-xl" variant="primary">
-            <Text className="text-base font-semibold text-white text-center">{t("common.saveChanges")}</Text>
+            <Text className="text-base font-semibold text-white text-center">
+              {t("common.saveChanges")}
+            </Text>
           </ShadowItem>
         </View>
       </View>

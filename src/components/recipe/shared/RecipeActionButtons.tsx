@@ -51,7 +51,11 @@ export function RecipeActionButtons({
       {isDraft ? (
         <ShadowItem variant="primary" onPress={onSaveRecipe} className="flex-1 py-4 flex-row">
           <CheckIcon size={20} color="white" weight="bold" />
-          <Text className="text-white font-semibold text-base ml-2" adjustsFontSizeToFit numberOfLines={1}>
+          <Text
+            className="text-white font-semibold text-base ml-2"
+            adjustsFontSizeToFit
+            numberOfLines={1}
+          >
             {t("recipe.actions.saveRecipe")}
           </Text>
         </ShadowItem>
@@ -63,7 +67,11 @@ export function RecipeActionButtons({
           className="flex-1 py-4 flex-row"
         >
           <PlayIcon size={20} color="white" weight="fill" />
-          <Text className="text-white font-semibold text-base ml-2" adjustsFontSizeToFit numberOfLines={1}>
+          <Text
+            className="text-white font-semibold text-base ml-2"
+            adjustsFontSizeToFit
+            numberOfLines={1}
+          >
             {t("recipe.actions.startCooking")}
           </Text>
         </ShadowItem>
@@ -80,7 +88,9 @@ export function RecipeActionButtons({
             <InstagramLogoIcon size={20} color="#334d43" weight="regular" />
           )}
           {platform === "youtube" && <YoutubeLogoIcon size={20} color="#334d43" weight="regular" />}
-          {platform === "facebook" && <FacebookLogoIcon size={20} color="#334d43" weight="regular" />}
+          {platform === "facebook" && (
+            <FacebookLogoIcon size={20} color="#334d43" weight="regular" />
+          )}
           {platform === null && <LinkIcon size={20} color="#334d43" weight="regular" />}
         </ShadowItem>
       )}

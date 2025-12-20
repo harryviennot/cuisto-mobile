@@ -62,7 +62,7 @@ interface RecipeDetailProps {
 
 export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   recipe,
-  onBack = () => { },
+  onBack = () => {},
   isDraft = false,
   isEditing = false,
   onSave,
@@ -160,17 +160,17 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     recipe ||
     (optimisticTitle || optimisticImageUrl
       ? ({
-        id: "",
-        title: optimisticTitle || "",
-        image_url: optimisticImageUrl || "",
-        created_by: "",
-        rating_count: 0,
-        total_times_cooked: 0,
-        ingredients: [],
-        instructions: [],
-        created_at: "",
-        updated_at: "",
-      } as Recipe)
+          id: "",
+          title: optimisticTitle || "",
+          image_url: optimisticImageUrl || "",
+          created_by: "",
+          rating_count: 0,
+          total_times_cooked: 0,
+          ingredients: [],
+          instructions: [],
+          created_at: "",
+          updated_at: "",
+        } as Recipe)
       : undefined);
 
   // If still no recipe data at all, return null
@@ -220,8 +220,9 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
 
     return (
       <View
-        className={`${isTabletLandscape ? "w-[45%] border-r border-border-light bg-surface" : "w-full"
-          } ${isTabletLandscape ? "" : "flex-1"}`}
+        className={`${
+          isTabletLandscape ? "w-[45%] border-r border-border-light bg-surface" : "w-full"
+        } ${isTabletLandscape ? "" : "flex-1"}`}
       >
         <ContentWrapper {...contentWrapperProps}>
           {!isTabletLandscape && (
@@ -239,10 +240,7 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
             />
           )}
 
-          <RecipeTitle
-            recipe={displayRecipe}
-            onTitleLayout={setTitleLayout}
-          />
+          <RecipeTitle recipe={displayRecipe} onTitleLayout={setTitleLayout} />
 
           {/* Only show metadata if we have full recipe data, otherwise show skeleton */}
           {recipe ? (
@@ -290,8 +288,8 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
                       (recipe.timings?.cook_time_minutes ?? 0) +
                       (recipe.timings?.resting_time_minutes ?? 0)
                     }
-                    onRatingChange={() => { }}
-                    onTimePress={() => { }}
+                    onRatingChange={() => {}}
+                    onTimePress={() => {}}
                     onSave={onSave}
                     onDiscard={onDiscard}
                     onStartCooking={() => setIsCooking(true)}
@@ -353,7 +351,7 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
 
   // Main render
   return (
-    <View className="flex-1" >
+    <View className="flex-1">
       <Animated.View className="flex-1 bg-surface" style={detailAnimatedStyle}>
         {showHeader && (
           <UnifiedStickyHeader
@@ -381,7 +379,15 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         {isTabletLandscape ? (
           <View className="flex-1 flex-row">
             {renderLeftColumn()}
-            {recipe && <RecipeContent recipe={recipe} isTabletLandscape={true} isDraft={isDraft} isEditing={isEditing} onStartCooking={() => setIsCooking(true)} />}
+            {recipe && (
+              <RecipeContent
+                recipe={recipe}
+                isTabletLandscape={true}
+                isDraft={isDraft}
+                isEditing={isEditing}
+                onStartCooking={() => setIsCooking(true)}
+              />
+            )}
           </View>
         ) : (
           <View className="flex-1">
@@ -405,7 +411,15 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
             </View>
             <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler}>
               {renderLeftColumn()}
-              {recipe && <RecipeContent recipe={recipe} isTabletLandscape={false} isDraft={isDraft} isEditing={isEditing} onStartCooking={() => setIsCooking(true)} />}
+              {recipe && (
+                <RecipeContent
+                  recipe={recipe}
+                  isTabletLandscape={false}
+                  isDraft={isDraft}
+                  isEditing={isEditing}
+                  onStartCooking={() => setIsCooking(true)}
+                />
+              )}
             </Animated.ScrollView>
           </View>
         )}
@@ -447,27 +461,27 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
           },
           ...(isOwner
             ? [
-              {
-                label: t("recipe.actions.edit"),
-                icon: <PencilIcon size={24} color="#334d43" />,
-                onPress: () => {
-                  if (recipe) {
-                    router.push(`/recipe/${recipe?.id}/edit`);
+                {
+                  label: t("recipe.actions.edit"),
+                  icon: <PencilIcon size={24} color="#334d43" />,
+                  onPress: () => {
+                    if (recipe) {
+                      router.push(`/recipe/${recipe?.id}/edit`);
+                      setIsActionsModalVisible(false);
+                    }
+                  },
+                },
+                {
+                  label: t("recipe.actions.delete"),
+                  description: t("recipe.actions.deleteDescription"),
+                  icon: <TrashIcon size={24} color="#ef4444" />,
+                  variant: "destructive" as const,
+                  onPress: () => {
                     setIsActionsModalVisible(false);
-                  }
+                    handleDelete();
+                  },
                 },
-              },
-              {
-                label: t("recipe.actions.delete"),
-                description: t("recipe.actions.deleteDescription"),
-                icon: <TrashIcon size={24} color="#ef4444" />,
-                variant: "destructive" as const,
-                onPress: () => {
-                  setIsActionsModalVisible(false);
-                  handleDelete();
-                },
-              },
-            ]
+              ]
             : []),
         ]}
       />
