@@ -22,6 +22,9 @@
     "minutes": "minutes",
     "min": "min",
     "minAbbr": "min",
+    "hour": "h",
+    "day_one": "day",
+    "day_other": "days",
     "kcal": "kcal",
     "servings": "servings",
     "add": "Add",
@@ -285,7 +288,8 @@
       "description": "Customize times to match your pace",
       "totalTime": "Total Time",
       "prepTime": "Prep Time",
-      "cookTime": "Cook Time"
+      "cookTime": "Cook Time",
+      "restingTime": "Resting Time"
     },
     "edit": {
       "unsavedChangesTitle": "Unsaved Changes",

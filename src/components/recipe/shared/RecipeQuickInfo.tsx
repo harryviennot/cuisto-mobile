@@ -4,6 +4,7 @@ import { ChefHatIcon, ClockIcon, UsersThreeIcon } from "phosphor-react-native";
 import { DifficultyLevel } from "@/types/recipe";
 import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
+import { formatDuration } from "@/utils/formatDuration";
 
 interface RecipeQuickInfoProps {
   time: number | undefined;
@@ -28,7 +29,7 @@ export function RecipeQuickInfo({
       <Pressable onPress={onTimePress} className="items-center flex-1">
         {!enableUpdate && <ClockIcon size={20} color="#6B6456" weight="regular" />}
         <Text className="text-sm text-[#6B6456] mt-1">
-          {time} {t("common.min")}
+          {formatDuration(time ?? 0, { t })}
         </Text>
         {enableUpdate && (
           <Text className="text-xs text-[#334d43] font-medium mt-0.5 text-center">

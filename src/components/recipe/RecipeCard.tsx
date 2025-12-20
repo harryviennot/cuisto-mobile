@@ -13,6 +13,7 @@ import * as Haptics from "expo-haptics";
 import type { Recipe } from "@/types/recipe";
 import { Skeleton } from "../ui/Skeleton";
 import { useToggleFavorite } from "@/hooks/useCollections";
+import { formatDuration } from "@/utils/formatDuration";
 
 interface StatsBadge {
   type: "cooking" | "extraction";
@@ -242,7 +243,7 @@ export const RecipeCard = memo(function RecipeCard({
               <View className="flex-row items-center gap-1">
                 <Clock size={12} color="#a8a29e" weight="regular" />
                 <Text className="text-[11px] font-medium tracking-wide text-stone-500">
-                  {totalTime} {t("common.min")}
+                  {formatDuration(totalTime, { t })}
                 </Text>
               </View>
             )}

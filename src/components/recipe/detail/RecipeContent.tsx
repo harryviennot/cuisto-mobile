@@ -7,15 +7,23 @@ import { ServingsSelector } from "@/components/recipe/shared/ServingsSelector";
 import { RecipeIngredients } from "@/components/recipe/shared/RecipeIngredients";
 import { RecipeInstructions } from "@/components/recipe/shared/RecipeInstructions";
 import type { Recipe } from "@/types/recipe";
+import { ShadowItem } from "@/components/ShadowedSection";
+import { PlayIcon } from "phosphor-react-native";
 
 interface RecipeContentProps {
   recipe: Recipe;
   isTabletLandscape?: boolean;
+  isDraft?: boolean;
+  isEditing?: boolean;
+  onStartCooking?: () => void;
 }
 
 export const RecipeContent = memo(function RecipeContent({
   recipe,
   isTabletLandscape = false,
+  isDraft = false,
+  isEditing = false,
+  onStartCooking = () => { },
 }: RecipeContentProps) {
   const { t } = useTranslation();
   const { isTablet } = useDeviceType();
@@ -54,6 +62,21 @@ export const RecipeContent = memo(function RecipeContent({
 
         {/* Instructions Section */}
         <RecipeInstructions instructions={recipe.instructions} />
+
+        {/* Video Section */}
+        {!isDraft && (
+          <ShadowItem
+            variant="primary"
+            onPress={onStartCooking}
+            disabled={isEditing}
+            className="flex-1 py-4 flex-row"
+          >
+            <PlayIcon size={20} color="white" weight="fill" />
+            <Text className="text-white font-semibold text-base ml-2" adjustsFontSizeToFit numberOfLines={1}>
+              {t("recipe.actions.startCooking")}
+            </Text>
+          </ShadowItem>
+        )}
       </View>
     </ScrollView>
   );

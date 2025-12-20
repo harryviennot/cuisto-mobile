@@ -39,6 +39,7 @@ export interface Instruction {
 export interface Timings {
   prep_time_minutes?: number;
   cook_time_minutes?: number;
+  resting_time_minutes?: number;
   total_time_minutes?: number;
 }
 
@@ -59,6 +60,7 @@ export interface UserRecipeData {
   rating?: number;
   custom_prep_time_minutes?: number;
   custom_cook_time_minutes?: number;
+  custom_resting_time_minutes?: number;
   custom_difficulty?: DifficultyLevel;
   notes?: string;
   custom_servings?: number;
@@ -104,11 +106,13 @@ export interface Recipe {
 export interface RecipeTimingsUpdateRequest {
   prep_time_minutes?: number;
   cook_time_minutes?: number;
+  resting_time_minutes?: number;
 }
 
 export interface RecipeTimingsUpdateResponse {
   prep_time_minutes?: number;
   cook_time_minutes?: number;
+  resting_time_minutes?: number;
   total_time_minutes?: number;
   updated_base_recipe: boolean;
 }

@@ -4,6 +4,7 @@ import { View, Text } from "react-native";
 import { TimerIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { formatDuration } from "@/utils/formatDuration";
 
 interface RecipeInstructionsProps {
   instructions: Instruction[];
@@ -107,7 +108,7 @@ export const RecipeInstructions = memo(function RecipeInstructions({
                           <View className="flex-row pt-0.5">
                             <TimerIcon size={16} color="#6B6456" weight="regular" />
                             <Text className="text-sm text-[#6B6456] ml-1">
-                              {inst.timer_minutes} min
+                              {formatDuration(inst.timer_minutes, { t })}
                             </Text>
                           </View>
                         )}

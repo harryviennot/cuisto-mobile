@@ -56,6 +56,21 @@ export const RecipeHeader = memo(function RecipeHeader({
     };
   });
 
+  const badgeAnimatedStyle = useAnimatedStyle(() => {
+    if (!scrollY) return {};
+
+    const translateY = interpolate(
+      scrollY.value,
+      [0, windowHeight],
+      [0, -windowHeight],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      transform: [{ translateY }],
+    };
+  });
+
   return (
     <>
       {/* Hero Image */}
@@ -83,13 +98,16 @@ export const RecipeHeader = memo(function RecipeHeader({
 
         {/* Draft Badge */}
         {(isDraft || isEditing) && (
-          <View className={`absolute bottom-4 ${isTablet ? "left-8" : "left-4"}`}>
+          <Animated.View
+            className={`absolute bottom-4 ${isTablet ? "left-8" : "left-4"}`}
+            style={badgeAnimatedStyle}
+          >
             <View className="rounded-full bg-surface-elevated/90 px-3 py-1.5 shadow-sm">
               <Text className="text-xs font-bold uppercase tracking-widest text-primary">
                 {isEditing ? t("recipe.previewChanges") : t("recipe.draftPreview")}
               </Text>
             </View>
-          </View>
+          </Animated.View>
         )}
       </View>
     </>

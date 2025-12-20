@@ -4,6 +4,7 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Minus, Plus } from "phosphor-react-native";
 import { ShadowItem } from "@/components/ShadowedSection";
+import { formatDuration } from "@/utils/formatDuration";
 
 interface TimeAdjusterProps {
   label: string;
@@ -12,7 +13,7 @@ interface TimeAdjusterProps {
   originalValue?: number;
   increment?: number; // Amount to increment/decrement (default 5)
   min?: number; // Minimum value (default 0)
-  max?: number; // Maximum value (default 1440 - 24 hours)
+  max?: number; // Maximum value (default 10080 - 7 days)
   className?: string;
 }
 
@@ -23,7 +24,7 @@ export function TimeAdjuster({
   originalValue,
   increment = 1,
   min = 0,
-  max = 1440,
+  max = 10080, // 7 days in minutes
   className = "",
 }: TimeAdjusterProps) {
   const { t } = useTranslation();
@@ -41,15 +42,6 @@ export function TimeAdjuster({
     setDisplayValue(value);
   }, [value]);
 
-  const formatTime = (totalMinutes: number) => {
-    if (totalMinutes === 0) return "0m";
-    const hours = Math.floor(totalMinutes / 60);
-    const mins = totalMinutes % 60;
-
-    if (hours === 0) return `${mins}m`;
-    if (mins === 0) return `${hours}h`;
-    return `${hours}h ${mins}m`;
-  };
 
   // Clear any running interval and delay timeout
   const clearAutoIncrement = useCallback(() => {
@@ -149,7 +141,7 @@ export function TimeAdjuster({
           className="text-2xl text-foreground-heading"
           style={{ fontFamily: "PlayfairDisplay_700Bold" }}
         >
-          {formatTime(displayValue)}
+          {formatDuration(displayValue, { t })}
         </Text>
 
         <Pressable
