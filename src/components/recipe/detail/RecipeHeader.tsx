@@ -65,6 +65,8 @@ export const RecipeHeader = memo(function RecipeHeader({
       <View className={`${isTablet ? "px-10 pt-8 pb-4" : "px-4 pt-6 pb-4"}`}>
         <Text
           className="font-playfair-bold mb-3 text-[32px] leading-tight text-foreground-heading"
+          numberOfLines={3}
+          adjustsFontSizeToFit
           style={{ fontFamily: "PlayfairDisplay_700Bold" }}
           onLayout={(event) => {
             const { y, height } = event.nativeEvent.layout;
