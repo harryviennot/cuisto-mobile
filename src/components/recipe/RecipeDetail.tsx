@@ -36,6 +36,7 @@ import { CookingMode } from "@/components/recipe/CookingMode";
 import { CookingSessionProvider } from "@/contexts/CookingSessionContext";
 import {
   RecipeHeader,
+  RecipeTitle,
   RecipeMetadata,
   RecipeContent,
   RecipeEditManager,
@@ -61,7 +62,7 @@ interface RecipeDetailProps {
 
 export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
   recipe,
-  onBack = () => {},
+  onBack = () => { },
   isDraft = false,
   isEditing = false,
   onSave,
@@ -159,17 +160,17 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     recipe ||
     (optimisticTitle || optimisticImageUrl
       ? ({
-          id: "",
-          title: optimisticTitle || "",
-          image_url: optimisticImageUrl || "",
-          created_by: "",
-          rating_count: 0,
-          total_times_cooked: 0,
-          ingredients: [],
-          instructions: [],
-          created_at: "",
-          updated_at: "",
-        } as Recipe)
+        id: "",
+        title: optimisticTitle || "",
+        image_url: optimisticImageUrl || "",
+        created_by: "",
+        rating_count: 0,
+        total_times_cooked: 0,
+        ingredients: [],
+        instructions: [],
+        created_at: "",
+        updated_at: "",
+      } as Recipe)
       : undefined);
 
   // If still no recipe data at all, return null
@@ -211,30 +212,34 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
 
   // Render the left column (header and metadata)
   const renderLeftColumn = () => {
-    const ContentWrapper = isTabletLandscape ? View : ScrollView;
+    // Use View for both cases to avoid nested ScrollView in portrait mode
+    const ContentWrapper = View;
     const contentWrapperProps = isTabletLandscape
       ? { className: "flex-1" }
-      : {
-          showsVerticalScrollIndicator: false,
-          className: "flex-1",
-          contentContainerStyle: { paddingBottom: 0 },
-        };
+      : { className: "flex-1" };
 
     return (
       <View
-        className={`${
-          isTabletLandscape ? "w-[45%] border-r border-border-light bg-surface" : "w-full"
-        } ${isTabletLandscape ? "" : "flex-1"}`}
+        className={`${isTabletLandscape ? "w-[45%] border-r border-border-light bg-surface" : "w-full"
+          } ${isTabletLandscape ? "" : "flex-1"}`}
       >
         <ContentWrapper {...contentWrapperProps}>
-          <RecipeHeader
-            recipe={displayRecipe}
-            isLoading={isLoading}
-            isDraft={isDraft}
-            isEditing={isEditing}
-            onImageHeightChange={setImageHeight}
-            onTitleLayout={setTitleLayout}
-          />
+          {!isTabletLandscape && (
+            <View style={{ height: imageHeight, width: "100%" }} pointerEvents="none" />
+          )}
+
+          {isTabletLandscape && (
+            <RecipeHeader
+              recipe={displayRecipe}
+              isLoading={isLoading}
+              isDraft={isDraft}
+              isEditing={isEditing}
+              onImageHeightChange={setImageHeight}
+              scrollY={scrollY}
+            />
+          )}
+
+          <RecipeTitle recipe={displayRecipe} onTitleLayout={setTitleLayout} />
 
           {/* Only show metadata if we have full recipe data, otherwise show skeleton */}
           {recipe ? (
@@ -280,8 +285,8 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
                       (recipe.timings?.prep_time_minutes ?? 0) +
                       (recipe.timings?.cook_time_minutes ?? 0)
                     }
-                    onRatingChange={() => {}}
-                    onTimePress={() => {}}
+                    onRatingChange={() => { }}
+                    onTimePress={() => { }}
                     onSave={onSave}
                     onDiscard={onDiscard}
                     onStartCooking={() => setIsCooking(true)}
@@ -372,10 +377,31 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
             {recipe && <RecipeContent recipe={recipe} isTabletLandscape={true} />}
           </View>
         ) : (
-          <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler}>
-            {renderLeftColumn()}
-            {recipe && <RecipeContent recipe={recipe} isTabletLandscape={false} />}
-          </Animated.ScrollView>
+          <View className="flex-1">
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 1,
+              }}
+              pointerEvents="none"
+            >
+              <RecipeHeader
+                recipe={displayRecipe}
+                isLoading={isLoading}
+                isDraft={isDraft}
+                isEditing={isEditing}
+                onImageHeightChange={setImageHeight}
+                scrollY={scrollY}
+              />
+            </View>
+            <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler}>
+              {renderLeftColumn()}
+              {recipe && <RecipeContent recipe={recipe} isTabletLandscape={false} />}
+            </Animated.ScrollView>
+          </View>
         )}
       </Animated.View>
 
@@ -415,27 +441,27 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
           },
           ...(isOwner
             ? [
-                {
-                  label: t("recipe.actions.edit"),
-                  icon: <PencilIcon size={24} color="#334d43" />,
-                  onPress: () => {
-                    if (recipe) {
-                      router.push(`/recipe/${recipe?.id}/edit`);
-                      setIsActionsModalVisible(false);
-                    }
-                  },
-                },
-                {
-                  label: t("recipe.actions.delete"),
-                  description: t("recipe.actions.deleteDescription"),
-                  icon: <TrashIcon size={24} color="#ef4444" />,
-                  variant: "destructive" as const,
-                  onPress: () => {
+              {
+                label: t("recipe.actions.edit"),
+                icon: <PencilIcon size={24} color="#334d43" />,
+                onPress: () => {
+                  if (recipe) {
+                    router.push(`/recipe/${recipe?.id}/edit`);
                     setIsActionsModalVisible(false);
-                    handleDelete();
-                  },
+                  }
                 },
-              ]
+              },
+              {
+                label: t("recipe.actions.delete"),
+                description: t("recipe.actions.deleteDescription"),
+                icon: <TrashIcon size={24} color="#ef4444" />,
+                variant: "destructive" as const,
+                onPress: () => {
+                  setIsActionsModalVisible(false);
+                  handleDelete();
+                },
+              },
+            ]
             : []),
         ]}
       />
