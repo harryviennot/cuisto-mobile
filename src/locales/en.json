@@ -22,6 +22,9 @@
     "minutes": "minutes",
     "min": "min",
     "minAbbr": "min",
+    "hour": "h",
+    "day_one": "day",
+    "day_other": "days",
     "kcal": "kcal",
     "servings": "servings",
     "add": "Add",
@@ -108,8 +111,8 @@
       "title": "Add to your",
       "titleHighlight": "collection.",
       "scanDish": {
-        "title": "Scan Dish",
-        "subtitle": "FROM PHOTO OR MENU"
+        "title": "Scan Recipe",
+        "subtitle": "FROM a Recipe Book or Screenshot"
       },
       "importWeb": {
         "title": "Import from Web",
@@ -281,11 +284,12 @@
       "modified": "Modified"
     },
     "editCookTime": {
-      "title": "Edit Recipe Times",
+      "title": "Adjust Recipe Times",
       "description": "Customize times to match your pace",
       "totalTime": "Total Time",
       "prepTime": "Prep Time",
-      "cookTime": "Cook Time"
+      "cookTime": "Cook Time",
+      "restingTime": "Resting Time"
     },
     "edit": {
       "unsavedChangesTitle": "Unsaved Changes",

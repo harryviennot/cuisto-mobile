@@ -3,7 +3,7 @@
  * Uses split components for better maintainability and performance
  */
 import React, { useState, useEffect, memo } from "react";
-import { View, ScrollView, Alert, TouchableOpacity } from "react-native";
+import { View, Alert, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedScrollHandler,
@@ -36,6 +36,7 @@ import { CookingMode } from "@/components/recipe/CookingMode";
 import { CookingSessionProvider } from "@/contexts/CookingSessionContext";
 import {
   RecipeHeader,
+  RecipeTitle,
   RecipeMetadata,
   RecipeContent,
   RecipeEditManager,
@@ -211,14 +212,11 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
 
   // Render the left column (header and metadata)
   const renderLeftColumn = () => {
-    const ContentWrapper = isTabletLandscape ? View : ScrollView;
+    // Use View for both cases to avoid nested ScrollView in portrait mode
+    const ContentWrapper = View;
     const contentWrapperProps = isTabletLandscape
       ? { className: "flex-1" }
-      : {
-          showsVerticalScrollIndicator: false,
-          className: "flex-1",
-          contentContainerStyle: { paddingBottom: 0 },
-        };
+      : { className: "flex-1" };
 
     return (
       <View
@@ -227,14 +225,22 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         } ${isTabletLandscape ? "" : "flex-1"}`}
       >
         <ContentWrapper {...contentWrapperProps}>
-          <RecipeHeader
-            recipe={displayRecipe}
-            isLoading={isLoading}
-            isDraft={isDraft}
-            isEditing={isEditing}
-            onImageHeightChange={setImageHeight}
-            onTitleLayout={setTitleLayout}
-          />
+          {!isTabletLandscape && (
+            <View style={{ height: imageHeight, width: "100%" }} pointerEvents="none" />
+          )}
+
+          {isTabletLandscape && (
+            <RecipeHeader
+              recipe={displayRecipe}
+              isLoading={isLoading}
+              isDraft={isDraft}
+              isEditing={isEditing}
+              onImageHeightChange={setImageHeight}
+              scrollY={scrollY}
+            />
+          )}
+
+          <RecipeTitle recipe={displayRecipe} onTitleLayout={setTitleLayout} />
 
           {/* Only show metadata if we have full recipe data, otherwise show skeleton */}
           {recipe ? (
@@ -246,6 +252,7 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
                     userRating,
                     displayPrepTime,
                     displayCookTime,
+                    displayRestingTime,
                     handleRatingChange,
                     handleOpenTimeEdit,
                     isTimeEditVisible,
@@ -258,7 +265,7 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
                         isOwner={isOwner}
                         isDraft={isDraft}
                         isEditing={isEditing}
-                        totalTime={displayPrepTime + displayCookTime}
+                        totalTime={displayPrepTime + displayCookTime + displayRestingTime}
                         onRatingChange={handleRatingChange}
                         onTimePress={handleOpenTimeEdit}
                         onSave={onSave}
@@ -278,7 +285,8 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
                     isEditing={isEditing}
                     totalTime={
                       (recipe.timings?.prep_time_minutes ?? 0) +
-                      (recipe.timings?.cook_time_minutes ?? 0)
+                      (recipe.timings?.cook_time_minutes ?? 0) +
+                      (recipe.timings?.resting_time_minutes ?? 0)
                     }
                     onRatingChange={() => {}}
                     onTimePress={() => {}}
@@ -339,9 +347,11 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
     );
   };
 
+  console.log("recipe times: ", recipe?.timings);
+
   // Main render
   return (
-    <View className="flex-1 bg-black">
+    <View className="flex-1">
       <Animated.View className="flex-1 bg-surface" style={detailAnimatedStyle}>
         {showHeader && (
           <UnifiedStickyHeader
@@ -369,13 +379,49 @@ export const RecipeDetail = memo<RecipeDetailProps>(function RecipeDetail({
         {isTabletLandscape ? (
           <View className="flex-1 flex-row">
             {renderLeftColumn()}
-            {recipe && <RecipeContent recipe={recipe} isTabletLandscape={true} />}
+            {recipe && (
+              <RecipeContent
+                recipe={recipe}
+                isTabletLandscape={true}
+                isDraft={isDraft}
+                isEditing={isEditing}
+                onStartCooking={() => setIsCooking(true)}
+              />
+            )}
           </View>
         ) : (
-          <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler}>
-            {renderLeftColumn()}
-            {recipe && <RecipeContent recipe={recipe} isTabletLandscape={false} />}
-          </Animated.ScrollView>
+          <View className="flex-1">
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+              }}
+              pointerEvents="none"
+            >
+              <RecipeHeader
+                recipe={displayRecipe}
+                isLoading={isLoading}
+                isDraft={isDraft}
+                isEditing={isEditing}
+                onImageHeightChange={setImageHeight}
+                scrollY={scrollY}
+              />
+            </View>
+            <Animated.ScrollView showsVerticalScrollIndicator={false} onScroll={scrollHandler}>
+              {renderLeftColumn()}
+              {recipe && (
+                <RecipeContent
+                  recipe={recipe}
+                  isTabletLandscape={false}
+                  isDraft={isDraft}
+                  isEditing={isEditing}
+                  onStartCooking={() => setIsCooking(true)}
+                />
+              )}
+            </Animated.ScrollView>
+          </View>
         )}
       </Animated.View>
 

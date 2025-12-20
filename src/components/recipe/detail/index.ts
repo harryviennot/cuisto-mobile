@@ -1,8 +1,5 @@
-/**
- * Recipe detail view components
- */
-export { RecipeHeader } from "./RecipeHeader";
-export { RecipeMetadata } from "./RecipeMetadata";
-export { RecipeContent } from "./RecipeContent";
-export { RecipeEditManager } from "./RecipeEditManager";
-export { RecipeScrollHandler } from "./RecipeScrollHandler";
+export * from "./RecipeHeader";
+export * from "./RecipeTitle";
+export * from "./RecipeMetadata";
+export * from "./RecipeContent";
+export * from "./RecipeEditManager";

@@ -43,7 +43,7 @@ function ProtectedContent() {
 
   return (
     <>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#000000" } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
           name="search"

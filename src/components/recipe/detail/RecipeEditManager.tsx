@@ -11,9 +11,14 @@ interface RecipeEditManagerProps {
     userRating?: number;
     displayPrepTime: number;
     displayCookTime: number;
+    displayRestingTime: number;
     handleRatingChange: (rating: number) => void;
     handleOpenTimeEdit: () => void;
-    handleSaveTimings: (prepMinutes: number, cookMinutes: number) => Promise<void>;
+    handleSaveTimings: (
+      prepMinutes: number,
+      cookMinutes: number,
+      restingMinutes: number
+    ) => Promise<void>;
     isTimeEditVisible: boolean;
     setIsTimeEditVisible: (visible: boolean) => void;
   }) => React.ReactNode;
@@ -51,6 +56,8 @@ export const RecipeEditManager = memo(function RecipeEditManager({
     recipe.user_data?.custom_prep_time_minutes ?? recipe.timings?.prep_time_minutes ?? 0;
   const displayCookTime =
     recipe.user_data?.custom_cook_time_minutes ?? recipe.timings?.cook_time_minutes ?? 0;
+  const displayRestingTime =
+    recipe.user_data?.custom_resting_time_minutes ?? recipe.timings?.resting_time_minutes ?? 0;
 
   // Handler for opening the time edit bottom sheet
   const handleOpenTimeEdit = () => {
@@ -58,17 +65,23 @@ export const RecipeEditManager = memo(function RecipeEditManager({
   };
 
   // Handler for saving custom timings
-  const handleSaveTimings = async (prepMinutes: number, cookMinutes: number) => {
+  const handleSaveTimings = async (
+    prepMinutes: number,
+    cookMinutes: number,
+    restingMinutes: number
+  ) => {
     try {
       // Calculate new values
       const newPrepMinutes = Math.max(0, prepMinutes);
       const newCookMinutes = Math.max(0, cookMinutes);
+      const newRestingMinutes = Math.max(0, restingMinutes);
 
       await updateTimingsMutation.mutateAsync({
         recipeId: recipe.id,
         timings: {
           prep_time_minutes: newPrepMinutes,
           cook_time_minutes: newCookMinutes,
+          resting_time_minutes: newRestingMinutes,
         },
       });
 
@@ -130,6 +143,7 @@ export const RecipeEditManager = memo(function RecipeEditManager({
         userRating,
         displayPrepTime,
         displayCookTime,
+        displayRestingTime,
         handleRatingChange,
         handleOpenTimeEdit,
         handleSaveTimings,
@@ -144,8 +158,10 @@ export const RecipeEditManager = memo(function RecipeEditManager({
         onSave={handleSaveTimings}
         initialPrepMinutes={displayPrepTime}
         initialCookMinutes={displayCookTime}
+        initialRestingMinutes={displayRestingTime}
         originalPrepMinutes={recipe.timings?.prep_time_minutes ?? 0}
         originalCookMinutes={recipe.timings?.cook_time_minutes ?? 0}
+        originalRestingMinutes={recipe.timings?.resting_time_minutes ?? 0}
       />
     </>
   );

@@ -90,7 +90,7 @@ function RootNavigator() {
   const showProtected = isAuthenticated && !isNewUser;
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#000000" } }}>
       {/* Unauthenticated routes - welcome and login */}
       <Stack.Protected guard={showAuth}>
         <Stack.Screen name="(auth)" />
@@ -142,7 +142,7 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#000000" }}>
       <KeyboardProvider>
         <QueryClientProvider client={queryClient}>
           <BottomSheetModalProvider>

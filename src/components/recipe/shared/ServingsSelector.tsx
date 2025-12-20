@@ -20,10 +20,16 @@ export const ServingsSelector: React.FC<ServingsSelectorProps> = ({
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Generate servings array: 1, 2, 4, 6, 8, 10, 12, ... up to 50
+  // Include initialServings if it's not already in the standard list
   const generateServings = (): number[] => {
     const servings = [1, 2];
     for (let i = 4; i <= 50; i += 2) {
       servings.push(i);
+    }
+    // Add initialServings if it's an odd number > 2 (not in the standard list)
+    if (initialServings > 2 && initialServings % 2 !== 0) {
+      servings.push(initialServings);
+      servings.sort((a, b) => a - b);
     }
     return servings;
   };

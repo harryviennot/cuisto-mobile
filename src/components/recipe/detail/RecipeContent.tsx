@@ -7,41 +7,28 @@ import { ServingsSelector } from "@/components/recipe/shared/ServingsSelector";
 import { RecipeIngredients } from "@/components/recipe/shared/RecipeIngredients";
 import { RecipeInstructions } from "@/components/recipe/shared/RecipeInstructions";
 import type { Recipe } from "@/types/recipe";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { ShadowItem } from "@/components/ShadowedSection";
+import { PlayIcon } from "phosphor-react-native";
 
 interface RecipeContentProps {
   recipe: Recipe;
-  isLoading?: boolean;
   isTabletLandscape?: boolean;
+  isDraft?: boolean;
+  isEditing?: boolean;
+  onStartCooking?: () => void;
 }
 
 export const RecipeContent = memo(function RecipeContent({
   recipe,
-  isLoading,
   isTabletLandscape = false,
+  isDraft = false,
+  isEditing = false,
+  onStartCooking = () => {},
 }: RecipeContentProps) {
   const { t } = useTranslation();
   const { isTablet } = useDeviceType();
   const insets = useSafeAreaInsets();
   const [servings, setServings] = useState(recipe.servings || 4);
-
-  if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 4 }} />
-        <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 4 }} />
-        <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 4 }} />
-        <View></View>
-        <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 16 }} />
-        <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 16 }} />
-        <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 16 }} />
-        <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 16 }} />
-        <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 16 }} />
-        <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 16 }} />
-        <Skeleton width="100%" height={16} borderRadius={12} style={{ marginBottom: 16 }} />
-      </View>
-    );
-  }
 
   return (
     <ScrollView
@@ -75,6 +62,25 @@ export const RecipeContent = memo(function RecipeContent({
 
         {/* Instructions Section */}
         <RecipeInstructions instructions={recipe.instructions} />
+
+        {/* Video Section */}
+        {!isDraft && (
+          <ShadowItem
+            variant="primary"
+            onPress={onStartCooking}
+            disabled={isEditing}
+            className="flex-1 py-4 flex-row"
+          >
+            <PlayIcon size={20} color="white" weight="fill" />
+            <Text
+              className="text-white font-semibold text-base ml-2"
+              adjustsFontSizeToFit
+              numberOfLines={1}
+            >
+              {t("recipe.actions.startCooking")}
+            </Text>
+          </ShadowItem>
+        )}
       </View>
     </ScrollView>
   );
