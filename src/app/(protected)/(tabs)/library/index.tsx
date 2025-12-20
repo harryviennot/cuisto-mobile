@@ -11,7 +11,7 @@ import { View, RefreshControl, TouchableOpacity } from "react-native";
 import { router, Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { MagnifyingGlassIcon, UserIcon } from "phosphor-react-native";
+import { MagnifyingGlassIcon, GearSixIcon } from "phosphor-react-native";
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
@@ -73,7 +73,7 @@ export default function LibraryScreen() {
           <MagnifyingGlassIcon size={24} color="#3a3226" weight="bold" />
         </TouchableOpacity>
         <TouchableOpacity onPress={handleUserPress} activeOpacity={0.7}>
-          <UserIcon size={24} color="#3a3226" weight="bold" />
+          <GearSixIcon size={24} color="#3a3226" weight="bold" />
         </TouchableOpacity>
       </View>
     ),

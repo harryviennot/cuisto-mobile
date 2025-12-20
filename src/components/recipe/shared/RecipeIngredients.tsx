@@ -2,20 +2,17 @@ import React, { memo } from "react";
 import { Ingredient } from "@/types/recipe";
 import { View, Text } from "react-native";
 import { groupIngredients } from "@/utils/groupIngredients";
-import { Skeleton } from "@/components/ui/Skeleton";
 
 interface RecipeIngredientsProps {
   ingredients: Ingredient[];
   recipeServings: number;
   selectedServings: number;
-  isLoading?: boolean;
 }
 
 export const RecipeIngredients = memo(function RecipeIngredients({
   ingredients,
   recipeServings,
   selectedServings,
-  isLoading = false,
 }: RecipeIngredientsProps) {
   // Helper to scale ingredient amounts
   const getScaledAmount = (
@@ -44,45 +41,6 @@ export const RecipeIngredients = memo(function RecipeIngredients({
     return quantity;
   };
 
-  if (isLoading) {
-    return (
-      <View className="gap-8">
-        {/* First Group */}
-        <View>
-          <View className="gap-5">
-            {Array.from({ length: 5 }).map((_, idx) => (
-              <View key={idx} className="flex-row items-start gap-3">
-                <Skeleton width={6} height={6} borderRadius={3} style={{ marginTop: 8 }} />
-                <View className="flex-1 gap-2">
-                  <Skeleton width="80%" height={16} borderRadius={4} />
-                  <View className="h-px bg-border-light" />
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-        {/* Second Group with Header */}
-        <View>
-          <View className="mb-4 flex-row items-center gap-4">
-            <Skeleton width={100} height={12} borderRadius={4} />
-            <Skeleton height={1} borderRadius={0} style={{ flex: 1 }} />
-          </View>
-          <View className="gap-5">
-            {Array.from({ length: 3 }).map((_, idx) => (
-              <View key={idx} className="flex-row items-start gap-3">
-                <Skeleton width={6} height={6} borderRadius={3} style={{ marginTop: 8 }} />
-                <View className="flex-1 gap-2">
-                  <Skeleton width="75%" height={16} borderRadius={4} />
-                  <View className="h-px bg-border-light" />
-                </View>
-              </View>
-            ))}
-          </View>
-        </View>
-      </View>
-    );
-  }
-
   // Group ingredients by group field
   const groupedIngredients = groupIngredients(ingredients);
 
@@ -106,18 +64,24 @@ export const RecipeIngredients = memo(function RecipeIngredients({
               <View key={idx} className="flex-row items-start gap-3">
                 <View className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground-heading" />
                 <View className="w-full flex-1 flex-row flex-wrap items-baseline gap-1 border-b border-border-light pb-4">
-                  {ing.quantity && (
-                    <Text className="font-bold text-foreground-heading">
-                      {getScaledAmount(ing, recipeServings || 4, selectedServings)}
-                    </Text>
-                  )}
+                  <Text className="flex-1 leading-snug">
+                    {ing.quantity && (
+                      <Text className="font-bold text-foreground-heading">
+                        {getScaledAmount(ing, recipeServings || 4, selectedServings) + " "}
+                      </Text>
+                    )}
 
-                  <Text className="text-foreground-heading">
-                    {ing.unit && ` ${ing.unit} `}
-                    {ing.quantity ? ing.name : ing.name.charAt(0).toUpperCase() + ing.name.slice(1)}
-                    {ing.notes ? "," : ""}
+                    <Text className="text-foreground-heading">
+                      {ing.unit && `${ing.unit} `}
+                      {ing.quantity
+                        ? ing.name
+                        : ing.name.charAt(0).toUpperCase() + ing.name.slice(1)}
+                      {ing.notes ? ", " : ""}
+                    </Text>
+                    {ing.notes && (
+                      <Text className="text-sm text-foreground-muted">{ing.notes}</Text>
+                    )}
                   </Text>
-                  {ing.notes && <Text className="text-sm text-foreground-muted">{ing.notes}</Text>}
                 </View>
               </View>
             ))}

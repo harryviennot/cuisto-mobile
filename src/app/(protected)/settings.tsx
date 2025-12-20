@@ -1,5 +1,5 @@
 import React, { useCallback, useRef } from "react";
-import { View, Text, Alert, Linking } from "react-native";
+import { View, Text, Alert, Linking, Button } from "react-native";
 import { Stack, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import Animated, { useSharedValue, useAnimatedScrollHandler } from "react-native-reanimated";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import * as Sentry from "@sentry/react-native";
 import {
   GlobeIcon,
   EnvelopeIcon,
@@ -258,6 +259,8 @@ export default function SettingsScreen() {
           items={dangerItems}
           variant="danger"
         />
+
+        <Button title="Try!" onPress={() => Sentry.captureException(new Error("First error"))} />
 
         <Text className="text-center text-sm text-foreground-muted mt-4">
           {t("settings.appVersion", { version: appVersion })}

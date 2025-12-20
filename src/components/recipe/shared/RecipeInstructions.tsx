@@ -3,53 +3,16 @@ import { Instruction } from "@/types/recipe";
 import { View, Text } from "react-native";
 import { TimerIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { formatDuration } from "@/utils/formatDuration";
 
 interface RecipeInstructionsProps {
   instructions: Instruction[];
-  isLoading?: boolean;
 }
 
 export const RecipeInstructions = memo(function RecipeInstructions({
   instructions,
-  isLoading = false,
 }: RecipeInstructionsProps) {
   const { t } = useTranslation();
-
-  if (isLoading) {
-    return (
-      <View className="mb-12">
-        {/* Title Skeleton */}
-        <Skeleton width={200} height={28} borderRadius={6} style={{ marginBottom: 32 }} />
-
-        <View className="relative gap-0">
-          {/* Instruction Steps Skeleton */}
-          {Array.from({ length: 4 }).map((_, idx) => (
-            <View key={idx} className="relative">
-              <View className="flex-row gap-5">
-                {/* Step Number Circle Skeleton */}
-                <Skeleton width={32} height={32} borderRadius={16} />
-
-                <View className="flex-1 pb-8">
-                  {/* Step Header Skeleton */}
-                  <View className="mb-2">
-                    <Skeleton width="60%" height={24} borderRadius={4} />
-                  </View>
-
-                  {/* Step Description Skeleton */}
-                  <View className="gap-2">
-                    <Skeleton width="100%" height={16} borderRadius={4} />
-                    <Skeleton width="95%" height={16} borderRadius={4} />
-                    <Skeleton width="80%" height={16} borderRadius={4} />
-                  </View>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View>
-      </View>
-    );
-  }
 
   // Group instructions by group field
   const groupedInstructions = instructions.reduce(
@@ -104,10 +67,10 @@ export const RecipeInstructions = memo(function RecipeInstructions({
                           {inst.title}
                         </Text>
                         {inst.timer_minutes && (
-                          <View className="flex-row pt-0.5">
+                          <View className="flex-row items-center pt-0.5">
                             <TimerIcon size={16} color="#6B6456" weight="regular" />
                             <Text className="text-sm text-[#6B6456] ml-1">
-                              {inst.timer_minutes} min
+                              {formatDuration(inst.timer_minutes, { t })}
                             </Text>
                           </View>
                         )}

@@ -46,3 +46,6 @@ app-example
 
 .vscode
 
+
+.env.local
+.mcp.json

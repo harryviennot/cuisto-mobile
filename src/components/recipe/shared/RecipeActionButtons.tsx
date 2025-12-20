@@ -2,9 +2,10 @@ import "@/global.css";
 import { View, Text, Linking } from "react-native";
 import {
   CheckIcon,
-  TrashIcon,
+  XIcon,
   ShareNetworkIcon,
   // PencilIcon,
+  FacebookLogoIcon,
   PlayIcon,
   TiktokLogoIcon,
   InstagramLogoIcon,
@@ -13,7 +14,6 @@ import {
 } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
-import { Skeleton } from "@/components/ui/Skeleton";
 
 interface RecipeActionButtonsProps {
   onStartCooking: () => void;
@@ -36,9 +36,7 @@ export function RecipeActionButtons({
   onDecline,
   onSaveRecipe,
   isDraft,
-  isOwner,
   isEditing = false,
-  isLoading = false,
   platform = undefined,
   source_url,
 }: RecipeActionButtonsProps) {
@@ -47,24 +45,17 @@ export function RecipeActionButtons({
   console.log("source_url", source_url);
   console.log("platform", platform);
 
-  if (isLoading) {
-    return (
-      <View className="flex-row gap-3 mb-6">
-        {/* Primary Action Button Skeleton */}
-        <Skeleton height={56} borderRadius={12} style={{ flex: 1 }} />
-        {/* Secondary Button Skeleton */}
-        <Skeleton width={56} height={56} borderRadius={12} />
-      </View>
-    );
-  }
-
   return (
     <View className="flex-row gap-3 mb-6">
       {/* Start Cooking Button */}
       {isDraft ? (
         <ShadowItem variant="primary" onPress={onSaveRecipe} className="flex-1 py-4 flex-row">
           <CheckIcon size={20} color="white" weight="bold" />
-          <Text className="text-white font-semibold text-base ml-2">
+          <Text
+            className="text-white font-semibold text-base ml-2"
+            adjustsFontSizeToFit
+            numberOfLines={1}
+          >
             {t("recipe.actions.saveRecipe")}
           </Text>
         </ShadowItem>
@@ -76,7 +67,11 @@ export function RecipeActionButtons({
           className="flex-1 py-4 flex-row"
         >
           <PlayIcon size={20} color="white" weight="fill" />
-          <Text className="text-white font-semibold text-base ml-2">
+          <Text
+            className="text-white font-semibold text-base ml-2"
+            adjustsFontSizeToFit
+            numberOfLines={1}
+          >
             {t("recipe.actions.startCooking")}
           </Text>
         </ShadowItem>
@@ -85,7 +80,7 @@ export function RecipeActionButtons({
       {source_url && platform && (
         <ShadowItem
           onPress={() => Linking.openURL(source_url)}
-          className="w-14 h-14"
+          className="aspect-square"
           disabled={!source_url || isEditing || isDraft}
         >
           {platform === "tiktok" && <TiktokLogoIcon size={20} color="#334d43" weight="regular" />}
@@ -93,17 +88,20 @@ export function RecipeActionButtons({
             <InstagramLogoIcon size={20} color="#334d43" weight="regular" />
           )}
           {platform === "youtube" && <YoutubeLogoIcon size={20} color="#334d43" weight="regular" />}
+          {platform === "facebook" && (
+            <FacebookLogoIcon size={20} color="#334d43" weight="regular" />
+          )}
           {platform === null && <LinkIcon size={20} color="#334d43" weight="regular" />}
         </ShadowItem>
       )}
 
       {/* Share Button */}
       {isDraft ? (
-        <ShadowItem onPress={onDecline} className="w-14 h-14  border border-danger ">
-          <TrashIcon size={20} color="#c65d47" weight="regular" />
+        <ShadowItem onPress={onDecline} className=" aspect-square border border-danger ">
+          <XIcon size={20} color="#c65d47" weight="regular" />
         </ShadowItem>
       ) : (
-        <ShadowItem onPress={onShare} className="w-14 h-14">
+        <ShadowItem onPress={onShare} className=" aspect-square">
           <ShareNetworkIcon size={20} color="#334d43" weight="regular" />
         </ShadowItem>
       )}

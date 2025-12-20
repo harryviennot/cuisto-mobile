@@ -141,6 +141,7 @@ export function useUpdateRecipeTimings() {
             ...old.user_data,
             custom_prep_time_minutes: timings.prep_time_minutes,
             custom_cook_time_minutes: timings.cook_time_minutes,
+            custom_resting_time_minutes: timings.resting_time_minutes,
             times_cooked: old.user_data?.times_cooked ?? 0,
             is_favorite: old.user_data?.is_favorite ?? false,
           },
@@ -172,6 +173,7 @@ export function useUpdateRecipeTimings() {
             timings: {
               prep_time_minutes: data.prep_time_minutes,
               cook_time_minutes: data.cook_time_minutes,
+              resting_time_minutes: data.resting_time_minutes,
               total_time_minutes: data.total_time_minutes,
             },
           };
@@ -183,6 +185,7 @@ export function useUpdateRecipeTimings() {
               ...old.user_data,
               custom_prep_time_minutes: data.prep_time_minutes,
               custom_cook_time_minutes: data.cook_time_minutes,
+              custom_resting_time_minutes: data.resting_time_minutes,
               times_cooked: old.user_data?.times_cooked ?? 0,
               is_favorite: old.user_data?.is_favorite ?? false,
             },

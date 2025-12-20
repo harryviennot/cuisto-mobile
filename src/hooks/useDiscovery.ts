@@ -101,9 +101,13 @@ export function useDiscovery() {
   // Flatten recent pages into a single array
   const recentRecipes = recent.data?.pages.flat() ?? [];
 
-  // Check if any section is loading initially
+  // Check if any section is still loading initially (use || so loading stays true until ALL finish)
   const isInitialLoading =
-    trending.isLoading && socials.isLoading && online.isLoading && rated.isLoading;
+    trending.isLoading ||
+    socials.isLoading ||
+    online.isLoading ||
+    rated.isLoading ||
+    recent.isLoading;
 
   // Refetch all sections
   const refetchAll = async () => {

@@ -71,6 +71,7 @@ export function SmartCollectionCard({
           isPrimary ? "text-surface-texture-light" : "text-surface-texture-dark"
         }`}
         style={countStyle}
+        allowFontScaling={false}
       >
         {count}
       </Text>

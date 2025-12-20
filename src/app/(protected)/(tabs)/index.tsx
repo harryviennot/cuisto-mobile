@@ -203,6 +203,7 @@ export default function Index() {
       {/* Recipe Grid with discovery sections as header */}
       <MasonryGrid
         recipes={recent.data}
+        loading={recent.isLoading}
         refreshing={isRefetching}
         onRefresh={handleRefresh}
         onEndReached={handleEndReached}

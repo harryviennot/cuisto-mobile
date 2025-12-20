@@ -67,7 +67,7 @@ export function PageHeader({
     <View
       style={{
         paddingTop: topPadding,
-        paddingHorizontal: 16,
+        paddingHorizontal: 20,
         paddingBottom: bottomMargin ?? 24,
       }}
     >

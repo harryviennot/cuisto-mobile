@@ -4,7 +4,7 @@ import { ChefHatIcon, ClockIcon, UsersThreeIcon } from "phosphor-react-native";
 import { DifficultyLevel } from "@/types/recipe";
 import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
-import { Skeleton } from "@/components/ui/Skeleton";
+import { formatDuration } from "@/utils/formatDuration";
 
 interface RecipeQuickInfoProps {
   time: number | undefined;
@@ -12,7 +12,6 @@ interface RecipeQuickInfoProps {
   servings: number | undefined;
   onTimePress: () => void;
   enableUpdate: boolean;
-  isLoading?: boolean;
 }
 
 export function RecipeQuickInfo({
@@ -21,44 +20,17 @@ export function RecipeQuickInfo({
   servings,
   onTimePress,
   enableUpdate = true,
-  isLoading = false,
 }: RecipeQuickInfoProps) {
   const { t } = useTranslation();
-
-  if (isLoading) {
-    return (
-      <ShadowItem className="flex-row p-4 mb-4 justify-around">
-        {/* Time Skeleton */}
-        <View className="items-center flex-1">
-          <Skeleton width={20} height={20} borderRadius={4} />
-          <Skeleton width={60} height={14} borderRadius={4} style={{ marginTop: 4 }} />
-        </View>
-
-        {/* Difficulty Skeleton */}
-        <View className="items-center flex-1">
-          <Skeleton width={20} height={20} borderRadius={4} />
-          <Skeleton width={50} height={14} borderRadius={4} style={{ marginTop: 4 }} />
-        </View>
-
-        {/* Servings Skeleton */}
-        <View className="items-center flex-1">
-          <Skeleton width={20} height={20} borderRadius={4} />
-          <Skeleton width={70} height={14} borderRadius={4} style={{ marginTop: 4 }} />
-        </View>
-      </ShadowItem>
-    );
-  }
 
   return (
     <ShadowItem className="flex-row p-4 mb-4  justify-around">
       {/* Time - Editable */}
       <Pressable onPress={onTimePress} className="items-center flex-1">
         {!enableUpdate && <ClockIcon size={20} color="#6B6456" weight="regular" />}
-        <Text className="text-sm text-[#6B6456] mt-1">
-          {time} {t("common.min")}
-        </Text>
+        <Text className="text-sm text-[#6B6456] mt-1">{formatDuration(time ?? 0, { t })}</Text>
         {enableUpdate && (
-          <Text className="text-xs text-[#334d43] font-medium mt-0.5">
+          <Text className="text-xs text-[#334d43] font-medium mt-0.5 text-center">
             {t("recipe.quickInfo.tapToEdit")}
           </Text>
         )}
