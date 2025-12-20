@@ -107,7 +107,6 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
             label={t("recipe.edit.prepTime")}
             value={prepTime}
             onChange={onPrepTimeChange}
-            increment={1}
             className="flex-1 mb-0"
           />
 
@@ -116,7 +115,6 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
             label={t("recipe.edit.cookTime")}
             value={cookTime}
             onChange={onCookTimeChange}
-            increment={1}
             className="flex-1 mb-0"
           />
         </View>

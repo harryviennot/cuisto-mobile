@@ -27,7 +27,6 @@ interface FormatDurationOptions {
    * Translation function for localized strings.
    * If not provided, defaults to English abbreviations.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t?: (key: any, options?: any) => string;
 }
 

@@ -2,7 +2,6 @@ import React, { memo } from "react";
 import { Ingredient } from "@/types/recipe";
 import { View, Text } from "react-native";
 import { groupIngredients } from "@/utils/groupIngredients";
-import { Skeleton } from "@/components/ui/Skeleton";
 
 interface RecipeIngredientsProps {
   ingredients: Ingredient[];

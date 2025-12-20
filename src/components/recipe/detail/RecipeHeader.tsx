@@ -20,7 +20,6 @@ interface RecipeHeaderProps {
   scrollY?: SharedValue<number>;
 }
 
-const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 export const RecipeHeader = memo(function RecipeHeader({
   recipe,

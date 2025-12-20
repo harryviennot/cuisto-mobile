@@ -11,7 +11,7 @@ import { View, RefreshControl, TouchableOpacity } from "react-native";
 import { router, Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { MagnifyingGlassIcon, UserCircleGear, GearSixIcon } from "phosphor-react-native";
+import { MagnifyingGlassIcon, GearSixIcon } from "phosphor-react-native";
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,

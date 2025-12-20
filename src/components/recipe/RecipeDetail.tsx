@@ -3,7 +3,7 @@
  * Uses split components for better maintainability and performance
  */
 import React, { useState, useEffect, memo } from "react";
-import { View, ScrollView, Alert, TouchableOpacity } from "react-native";
+import { View, Alert, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedScrollHandler,
