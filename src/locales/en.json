@@ -284,7 +284,7 @@
       "modified": "Modified"
     },
     "editCookTime": {
-      "title": "Edit Recipe Times",
+      "title": "Adjust Recipe Times",
       "description": "Customize times to match your pace",
       "totalTime": "Total Time",
       "prepTime": "Prep Time",

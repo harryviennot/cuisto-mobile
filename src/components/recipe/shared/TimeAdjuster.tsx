@@ -1,6 +1,6 @@
 import "@/global.css";
 import { View, Text, Pressable } from "react-native";
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback, memo } from "react";
 import { useTranslation } from "react-i18next";
 import { Minus, Plus } from "phosphor-react-native";
 import { ShadowItem } from "@/components/ShadowedSection";
@@ -11,18 +11,30 @@ interface TimeAdjusterProps {
   value: number;
   onChange: (value: number) => void;
   originalValue?: number;
-  increment?: number; // Amount to increment/decrement (default 5)
   min?: number; // Minimum value (default 0)
   max?: number; // Maximum value (default 10080 - 7 days)
   className?: string;
 }
 
-export function TimeAdjuster({
+/**
+ * Get dynamic increment based on current value:
+ * - Under 3 hours (180 min): 1 minute increments
+ * - 3-6 hours (180-360 min): 5 minute increments
+ * - 6-12 hours (360-720 min): 15 minute increments
+ * - Over 12 hours (720+ min): 60 minute (1 hour) increments
+ */
+function getDynamicIncrement(currentMinutes: number): number {
+  if (currentMinutes < 180) return 1; // Under 3 hours: 1 min
+  if (currentMinutes < 360) return 5; // 3-6 hours: 5 min
+  if (currentMinutes < 720) return 15; // 6-12 hours: 15 min
+  return 60; // Over 12 hours: 1 hour
+}
+
+export const TimeAdjuster = memo(function TimeAdjuster({
   label,
   value,
   onChange,
   originalValue,
-  increment = 1,
   min = 0,
   max = 10080, // 7 days in minutes
   className = "",
@@ -36,6 +48,10 @@ export function TimeAdjuster({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const delayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingValueRef = useRef<number | null>(null);
+
+  // Store latest values in refs to avoid stale closures
+  const displayValueRef = useRef(displayValue);
+  displayValueRef.current = displayValue;
 
   // Sync display value when prop changes from outside
   useEffect(() => {
@@ -69,42 +85,60 @@ export function TimeAdjuster({
   }, [clearAutoIncrement]);
 
   // Start auto-increment on long press with delay
-  const startAutoIncrement = (incrementAmount: number) => {
-    // Clear any existing timers first
-    clearAutoIncrement();
+  // direction: 1 for increment, -1 for decrement
+  const startAutoIncrement = useCallback(
+    (direction: 1 | -1) => {
+      // Clear any existing timers first
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      if (delayTimeoutRef.current) {
+        clearTimeout(delayTimeoutRef.current);
+        delayTimeoutRef.current = null;
+      }
 
-    // Wait 200ms before starting auto-increment
-    const timeout = setTimeout(() => {
-      let internalValue = displayValue;
+      // Wait 200ms before starting auto-increment
+      const timeout = setTimeout(() => {
+        let internalValue = displayValueRef.current;
 
-      // Start interval for smooth visual updates
-      const interval = setInterval(() => {
-        internalValue = Math.min(max, Math.max(min, internalValue + incrementAmount));
+        // Start interval for smooth visual updates
+        const interval = setInterval(() => {
+          // Recalculate increment based on current value for dynamic stepping
+          const dynamicIncrement = getDynamicIncrement(internalValue) * direction;
+          internalValue = Math.min(max, Math.max(min, internalValue + dynamicIncrement));
 
-        // Update display immediately for smooth animation
-        setDisplayValue(internalValue);
+          // Update display immediately for smooth animation
+          setDisplayValue(internalValue);
 
-        // Track pending value to sync on release
-        pendingValueRef.current = internalValue;
-      }, 60); // Update every 30ms for smooth visual feedback
+          // Track pending value to sync on release
+          pendingValueRef.current = internalValue;
+        }, 60); // Update every 60ms for smooth visual feedback
 
-      intervalRef.current = interval as any;
-    }, 200); // 200ms delay before auto-increment starts
+        intervalRef.current = interval;
+      }, 200); // 200ms delay before auto-increment starts
 
-    delayTimeoutRef.current = timeout as any;
-  };
+      delayTimeoutRef.current = timeout;
+    },
+    [min, max]
+  );
 
-  const handleIncrement = () => {
-    const newValue = Math.min(max, displayValue + increment);
+  const handleIncrement = useCallback(() => {
+    const increment = getDynamicIncrement(displayValueRef.current);
+    const newValue = Math.min(max, displayValueRef.current + increment);
     setDisplayValue(newValue);
     onChange(newValue);
-  };
+  }, [max, onChange]);
 
-  const handleDecrement = () => {
-    const newValue = Math.max(min, displayValue - increment);
+  const handleDecrement = useCallback(() => {
+    const increment = getDynamicIncrement(displayValueRef.current);
+    const newValue = Math.max(min, displayValueRef.current - increment);
     setDisplayValue(newValue);
     onChange(newValue);
-  };
+  }, [min, onChange]);
+
+  const handleStartIncrement = useCallback(() => startAutoIncrement(1), [startAutoIncrement]);
+  const handleStartDecrement = useCallback(() => startAutoIncrement(-1), [startAutoIncrement]);
 
   const isModified = originalValue !== undefined && value !== originalValue;
 
@@ -116,8 +150,8 @@ export function TimeAdjuster({
           {label}
         </Text>
         {isModified && (
-          <View className="bg-primary-main px-2 py-0.5 rounded-full">
-            <Text className="text-white text-xs font-semibold">
+          <View className=" px-2 py-0.5 rounded-full">
+            <Text className="text-state- text-xs font-semibold">
               {t("recipe.timeAdjuster.modified")}
             </Text>
           </View>
@@ -128,7 +162,7 @@ export function TimeAdjuster({
       <ShadowItem className="flex-row items-center justify-between rounded-xl p-4 mb-3">
         <Pressable
           onPress={handleDecrement}
-          onPressIn={() => startAutoIncrement(-increment)}
+          onPressIn={handleStartDecrement}
           onPressOut={clearAutoIncrement}
           onTouchEnd={clearAutoIncrement}
           className="h-10 w-10 items-center justify-center"
@@ -146,7 +180,7 @@ export function TimeAdjuster({
 
         <Pressable
           onPress={handleIncrement}
-          onPressIn={() => startAutoIncrement(increment)}
+          onPressIn={handleStartIncrement}
           onPressOut={clearAutoIncrement}
           onTouchEnd={clearAutoIncrement}
           className="h-10 w-10 items-center justify-center"
@@ -157,4 +191,4 @@ export function TimeAdjuster({
       </ShadowItem>
     </View>
   );
-}
+});

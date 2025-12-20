@@ -103,7 +103,6 @@ export function EditCookTimeBottomSheet({
             value={prepTotalMinutes}
             onChange={setPrepTotalMinutes}
             originalValue={originalPrepMinutes}
-            increment={1}
           />
 
           {/* Cook Time Section */}
@@ -112,7 +111,6 @@ export function EditCookTimeBottomSheet({
             value={cookTotalMinutes}
             onChange={setCookTotalMinutes}
             originalValue={originalCookMinutes}
-            increment={1}
           />
 
           {/* Resting Time Section */}
@@ -121,7 +119,6 @@ export function EditCookTimeBottomSheet({
             value={restingTotalMinutes}
             onChange={setRestingTotalMinutes}
             originalValue={originalRestingMinutes}
-            increment={1}
           />
         </View>
       </View>

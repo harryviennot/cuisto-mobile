@@ -285,7 +285,7 @@
       "modified": "Modifié"
     },
     "editCookTime": {
-      "title": "Modifier les temps de recette",
+      "title": "Ajuster les temps de recette",
       "description": "Personnalisez les temps pour correspondre à votre rythme",
       "totalTime": "Temps total",
       "prepTime": "Temps de préparation",
