@@ -43,7 +43,7 @@ export default function NewRecipeScreen() {
   return (
     <View className="flex-1 bg-surface">
       <Animated.View
-        entering={FadeInDown.duration(1000)}
+        entering={FadeInDown.duration(400)}
         className="flex-1 p-5"
         style={{ paddingTop: insets.top + 24, marginBottom: isTablet ? insets.bottom + 48 : 0 }}
       >

@@ -5,6 +5,7 @@ import {
   XIcon,
   ShareNetworkIcon,
   // PencilIcon,
+  FacebookLogoIcon,
   PlayIcon,
   TiktokLogoIcon,
   InstagramLogoIcon,
@@ -13,7 +14,6 @@ import {
 } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { ShadowItem } from "@/components/ShadowedSection";
-import { Skeleton } from "@/components/ui/Skeleton";
 
 interface RecipeActionButtonsProps {
   onStartCooking: () => void;
@@ -80,6 +80,7 @@ export function RecipeActionButtons({
             <InstagramLogoIcon size={20} color="#334d43" weight="regular" />
           )}
           {platform === "youtube" && <YoutubeLogoIcon size={20} color="#334d43" weight="regular" />}
+          {platform === "facebook" && <FacebookLogoIcon size={20} color="#334d43" weight="regular" />}
           {platform === null && <LinkIcon size={20} color="#334d43" weight="regular" />}
         </ShadowItem>
       )}
