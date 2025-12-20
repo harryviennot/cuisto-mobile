@@ -32,6 +32,24 @@ import {
   PlayfairDisplay_500Medium,
 } from "@expo-google-fonts/playfair-display";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Sentry from "@sentry/react-native";
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  enabled: !__DEV__,
+  // Capture 100% of errors - with 30 users you want to see everything
+  sampleRate: 1.0,
+  // Performance monitoring - 100% is fine for small user base
+  tracesSampleRate: 1.0,
+  // Attach screenshots on crash (helps debug UI issues)
+  attachScreenshot: true,
+  // Track user sessions to see crash-free rate
+  enableAutoSessionTracking: true,
+  // Capture user interactions (button taps, navigation)
+  enableUserInteractionTracing: true,
+});
+
+export default Sentry.wrap(RootLayout);
 
 // Configure Reanimated logger (disable strict mode warnings)
 configureReanimatedLogger({
@@ -109,7 +127,7 @@ function RootNavigator() {
   );
 }
 
-export default function RootLayout() {
+export function RootLayout() {
   const insets = useSafeAreaInsets();
   const [i18nInitialized, setI18nInitialized] = useState(false);
   const [fontsLoaded] = useFonts({
