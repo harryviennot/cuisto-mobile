@@ -10,15 +10,14 @@
 import React, { forwardRef, useCallback, useState } from "react";
 import { View, Text, Pressable, Linking, Platform, ActivityIndicator } from "react-native";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { Crown, Sparkle, Coins, ArrowRight, ArrowSquareOut, ArrowsClockwise } from "phosphor-react-native";
+import { Crown, ArrowRight, ArrowSquareOut } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import RevenueCatUI from "react-native-purchases-ui";
 import * as Haptics from "expo-haptics";
 
 import { PremiumBottomSheet } from "@/components/ui/PremiumBottomSheet";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { formatDate } from "@/utils/date";
-import CreditsInfoBox from "@/components/credits/CreditsInfoBox";
+import { PremiumPlanCard, CreditsInfoBox } from "@/components/credits";
 
 interface SubscriptionBottomSheetProps {
   onClose?: () => void;
@@ -101,34 +100,7 @@ export const SubscriptionBottomSheet = forwardRef<BottomSheetModal, Subscription
         <View className="px-6 pb-4">
           {/* Current Plan Card */}
           {isPremium ? (
-            <View className="flex-row items-center gap-4 rounded-3xl bg-amber-400 p-6 shadow-sm">
-              <View className="h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                {isTrialing ? (
-                  <Sparkle size={28} color="#1c1917" weight="fill" />
-                ) : (
-                  <Crown size={28} color="#1c1917" weight="fill" />
-                )}
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-medium text-stone-900/80">
-                  {t("settings.subscription.currentPlan")}
-                </Text>
-                <Text className="font-playfair-bold text-2xl text-stone-900">
-                  {getPlanLabel()}
-                </Text>
-                {subscriptionExpiresAt && (
-                  <Text className="mt-1 text-xs font-medium text-stone-900/80">
-                    {isTrialing
-                      ? t("settings.subscription.trialEnds", {
-                        date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
-                      })
-                      : t("credits.bottomSheet.nextReset", {
-                        date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
-                      })}
-                  </Text>
-                )}
-              </View>
-            </View>
+            <PremiumPlanCard isTrialing={isTrialing} subscriptionExpiresAt={subscriptionExpiresAt} />
           ) : (
             <CreditsInfoBox totalCredits={totalCredits} standardCredits={standardCredits} referralCredits={referralCredits} nextResetAt={nextResetAt} />
           )}
@@ -137,7 +109,7 @@ export const SubscriptionBottomSheet = forwardRef<BottomSheetModal, Subscription
           {isPremium ? (
             <Pressable
               onPress={handleManageSubscription}
-              className="flex-row items-center justify-between rounded-2xl bg-stone-100 p-5 active:opacity-90"
+              className="mt-8 flex-row items-center justify-between rounded-2xl bg-stone-100 p-5 active:opacity-90"
             >
               <View className="flex-row items-center gap-3">
                 <ArrowSquareOut size={20} color="#57534e" weight="duotone" />

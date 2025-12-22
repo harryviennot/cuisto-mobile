@@ -12,7 +12,7 @@ interface CreditsInfoBoxProps {
 }
 
 
-export default function CreditsInfoBox({ totalCredits, standardCredits, referralCredits, nextResetAt }: CreditsInfoBoxProps) {
+export function CreditsInfoBox({ totalCredits, standardCredits, referralCredits, nextResetAt }: CreditsInfoBoxProps) {
   const { t } = useTranslation();
 
   const formatResetDate = useCallback(() => {

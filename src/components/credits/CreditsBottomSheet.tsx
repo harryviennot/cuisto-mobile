@@ -14,8 +14,8 @@ import * as Haptics from "expo-haptics";
 
 import { PremiumBottomSheet } from "@/components/ui/PremiumBottomSheet";
 import { useSubscription } from "@/contexts/SubscriptionContext";
-import { formatDate } from "@/utils/date";
-import CreditsInfoBox from "./CreditsInfoBox";
+import { CreditsInfoBox } from "./CreditsInfoBox";
+import { PremiumPlanCard } from "./PremiumPlanCard";
 
 interface CreditsBottomSheetProps {
   onClose?: () => void;
@@ -82,35 +82,7 @@ export const CreditsBottomSheet = forwardRef<BottomSheetModal, CreditsBottomShee
       >
         <View className="px-6">
           {isPremium ? (
-            // Premium Status
-            <View className="flex-row items-center gap-4 rounded-2xl bg-forest-600 p-5">
-              <View className="h-12 w-12 items-center justify-center rounded-full bg-white/15">
-                {isTrialing ? (
-                  <Sparkle size={24} color="#ffffff" weight="fill" />
-                ) : (
-                  <Crown size={24} color="#ffffff" weight="fill" />
-                )}
-              </View>
-              <View className="flex-1">
-                <Text className="font-playfair-bold text-xl text-white">
-                  {isTrialing ? t("credits.trial") : t("credits.premium")}
-                </Text>
-                <Text className="text-sm text-white/80">
-                  {t("credits.bottomSheet.unlimitedExtractions")}
-                </Text>
-                {subscriptionExpiresAt && (
-                  <Text className="mt-1 text-xs text-white/60">
-                    {isTrialing
-                      ? t("settings.subscription.trialEnds", {
-                        date: formatDate(subscriptionExpiresAt, "MMM d"),
-                      })
-                      : t("credits.bottomSheet.renewsOn", {
-                        date: formatDate(subscriptionExpiresAt, "MMM d"),
-                      })}
-                  </Text>
-                )}
-              </View>
-            </View>
+            <PremiumPlanCard isTrialing={isTrialing} subscriptionExpiresAt={subscriptionExpiresAt} />
           ) : (
             <View className="gap-4">
               {/* Hero Card: Total Available Credits */}
