@@ -44,8 +44,8 @@ export function CreditsBadge({
   // Premium user - Forest green badge for consistency
   if (isPremium) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7} className={cn("overflow-hidden rounded-full font-medium shadow-sm", className)}>
-        <View className={cn("flex-row items-center gap-1.5 bg-forest-600", padding)}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7} className={cn("overflow-hidden rounded-full font-medium", className)}>
+        <View className={cn("flex-row items-center gap-1.5 bg-premium", padding)}>
           {isTrialing ? (
             <SparkleIcon size={iconSize} color="#f4f1e8" weight="fill" />
           ) : (

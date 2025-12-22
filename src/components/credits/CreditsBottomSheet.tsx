@@ -90,10 +90,10 @@ export const CreditsBottomSheet = forwardRef<BottomSheetModal, CreditsBottomShee
               {/* Upgrade CTA */}
               <Pressable
                 onPress={handleUpgrade}
-                className="mt-8 flex-row items-center justify-center gap-2 rounded-2xl bg-amber-500 py-4 active:bg-amber-600 "
+                className="mt-8 flex-row items-center justify-center gap-2 rounded-2xl bg-premium py-4 active:bg-premium-dark"
               >
                 <Crown size={20} color="#ffffff" weight="fill" />
-                <Text className="text-base font-semibold text-white">
+                <Text className="text-base font-semibold text-premium-foreground">
                   {t("credits.bottomSheet.upgradePremium")}
                 </Text>
                 <ArrowRight size={18} color="#ffffff" weight="bold" />
