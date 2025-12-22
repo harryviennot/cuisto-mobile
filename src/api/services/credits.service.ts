@@ -21,6 +21,15 @@ export interface CanExtractResponse {
   credits_remaining: number | null;
 }
 
+export interface SubscriptionStatusResponse {
+  status: string;
+  is_premium: boolean;
+  is_trialing: boolean;
+  product_id: string | null;
+  expires_at: string | null;
+  will_renew: boolean;
+}
+
 export const creditsService = {
   /**
    * Get current user's credit balance
@@ -35,6 +44,15 @@ export const creditsService = {
    */
   async canExtract(): Promise<CanExtractResponse> {
     const response = await api.post<CanExtractResponse>("/credits/check");
+    return response.data;
+  },
+
+  /**
+   * Sync subscription status from RevenueCat
+   * Call this after a purchase to update the backend
+   */
+  async syncSubscription(): Promise<SubscriptionStatusResponse> {
+    const response = await api.post<SubscriptionStatusResponse>("/credits/subscription/sync");
     return response.data;
   },
 };

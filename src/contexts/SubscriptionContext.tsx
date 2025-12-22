@@ -115,7 +115,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     getOfferings().then(setOfferings);
   }, []);
 
-  const updateFromCustomerInfo = useCallback((customerInfo: CustomerInfo) => {
+  const updateFromCustomerInfo = useCallback(async (customerInfo: CustomerInfo) => {
     const proEntitlement = customerInfo.entitlements.active[PRO_ENTITLEMENT_ID];
 
     if (proEntitlement) {
@@ -124,6 +124,17 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       setSubscriptionExpiresAt(
         proEntitlement.expirationDate ? new Date(proEntitlement.expirationDate) : null
       );
+
+      // Sync with backend - this ensures the backend knows about the purchase
+      // even if webhooks are delayed or not configured
+      try {
+        console.log("[SubscriptionContext] Syncing subscription to backend...");
+        await creditsService.syncSubscription();
+        console.log("[SubscriptionContext] Backend subscription sync complete");
+      } catch (error) {
+        console.warn("[SubscriptionContext] Failed to sync subscription to backend:", error);
+        // Non-critical - the webhook should eventually sync it
+      }
     } else {
       setIsPremium(false);
       setIsTrialing(false);

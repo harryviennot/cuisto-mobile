@@ -64,7 +64,7 @@ export default function NewRecipeScreen() {
               <Text className="text-primary italic">{t("extraction.newRecipe.titleHighlight")}</Text>
             </Text>
           </View>
-          <View className="flex-1 items-end justify-end">
+          <View className="items-end justify-end">
             <CreditsBadge onPress={() => creditsSheetRef.current?.present()} />
           </View>
         </View>

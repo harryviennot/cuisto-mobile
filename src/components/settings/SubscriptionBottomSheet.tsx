@@ -18,6 +18,7 @@ import * as Haptics from "expo-haptics";
 import { PremiumBottomSheet } from "@/components/ui/PremiumBottomSheet";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { formatDate } from "@/utils/date";
+import CreditsInfoBox from "@/components/credits/CreditsInfoBox";
 
 interface SubscriptionBottomSheetProps {
   onClose?: () => void;
@@ -99,91 +100,38 @@ export const SubscriptionBottomSheet = forwardRef<BottomSheetModal, Subscription
       >
         <View className="px-6 pb-4">
           {/* Current Plan Card */}
-          <View
-            className={`mb-6 rounded-2xl p-5 ${
-              isPremium ? "bg-amber-50" : "bg-stone-100"
-            }`}
-          >
-            <View className="flex-row items-center gap-4">
-              <View
-                className={`h-14 w-14 items-center justify-center rounded-full ${
-                  isPremium ? "bg-amber-100" : "bg-stone-200"
-                }`}
-              >
-                {isPremium ? (
-                  isTrialing ? (
-                    <Sparkle size={28} color="#2D5A27" weight="fill" />
-                  ) : (
-                    <Crown size={28} color="#d97706" weight="fill" />
-                  )
+          {isPremium ? (
+            <View className="flex-row items-center gap-4 rounded-3xl bg-amber-400 p-6 shadow-sm">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                {isTrialing ? (
+                  <Sparkle size={28} color="#1c1917" weight="fill" />
                 ) : (
-                  <Coins size={28} color="#57534e" weight="duotone" />
+                  <Crown size={28} color="#1c1917" weight="fill" />
                 )}
               </View>
               <View className="flex-1">
-                <Text className="text-sm text-stone-500">
+                <Text className="text-sm font-medium text-stone-900/80">
                   {t("settings.subscription.currentPlan")}
                 </Text>
                 <Text className="font-playfair-bold text-2xl text-stone-900">
                   {getPlanLabel()}
                 </Text>
-                {isPremium && subscriptionExpiresAt && (
-                  <Text className="text-sm text-stone-600">
+                {subscriptionExpiresAt && (
+                  <Text className="mt-1 text-xs font-medium text-stone-900/80">
                     {isTrialing
                       ? t("settings.subscription.trialEnds", {
-                          date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
-                        })
+                        date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
+                      })
                       : t("credits.bottomSheet.nextReset", {
-                          date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
-                        })}
+                        date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
+                      })}
                   </Text>
                 )}
               </View>
             </View>
-
-            {/* Credits Breakdown for free users */}
-            {!isPremium && (
-              <View className="mt-4 space-y-2 border-t border-stone-200 pt-4">
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-sm text-stone-600">
-                    {t("credits.bottomSheet.standardCredits")}
-                  </Text>
-                  <Text className="font-medium text-stone-900">{standardCredits}</Text>
-                </View>
-                {referralCredits > 0 && (
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-sm text-stone-600">
-                      {t("credits.bottomSheet.referralCredits")}
-                    </Text>
-                    <Text className="font-medium text-primary">{referralCredits}</Text>
-                  </View>
-                )}
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-sm font-medium text-stone-900">
-                    {t("credits.remaining", { count: totalCredits })}
-                  </Text>
-                  <Text className="font-bold text-stone-900">{totalCredits}</Text>
-                </View>
-                {nextResetAt && (
-                  <View className="flex-row items-center gap-2 pt-2">
-                    <ArrowsClockwise size={14} color="#78716c" />
-                    <Text className="text-xs text-stone-500">
-                      {t("credits.bottomSheet.nextReset", {
-                        date: formatDate(nextResetAt, "EEEE, MMM d"),
-                      })}
-                    </Text>
-                  </View>
-                )}
-                {isFirstWeek && (
-                  <View className="mt-2 rounded-lg bg-primary/10 p-2">
-                    <Text className="text-center text-xs font-medium text-primary">
-                      {t("credits.bottomSheet.firstWeekBonus")}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            )}
-          </View>
+          ) : (
+            <CreditsInfoBox totalCredits={totalCredits} standardCredits={standardCredits} referralCredits={referralCredits} nextResetAt={nextResetAt} />
+          )}
 
           {/* Actions */}
           {isPremium ? (
@@ -202,22 +150,13 @@ export const SubscriptionBottomSheet = forwardRef<BottomSheetModal, Subscription
           ) : (
             <Pressable
               onPress={handleUpgrade}
-              className="flex-row items-center justify-between rounded-2xl bg-primary p-5 active:opacity-90"
+              className="mt-8 flex-row items-center justify-center gap-2 rounded-2xl bg-amber-500 py-4 active:bg-amber-600 "
             >
-              <View className="flex-row items-center gap-3">
-                <View className="h-10 w-10 items-center justify-center rounded-full bg-white/20">
-                  <Crown size={20} color="#fff" weight="fill" />
-                </View>
-                <View>
-                  <Text className="font-playfair-bold text-lg text-white">
-                    {t("settings.subscription.upgradeToPremium")}
-                  </Text>
-                  <Text className="text-sm text-white/80">
-                    {t("credits.bottomSheet.unlimitedExtractions")}
-                  </Text>
-                </View>
-              </View>
-              <ArrowRight size={20} color="#fff" />
+              <Crown size={20} color="#ffffff" weight="fill" />
+              <Text className="text-base font-semibold text-white">
+                {t("credits.bottomSheet.upgradePremium")}
+              </Text>
+              <ArrowRight size={18} color="#ffffff" weight="bold" />
             </Pressable>
           )}
 

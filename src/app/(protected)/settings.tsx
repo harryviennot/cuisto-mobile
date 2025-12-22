@@ -286,8 +286,6 @@ export default function SettingsScreen() {
           variant="danger"
         />
 
-        <Button title="Try!" onPress={() => Sentry.captureException(new Error("First error"))} />
-
         <Text className="text-center text-sm text-foreground-muted mt-4">
           {t("settings.appVersion", { version: appVersion })}
         </Text>

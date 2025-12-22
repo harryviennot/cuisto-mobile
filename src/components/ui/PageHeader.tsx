@@ -37,7 +37,7 @@ export function PageHeader({
   const renderTitle = () => {
     if (!highlightLastWord) {
       return (
-        <Text className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1] flex-1">
+        <Text className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1] flex-1" numberOfLines={1} adjustsFontSizeToFit>
           {title}
         </Text>
       );

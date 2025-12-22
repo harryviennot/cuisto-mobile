@@ -735,11 +735,16 @@
       "title": "Your Credits",
       "standardCredits": "Weekly credits",
       "referralCredits": "Referral bonus",
+      "standard": "standard",
+      "referral": "referral",
       "nextReset": "Resets {{date}}",
-      "firstWeekBonus": "First week bonus! Enjoy 5 credits.",
+      "resetsOn": "Your weekly credits reset on {{date}}",
+      "firstWeekBonus": "First week bonus",
       "upgradePremium": "Upgrade to Premium",
       "unlimitedExtractions": "Unlimited extractions",
-      "restorePurchases": "Restore purchases"
+      "restorePurchases": "Restore purchases",
+      "refills": "Refills {{date}}",
+      "noExpiry": "No expiry date"
     }
   },
   "settings": {

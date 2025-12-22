@@ -31,6 +31,7 @@ import {
 } from "@/components/onboarding";
 import type { OnboardingFormData } from "@/components/onboarding";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { usePrefetchDiscovery } from "@/hooks/useDiscovery";
 import { referralsService } from "@/api/services/referrals.service";
 
@@ -38,6 +39,7 @@ export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { submitOnboarding } = useAuth();
+  const { refreshCredits } = useSubscription();
 
   // Prefetch discovery data in background so it's ready when onboarding completes
   usePrefetchDiscovery();
@@ -103,10 +105,12 @@ export default function Onboarding() {
         try {
           const result = await referralsService.redeem(formData.referral_code);
           if (result.success) {
+            // Refresh credits to show the newly awarded referral credits
+            await refreshCredits();
             Toast.show({
               type: "success",
               text1: t("onboarding.referral.redeemed"),
-              text2: t("onboarding.referral.creditsAwarded", { count: result.credits_awarded }),
+              text2: t("onboarding.referral.creditsAwarded", { count: result.credits_awarded ?? 0 }),
             });
           }
         } catch (error) {
@@ -144,7 +148,7 @@ export default function Onboarding() {
 
       setIsSubmitting(false);
     }
-  }, [formData, t, submitOnboarding, isReferralValid]);
+  }, [formData, t, submitOnboarding, isReferralValid, refreshCredits]);
 
   // Check if current step can continue
   const canContinueCurrentStep = useCallback(() => {

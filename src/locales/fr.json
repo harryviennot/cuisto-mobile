@@ -735,8 +735,11 @@
       "title": "Vos Crédits",
       "standardCredits": "Crédits hebdomadaires",
       "referralCredits": "Bonus parrainage",
+      "standard": "standard",
+      "referral": "parrainage",
       "nextReset": "Réinitialisation {{date}}",
-      "firstWeekBonus": "Bonus première semaine ! Profitez de 5 crédits.",
+      "resetsOn": "Vos credits hebdomadaires se réinitialisent {{date}}",
+      "firstWeekBonus": "Bonus première semaine",
       "upgradePremium": "Passer à Premium",
       "unlimitedExtractions": "Extractions illimitées",
       "restorePurchases": "Restaurer les achats"
