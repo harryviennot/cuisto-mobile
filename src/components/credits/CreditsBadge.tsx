@@ -4,7 +4,7 @@
  * Displays the user's remaining extraction credits or premium status.
  * Shows in the header or extraction screens.
  */
-import { View, Text, Pressable } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { CoinsIcon, CrownIcon, SparkleIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 
@@ -44,7 +44,7 @@ export function CreditsBadge({
   // Premium user - Forest green badge for consistency
   if (isPremium) {
     return (
-      <Pressable onPress={onPress} className={cn("overflow-hidden rounded-full font-medium shadow-sm", className)}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7} className={cn("overflow-hidden rounded-full font-medium shadow-sm", className)}>
         <View className={cn("flex-row items-center gap-1.5 bg-forest-600", padding)}>
           {isTrialing ? (
             <SparkleIcon size={iconSize} color="#f4f1e8" weight="fill" />
@@ -57,7 +57,7 @@ export function CreditsBadge({
             </Text>
           )}
         </View>
-      </Pressable>
+      </TouchableOpacity>
     );
   }
 
@@ -68,14 +68,15 @@ export function CreditsBadge({
   const iconColor = isLowCredits ? "#dc2626" : "#334d43";
 
   return (
-    <Pressable
+    <TouchableOpacity
       onPress={onPress}
+      activeOpacity={0.7}
       className={cn("flex-row items-center gap-1.5 rounded-full", bgColor, padding, className)}
     >
       <CoinsIcon size={iconSize} color={iconColor} weight="duotone" />
       <Text className={cn(textSize, "font-medium text-md", creditColor)}>
         {totalCredits}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
