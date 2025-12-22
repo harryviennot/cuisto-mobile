@@ -19,6 +19,7 @@ import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
 import { useExtraction } from "@/contexts/ExtractionContext";
 import { CreditsBadge, CreditsBottomSheet } from "@/components/credits";
+import * as Haptics from "expo-haptics";
 
 type ExtractionMethod = "image" | "link" | "voice" | "text";
 
@@ -43,6 +44,11 @@ export default function NewRecipeScreen() {
     router.push(`/extraction/${method}`);
   };
 
+  const handleCreditsPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    creditsSheetRef.current?.present();
+  };
+
   return (
     <View className="flex-1 bg-surface">
       <Animated.View
@@ -65,7 +71,7 @@ export default function NewRecipeScreen() {
             </Text>
           </View>
           <View className="items-end justify-end">
-            <CreditsBadge onPress={() => creditsSheetRef.current?.present()} />
+            <CreditsBadge onPress={handleCreditsPress} />
           </View>
         </View>
 

@@ -36,12 +36,13 @@ import {
   SubscriptionBottomSheet,
 } from "@/components/settings";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { PremiumPlanCard } from "@/components/credits";
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
-  const { isPremium, isTrialing } = useSubscription();
+  const { isPremium, isTrialing, subscriptionExpiresAt } = useSubscription();
 
   // Animations
   const scrollY = useSharedValue(0);
@@ -275,6 +276,13 @@ export default function SettingsScreen() {
           title={t("settings.title")}
           topPadding={insets.top + 60}
         />
+
+        {isPremium && (
+          <PremiumPlanCard isTrialing={isTrialing} subscriptionExpiresAt={subscriptionExpiresAt} className="mx-5 mb-4" onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            subscriptionSheetRef.current?.present();
+          }} />
+        )}
 
         <SettingsSection title={t("settings.sections.account")} items={accountItems} />
 
