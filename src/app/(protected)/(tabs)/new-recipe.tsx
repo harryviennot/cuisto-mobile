@@ -50,7 +50,7 @@ export default function NewRecipeScreen() {
         className="flex-1 p-5"
         style={{ paddingTop: insets.top + 24, marginBottom: isTablet ? insets.bottom + 48 : 0 }}
       >
-        <View className="mb-8 flex-row items-start justify-between">
+        <View className="mb-8 flex-row items-stretch justify-between">
           <View className="flex-1">
             <Text className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-tertiary mb-3">
               {t("extraction.newRecipe.subtitle")}
@@ -64,7 +64,9 @@ export default function NewRecipeScreen() {
               <Text className="text-primary italic">{t("extraction.newRecipe.titleHighlight")}</Text>
             </Text>
           </View>
-          <CreditsBadge onPress={() => creditsSheetRef.current?.present()} />
+          <View className="flex-1 items-end justify-end">
+            <CreditsBadge onPress={() => creditsSheetRef.current?.present()} />
+          </View>
         </View>
 
         <View className="flex-1 gap-4">
