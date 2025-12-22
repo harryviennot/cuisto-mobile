@@ -30,11 +30,8 @@ export const CreditsBottomSheet = forwardRef<BottomSheetModal, CreditsBottomShee
       standardCredits,
       referralCredits,
       totalCredits,
-      isFirstWeek,
       nextResetAt,
       subscriptionExpiresAt,
-      refreshCredits,
-      refreshSubscription,
       restore,
     } = useSubscription();
 
@@ -50,14 +47,16 @@ export const CreditsBottomSheet = forwardRef<BottomSheetModal, CreditsBottomShee
       try {
         const result = await RevenueCatUI.presentPaywall();
         if (result === "PURCHASED" || result === "RESTORED") {
-          await refreshCredits();
-          await refreshSubscription();
-          handleDismiss();
+          // The CustomerInfoUpdateListener in SubscriptionContext handles the state updates
+          // Defer dismiss to next frame to avoid race condition with state updates
+          requestAnimationFrame(() => {
+            handleDismiss();
+          });
         }
       } catch (error) {
         console.error("[CreditsBottomSheet] Paywall error:", error);
       }
-    }, [refreshCredits, refreshSubscription, handleDismiss]);
+    }, [handleDismiss]);
 
     const handleRestore = useCallback(async () => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

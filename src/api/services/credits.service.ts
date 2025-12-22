@@ -35,7 +35,9 @@ export const creditsService = {
    * Get current user's credit balance
    */
   async getCredits(): Promise<CreditsResponse> {
-    const response = await api.get<CreditsResponse>("/credits");
+    const response = await api.get<CreditsResponse>("/credits", {
+      skipAuthRedirect: true, // Don't trigger logout loop on 401
+    });
     return response.data;
   },
 
@@ -52,7 +54,9 @@ export const creditsService = {
    * Call this after a purchase to update the backend
    */
   async syncSubscription(): Promise<SubscriptionStatusResponse> {
-    const response = await api.post<SubscriptionStatusResponse>("/credits/subscription/sync");
+    const response = await api.post<SubscriptionStatusResponse>("/credits/subscription/sync", undefined, {
+      skipAuthRedirect: true, // Don't trigger logout loop on 401
+    });
     return response.data;
   },
 };
