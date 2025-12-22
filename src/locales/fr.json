@@ -742,7 +742,8 @@
       "firstWeekBonus": "Bonus première semaine",
       "upgradePremium": "Passer à Premium",
       "unlimitedExtractions": "Extractions illimitées",
-      "restorePurchases": "Restaurer les achats"
+      "restorePurchases": "Restaurer les achats",
+      "renewsOn": "Renouvellement {{date}}"
     }
   },
   "settings": {

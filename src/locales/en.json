@@ -744,7 +744,8 @@
       "unlimitedExtractions": "Unlimited extractions",
       "restorePurchases": "Restore purchases",
       "refills": "Refills {{date}}",
-      "noExpiry": "No expiry date"
+      "noExpiry": "No expiry date",
+      "renewsOn": "Renews {{date}}"
     }
   },
   "settings": {

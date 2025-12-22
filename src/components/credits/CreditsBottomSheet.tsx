@@ -105,7 +105,7 @@ export const CreditsBottomSheet = forwardRef<BottomSheetModal, CreditsBottomShee
                       ? t("settings.subscription.trialEnds", {
                         date: formatDate(subscriptionExpiresAt, "MMM d"),
                       })
-                      : t("credits.bottomSheet.nextReset", {
+                      : t("credits.bottomSheet.renewsOn", {
                         date: formatDate(subscriptionExpiresAt, "MMM d"),
                       })}
                   </Text>

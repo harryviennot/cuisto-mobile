@@ -93,13 +93,13 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     }
   }, [isAuthenticated, user?.id]);
 
-  // Fetch credits when authenticated
+  // Fetch credits when authenticated (only on auth change, not on isPremium change)
   useEffect(() => {
     if (isAuthenticated) {
-      console.log("[SubscriptionContext] Fetching credits...");
+      console.log("[SubscriptionContext] Fetching credits on auth...");
       refreshCredits();
     }
-  }, [isAuthenticated, isPremium]);
+  }, [isAuthenticated]);
 
   // Listen for subscription changes
   useEffect(() => {
@@ -116,9 +116,14 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   }, []);
 
   const updateFromCustomerInfo = useCallback(async (customerInfo: CustomerInfo) => {
+    console.log("[SubscriptionContext] updateFromCustomerInfo called");
+    console.log("[SubscriptionContext] Active entitlements:", Object.keys(customerInfo.entitlements.active));
+    console.log("[SubscriptionContext] Looking for entitlement:", PRO_ENTITLEMENT_ID);
+
     const proEntitlement = customerInfo.entitlements.active[PRO_ENTITLEMENT_ID];
 
     if (proEntitlement) {
+      console.log("[SubscriptionContext] Pro entitlement found:", JSON.stringify(proEntitlement, null, 2));
       setIsPremium(true);
       setIsTrialing(proEntitlement.periodType === "TRIAL");
       setSubscriptionExpiresAt(
@@ -129,13 +134,21 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       // even if webhooks are delayed or not configured
       try {
         console.log("[SubscriptionContext] Syncing subscription to backend...");
-        await creditsService.syncSubscription();
-        console.log("[SubscriptionContext] Backend subscription sync complete");
+        const syncResult = await creditsService.syncSubscription();
+        console.log("[SubscriptionContext] Backend subscription sync complete:", syncResult);
+
+        // After sync completes, refresh credits to get updated state from backend
+        console.log("[SubscriptionContext] Refreshing credits after sync...");
+        const creditsData = await creditsService.getCredits();
+        console.log("[SubscriptionContext] Credits after sync:", JSON.stringify(creditsData, null, 2));
+        setCredits(creditsData);
       } catch (error) {
         console.warn("[SubscriptionContext] Failed to sync subscription to backend:", error);
         // Non-critical - the webhook should eventually sync it
       }
     } else {
+      console.log("[SubscriptionContext] No pro entitlement found, user is not premium");
+      console.log("[SubscriptionContext] All entitlements:", JSON.stringify(customerInfo.entitlements, null, 2));
       setIsPremium(false);
       setIsTrialing(false);
       setSubscriptionExpiresAt(null);
@@ -165,25 +178,21 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       const creditsData = await creditsService.getCredits();
       console.log("[SubscriptionContext] Credits response:", JSON.stringify(creditsData, null, 2));
       setCredits(creditsData);
-
-      // Sync premium state from backend (source of truth for free trial detection)
-      if (creditsData.is_premium !== isPremium) {
-        console.log("[SubscriptionContext] Premium state mismatch, updating:", { backend: creditsData.is_premium, local: isPremium });
-        setIsPremium(creditsData.is_premium);
-      }
+      // Note: We don't update isPremium from backend here - RevenueCat is the source of truth
+      // The backend's is_premium is only updated after sync, so it may be stale
     } catch (error) {
       console.error("[SubscriptionContext] Error fetching credits:", error);
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, isPremium]);
+  }, [isAuthenticated]);
 
   const purchase = useCallback(async (pkg: PurchasesPackage): Promise<boolean> => {
     try {
       const customerInfo = await purchasePackage(pkg);
       if (customerInfo) {
-        updateFromCustomerInfo(customerInfo);
-        await refreshCredits();
+        // updateFromCustomerInfo handles the backend sync and credits refresh
+        await updateFromCustomerInfo(customerInfo);
         return true;
       }
       return false;
@@ -191,14 +200,14 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       console.error("[Subscription] Purchase error:", error);
       throw error;
     }
-  }, [updateFromCustomerInfo, refreshCredits]);
+  }, [updateFromCustomerInfo]);
 
   const restore = useCallback(async (): Promise<boolean> => {
     try {
       const customerInfo = await restorePurchases();
       if (customerInfo) {
-        updateFromCustomerInfo(customerInfo);
-        await refreshCredits();
+        // updateFromCustomerInfo handles the backend sync and credits refresh
+        await updateFromCustomerInfo(customerInfo);
         return customerInfo.entitlements.active[PRO_ENTITLEMENT_ID] !== undefined;
       }
       return false;
@@ -206,7 +215,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       console.error("[Subscription] Restore error:", error);
       throw error;
     }
-  }, [updateFromCustomerInfo, refreshCredits]);
+  }, [updateFromCustomerInfo]);
 
   // Computed values
   const standardCredits = credits?.standard_credits ?? 0;

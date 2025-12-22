@@ -14,7 +14,8 @@ const REVENUECAT_IOS_KEY = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || "";
 const REVENUECAT_ANDROID_KEY = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || "";
 
 // Entitlement identifier for premium access
-export const PRO_ENTITLEMENT_ID = "pro";
+// This must match the entitlement ID configured in RevenueCat dashboard
+export const PRO_ENTITLEMENT_ID = "Cuisto Pro";
 
 // Product identifiers
 export const PRODUCT_IDS = {

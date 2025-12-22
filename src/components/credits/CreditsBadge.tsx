@@ -5,7 +5,7 @@
  * Shows in the header or extraction screens.
  */
 import { View, Text, Pressable } from "react-native";
-import { Coins, CoinsIcon, Crown, Sparkle } from "phosphor-react-native";
+import { CoinsIcon, CrownIcon, SparkleIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -26,7 +26,7 @@ export function CreditsBadge({
   className,
 }: CreditsBadgeProps) {
   const { t } = useTranslation();
-  const { isPremium, isTrialing, totalCredits, isFirstWeek, isLoading } = useSubscription();
+  const { isPremium, isTrialing, totalCredits, isLoading } = useSubscription();
 
   const iconSize = size === "small" ? 16 : 24;
   const textSize = size === "small" ? "text-xs" : "text-sm";
@@ -47,9 +47,9 @@ export function CreditsBadge({
       <Pressable onPress={onPress} className={cn("overflow-hidden rounded-full font-medium shadow-sm", className)}>
         <View className={cn("flex-row items-center gap-1.5 bg-forest-600", padding)}>
           {isTrialing ? (
-            <Sparkle size={iconSize} color="#f4f1e8" weight="fill" />
+            <SparkleIcon size={iconSize} color="#f4f1e8" weight="fill" />
           ) : (
-            <Crown size={iconSize} color="#f4f1e8" weight="fill" />
+            <CrownIcon size={iconSize} color="#f4f1e8" weight="fill" />
           )}
           {showLabel && (
             <Text className={cn(textSize, "font-bold text-white")}>
@@ -76,13 +76,6 @@ export function CreditsBadge({
       <Text className={cn(textSize, "font-medium text-md", creditColor)}>
         {totalCredits}
       </Text>
-      {/* {showLabel && isFirstWeek && (
-        <View className="ml-1 rounded-full bg-primary/10 px-1.5 py-0.5">
-          <Text className="text-[10px] font-medium text-primary">
-            {t("credits.firstWeek")}
-          </Text>
-        </View>
-      )} */}
     </Pressable>
   );
 }
