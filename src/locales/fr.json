@@ -692,6 +692,54 @@
       "setupFailed": "Échec de la configuration",
       "pleaseSelectOne": "Veuillez en sélectionner au moins un",
       "whereGetRecipes": "Où trouvez-vous habituellement vos recettes ?"
+    },
+    "referral": {
+      "title": "Vous avez un code de parrainage ?",
+      "subtitle": "Entrez-le ci-dessous pour recevoir des crédits bonus",
+      "placeholder": "ENTRER LE CODE",
+      "skip": "Je n'ai pas de code",
+      "skipHint": "Pas de code ? Pas de problème ! Vous pouvez passer cette étape.",
+      "checking": "Vérification...",
+      "valid": "Valide ! De {{name}}",
+      "validCode": "Valide ! De {{name}}",
+      "validUnknown": "Code valide !",
+      "invalid": "Code non trouvé",
+      "codeNotFound": "Ce code n'existe pas",
+      "cannotUseOwnCode": "Vous ne pouvez pas utiliser votre propre code",
+      "alreadyUsedReferral": "Vous avez déjà utilisé un code de parrainage",
+      "invalidFormat": "Format de code invalide",
+      "validationError": "Impossible de vérifier le code",
+      "friend": "un ami",
+      "bonus": "+5 crédits bonus pour vous et votre ami",
+      "bonusInfo": "Vous et votre ami recevrez chacun 5 crédits d'extraction bonus !",
+      "redeemed": "Code de parrainage utilisé !",
+      "creditsAwarded": "Vous avez reçu {{count}} crédits bonus"
+    }
+  },
+  "credits": {
+    "premium": "Premium",
+    "trial": "Essai",
+    "firstWeek": "1ère Semaine",
+    "remaining": "{{count}} crédits restants",
+    "unlimited": "Illimité",
+    "noCredits": {
+      "title": "Plus de crédits",
+      "message": "Vous avez utilisé toutes vos extractions gratuites cette semaine. Les crédits se réinitialisent lundi.",
+      "upgrade": "Passer à Premium"
+    },
+    "reset": {
+      "title": "Crédits réinitialisés",
+      "message": "Vos crédits hebdomadaires ont été rechargés"
+    },
+    "bottomSheet": {
+      "title": "Vos Crédits",
+      "standardCredits": "Crédits hebdomadaires",
+      "referralCredits": "Bonus parrainage",
+      "nextReset": "Réinitialisation {{date}}",
+      "firstWeekBonus": "Bonus première semaine ! Profitez de 5 crédits.",
+      "upgradePremium": "Passer à Premium",
+      "unlimitedExtractions": "Extractions illimitées",
+      "restorePurchases": "Restaurer les achats"
     }
   },
   "settings": {
@@ -738,7 +786,27 @@
     "subscription": {
       "title": "Abonnement",
       "description": "Gérer votre abonnement",
-      "comingSoon": "Bientôt disponible"
+      "comingSoon": "Bientôt disponible",
+      "currentPlan": "Forfait actuel",
+      "premium": "Premium",
+      "trial": "Essai",
+      "free": "Gratuit",
+      "trialEnds": "Essai se termine {{date}}",
+      "manageSubscription": "Gérer l'abonnement",
+      "upgradeToPremium": "Passer à Premium"
+    },
+    "referral": {
+      "title": "Inviter des amis",
+      "description": "Gagnez 5 crédits par parrainage",
+      "yourCode": "Votre code de parrainage",
+      "copyCode": "Copier",
+      "copied": "Copié !",
+      "share": "Partager avec vos amis",
+      "shareMessage": "Rejoins Cuisto et obtiens 5 crédits bonus avec mon code : {{code}}\n\nTélécharger : https://cuisto.app",
+      "stats": {
+        "friendsReferred": "Amis parrainés",
+        "creditsEarned": "Crédits gagnés"
+      }
     },
     "feedback": {
       "title": "Donner un avis",

@@ -19,6 +19,7 @@ import {
   InfoIcon,
   SignOutIcon,
   TrashIcon,
+  Gift,
 } from "phosphor-react-native";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,12 +32,16 @@ import {
   LanguageBottomSheet,
   ChangeEmailBottomSheet,
   AboutBottomSheet,
+  ReferralBottomSheet,
+  SubscriptionBottomSheet,
 } from "@/components/settings";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
+  const { isPremium, isTrialing } = useSubscription();
 
   // Animations
   const scrollY = useSharedValue(0);
@@ -50,6 +55,8 @@ export default function SettingsScreen() {
   const languageSheetRef = useRef<BottomSheetModal>(null);
   const emailSheetRef = useRef<BottomSheetModal>(null);
   const aboutSheetRef = useRef<BottomSheetModal>(null);
+  const referralSheetRef = useRef<BottomSheetModal>(null);
+  const subscriptionSheetRef = useRef<BottomSheetModal>(null);
 
   const appVersion = Constants.expoConfig?.version || "1.0.7";
 
@@ -136,6 +143,15 @@ export default function SettingsScreen() {
   // Menu Items
   // ============================================================================
 
+  const getSubscriptionDescription = () => {
+    if (isPremium) {
+      return isTrialing
+        ? t("settings.subscription.trial")
+        : t("settings.subscription.premium");
+    }
+    return t("settings.subscription.free");
+  };
+
   const accountItems: SettingsItem[] = [
     {
       id: "language",
@@ -161,10 +177,20 @@ export default function SettingsScreen() {
       id: "subscription",
       icon: <CreditCardIcon size={24} color="white" weight="fill" />,
       title: t("settings.subscription.title"),
-      description: t("settings.subscription.comingSoon"),
+      description: getSubscriptionDescription(),
       onPress: () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        // Placeholder - subscription not implemented yet
+        subscriptionSheetRef.current?.present();
+      },
+    },
+    {
+      id: "referral",
+      icon: <Gift size={24} color="white" weight="fill" />,
+      title: t("settings.referral.title"),
+      description: t("settings.referral.description"),
+      onPress: () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        referralSheetRef.current?.present();
       },
     },
   ];
@@ -276,6 +302,10 @@ export default function SettingsScreen() {
       <ChangeEmailBottomSheet ref={emailSheetRef} />
 
       <AboutBottomSheet ref={aboutSheetRef} onLinkedInPress={handleLinkedIn} />
+
+      <ReferralBottomSheet ref={referralSheetRef} />
+
+      <SubscriptionBottomSheet ref={subscriptionSheetRef} />
     </View>
   );
 }

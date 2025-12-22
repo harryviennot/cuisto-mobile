@@ -692,6 +692,54 @@
       "setupFailed": "Failed to complete setup",
       "pleaseSelectOne": "Please select at least one",
       "whereGetRecipes": "Where do you usually find recipes?"
+    },
+    "referral": {
+      "title": "Got a referral code?",
+      "subtitle": "Enter it below to get bonus credits",
+      "placeholder": "ENTER CODE",
+      "skip": "I don't have a code",
+      "skipHint": "No code? No problem! You can skip this step.",
+      "checking": "Checking...",
+      "valid": "Valid! From {{name}}",
+      "validCode": "Valid! From {{name}}",
+      "validUnknown": "Valid code!",
+      "invalid": "Code not found",
+      "codeNotFound": "This code doesn't exist",
+      "cannotUseOwnCode": "You can't use your own referral code",
+      "alreadyUsedReferral": "You've already redeemed a referral code",
+      "invalidFormat": "Invalid code format",
+      "validationError": "Unable to verify code",
+      "friend": "a friend",
+      "bonus": "+5 bonus credits for you and your friend",
+      "bonusInfo": "Both you and your friend will receive 5 bonus extraction credits!",
+      "redeemed": "Referral code redeemed!",
+      "creditsAwarded": "You received {{count}} bonus credits"
+    }
+  },
+  "credits": {
+    "premium": "Premium",
+    "trial": "Trial",
+    "firstWeek": "1st Week",
+    "remaining": "{{count}} credits left",
+    "unlimited": "Unlimited",
+    "noCredits": {
+      "title": "Out of credits",
+      "message": "You've used all your free extractions this week. Credits reset on Monday.",
+      "upgrade": "Upgrade to Premium"
+    },
+    "reset": {
+      "title": "Credits reset",
+      "message": "Your weekly credits have been refreshed"
+    },
+    "bottomSheet": {
+      "title": "Your Credits",
+      "standardCredits": "Weekly credits",
+      "referralCredits": "Referral bonus",
+      "nextReset": "Resets {{date}}",
+      "firstWeekBonus": "First week bonus! Enjoy 5 credits.",
+      "upgradePremium": "Upgrade to Premium",
+      "unlimitedExtractions": "Unlimited extractions",
+      "restorePurchases": "Restore purchases"
     }
   },
   "settings": {
@@ -738,7 +786,27 @@
     "subscription": {
       "title": "Subscription",
       "description": "Manage your subscription",
-      "comingSoon": "Coming soon"
+      "comingSoon": "Coming soon",
+      "currentPlan": "Current plan",
+      "premium": "Premium",
+      "trial": "Trial",
+      "free": "Free",
+      "trialEnds": "Trial ends {{date}}",
+      "manageSubscription": "Manage subscription",
+      "upgradeToPremium": "Upgrade to Premium"
+    },
+    "referral": {
+      "title": "Invite Friends",
+      "description": "Earn 5 credits per referral",
+      "yourCode": "Your referral code",
+      "copyCode": "Copy",
+      "copied": "Copied!",
+      "share": "Share with friends",
+      "shareMessage": "Join Cuisto and get 5 bonus credits with my code: {{code}}\n\nDownload: https://cuisto.app",
+      "stats": {
+        "friendsReferred": "Friends referred",
+        "creditsEarned": "Credits earned"
+      }
     },
     "feedback": {
       "title": "Give Feedback",

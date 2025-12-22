@@ -14,6 +14,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { SearchProvider } from "@/contexts/SearchContext";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
@@ -165,10 +166,12 @@ export function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <BottomSheetModalProvider>
             <AuthProvider>
-              <SearchProvider>
-                <SplashScreenController />
-                <RootNavigator />
-              </SearchProvider>
+              <SubscriptionProvider>
+                <SearchProvider>
+                  <SplashScreenController />
+                  <RootNavigator />
+                </SearchProvider>
+              </SubscriptionProvider>
             </AuthProvider>
             <StatusBar barStyle="dark-content" />
           </BottomSheetModalProvider>

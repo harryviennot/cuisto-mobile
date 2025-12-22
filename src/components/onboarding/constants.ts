@@ -46,6 +46,7 @@ export const RECIPE_SOURCES_OPTIONS: OptionConfig[] = [
 
 export const STEPS: StepId[] = [
   "basicInfo",
+  "referralCode",
   "heardFrom",
   "cookingFrequency",
   "recipeSources",

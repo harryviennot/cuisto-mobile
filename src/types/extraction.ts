@@ -10,6 +10,18 @@ export enum SourceType {
   LINK = "link", // Auto-detects video vs webpage
 }
 
+/**
+ * Content types detected by the server.
+ * The server dynamically detects content type using yt-dlp probing.
+ */
+export enum ContentType {
+  VIDEO = "video", // Standard video with audio
+  SLIDESHOW = "slideshow", // Image carousels (TikTok photo mode, Instagram carousels)
+  IMAGE_POST = "image_post", // Single image with description
+  WEBPAGE = "webpage", // Traditional recipe websites
+  UNKNOWN = "unknown", // Needs fallback handling
+}
+
 export enum ExtractionStatus {
   PENDING = "pending",
   PROCESSING = "processing",
@@ -35,6 +47,15 @@ export enum ExtractionStep {
   VIDEO_EXTRACTING_AUDIO = "video_extracting_audio",
   VIDEO_TRANSCRIBING = "video_transcribing",
   VIDEO_COMBINING = "video_combining",
+  GEMINI_TRANSCRIBING = "gemini_transcribing", // Gemini audio transcription (alternative to Whisper)
+
+  // Slideshow extraction (for TikTok photo mode, Instagram carousels)
+  SLIDESHOW_DOWNLOADING = "slideshow_downloading",
+  SLIDESHOW_ANALYZING = "slideshow_analyzing",
+
+  // Social post extraction (image posts with descriptions)
+  SOCIAL_EXTRACTING = "social_extracting",
+  VISION_ANALYZING = "vision_analyzing",
 
   // Photo extraction
   PHOTO_OCR_SINGLE = "photo_ocr_single",
@@ -91,6 +112,16 @@ export interface ExtractionJob {
   error_message?: string;
   progress_percentage: number;
   current_step?: string;
+  /**
+   * Content type detected by the server (video, slideshow, image_post, webpage).
+   * Used for analytics and debugging.
+   */
+  content_type?: ContentType;
+  /**
+   * Extraction method used (video_whisper, video_gemini, slideshow_vision, etc.).
+   * Used for cost tracking and benchmarking.
+   */
+  extraction_method?: string;
   /**
    * Direct MP4 URL for client-side download (Instagram).
    * Present when status is NEEDS_CLIENT_DOWNLOAD.
