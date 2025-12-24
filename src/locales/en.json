@@ -748,6 +748,42 @@
       "renewsOn": "Renews {{date}}"
     }
   },
+  "paywall": {
+    "badge": "Early Access",
+    "headline": "All your recipes",
+    "headlineHighlight": "in one place.",
+    "subtitle": "Never lose a recipe again.",
+    "features": {
+      "unlimited": {
+        "title": "Unlimited recipe saves",
+        "description": "Save every recipe you find"
+      },
+      "aiChef": {
+        "title": "AI Chef assistant",
+        "description": "Get instant help while cooking"
+      },
+      "translate": {
+        "title": "Auto-translate",
+        "description": "Cook recipes from any language"
+      },
+      "comingSoon": {
+        "title": "Coming soon",
+        "description": "Nutrition tracking, meal planning & shopping lists"
+      }
+    },
+    "pricing": {
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "yearlyBadge": "Save 33%",
+      "perMonth": "/month",
+      "perYear": "/year"
+    },
+    "cta": "Start Free Trial",
+    "trialInfo": "7 days free, then {{price}}",
+    "restore": "Restore purchases",
+    "terms": "Terms",
+    "privacy": "Privacy"
+  },
   "settings": {
     "title": "Settings",
     "subtitle": "PREFERENCES",

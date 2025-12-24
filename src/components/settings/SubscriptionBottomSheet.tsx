@@ -12,7 +12,7 @@ import { View, Text, Pressable, Linking, Platform, ActivityIndicator } from "rea
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Crown, ArrowRight, ArrowSquareOut } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
-import RevenueCatUI from "react-native-purchases-ui";
+import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 
 import { PremiumBottomSheet } from "@/components/ui/PremiumBottomSheet";
@@ -26,6 +26,7 @@ interface SubscriptionBottomSheetProps {
 export const SubscriptionBottomSheet = forwardRef<BottomSheetModal, SubscriptionBottomSheetProps>(
   ({ onClose }, ref) => {
     const { t } = useTranslation();
+    const router = useRouter();
     const {
       isPremium,
       isTrialing,
@@ -33,10 +34,7 @@ export const SubscriptionBottomSheet = forwardRef<BottomSheetModal, Subscription
       standardCredits,
       referralCredits,
       totalCredits,
-      isFirstWeek,
       nextResetAt,
-      refreshCredits,
-      refreshSubscription,
       restore,
     } = useSubscription();
 
@@ -47,19 +45,12 @@ export const SubscriptionBottomSheet = forwardRef<BottomSheetModal, Subscription
       (ref as React.RefObject<BottomSheetModal>)?.current?.dismiss();
     }, [onClose, ref]);
 
-    const handleUpgrade = useCallback(async () => {
+    const handleUpgrade = useCallback(() => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      try {
-        const result = await RevenueCatUI.presentPaywall();
-        if (result === "PURCHASED" || result === "RESTORED") {
-          await refreshCredits();
-          await refreshSubscription();
-          handleDismiss();
-        }
-      } catch (error) {
-        console.error("[SubscriptionBottomSheet] Paywall error:", error);
-      }
-    }, [refreshCredits, refreshSubscription, handleDismiss]);
+      handleDismiss();
+      // Navigate to custom paywall screen
+      router.push("/paywall");
+    }, [handleDismiss, router]);
 
     const handleManageSubscription = useCallback(() => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

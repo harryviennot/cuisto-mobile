@@ -64,6 +64,14 @@ function ProtectedContent() {
         <Stack.Screen name="settings" />
         <Stack.Screen name="recipe" />
         <Stack.Screen name="discovery" />
+        <Stack.Screen
+          name="paywall"
+          options={{
+            presentation: "fullScreenModal",
+            animation: "slide_from_bottom",
+            animationDuration: 350,
+          }}
+        />
       </Stack>
 
       {/* Extraction widget for minimized jobs */}

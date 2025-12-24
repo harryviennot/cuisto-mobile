@@ -7,9 +7,9 @@
 import React, { forwardRef, useCallback, useState } from "react";
 import { View, Text, Pressable, ActivityIndicator } from "react-native";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { Coins, Crown, Sparkle, ArrowRight } from "phosphor-react-native";
+import { Crown, ArrowRight } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
-import RevenueCatUI from "react-native-purchases-ui";
+import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 
 import { PremiumBottomSheet } from "@/components/ui/PremiumBottomSheet";
@@ -24,6 +24,7 @@ interface CreditsBottomSheetProps {
 export const CreditsBottomSheet = forwardRef<BottomSheetModal, CreditsBottomSheetProps>(
   ({ onClose }, ref) => {
     const { t } = useTranslation();
+    const router = useRouter();
     const {
       isPremium,
       isTrialing,
@@ -42,21 +43,12 @@ export const CreditsBottomSheet = forwardRef<BottomSheetModal, CreditsBottomShee
       (ref as React.RefObject<BottomSheetModal>)?.current?.dismiss();
     }, [onClose, ref]);
 
-    const handleUpgrade = useCallback(async () => {
+    const handleUpgrade = useCallback(() => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      try {
-        const result = await RevenueCatUI.presentPaywall();
-        if (result === "PURCHASED" || result === "RESTORED") {
-          // The CustomerInfoUpdateListener in SubscriptionContext handles the state updates
-          // Defer dismiss to next frame to avoid race condition with state updates
-          requestAnimationFrame(() => {
-            handleDismiss();
-          });
-        }
-      } catch (error) {
-        console.error("[CreditsBottomSheet] Paywall error:", error);
-      }
-    }, [handleDismiss]);
+      handleDismiss();
+      // Navigate to custom paywall screen
+      router.push("/paywall");
+    }, [handleDismiss, router]);
 
     const handleRestore = useCallback(async () => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

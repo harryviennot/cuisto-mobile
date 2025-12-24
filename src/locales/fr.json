@@ -746,6 +746,42 @@
       "renewsOn": "Renouvellement {{date}}"
     }
   },
+  "paywall": {
+    "badge": "Accès Anticipé",
+    "headline": "Toutes vos recettes",
+    "headlineHighlight": "au même endroit.",
+    "subtitle": "Ne perdez plus jamais une recette.",
+    "features": {
+      "unlimited": {
+        "title": "Sauvegardes illimitées",
+        "description": "Sauvegardez toutes vos recettes"
+      },
+      "aiChef": {
+        "title": "Chef IA assistant",
+        "description": "Obtenez de l'aide en cuisinant"
+      },
+      "translate": {
+        "title": "Traduction automatique",
+        "description": "Cuisinez dans n'importe quelle langue"
+      },
+      "comingSoon": {
+        "title": "Bientôt disponible",
+        "description": "Infos nutritionnelles, planning repas & liste de courses"
+      }
+    },
+    "pricing": {
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "yearlyBadge": "Économisez 33%",
+      "perMonth": "/mois",
+      "perYear": "/an"
+    },
+    "cta": "Essai gratuit",
+    "trialInfo": "7 jours gratuits, puis {{price}}",
+    "restore": "Restaurer les achats",
+    "terms": "Conditions",
+    "privacy": "Confidentialité"
+  },
   "settings": {
     "title": "Paramètres",
     "subtitle": "PRÉFÉRENCES",
