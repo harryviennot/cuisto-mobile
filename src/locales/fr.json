@@ -764,6 +764,10 @@
         "title": "Traduction automatique",
         "description": "Cuisinez dans n'importe quelle langue"
       },
+      "batch": {
+        "title": "Sauvegarde en lot",
+        "description": "Extrayez plusieurs recettes à la fois"
+      },
       "comingSoon": {
         "title": "Bientôt disponible",
         "description": "Infos nutritionnelles, planning repas & liste de courses"

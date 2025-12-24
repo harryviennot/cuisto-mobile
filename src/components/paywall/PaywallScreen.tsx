@@ -17,6 +17,7 @@ import {
   Globe,
   Sparkle,
   ArrowRightIcon,
+  CopySimpleIcon,
 } from "phosphor-react-native";
 import Animated, {
   useAnimatedStyle,
@@ -209,6 +210,9 @@ export function PaywallScreen() {
     }
     return "$3.33/month";
   };
+  // const getMonthlyPrice = () => "$2.99";
+  // const getYearlyPrice = () => "$29.99";
+  // const getYearlyMonthlyEquivalent = () => "$2.49/month";
 
   const selectedPackage = selectedPlan === "yearly" ? yearlyPackage : monthlyPackage;
   const introPrice = selectedPackage?.product.introPrice;
@@ -304,14 +308,21 @@ export function PaywallScreen() {
               description={t("paywall.features.unlimited.description")}
             />
             <FeatureRow
-              icon={ChefHat}
-              title={t("paywall.features.aiChef.title")}
-              description={t("paywall.features.aiChef.description")}
+              icon={CopySimpleIcon}
+              title={t("paywall.features.batch.title")}
+              description={t("paywall.features.batch.description")}
             />
             <FeatureRow
               icon={Globe}
               title={t("paywall.features.translate.title")}
               description={t("paywall.features.translate.description")}
+              isComingSoon
+            />
+            <FeatureRow
+              icon={ChefHat}
+              title={t("paywall.features.aiChef.title")}
+              description={t("paywall.features.aiChef.description")}
+              isComingSoon
             />
             <FeatureRow
               icon={Sparkle}

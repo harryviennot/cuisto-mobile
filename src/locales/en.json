@@ -766,6 +766,10 @@
         "title": "Auto-translate",
         "description": "Cook recipes from any language"
       },
+      "batch": {
+        "title": "Batch saving",
+        "description": "Extract multiple recipes at once"
+      },
       "comingSoon": {
         "title": "Coming soon",
         "description": "Nutrition tracking, meal planning & shopping lists"
