@@ -23,12 +23,12 @@ export function FeatureRow({ icon: Icon, title, description, isComingSoon = fals
       <View
         className={cn(
           "h-10 w-10 items-center justify-center rounded-full",
-          isComingSoon ? "bg-stone-200" : "bg-premium-muted"
+          isComingSoon ? "bg-stone-200" : "bg-forest-100"
         )}
       >
         <Icon
           size={20}
-          color={isComingSoon ? "#a8a29e" : "#c9a962"}
+          color={isComingSoon ? "#a8a29e" : "#334d43"}
           weight="fill"
         />
       </View>

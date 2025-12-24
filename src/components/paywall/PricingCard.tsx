@@ -30,6 +30,7 @@ interface PricingCardProps {
   badge?: string;
   isSelected: boolean;
   onSelect: () => void;
+  variant?: "default" | "gold";
 }
 
 export function PricingCard({
@@ -40,7 +41,9 @@ export function PricingCard({
   badge,
   isSelected,
   onSelect,
+  variant = "default",
 }: PricingCardProps) {
+  const isGold = variant === "gold";
   // Scintillation animation - only runs when selected
   const scintPosition = useSharedValue(-1);
 
@@ -79,20 +82,31 @@ export function PricingCard({
     onSelect();
   };
 
+  // When gold variant is selected, use gold background with white text
+  const isGoldSelected = isGold && isSelected;
+
   return (
     <Pressable
       onPress={handlePress}
       className={cn(
         "flex-1 rounded-2xl p-4 overflow-hidden relative",
-        isSelected
-          ? "bg-premium-light border-2 border-premium"
-          : "bg-surface-elevated border-2 border-border"
+        isGoldSelected
+          ? "bg-premium border-2 border-premium"
+          : isSelected
+            ? "bg-surface-elevated border-2 border-primary"
+            : "bg-surface-elevated border-2 border-border"
       )}
     >
       {/* Badge */}
       {badge && (
-        <View className="absolute -top-0 right-3 bg-premium px-2 py-1 rounded-b-lg">
-          <Text className="text-premium-foreground text-[10px] font-bold">
+        <View className={cn(
+          "absolute -top-0 right-3 px-2 py-1 rounded-b-lg",
+          isGoldSelected ? "bg-white/20" : isGold ? "bg-premium" : "bg-primary"
+        )}>
+          <Text className={cn(
+            "text-[10px] font-bold",
+            isGoldSelected ? "text-white" : "text-white"
+          )}>
             {badge}
           </Text>
         </View>
@@ -102,7 +116,11 @@ export function PricingCard({
       <Text
         className={cn(
           "text-sm font-medium mb-2",
-          isSelected ? "text-premium-dark" : "text-text-body"
+          isGoldSelected
+            ? "text-white/90"
+            : isSelected
+              ? isGold ? "text-premium" : "text-primary"
+              : "text-text-body"
         )}
       >
         {label}
@@ -112,31 +130,26 @@ export function PricingCard({
       <View className="flex-row items-baseline">
         <Text
           className={cn(
-            "font-playfair-bold text-2xl",
-            isSelected ? "text-premium-foreground" : "text-text-heading"
+            "text-2xl font-bold",
+            isGoldSelected ? "text-white" : "text-text-heading"
           )}
-          style={{ fontFamily: "PlayfairDisplay_700Bold" }}
         >
           {price}
         </Text>
-        <Text
-          className={cn(
-            "text-sm ml-0.5",
-            isSelected ? "text-premium-dark" : "text-text-body"
-          )}
-        >
+        <Text className={cn(
+          "text-sm ml-0.5",
+          isGoldSelected ? "text-white/80" : "text-text-body"
+        )}>
           {period}
         </Text>
       </View>
 
       {/* Subtext */}
       {subtext && (
-        <Text
-          className={cn(
-            "text-xs mt-1",
-            isSelected ? "text-premium-dark" : "text-text-muted"
-          )}
-        >
+        <Text className={cn(
+          "text-xs mt-1",
+          isGoldSelected ? "text-white/70" : "text-text-muted"
+        )}>
           {subtext}
         </Text>
       )}

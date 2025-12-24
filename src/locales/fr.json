@@ -777,7 +777,12 @@
       "perYear": "/an"
     },
     "cta": "Essai gratuit",
-    "trialInfo": "7 jours gratuits, puis {{price}}",
+    "trialInfo": "{{trialPeriod}} gratuit, puis {{price}}",
+    "noTrialInfo": "Facturé {{price}}",
+    "trialDays_one": "{{count}} jour",
+    "trialDays_other": "{{count}} jours",
+    "trialWeeks_one": "{{count}} semaine",
+    "trialWeeks_other": "{{count}} semaines",
     "restore": "Restaurer les achats",
     "terms": "Conditions",
     "privacy": "Confidentialité"

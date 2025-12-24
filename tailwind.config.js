@@ -94,10 +94,10 @@ module.exports = {
 
         // Premium/Subscription Colors
         premium: {
-          DEFAULT: "#c9a962", // Warm gold - Main premium color
-          light: "#e0c78a", // Light gold - Premium card background
-          dark: "#a68b45", // Dark gold - Pressed/hover state
-          foreground: "#1c1917", // Dark text on premium backgrounds (stone-900)
+          DEFAULT: "#b8942d", // Darker gold - Main premium color (better contrast with white)
+          light: "#d4b044", // Light gold - Premium card background
+          dark: "#9a7a1f", // Dark gold - Pressed/hover state
+          foreground: "#ffffff", // White text on premium backgrounds
           muted: "#f5ecd4", // Very light gold - Subtle premium hints
         },
 

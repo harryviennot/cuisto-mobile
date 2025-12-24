@@ -779,7 +779,12 @@
       "perYear": "/year"
     },
     "cta": "Start Free Trial",
-    "trialInfo": "7 days free, then {{price}}",
+    "trialInfo": "{{trialPeriod}} free, then {{price}}",
+    "noTrialInfo": "Billed at {{price}}",
+    "trialDays_one": "{{count}} day",
+    "trialDays_other": "{{count}} days",
+    "trialWeeks_one": "{{count}} week",
+    "trialWeeks_other": "{{count}} weeks",
     "restore": "Restore purchases",
     "terms": "Terms",
     "privacy": "Privacy"

@@ -30,14 +30,15 @@ import { PurchasesPackage } from "react-native-purchases";
 
 import { FeatureRow } from "./FeatureRow";
 import { PricingCard } from "./PricingCard";
-import { getOfferings, purchasePackage, restorePurchases, PRODUCT_IDS } from "@/lib/revenuecat";
+import { ActionButton } from "@/components/ui/ActionButton";
+import { getOfferings, purchasePackage, restorePurchases } from "@/lib/revenuecat";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 
 export function PaywallScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { t } = useTranslation();
-  const { syncSubscription } = useSubscription();
+  const { refreshSubscription } = useSubscription();
 
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,11 +75,12 @@ export function PaywallScreen() {
     try {
       const offering = await getOfferings();
       if (offering) {
+        // Find packages by package type (MONTHLY, ANNUAL) - more reliable than product IDs
         const monthly = offering.availablePackages.find(
-          (pkg) => pkg.product.identifier === PRODUCT_IDS.MONTHLY
+          (pkg) => pkg.packageType === "MONTHLY"
         );
         const yearly = offering.availablePackages.find(
-          (pkg) => pkg.product.identifier === PRODUCT_IDS.YEARLY
+          (pkg) => pkg.packageType === "ANNUAL"
         );
         setMonthlyPackage(monthly || null);
         setYearlyPackage(yearly || null);
@@ -108,7 +110,7 @@ export function PaywallScreen() {
       const customerInfo = await purchasePackage(packageToPurchase);
       if (customerInfo) {
         // Sync with backend
-        await syncSubscription();
+        await refreshSubscription();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         router.back();
       }
@@ -131,7 +133,7 @@ export function PaywallScreen() {
     try {
       const customerInfo = await restorePurchases();
       if (customerInfo) {
-        await syncSubscription();
+        await refreshSubscription();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         router.back();
       }
@@ -199,9 +201,31 @@ export function PaywallScreen() {
   };
 
   const selectedPackage = selectedPlan === "yearly" ? yearlyPackage : monthlyPackage;
-  const trialInfo = selectedPackage?.product.introPrice
-    ? t("paywall.trialInfo", { price: selectedPackage.product.priceString })
-    : null;
+  const introPrice = selectedPackage?.product.introPrice;
+
+  // Build trial info text - show trial duration and then price
+  const getTrialInfoText = () => {
+    if (!selectedPackage) return null;
+
+    if (introPrice) {
+      // Has free trial - show trial period then price
+      const trialDays = introPrice.periodNumberOfUnits || 7;
+      const periodUnit = introPrice.periodUnit || "DAY";
+      const trialPeriod = periodUnit === "DAY"
+        ? t("paywall.trialDays", { count: trialDays })
+        : t("paywall.trialWeeks", { count: trialDays });
+
+      return t("paywall.trialInfo", {
+        trialPeriod,
+        price: selectedPackage.product.priceString
+      });
+    }
+
+    // No trial - show direct pricing info
+    return t("paywall.noTrialInfo", { price: selectedPackage.product.priceString });
+  };
+
+  const trialInfo = getTrialInfoText();
 
   return (
     <View className="flex-1 bg-surface">
@@ -220,18 +244,18 @@ export function PaywallScreen() {
         contentContainerStyle={{
           paddingTop: insets.top + 16,
           paddingHorizontal: 24,
-          paddingBottom: 200,
+          paddingBottom: 280,
         }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <Animated.View style={headerStyle} className="items-center mb-8">
           {/* Early Access Badge */}
-          <View className="flex-row items-center gap-2 bg-premium-muted px-4 py-2 rounded-full mb-6">
+          <View className="flex-row items-center gap-2 bg-forest-100 px-4 py-2 rounded-full mb-6">
             <Animated.View style={sparkleStyle}>
-              <Sparkle size={16} color="#c9a962" weight="fill" />
+              <Sparkle size={16} color="#334d43" weight="fill" />
             </Animated.View>
-            <Text className="text-premium-dark text-sm font-semibold">
+            <Text className="text-primary text-sm font-semibold">
               {t("paywall.badge")}
             </Text>
           </View>
@@ -288,10 +312,22 @@ export function PaywallScreen() {
           </View>
         </Animated.View>
 
-        {/* Pricing Cards */}
-        <Animated.View style={contentStyle} className="flex-row gap-3 mb-4">
+      </ScrollView>
+
+      {/* Fixed Footer Section */}
+      <Animated.View
+        style={[
+          ctaStyle,
+          {
+            paddingBottom: insets.bottom + 16,
+          },
+        ]}
+        className="absolute bottom-0 left-0 right-0 bg-surface px-6 pt-4 border-t border-border-light"
+      >
+        {/* Pricing Cards in Footer */}
+        <View className="flex-row gap-3 mb-4">
           {isLoading ? (
-            <View className="flex-1 items-center justify-center py-8">
+            <View className="flex-1 items-center justify-center py-4">
               <ActivityIndicator size="small" color="#c9a962" />
             </View>
           ) : (
@@ -302,6 +338,7 @@ export function PaywallScreen() {
                 period={t("paywall.pricing.perMonth")}
                 isSelected={selectedPlan === "monthly"}
                 onSelect={() => setSelectedPlan("monthly")}
+                variant="gold"
               />
               <PricingCard
                 label={t("paywall.pricing.yearly")}
@@ -311,41 +348,25 @@ export function PaywallScreen() {
                 badge={t("paywall.pricing.yearlyBadge")}
                 isSelected={selectedPlan === "yearly"}
                 onSelect={() => setSelectedPlan("yearly")}
+                variant="gold"
               />
             </>
           )}
-        </Animated.View>
+        </View>
 
         {/* Error message */}
         {error && (
-          <Text className="text-danger text-center text-sm mb-4">{error}</Text>
+          <Text className="text-danger text-center text-sm mb-3">{error}</Text>
         )}
-      </ScrollView>
 
-      {/* Fixed CTA Section */}
-      <Animated.View
-        style={[
-          ctaStyle,
-          {
-            paddingBottom: insets.bottom + 16,
-          },
-        ]}
-        className="absolute bottom-0 left-0 right-0 bg-surface px-6 pt-4 border-t border-border-light"
-      >
-        {/* CTA Button */}
-        <Pressable
+        {/* CTA Button - Gold premium style */}
+        <ActionButton
+          title={t("paywall.cta")}
           onPress={handlePurchase}
           disabled={isPurchasing || isLoading}
-          className="bg-premium rounded-2xl py-4 items-center justify-center active:bg-premium-dark disabled:opacity-50"
-        >
-          {isPurchasing ? (
-            <ActivityIndicator size="small" color="#1c1917" />
-          ) : (
-            <Text className="text-premium-foreground font-bold text-base">
-              {t("paywall.cta")}
-            </Text>
-          )}
-        </Pressable>
+          isLoading={isPurchasing}
+          className="bg-premium"
+        />
 
         {/* Trial info */}
         {trialInfo && (
