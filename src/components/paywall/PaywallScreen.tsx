@@ -5,16 +5,18 @@
  * Matches Cuisto's design system with welcome page styling.
  */
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
+
 import {
   X,
   InfinityIcon,
   ChefHat,
   Globe,
   Sparkle,
+  ArrowRightIcon,
 } from "phosphor-react-native";
 import Animated, {
   useAnimatedStyle,
@@ -366,6 +368,7 @@ export function PaywallScreen() {
           disabled={isPurchasing || isLoading}
           isLoading={isPurchasing}
           className="bg-premium"
+          rightIcon={<ArrowRightIcon size={16} color="white" weight="bold" />}
         />
 
         {/* Trial info */}
@@ -385,12 +388,12 @@ export function PaywallScreen() {
             )}
           </Pressable>
           <Text className="text-stone-300">•</Text>
-          <Pressable>
-            <Text className="text-stone-400 text-xs">{t("paywall.terms")}</Text>
+          <Pressable onPress={() => Linking.openURL("https://cuisto.app/terms")}>
+            <Text className="text-stone-400 text-xs underline">{t("paywall.terms")}</Text>
           </Pressable>
           <Text className="text-stone-300">•</Text>
-          <Pressable>
-            <Text className="text-stone-400 text-xs">{t("paywall.privacy")}</Text>
+          <Pressable onPress={() => Linking.openURL("https://cuisto.app/privacy")}>
+            <Text className="text-stone-400 text-xs underline">{t("paywall.privacy")}</Text>
           </Pressable>
         </View>
       </Animated.View>
