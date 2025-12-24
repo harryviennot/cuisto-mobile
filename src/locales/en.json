@@ -787,7 +787,12 @@
     "trialWeeks_other": "{{count}} weeks",
     "restore": "Restore purchases",
     "terms": "Terms",
-    "privacy": "Privacy"
+    "privacy": "Privacy",
+    "errors": {
+      "loadingFailed": "Unable to load pricing",
+      "purchaseFailed": "Purchase failed",
+      "restoreFailed": "Unable to restore purchases"
+    }
   },
   "settings": {
     "title": "Settings",

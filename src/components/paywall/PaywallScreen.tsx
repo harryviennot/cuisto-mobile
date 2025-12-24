@@ -29,6 +29,8 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { PurchasesPackage } from "react-native-purchases";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "@/components/ui/ToastConfig";
 
 import { FeatureRow } from "./FeatureRow";
 import { PricingCard } from "./PricingCard";
@@ -49,7 +51,6 @@ export function PaywallScreen() {
   const [monthlyPackage, setMonthlyPackage] = useState<PurchasesPackage | null>(null);
   const [yearlyPackage, setYearlyPackage] = useState<PurchasesPackage | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
-  const [error, setError] = useState<string | null>(null);
 
   // Sparkle animation for badge
   const sparkleRotation = useSharedValue(0);
@@ -89,7 +90,10 @@ export function PaywallScreen() {
       }
     } catch (err) {
       console.error("[Paywall] Error loading offerings:", err);
-      setError("Unable to load pricing. Please try again.");
+      Toast.show({
+        type: "error",
+        text1: t("paywall.errors.loadingFailed"),
+      });
     } finally {
       setIsLoading(false);
     }
@@ -106,7 +110,6 @@ export function PaywallScreen() {
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsPurchasing(true);
-    setError(null);
 
     try {
       const customerInfo = await purchasePackage(packageToPurchase);
@@ -119,7 +122,10 @@ export function PaywallScreen() {
     } catch (err: any) {
       if (!err.userCancelled) {
         console.error("[Paywall] Purchase error:", err);
-        setError("Purchase failed. Please try again.");
+        Toast.show({
+          type: "error",
+          text1: t("paywall.errors.purchaseFailed"),
+        });
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     } finally {
@@ -130,7 +136,6 @@ export function PaywallScreen() {
   const handleRestore = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsRestoring(true);
-    setError(null);
 
     try {
       const customerInfo = await restorePurchases();
@@ -141,7 +146,10 @@ export function PaywallScreen() {
       }
     } catch (err) {
       console.error("[Paywall] Restore error:", err);
-      setError("Unable to restore purchases.");
+      Toast.show({
+        type: "error",
+        text1: t("paywall.errors.restoreFailed"),
+      });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
       setIsRestoring(false);
@@ -356,11 +364,6 @@ export function PaywallScreen() {
           )}
         </View>
 
-        {/* Error message */}
-        {error && (
-          <Text className="text-danger text-center text-sm mb-3">{error}</Text>
-        )}
-
         {/* CTA Button - Gold premium style */}
         <ActionButton
           title={t("paywall.cta")}
@@ -397,6 +400,11 @@ export function PaywallScreen() {
           </Pressable>
         </View>
       </Animated.View>
+
+      {/* Toast for fullscreen modal - needs its own instance with high z-index */}
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }} pointerEvents="box-none">
+        <Toast config={toastConfig} topOffset={insets.top} />
+      </View>
     </View>
   );
 }

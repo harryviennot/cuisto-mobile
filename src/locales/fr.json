@@ -785,7 +785,12 @@
     "trialWeeks_other": "{{count}} semaines",
     "restore": "Restaurer les achats",
     "terms": "Conditions",
-    "privacy": "Confidentialité"
+    "privacy": "Confidentialité",
+    "errors": {
+      "loadingFailed": "Impossible de charger les tarifs",
+      "purchaseFailed": "Échec de l'achat",
+      "restoreFailed": "Impossible de restaurer les achats"
+    }
   },
   "settings": {
     "title": "Paramètres",
