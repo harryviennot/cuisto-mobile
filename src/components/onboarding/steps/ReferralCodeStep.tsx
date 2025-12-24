@@ -5,7 +5,7 @@
  * Both the referrer and referee get 5 bonus credits.
  */
 import { useState, useCallback, useEffect } from "react";
-import { View, Text, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, Pressable, ActivityIndicator, TextInput } from "react-native";
 import { useTranslation } from "react-i18next";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { Gift, CheckCircle, XCircle } from "phosphor-react-native";
@@ -127,15 +127,25 @@ export function ReferralCodeStep({
       {/* Input */}
       <View className="mb-4">
         <View className="relative">
-          <FixedTextInput
+          <TextInput
             className={cn(
-              "rounded-xl border-2 bg-white px-4 py-4 text-center text-lg tracking-widest",
+              "border-2",
               validationResult?.isValid
                 ? "border-state-success"
                 : validationResult && !validationResult.isValid
                   ? "border-state-error"
                   : "border-border"
             )}
+            style={{
+              backgroundColor: "white",
+              borderRadius: 12,
+
+              padding: 16,
+              textAlign: "center",
+              fontSize: 16,
+              fontWeight: "normal",
+              letterSpacing: 2,
+            }}
             placeholder={t("onboarding.referral.placeholder")}
             placeholderTextColor="#a8a29e"
             value={referralCode}
