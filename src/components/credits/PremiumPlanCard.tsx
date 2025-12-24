@@ -70,9 +70,9 @@ export function PremiumPlanCard({
     <Pressable onPress={onPress} disabled={!onPress} className={cn("flex-row items-center gap-4 rounded-3xl bg-premium-light p-6 overflow-hidden", className)}>
       <View className="h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
         {isTrialing ? (
-          <SparkleIcon size={28} color="#1c1917" weight="fill" />
+          <SparkleIcon size={28} color="#FFFFFF" weight="fill" />
         ) : (
-          <CrownIcon size={28} color="#1c1917" weight="fill" />
+          <CrownIcon size={28} color="#FFFFFF" weight="fill" />
         )}
       </View>
       <View className="flex-1">
@@ -85,7 +85,7 @@ export function PremiumPlanCard({
             : t("settings.subscription.premium")}
         </Text>
         {subscriptionExpiresAt && (
-          <Text className="mt-1 text-xs font-medium text-muted">
+          <Text className="mt-1 text-xs font-medium text-white">
             {isTrialing
               ? t("settings.subscription.trialEnds", {
                 date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
