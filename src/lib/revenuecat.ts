@@ -44,7 +44,7 @@ export async function initRevenueCat(): Promise<void> {
 
   try {
     // Set log level for debugging (reduce in production)
-    Purchases.setLogLevel(__DEV__ ? LOG_LEVEL.DEBUG : LOG_LEVEL.ERROR);
+    Purchases.setLogLevel(LOG_LEVEL.ERROR);
 
     // Configure without user ID - will use anonymous ID
     Purchases.configure({ apiKey });
@@ -201,7 +201,7 @@ export function addCustomerInfoUpdateListener(
   listener: (customerInfo: CustomerInfo) => void
 ): () => void {
   if (!isConfigured) {
-    return () => {};
+    return () => { };
   }
 
   Purchases.addCustomerInfoUpdateListener(listener);
