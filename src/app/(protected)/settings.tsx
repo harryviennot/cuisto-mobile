@@ -1,5 +1,5 @@
-import React, { useCallback, useRef } from "react";
-import { View, Text, Alert, Linking, Button } from "react-native";
+import React, { useCallback, useRef, useState } from "react";
+import { View, Text, Alert, Linking, Pressable } from "react-native";
 import { Stack, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
@@ -37,12 +37,39 @@ import {
 } from "@/components/settings";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { PremiumPlanCard } from "@/components/credits";
+import { PremiumSuccessScreen } from "@/components/paywall/PremiumSuccessScreen";
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
   const { isPremium, isTrialing, subscriptionExpiresAt } = useSubscription();
+
+  // DEV ONLY: Triple-tap on version to show success screen
+  const [showDevSuccess, setShowDevSuccess] = useState(false);
+  const [devTapCount, setDevTapCount] = useState(0);
+  const devTapTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleVersionTap = () => {
+    if (!__DEV__) return;
+
+    if (devTapTimeout.current) {
+      clearTimeout(devTapTimeout.current);
+    }
+
+    const newCount = devTapCount + 1;
+    setDevTapCount(newCount);
+
+    if (newCount >= 3) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setShowDevSuccess(true);
+      setDevTapCount(0);
+    } else {
+      devTapTimeout.current = setTimeout(() => {
+        setDevTapCount(0);
+      }, 500);
+    }
+  };
 
   // Animations
   const scrollY = useSharedValue(0);
@@ -249,6 +276,11 @@ export default function SettingsScreen() {
   // Render
   // ============================================================================
 
+  // DEV ONLY: Show success screen for testing
+  if (showDevSuccess) {
+    return <PremiumSuccessScreen onContinue={() => setShowDevSuccess(false)} />;
+  }
+
   return (
     <View className="flex-1 bg-surface">
       <Stack.Screen
@@ -294,9 +326,11 @@ export default function SettingsScreen() {
           variant="danger"
         />
 
-        <Text className="text-center text-sm text-foreground-muted mt-4">
-          {t("settings.appVersion", { version: appVersion })}
-        </Text>
+        <Pressable onPress={handleVersionTap}>
+          <Text className="text-center text-sm text-foreground-muted mt-4">
+            {t("settings.appVersion", { version: appVersion })}
+          </Text>
+        </Pressable>
       </Animated.ScrollView>
 
       <LanguageBottomSheet

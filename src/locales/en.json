@@ -796,6 +796,13 @@
       "loadingFailed": "Unable to load pricing",
       "purchaseFailed": "Purchase failed",
       "restoreFailed": "Unable to restore purchases"
+    },
+    "success": {
+      "headline": "Welcome to",
+      "thankYou": "Thank you for supporting Cuisto! Your subscription helps us build the best recipe app for home cooks everywhere.",
+      "feedbackTitle": "We'd love your feedback",
+      "feedbackDescription": "Have ideas or suggestions? We're all ears! Drop us a line anytime.",
+      "continue": "Continue"
     }
   },
   "settings": {

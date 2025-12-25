@@ -35,6 +35,7 @@ import { toastConfig } from "@/components/ui/ToastConfig";
 
 import { FeatureRow } from "./FeatureRow";
 import { PricingCard } from "./PricingCard";
+import { PremiumSuccessScreen } from "./PremiumSuccessScreen";
 import { ActionButton } from "@/components/ui/ActionButton";
 import { getOfferings, purchasePackage, restorePurchases } from "@/lib/revenuecat";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -52,6 +53,34 @@ export function PaywallScreen() {
   const [monthlyPackage, setMonthlyPackage] = useState<PurchasesPackage | null>(null);
   const [yearlyPackage, setYearlyPackage] = useState<PurchasesPackage | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // DEV ONLY: Triple-tap counter for testing success screen
+  const [devTapCount, setDevTapCount] = useState(0);
+  const devTapTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleDevTap = () => {
+    if (!__DEV__) return;
+
+    if (devTapTimeout.current) {
+      clearTimeout(devTapTimeout.current);
+    }
+
+    const newCount = devTapCount + 1;
+    setDevTapCount(newCount);
+
+    if (newCount >= 3) {
+      // Triple tap detected - show success screen
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setShowSuccess(true);
+      setDevTapCount(0);
+    } else {
+      // Reset after 500ms if not enough taps
+      devTapTimeout.current = setTimeout(() => {
+        setDevTapCount(0);
+      }, 500);
+    }
+  };
 
   // Sparkle animation for badge
   const sparkleRotation = useSharedValue(0);
@@ -118,7 +147,7 @@ export function PaywallScreen() {
         // Sync with backend
         await refreshSubscription();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        router.back();
+        setShowSuccess(true);
       }
     } catch (err: any) {
       if (!err.userCancelled) {
@@ -143,7 +172,7 @@ export function PaywallScreen() {
       if (customerInfo) {
         await refreshSubscription();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        router.back();
+        setShowSuccess(true);
       }
     } catch (err) {
       console.error("[Paywall] Restore error:", err);
@@ -241,6 +270,11 @@ export function PaywallScreen() {
 
   const trialInfo = getTrialInfoText();
 
+  // Show success screen after purchase
+  if (showSuccess) {
+    return <PremiumSuccessScreen onContinue={() => router.back()} />;
+  }
+
   return (
     <View className="flex-1 bg-surface">
       {/* Close button */}
@@ -264,15 +298,18 @@ export function PaywallScreen() {
       >
         {/* Header */}
         <Animated.View style={headerStyle} className="items-center mb-8">
-          {/* Early Access Badge */}
-          <View className="flex-row items-center gap-2 bg-forest-100 px-4 py-2 rounded-full mb-6">
+          {/* Early Access Badge - Triple tap in DEV to test success screen */}
+          <Pressable
+            onPress={handleDevTap}
+            className="flex-row items-center gap-2 bg-forest-100 px-4 py-2 rounded-full mb-6"
+          >
             <Animated.View style={sparkleStyle}>
               <Sparkle size={16} color="#334d43" weight="fill" />
             </Animated.View>
             <Text className="text-primary text-sm font-semibold">
               {t("paywall.badge")}
             </Text>
-          </View>
+          </Pressable>
 
           {/* Title - Same style as welcome.tsx */}
           <View className="items-center">

@@ -794,6 +794,13 @@
       "loadingFailed": "Impossible de charger les tarifs",
       "purchaseFailed": "Échec de l'achat",
       "restoreFailed": "Impossible de restaurer les achats"
+    },
+    "success": {
+      "headline": "Bienvenue sur",
+      "thankYou": "Merci de soutenir Cuisto ! Votre abonnement nous aide à créer la meilleure application de recettes pour tous les cuisiniers.",
+      "feedbackTitle": "Vos retours sont précieux",
+      "feedbackDescription": "Des idées ou suggestions ? Nous sommes à votre écoute ! Écrivez-nous à tout moment.",
+      "continue": "Continuer"
     }
   },
   "settings": {
