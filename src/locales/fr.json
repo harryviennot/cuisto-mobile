@@ -905,5 +905,24 @@
       "successMessage": "Votre compte a été supprimé."
     },
     "appVersion": "Version {{version}}"
+  },
+  "categories": {
+    "main-dishes": "Plats Principaux",
+    "soups": "Soupes",
+    "salads": "Salades",
+    "pasta-noodles": "Pâtes & Nouilles",
+    "sandwiches": "Sandwichs",
+    "appetizers": "Entrées",
+    "apero": "Apéro",
+    "desserts": "Desserts",
+    "baked-goods": "Pâtisseries",
+    "beverages": "Boissons",
+    "cocktails": "Cocktails",
+    "breakfast": "Petit-déjeuner",
+    "sides": "Accompagnements",
+    "sauces-dips": "Sauces & Dips",
+    "snacks": "Snacks",
+    "grilled": "Grillades",
+    "bowls-grains": "Bowls & Céréales"
   }
 }

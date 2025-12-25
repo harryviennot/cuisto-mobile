@@ -2,6 +2,26 @@
  * Recipe types
  */
 
+/**
+ * Category (slug only - frontend handles i18n translation)
+ */
+export interface Category {
+  id: string;
+  slug: string;
+  icon?: string | null;
+  display_order?: number;
+}
+
+/**
+ * Category with recipe count (for category listings)
+ */
+export interface CategoryWithCount extends Category {
+  recipe_count: number;
+}
+
+/**
+ * @deprecated Use Category interface instead. Kept for backwards compatibility.
+ */
 export enum RecipeCategory {
   BREAKFAST = "breakfast",
   LUNCH = "lunch",
@@ -78,7 +98,8 @@ export interface Recipe {
   instructions: Instruction[];
   timings?: Timings;
   servings?: number;
-  categories?: string[];
+  category?: Category | null; // New: single category object
+  categories?: string[]; // Deprecated: kept for backwards compat
   difficulty?: DifficultyLevel;
   tags?: string[];
   image_url?: string;

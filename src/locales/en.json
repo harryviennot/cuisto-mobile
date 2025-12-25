@@ -907,5 +907,24 @@
       "successMessage": "Your account has been deleted."
     },
     "appVersion": "Version {{version}}"
+  },
+  "categories": {
+    "main-dishes": "Main Dishes",
+    "soups": "Soups",
+    "salads": "Salads",
+    "pasta-noodles": "Pasta & Noodles",
+    "sandwiches": "Sandwiches",
+    "appetizers": "Appetizers",
+    "apero": "Apéro",
+    "desserts": "Desserts",
+    "baked-goods": "Baked Goods",
+    "beverages": "Beverages",
+    "cocktails": "Cocktails",
+    "breakfast": "Breakfast",
+    "sides": "Sides",
+    "sauces-dips": "Sauces & Dips",
+    "snacks": "Snacks",
+    "grilled": "Grilled",
+    "bowls-grains": "Bowls & Grains"
   }
 }
