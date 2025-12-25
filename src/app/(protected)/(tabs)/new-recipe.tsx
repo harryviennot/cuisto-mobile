@@ -67,7 +67,9 @@ export default function NewRecipeScreen() {
             >
               {t("extraction.newRecipe.title")}
               {"\n"}
-              <Text className="text-primary italic">{t("extraction.newRecipe.titleHighlight")}</Text>
+              <Text className="text-primary italic">
+                {t("extraction.newRecipe.titleHighlight")}
+              </Text>
             </Text>
           </View>
           <View className="items-end justify-end">

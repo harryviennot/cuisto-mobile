@@ -17,7 +17,12 @@ interface FeatureRowProps {
   isComingSoon?: boolean;
 }
 
-export function FeatureRow({ icon: Icon, title, description, isComingSoon = false }: FeatureRowProps) {
+export function FeatureRow({
+  icon: Icon,
+  title,
+  description,
+  isComingSoon = false,
+}: FeatureRowProps) {
   return (
     <View className="flex-row items-start gap-4">
       <View
@@ -26,11 +31,7 @@ export function FeatureRow({ icon: Icon, title, description, isComingSoon = fals
           isComingSoon ? "bg-stone-200" : "bg-forest-100"
         )}
       >
-        <Icon
-          size={20}
-          color={isComingSoon ? "#a8a29e" : "#334d43"}
-          weight="fill"
-        />
+        <Icon size={20} color={isComingSoon ? "#a8a29e" : "#334d43"} weight="fill" />
       </View>
       <View className="flex-1">
         <Text
@@ -41,12 +42,7 @@ export function FeatureRow({ icon: Icon, title, description, isComingSoon = fals
         >
           {title}
         </Text>
-        <Text
-          className={cn(
-            "text-sm",
-            isComingSoon ? "text-stone-400" : "text-text-body"
-          )}
-        >
+        <Text className={cn("text-sm", isComingSoon ? "text-stone-400" : "text-text-body")}>
           {description}
         </Text>
       </View>

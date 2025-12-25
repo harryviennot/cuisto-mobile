@@ -67,7 +67,14 @@ export function PremiumPlanCard({
   });
 
   return (
-    <Pressable onPress={onPress} disabled={!onPress} className={cn("flex-row items-center gap-4 rounded-3xl bg-premium-light p-6 overflow-hidden", className)}>
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      className={cn(
+        "flex-row items-center gap-4 rounded-3xl bg-premium-light p-6 overflow-hidden",
+        className
+      )}
+    >
       <View className="h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
         {isTrialing ? (
           <SparkleIcon size={28} color="#FFFFFF" weight="fill" />
@@ -80,19 +87,17 @@ export function PremiumPlanCard({
           {t("settings.subscription.currentPlan")}
         </Text>
         <Text className="font-playfair-bold text-2xl text-premium-foreground">
-          {isTrialing
-            ? t("settings.subscription.trial")
-            : t("settings.subscription.premium")}
+          {isTrialing ? t("settings.subscription.trial") : t("settings.subscription.premium")}
         </Text>
         {subscriptionExpiresAt && (
           <Text className="mt-1 text-xs font-medium text-white">
             {isTrialing
               ? t("settings.subscription.trialEnds", {
-                date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
-              })
+                  date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
+                })
               : t("credits.bottomSheet.renewsOn", {
-                date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
-              })}
+                  date: formatDate(subscriptionExpiresAt, "MMM d, yyyy"),
+                })}
           </Text>
         )}
       </View>

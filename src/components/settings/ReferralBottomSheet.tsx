@@ -80,11 +80,7 @@ export const ReferralBottomSheet = forwardRef<BottomSheetModal, ReferralBottomSh
     }, [code, t]);
 
     return (
-      <PremiumBottomSheet
-        ref={ref}
-        title={t("settings.referral.title")}
-        onClose={handleDismiss}
-      >
+      <PremiumBottomSheet ref={ref} title={t("settings.referral.title")} onClose={handleDismiss}>
         <View className="px-5 pb-4">
           {isLoading ? (
             <View className="items-center py-8">
@@ -160,9 +156,7 @@ export const ReferralBottomSheet = forwardRef<BottomSheetModal, ReferralBottomSh
               <Pressable onPress={handleShare} className="active:opacity-90">
                 <View className="flex-row items-center justify-center gap-2 rounded-2xl bg-primary p-4 ">
                   <ShareNetwork size={20} color="#fff" weight="fill" />
-                  <Text className="font-medium text-white">
-                    {t("settings.referral.share")}
-                  </Text>
+                  <Text className="font-medium text-white">{t("settings.referral.share")}</Text>
                 </View>
               </Pressable>
 

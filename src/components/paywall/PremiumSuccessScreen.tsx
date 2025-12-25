@@ -22,7 +22,12 @@ import Animated, {
   cancelAnimation,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { CrownIcon, EnvelopeSimpleIcon, ArrowRightIcon, ArrowsClockwiseIcon } from "phosphor-react-native";
+import {
+  CrownIcon,
+  EnvelopeSimpleIcon,
+  ArrowRightIcon,
+  ArrowsClockwiseIcon,
+} from "phosphor-react-native";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -61,10 +66,18 @@ function ConfettiPiece({ index, side, trigger }: ConfettiPieceProps) {
     const rotationSpeed = (Math.random() - 0.5) * 720; // Spin rate
 
     return {
-      color, size, startX, startY, duration, delay,
-      initialVelocityY, initialVelocityX, gravity,
+      color,
+      size,
+      startX,
+      startY,
+      duration,
+      delay,
+      initialVelocityY,
+      initialVelocityX,
+      gravity,
       rotationSpeed,
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, side, trigger]);
 
   useEffect(() => {
@@ -87,9 +100,8 @@ function ConfettiPiece({ index, side, trigger }: ConfettiPieceProps) {
     const translateX = config.startX + config.initialVelocityX * elapsed * 0.6;
 
     // Vertical: true parabolic motion (y = v₀t + ½gt²)
-    const translateY = config.startY +
-      config.initialVelocityY * elapsed +
-      0.5 * config.gravity * elapsed * elapsed;
+    const translateY =
+      config.startY + config.initialVelocityY * elapsed + 0.5 * config.gravity * elapsed * elapsed;
 
     // Rotation with continuous spin
     const rotate = config.rotationSpeed * elapsed;
@@ -101,12 +113,7 @@ function ConfettiPiece({ index, side, trigger }: ConfettiPieceProps) {
     const scale = interpolate(t, [0, 0.1, 0.5, 1], [0.3, 1, 1, 0.5]);
 
     return {
-      transform: [
-        { translateX },
-        { translateY },
-        { rotate: `${rotate}deg` },
-        { scale },
-      ],
+      transform: [{ translateX }, { translateY }, { rotate: `${rotate}deg` }, { scale }],
       opacity,
     };
   });
@@ -160,7 +167,11 @@ function ConfettiCannon({ particleCount = 40, trigger }: ConfettiCannonProps) {
     return result;
   }, [particleCount, trigger]);
 
-  return <View style={styles.confettiContainer} pointerEvents="none">{pieces}</View>;
+  return (
+    <View style={styles.confettiContainer} pointerEvents="none">
+      {pieces}
+    </View>
+  );
 }
 
 interface PremiumSuccessScreenProps {
@@ -181,10 +192,7 @@ export function PremiumSuccessScreen({ onContinue }: PremiumSuccessScreenProps) 
 
     // Pulsing animation for crown
     crownScale.value = withRepeat(
-      withSequence(
-        withTiming(1.08, { duration: 1000 }),
-        withTiming(1, { duration: 1000 })
-      ),
+      withSequence(withTiming(1.08, { duration: 1000 }), withTiming(1, { duration: 1000 })),
       -1,
       true
     );
@@ -245,10 +253,7 @@ export function PremiumSuccessScreen({ onContinue }: PremiumSuccessScreenProps) 
         </Animated.View>
 
         {/* Welcome Text */}
-        <Animated.View
-          entering={FadeInDown.delay(400).duration(600)}
-          className="items-center mb-6"
-        >
+        <Animated.View entering={FadeInDown.delay(400).duration(600)} className="items-center mb-6">
           <Text
             className="font-serif text-4xl text-stone-800 text-center mb-1"
             style={{ fontFamily: "PlayfairDisplay_400Regular" }}
@@ -293,9 +298,7 @@ export function PremiumSuccessScreen({ onContinue }: PremiumSuccessScreenProps) 
                 onPress={handleEmailPress}
                 className="flex-row items-center active:opacity-60"
               >
-                <Text className="text-primary font-medium text-sm underline">
-                  harry@cuisto.app
-                </Text>
+                <Text className="text-primary font-medium text-sm underline">harry@cuisto.app</Text>
               </Pressable>
             </View>
           </View>

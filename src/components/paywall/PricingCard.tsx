@@ -99,14 +99,15 @@ export function PricingCard({
     >
       {/* Badge */}
       {badge && (
-        <View className={cn(
-          "absolute -top-0 right-3 px-2 py-1 rounded-b-lg",
-          isGoldSelected ? "bg-white/20" : isGold ? "bg-premium" : "bg-primary"
-        )}>
-          <Text className={cn(
-            "text-[10px] font-bold",
-            isGoldSelected ? "text-white" : "text-white"
-          )}>
+        <View
+          className={cn(
+            "absolute -top-0 right-3 px-2 py-1 rounded-b-lg",
+            isGoldSelected ? "bg-white/20" : isGold ? "bg-premium" : "bg-primary"
+          )}
+        >
+          <Text
+            className={cn("text-[10px] font-bold", isGoldSelected ? "text-white" : "text-white")}
+          >
             {badge}
           </Text>
         </View>
@@ -119,7 +120,9 @@ export function PricingCard({
           isGoldSelected
             ? "text-white/90"
             : isSelected
-              ? isGold ? "text-premium" : "text-primary"
+              ? isGold
+                ? "text-premium"
+                : "text-primary"
               : "text-text-body"
         )}
       >
@@ -129,27 +132,18 @@ export function PricingCard({
       {/* Price */}
       <View className="flex-row items-baseline">
         <Text
-          className={cn(
-            "text-2xl font-bold",
-            isGoldSelected ? "text-white" : "text-text-heading"
-          )}
+          className={cn("text-2xl font-bold", isGoldSelected ? "text-white" : "text-text-heading")}
         >
           {price}
         </Text>
-        <Text className={cn(
-          "text-sm ml-0.5",
-          isGoldSelected ? "text-white/80" : "text-text-body"
-        )}>
+        <Text className={cn("text-sm ml-0.5", isGoldSelected ? "text-white/80" : "text-text-body")}>
           {period}
         </Text>
       </View>
 
       {/* Subtext */}
       {subtext && (
-        <Text className={cn(
-          "text-xs mt-1",
-          isGoldSelected ? "text-white/70" : "text-text-muted"
-        )}>
+        <Text className={cn("text-xs mt-1", isGoldSelected ? "text-white/70" : "text-text-muted")}>
           {subtext}
         </Text>
       )}

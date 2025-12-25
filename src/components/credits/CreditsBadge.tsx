@@ -34,7 +34,13 @@ export function CreditsBadge({
 
   if (isLoading) {
     return (
-      <View className={cn("flex-row items-center rounded-full bg-surface-elevated gap-2", padding, className)}>
+      <View
+        className={cn(
+          "flex-row items-center rounded-full bg-surface-elevated gap-2",
+          padding,
+          className
+        )}
+      >
         <CoinsIcon size={iconSize} color="#334d43" weight="duotone" />
         <Skeleton width={iconSize} height={iconSize} />
       </View>
@@ -44,7 +50,11 @@ export function CreditsBadge({
   // Premium user - Forest green badge for consistency
   if (isPremium) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.7} className={cn("overflow-hidden rounded-full font-medium", className)}>
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.7}
+        className={cn("overflow-hidden rounded-full font-medium", className)}
+      >
         <View className={cn("flex-row items-center gap-1.5 bg-premium", padding)}>
           {isTrialing ? (
             <SparkleIcon size={iconSize} color="#f4f1e8" weight="fill" />
@@ -74,9 +84,7 @@ export function CreditsBadge({
       className={cn("flex-row items-center gap-1.5 rounded-full", bgColor, padding, className)}
     >
       <CoinsIcon size={iconSize} color={iconColor} weight="duotone" />
-      <Text className={cn(textSize, "font-medium text-md", creditColor)}>
-        {totalCredits}
-      </Text>
+      <Text className={cn(textSize, "font-medium text-md", creditColor)}>{totalCredits}</Text>
     </TouchableOpacity>
   );
 }

@@ -10,7 +10,7 @@
 import React, { forwardRef, useCallback, useState } from "react";
 import { View, Text, Pressable, Linking, Platform, ActivityIndicator } from "react-native";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import { Crown, ArrowRight, ArrowSquareOut } from "phosphor-react-native";
+import { CrownIcon, ArrowRightIcon, ArrowSquareOutIcon } from "phosphor-react-native";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
@@ -73,15 +73,6 @@ export const SubscriptionBottomSheet = forwardRef<BottomSheetModal, Subscription
       }
     }, [restore]);
 
-    const getPlanLabel = () => {
-      if (isPremium) {
-        return isTrialing
-          ? t("settings.subscription.trial")
-          : t("settings.subscription.premium");
-      }
-      return t("settings.subscription.free");
-    };
-
     return (
       <PremiumBottomSheet
         ref={ref}
@@ -91,9 +82,17 @@ export const SubscriptionBottomSheet = forwardRef<BottomSheetModal, Subscription
         <View className="px-6 pb-4">
           {/* Current Plan Card */}
           {isPremium ? (
-            <PremiumPlanCard isTrialing={isTrialing} subscriptionExpiresAt={subscriptionExpiresAt} />
+            <PremiumPlanCard
+              isTrialing={isTrialing}
+              subscriptionExpiresAt={subscriptionExpiresAt}
+            />
           ) : (
-            <CreditsInfoBox totalCredits={totalCredits} standardCredits={standardCredits} referralCredits={referralCredits} nextResetAt={nextResetAt} />
+            <CreditsInfoBox
+              totalCredits={totalCredits}
+              standardCredits={standardCredits}
+              referralCredits={referralCredits}
+              nextResetAt={nextResetAt}
+            />
           )}
 
           {/* Actions */}
@@ -103,23 +102,23 @@ export const SubscriptionBottomSheet = forwardRef<BottomSheetModal, Subscription
               className="mt-8 flex-row items-center justify-between rounded-2xl bg-stone-100 p-5 active:opacity-90"
             >
               <View className="flex-row items-center gap-3">
-                <ArrowSquareOut size={20} color="#57534e" weight="duotone" />
+                <ArrowSquareOutIcon size={20} color="#57534e" weight="duotone" />
                 <Text className="font-medium text-stone-900">
                   {t("settings.subscription.manageSubscription")}
                 </Text>
               </View>
-              <ArrowRight size={20} color="#a8a29e" />
+              <ArrowRightIcon size={20} color="#a8a29e" />
             </Pressable>
           ) : (
             <Pressable
               onPress={handleUpgrade}
               className="mt-8 flex-row items-center justify-center gap-2 rounded-2xl bg-premium py-4 active:bg-premium-dark"
             >
-              <Crown size={20} color="#ffffff" weight="fill" />
+              <CrownIcon size={20} color="#ffffff" weight="fill" />
               <Text className="text-base font-semibold text-white">
                 {t("credits.bottomSheet.upgradePremium")}
               </Text>
-              <ArrowRight size={18} color="#ffffff" weight="bold" />
+              <ArrowRightIcon size={18} color="#ffffff" weight="bold" />
             </Pressable>
           )}
 

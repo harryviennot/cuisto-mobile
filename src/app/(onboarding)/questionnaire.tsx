@@ -58,11 +58,9 @@ export default function Onboarding() {
 
   // Track referral code validation state
   const [isReferralValid, setIsReferralValid] = useState(true);
-  const [referrerName, setReferrerName] = useState<string | undefined>();
 
-  const handleReferralValidation = useCallback((isValid: boolean, name?: string) => {
+  const handleReferralValidation = useCallback((isValid: boolean) => {
     setIsReferralValid(isValid);
-    setReferrerName(name);
   }, []);
 
   const { animatedStep, goToNextStep, goToPreviousStep, isAnimating } = useOnboardingAnimations({
@@ -110,7 +108,9 @@ export default function Onboarding() {
             Toast.show({
               type: "success",
               text1: t("onboarding.referral.redeemed"),
-              text2: t("onboarding.referral.creditsAwarded", { count: result.credits_awarded ?? 0 }),
+              text2: t("onboarding.referral.creditsAwarded", {
+                count: result.credits_awarded ?? 0,
+              }),
             });
           }
         } catch (error) {

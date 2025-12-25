@@ -5,12 +5,11 @@
  * Both the referrer and referee get 5 bonus credits.
  */
 import { useState, useCallback, useEffect } from "react";
-import { View, Text, Pressable, ActivityIndicator, TextInput } from "react-native";
+import { View, Text, ActivityIndicator, TextInput } from "react-native";
 import { useTranslation } from "react-i18next";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
-import { Gift, CheckCircle, XCircle } from "phosphor-react-native";
+import { GiftIcon, CheckCircleIcon, XCircleIcon } from "phosphor-react-native";
 
-import { FixedTextInput } from "@/components/forms/FixedTextInput";
 import { referralsService } from "@/api/services/referrals.service";
 import { cn } from "@/utils/cn";
 
@@ -109,7 +108,7 @@ export function ReferralCodeStep({
       {/* Icon */}
       <View className="mb-4 items-center">
         <View className="h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-          <Gift size={32} color="#2D5A27" weight="duotone" />
+          <GiftIcon size={32} color="#2D5A27" weight="duotone" />
         </View>
       </View>
 
@@ -162,9 +161,9 @@ export function ReferralCodeStep({
           {!isValidating && validationResult && (
             <View className="absolute right-4 top-1/2 -translate-y-1/2">
               {validationResult.isValid ? (
-                <CheckCircle size={24} color="#16a34a" weight="fill" />
+                <CheckCircleIcon size={24} color="#16a34a" weight="fill" />
               ) : (
-                <XCircle size={24} color="#dc2626" weight="fill" />
+                <XCircleIcon size={24} color="#dc2626" weight="fill" />
               )}
             </View>
           )}

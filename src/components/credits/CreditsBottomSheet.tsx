@@ -65,20 +65,23 @@ export const CreditsBottomSheet = forwardRef<BottomSheetModal, CreditsBottomShee
       }
     }, [restore, handleDismiss]);
 
-
     return (
-      <PremiumBottomSheet
-        ref={ref}
-        title={t("credits.bottomSheet.title")}
-        onClose={handleDismiss}
-      >
+      <PremiumBottomSheet ref={ref} title={t("credits.bottomSheet.title")} onClose={handleDismiss}>
         <View className="px-6">
           {isPremium ? (
-            <PremiumPlanCard isTrialing={isTrialing} subscriptionExpiresAt={subscriptionExpiresAt} />
+            <PremiumPlanCard
+              isTrialing={isTrialing}
+              subscriptionExpiresAt={subscriptionExpiresAt}
+            />
           ) : (
             <View className="gap-4">
               {/* Hero Card: Total Available Credits */}
-              <CreditsInfoBox totalCredits={totalCredits} standardCredits={standardCredits} referralCredits={referralCredits} nextResetAt={nextResetAt} />
+              <CreditsInfoBox
+                totalCredits={totalCredits}
+                standardCredits={standardCredits}
+                referralCredits={referralCredits}
+                nextResetAt={nextResetAt}
+              />
               {/* Upgrade CTA */}
               <Pressable
                 onPress={handleUpgrade}

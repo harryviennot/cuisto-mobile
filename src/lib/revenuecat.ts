@@ -201,7 +201,7 @@ export function addCustomerInfoUpdateListener(
   listener: (customerInfo: CustomerInfo) => void
 ): () => void {
   if (!isConfigured) {
-    return () => { };
+    return () => {};
   }
 
   Purchases.addCustomerInfoUpdateListener(listener);

@@ -8,7 +8,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import Animated, { useSharedValue, useAnimatedScrollHandler } from "react-native-reanimated";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import * as Sentry from "@sentry/react-native";
 import {
   GlobeIcon,
   EnvelopeIcon,
@@ -19,7 +18,7 @@ import {
   InfoIcon,
   SignOutIcon,
   TrashIcon,
-  Gift,
+  GiftIcon,
 } from "phosphor-react-native";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -173,9 +172,7 @@ export default function SettingsScreen() {
 
   const getSubscriptionDescription = () => {
     if (isPremium) {
-      return isTrialing
-        ? t("settings.subscription.trial")
-        : t("settings.subscription.premium");
+      return isTrialing ? t("settings.subscription.trial") : t("settings.subscription.premium");
     }
     return t("settings.subscription.free");
   };
@@ -213,7 +210,7 @@ export default function SettingsScreen() {
     },
     {
       id: "referral",
-      icon: <Gift size={24} color="white" weight="fill" />,
+      icon: <GiftIcon size={24} color="white" weight="fill" />,
       title: t("settings.referral.title"),
       description: t("settings.referral.description"),
       onPress: () => {
@@ -310,10 +307,15 @@ export default function SettingsScreen() {
         />
 
         {isPremium && (
-          <PremiumPlanCard isTrialing={isTrialing} subscriptionExpiresAt={subscriptionExpiresAt} className="mx-5 mb-4" onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            subscriptionSheetRef.current?.present();
-          }} />
+          <PremiumPlanCard
+            isTrialing={isTrialing}
+            subscriptionExpiresAt={subscriptionExpiresAt}
+            className="mx-5 mb-4"
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              subscriptionSheetRef.current?.present();
+            }}
+          />
         )}
 
         <SettingsSection title={t("settings.sections.account")} items={accountItems} />

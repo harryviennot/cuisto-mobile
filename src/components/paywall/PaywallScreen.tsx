@@ -11,11 +11,11 @@ import { useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 
 import {
-  X,
+  XIcon,
   InfinityIcon,
-  ChefHat,
-  Globe,
-  Sparkle,
+  ChefHatIcon,
+  GlobeIcon,
+  SparkleIcon,
   ArrowRightIcon,
   CopySimpleIcon,
 } from "phosphor-react-native";
@@ -85,21 +85,6 @@ export function PaywallScreen() {
   // Sparkle animation for badge
   const sparkleRotation = useSharedValue(0);
 
-  useEffect(() => {
-    setMounted(true);
-    loadOfferings();
-
-    // Gentle sparkle rotation
-    sparkleRotation.value = withRepeat(
-      withSequence(
-        withTiming(15, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
-        withTiming(-15, { duration: 1500, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      true
-    );
-  }, []);
-
   const sparkleStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${sparkleRotation.value}deg` }],
   }));
@@ -109,12 +94,8 @@ export function PaywallScreen() {
       const offering = await getOfferings();
       if (offering) {
         // Find packages by package type (MONTHLY, ANNUAL) - more reliable than product IDs
-        const monthly = offering.availablePackages.find(
-          (pkg) => pkg.packageType === "MONTHLY"
-        );
-        const yearly = offering.availablePackages.find(
-          (pkg) => pkg.packageType === "ANNUAL"
-        );
+        const monthly = offering.availablePackages.find((pkg) => pkg.packageType === "MONTHLY");
+        const yearly = offering.availablePackages.find((pkg) => pkg.packageType === "ANNUAL");
         setMonthlyPackage(monthly || null);
         setYearlyPackage(yearly || null);
       }
@@ -254,13 +235,14 @@ export function PaywallScreen() {
       // Has free trial - show trial period then price
       const trialDays = introPrice.periodNumberOfUnits || 7;
       const periodUnit = introPrice.periodUnit || "DAY";
-      const trialPeriod = periodUnit === "DAY"
-        ? t("paywall.trialDays", { count: trialDays })
-        : t("paywall.trialWeeks", { count: trialDays });
+      const trialPeriod =
+        periodUnit === "DAY"
+          ? t("paywall.trialDays", { count: trialDays })
+          : t("paywall.trialWeeks", { count: trialDays });
 
       return t("paywall.trialInfo", {
         trialPeriod,
-        price: selectedPackage.product.priceString
+        price: selectedPackage.product.priceString,
       });
     }
 
@@ -269,6 +251,22 @@ export function PaywallScreen() {
   };
 
   const trialInfo = getTrialInfoText();
+
+  useEffect(() => {
+    setMounted(true);
+    loadOfferings();
+
+    // Gentle sparkle rotation
+    sparkleRotation.value = withRepeat(
+      withSequence(
+        withTiming(15, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(-15, { duration: 1500, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sparkleRotation]);
 
   // Show success screen after purchase
   if (showSuccess) {
@@ -284,7 +282,7 @@ export function PaywallScreen() {
         style={{ marginTop: insets.top }}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <X size={28} color="#57534e" weight="bold" />
+        <XIcon size={28} color="#57534e" weight="bold" />
       </Pressable>
 
       <ScrollView
@@ -304,11 +302,9 @@ export function PaywallScreen() {
             className="flex-row items-center gap-2 bg-forest-100 px-4 py-2 rounded-full mb-6"
           >
             <Animated.View style={sparkleStyle}>
-              <Sparkle size={16} color="#334d43" weight="fill" />
+              <SparkleIcon size={16} color="#334d43" weight="fill" />
             </Animated.View>
-            <Text className="text-primary text-sm font-semibold">
-              {t("paywall.badge")}
-            </Text>
+            <Text className="text-primary text-sm font-semibold">{t("paywall.badge")}</Text>
           </Pressable>
 
           {/* Title - Same style as welcome.tsx */}
@@ -350,26 +346,25 @@ export function PaywallScreen() {
               description={t("paywall.features.batch.description")}
             />
             <FeatureRow
-              icon={Globe}
+              icon={GlobeIcon}
               title={t("paywall.features.translate.title")}
               description={t("paywall.features.translate.description")}
               isComingSoon
             />
             <FeatureRow
-              icon={ChefHat}
+              icon={ChefHatIcon}
               title={t("paywall.features.aiChef.title")}
               description={t("paywall.features.aiChef.description")}
               isComingSoon
             />
             <FeatureRow
-              icon={Sparkle}
+              icon={SparkleIcon}
               title={t("paywall.features.comingSoon.title")}
               description={t("paywall.features.comingSoon.description")}
               isComingSoon
             />
           </View>
         </Animated.View>
-
       </ScrollView>
 
       {/* Fixed Footer Section */}
@@ -423,11 +418,7 @@ export function PaywallScreen() {
         />
 
         {/* Trial info */}
-        {trialInfo && (
-          <Text className="text-stone-500 text-center text-sm mt-3">
-            {trialInfo}
-          </Text>
-        )}
+        {trialInfo && <Text className="text-stone-500 text-center text-sm mt-3">{trialInfo}</Text>}
 
         {/* Footer links */}
         <View className="flex-row items-center justify-center gap-3 mt-4">
@@ -450,7 +441,10 @@ export function PaywallScreen() {
       </Animated.View>
 
       {/* Toast for fullscreen modal - needs its own instance with high z-index */}
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100 }} pointerEvents="box-none">
+      <View
+        style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 100 }}
+        pointerEvents="box-none"
+      >
         <Toast config={toastConfig} topOffset={insets.top} />
       </View>
     </View>

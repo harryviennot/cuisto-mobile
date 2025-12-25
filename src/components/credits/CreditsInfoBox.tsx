@@ -11,8 +11,12 @@ interface CreditsInfoBoxProps {
   nextResetAt: Date | null;
 }
 
-
-export function CreditsInfoBox({ totalCredits, standardCredits, referralCredits, nextResetAt }: CreditsInfoBoxProps) {
+export function CreditsInfoBox({
+  totalCredits,
+  standardCredits,
+  referralCredits,
+  nextResetAt,
+}: CreditsInfoBoxProps) {
   const { t } = useTranslation();
 
   const formatResetDate = useCallback(() => {
@@ -33,7 +37,7 @@ export function CreditsInfoBox({ totalCredits, standardCredits, referralCredits,
         {/* Background Number */}
         <Text
           className="absolute font-playfair-bold leading-none text-white/10 -right-4 -top-4"
-          style={[{ position: 'absolute' }, getCountStyle(totalCredits)]}
+          style={[{ position: "absolute" }, getCountStyle(totalCredits)]}
           allowFontScaling={false}
         >
           {totalCredits}
@@ -48,17 +52,13 @@ export function CreditsInfoBox({ totalCredits, standardCredits, referralCredits,
           </View>
           <View className="flex-row items-center gap-8">
             <View>
-              <Text className="font-playfair-bold text-5xl text-white">
-                {standardCredits}
-              </Text>
+              <Text className="font-playfair-bold text-5xl text-white">{standardCredits}</Text>
               <Text className="text-xs text-white/60">
                 {t("credits.bottomSheet.standardCredits")}
               </Text>
             </View>
             <View>
-              <Text className="font-playfair-bold text-5xl text-white">
-                {referralCredits}
-              </Text>
+              <Text className="font-playfair-bold text-5xl text-white">{referralCredits}</Text>
               <Text className="text-xs text-white/60">
                 {t("credits.bottomSheet.referralCredits")}
               </Text>

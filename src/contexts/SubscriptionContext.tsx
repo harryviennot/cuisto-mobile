@@ -10,7 +10,15 @@
  * - Credits reset weekly (Monday 00:00 UTC)
  * - Referral credits: 30-day expiry, max 50, used after standard credits
  */
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { CustomerInfo, PurchasesOffering, PurchasesPackage } from "react-native-purchases";
 import {
   initRevenueCat,
@@ -68,103 +76,65 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   // Track if user was ever authenticated (to avoid logout on initial undefined state)
   const wasAuthenticatedRef = useRef(false);
 
-  // Initialize RevenueCat on app start
-  useEffect(() => {
-    console.log("[SubscriptionContext] Initializing RevenueCat...");
-    initRevenueCat().then(() => {
-      console.log("[SubscriptionContext] RevenueCat initialization complete");
-    });
-  }, []);
-
-  // Identify user with RevenueCat when authenticated
-  useEffect(() => {
-    console.log("[SubscriptionContext] Auth state changed:", { isAuthenticated, userId: user?.id });
-    if (isAuthenticated && user?.id) {
-      wasAuthenticatedRef.current = true;
-      console.log("[SubscriptionContext] Identifying user with RevenueCat...");
-      identifyUser(user.id).then((customerInfo) => {
-        console.log("[SubscriptionContext] User identified, customerInfo:", customerInfo ? "received" : "null");
-        refreshSubscription();
-        // Fetch offerings after user is identified (ensures correct user context)
-        getOfferings().then(setOfferings);
-      });
-    } else if (!isAuthenticated && wasAuthenticatedRef.current) {
-      // Only logout if we were previously authenticated (not on initial undefined state)
-      console.log("[SubscriptionContext] User logged out, resetting state");
-      logoutRevenueCat();
-      setIsPremium(false);
-      setIsTrialing(false);
-      setSubscriptionExpiresAt(null);
-      setCredits(null);
-      wasAuthenticatedRef.current = false;
-    }
-  }, [isAuthenticated, user?.id]);
-
-  // Fetch credits when authenticated (only on auth change, not on isPremium change)
-  useEffect(() => {
-    if (isAuthenticated) {
-      console.log("[SubscriptionContext] Fetching credits on auth...");
-      refreshCredits();
-    }
-  }, [isAuthenticated]);
-
-  // Listen for subscription changes
-  useEffect(() => {
-    const unsubscribe = addCustomerInfoUpdateListener((customerInfo) => {
-      // Defer state updates to allow the paywall to fully dismiss
-      // This prevents the "navigation context" error when the paywall is dismissing
-      // Use setTimeout instead of InteractionManager for more reliable deferral
-      setTimeout(() => {
-        updateFromCustomerInfo(customerInfo);
-      }, 500);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const updateFromCustomerInfo = useCallback(async (customerInfo: CustomerInfo) => {
-    console.log("[SubscriptionContext] updateFromCustomerInfo called");
-    console.log("[SubscriptionContext] Active entitlements:", Object.keys(customerInfo.entitlements.active));
-    console.log("[SubscriptionContext] Looking for entitlement:", PRO_ENTITLEMENT_ID);
-
-    const proEntitlement = customerInfo.entitlements.active[PRO_ENTITLEMENT_ID];
-
-    if (proEntitlement) {
-      console.log("[SubscriptionContext] Pro entitlement found:", JSON.stringify(proEntitlement, null, 2));
-      setIsPremium(true);
-      setIsTrialing(proEntitlement.periodType === "TRIAL");
-      setSubscriptionExpiresAt(
-        proEntitlement.expirationDate ? new Date(proEntitlement.expirationDate) : null
+  // Define callbacks first (before useEffects that depend on them)
+  const updateFromCustomerInfo = useCallback(
+    async (customerInfo: CustomerInfo) => {
+      console.log("[SubscriptionContext] updateFromCustomerInfo called");
+      console.log(
+        "[SubscriptionContext] Active entitlements:",
+        Object.keys(customerInfo.entitlements.active)
       );
+      console.log("[SubscriptionContext] Looking for entitlement:", PRO_ENTITLEMENT_ID);
 
-      // Only sync with backend if user is authenticated
-      // RevenueCat may fire callbacks before auth is complete
-      if (isAuthenticated) {
-        try {
-          console.log("[SubscriptionContext] Syncing subscription to backend...");
-          const syncResult = await creditsService.syncSubscription();
-          console.log("[SubscriptionContext] Backend subscription sync complete:", syncResult);
+      const proEntitlement = customerInfo.entitlements.active[PRO_ENTITLEMENT_ID];
 
-          // After sync completes, refresh credits to get updated state from backend
-          console.log("[SubscriptionContext] Refreshing credits after sync...");
-          const creditsData = await creditsService.getCredits();
-          console.log("[SubscriptionContext] Credits after sync:", JSON.stringify(creditsData, null, 2));
-          setCredits(creditsData);
-        } catch (error) {
-          console.warn("[SubscriptionContext] Failed to sync subscription to backend:", error);
-          // Non-critical - the webhook should eventually sync it
+      if (proEntitlement) {
+        console.log(
+          "[SubscriptionContext] Pro entitlement found:",
+          JSON.stringify(proEntitlement, null, 2)
+        );
+        setIsPremium(true);
+        setIsTrialing(proEntitlement.periodType === "TRIAL");
+        setSubscriptionExpiresAt(
+          proEntitlement.expirationDate ? new Date(proEntitlement.expirationDate) : null
+        );
+
+        // Only sync with backend if user is authenticated
+        // RevenueCat may fire callbacks before auth is complete
+        if (isAuthenticated) {
+          try {
+            console.log("[SubscriptionContext] Syncing subscription to backend...");
+            const syncResult = await creditsService.syncSubscription();
+            console.log("[SubscriptionContext] Backend subscription sync complete:", syncResult);
+
+            // After sync completes, refresh credits to get updated state from backend
+            console.log("[SubscriptionContext] Refreshing credits after sync...");
+            const creditsData = await creditsService.getCredits();
+            console.log(
+              "[SubscriptionContext] Credits after sync:",
+              JSON.stringify(creditsData, null, 2)
+            );
+            setCredits(creditsData);
+          } catch (error) {
+            console.warn("[SubscriptionContext] Failed to sync subscription to backend:", error);
+            // Non-critical - the webhook should eventually sync it
+          }
+        } else {
+          console.log("[SubscriptionContext] Skipping backend sync - user not authenticated yet");
         }
       } else {
-        console.log("[SubscriptionContext] Skipping backend sync - user not authenticated yet");
+        console.log("[SubscriptionContext] No pro entitlement found, user is not premium");
+        console.log(
+          "[SubscriptionContext] All entitlements:",
+          JSON.stringify(customerInfo.entitlements, null, 2)
+        );
+        setIsPremium(false);
+        setIsTrialing(false);
+        setSubscriptionExpiresAt(null);
       }
-    } else {
-      console.log("[SubscriptionContext] No pro entitlement found, user is not premium");
-      console.log("[SubscriptionContext] All entitlements:", JSON.stringify(customerInfo.entitlements, null, 2));
-      setIsPremium(false);
-      setIsTrialing(false);
-      setSubscriptionExpiresAt(null);
-    }
-  }, [isAuthenticated]);
+    },
+    [isAuthenticated]
+  );
 
   const refreshSubscription = useCallback(async () => {
     try {
@@ -198,6 +168,63 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     }
   }, [isAuthenticated]);
 
+  // Initialize RevenueCat on app start
+  useEffect(() => {
+    console.log("[SubscriptionContext] Initializing RevenueCat...");
+    initRevenueCat().then(() => {
+      console.log("[SubscriptionContext] RevenueCat initialization complete");
+    });
+  }, []);
+
+  // Identify user with RevenueCat when authenticated
+  useEffect(() => {
+    console.log("[SubscriptionContext] Auth state changed:", { isAuthenticated, userId: user?.id });
+    if (isAuthenticated && user?.id) {
+      wasAuthenticatedRef.current = true;
+      console.log("[SubscriptionContext] Identifying user with RevenueCat...");
+      identifyUser(user.id).then((customerInfo) => {
+        console.log(
+          "[SubscriptionContext] User identified, customerInfo:",
+          customerInfo ? "received" : "null"
+        );
+        refreshSubscription();
+        // Fetch offerings after user is identified (ensures correct user context)
+        getOfferings().then(setOfferings);
+      });
+    } else if (!isAuthenticated && wasAuthenticatedRef.current) {
+      // Only logout if we were previously authenticated (not on initial undefined state)
+      console.log("[SubscriptionContext] User logged out, resetting state");
+      logoutRevenueCat();
+      setIsPremium(false);
+      setIsTrialing(false);
+      setSubscriptionExpiresAt(null);
+      setCredits(null);
+      wasAuthenticatedRef.current = false;
+    }
+  }, [isAuthenticated, user?.id, refreshSubscription]);
+
+  // Fetch credits when authenticated (only on auth change, not on isPremium change)
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log("[SubscriptionContext] Fetching credits on auth...");
+      refreshCredits();
+    }
+  }, [isAuthenticated, refreshCredits]);
+
+  // Listen for subscription changes
+  useEffect(() => {
+    const unsubscribe = addCustomerInfoUpdateListener((customerInfo) => {
+      // Defer state updates to allow the paywall to fully dismiss
+      // This prevents the "navigation context" error when the paywall is dismissing
+      // Use setTimeout instead of InteractionManager for more reliable deferral
+      setTimeout(() => {
+        updateFromCustomerInfo(customerInfo);
+      }, 500);
+    });
+
+    return unsubscribe;
+  }, [updateFromCustomerInfo]);
+
   const purchase = useCallback(async (pkg: PurchasesPackage): Promise<boolean> => {
     try {
       const customerInfo = await purchasePackage(pkg);
@@ -222,16 +249,16 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     }
   }, []);
 
-  // Computed values
-  const standardCredits = credits?.standard_credits ?? 0;
-  const referralCredits = credits?.referral_credits ?? 0;
-  const totalCredits = credits?.total_credits ?? 0;
-  const isFirstWeek = credits?.is_first_week ?? true;
-  const canExtract = isPremium || (credits?.can_extract ?? false);
-  const nextResetAt = credits?.next_reset_at ? new Date(credits.next_reset_at) : null;
+  const value = useMemo(() => {
+    // Computed values inside useMemo to avoid dependency issues
+    const standardCredits = credits?.standard_credits ?? 0;
+    const referralCredits = credits?.referral_credits ?? 0;
+    const totalCredits = credits?.total_credits ?? 0;
+    const isFirstWeek = credits?.is_first_week ?? true;
+    const canExtract = isPremium || (credits?.can_extract ?? false);
+    const nextResetAt = credits?.next_reset_at ? new Date(credits.next_reset_at) : null;
 
-  const value = useMemo(
-    () => ({
+    return {
       isPremium,
       isTrialing,
       isLoading,
@@ -248,26 +275,19 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       refreshSubscription,
       purchase,
       restore,
-    }),
-    [
-      isPremium,
-      isTrialing,
-      isLoading,
-      subscriptionExpiresAt,
-      offerings,
-      credits,
-      standardCredits,
-      referralCredits,
-      totalCredits,
-      isFirstWeek,
-      canExtract,
-      nextResetAt,
-      refreshCredits,
-      refreshSubscription,
-      purchase,
-      restore,
-    ]
-  );
+    };
+  }, [
+    isPremium,
+    isTrialing,
+    isLoading,
+    subscriptionExpiresAt,
+    offerings,
+    credits,
+    refreshCredits,
+    refreshSubscription,
+    purchase,
+    restore,
+  ]);
 
   return <SubscriptionContext.Provider value={value}>{children}</SubscriptionContext.Provider>;
 }
