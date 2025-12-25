@@ -92,6 +92,15 @@ module.exports = {
           muted: "#e4b4a9", // Very light for subtle danger states
         },
 
+        // Premium/Subscription Colors
+        premium: {
+          DEFAULT: "#b8942d", // Darker gold - Main premium color (better contrast with white)
+          light: "#d4b044", // Light gold - Premium card background
+          dark: "#9a7a1f", // Dark gold - Pressed/hover state
+          foreground: "#ffffff", // White text on premium backgrounds
+          muted: "#f5ecd4", // Very light gold - Subtle premium hints
+        },
+
         // Full color palettes (for granular control)
         forest: {
           50: "#f0f5f3",

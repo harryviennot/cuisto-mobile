@@ -21,6 +21,7 @@ import {
   OnboardingControls,
   OnboardingCard,
   BasicInfoStep,
+  ReferralCodeStep,
   HeardFromStep,
   CookingFrequencyStep,
   RecipeSourcesStep,
@@ -30,12 +31,15 @@ import {
 } from "@/components/onboarding";
 import type { OnboardingFormData } from "@/components/onboarding";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { usePrefetchDiscovery } from "@/hooks/useDiscovery";
+import { referralsService } from "@/api/services/referrals.service";
 
 export default function Onboarding() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const { submitOnboarding } = useAuth();
+  const { refreshCredits } = useSubscription();
 
   // Prefetch discovery data in background so it's ready when onboarding completes
   usePrefetchDiscovery();
@@ -46,10 +50,18 @@ export default function Onboarding() {
   const [formData, setFormData] = useState<OnboardingFormData>({
     display_name: "",
     age: "",
+    referral_code: "",
     heard_from: "",
     cooking_frequency: "",
     recipe_sources: [],
   });
+
+  // Track referral code validation state
+  const [isReferralValid, setIsReferralValid] = useState(true);
+
+  const handleReferralValidation = useCallback((isValid: boolean) => {
+    setIsReferralValid(isValid);
+  }, []);
 
   const { animatedStep, goToNextStep, goToPreviousStep, isAnimating } = useOnboardingAnimations({
     currentStep,
@@ -86,6 +98,27 @@ export default function Onboarding() {
     try {
       const ageNumber = formData.age ? parseInt(formData.age, 10) : undefined;
 
+      // Redeem referral code if provided and valid
+      if (formData.referral_code && isReferralValid) {
+        try {
+          const result = await referralsService.redeem(formData.referral_code);
+          if (result.success) {
+            // Refresh credits to show the newly awarded referral credits
+            await refreshCredits();
+            Toast.show({
+              type: "success",
+              text1: t("onboarding.referral.redeemed"),
+              text2: t("onboarding.referral.creditsAwarded", {
+                count: result.credits_awarded ?? 0,
+              }),
+            });
+          }
+        } catch (error) {
+          // Don't block onboarding if referral fails
+          console.warn("Failed to redeem referral code:", error);
+        }
+      }
+
       await submitOnboarding({
         heard_from: formData.heard_from,
         cooking_frequency: formData.cooking_frequency,
@@ -115,7 +148,7 @@ export default function Onboarding() {
 
       setIsSubmitting(false);
     }
-  }, [formData, t, submitOnboarding]);
+  }, [formData, t, submitOnboarding, isReferralValid, refreshCredits]);
 
   // Check if current step can continue
   const canContinueCurrentStep = useCallback(() => {
@@ -123,6 +156,9 @@ export default function Onboarding() {
     switch (stepId) {
       case "basicInfo":
         return formData.display_name.trim().length > 0;
+      case "referralCode":
+        // Referral is optional, but if provided must be valid
+        return isReferralValid;
       case "heardFrom":
         return formData.heard_from !== "";
       case "cookingFrequency":
@@ -132,7 +168,7 @@ export default function Onboarding() {
       default:
         return true;
     }
-  }, [currentStep, formData]);
+  }, [currentStep, formData, isReferralValid]);
 
   // Handle continue button press
   const handleContinue = useCallback(() => {
@@ -170,6 +206,15 @@ export default function Onboarding() {
     switch (step) {
       case "basicInfo":
         return <BasicInfoStep formData={formData} onFormDataChange={handleFormDataChange} />;
+
+      case "referralCode":
+        return (
+          <ReferralCodeStep
+            referralCode={formData.referral_code}
+            onReferralCodeChange={(code) => handleFormDataChange({ referral_code: code })}
+            onValidationChange={handleReferralValidation}
+          />
+        );
 
       case "heardFrom":
         return (

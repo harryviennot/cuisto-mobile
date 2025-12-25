@@ -692,6 +692,115 @@
       "setupFailed": "Échec de la configuration",
       "pleaseSelectOne": "Veuillez en sélectionner au moins un",
       "whereGetRecipes": "Où trouvez-vous habituellement vos recettes ?"
+    },
+    "referral": {
+      "title": "Vous avez un code de parrainage ?",
+      "subtitle": "Entrez-le ci-dessous pour recevoir des crédits bonus",
+      "placeholder": "ENTRER LE CODE",
+      "skip": "Je n'ai pas de code",
+      "skipHint": "Pas de code ? Pas de problème ! Vous pouvez passer cette étape.",
+      "checking": "Vérification...",
+      "valid": "Valide ! De {{name}}",
+      "validCode": "Valide ! De {{name}}",
+      "validUnknown": "Code valide !",
+      "invalid": "Code non trouvé",
+      "codeNotFound": "Ce code n'existe pas",
+      "cannotUseOwnCode": "Vous ne pouvez pas utiliser votre propre code",
+      "alreadyUsedReferral": "Vous avez déjà utilisé un code de parrainage",
+      "invalidFormat": "Format de code invalide",
+      "validationError": "Impossible de vérifier le code",
+      "friend": "un ami",
+      "bonus": "+5 crédits bonus pour vous et votre ami",
+      "bonusInfo": "Vous et votre ami recevrez chacun 5 crédits d'extraction bonus !",
+      "redeemed": "Code de parrainage utilisé !",
+      "creditsAwarded": "Vous avez reçu {{count}} crédits bonus"
+    }
+  },
+  "credits": {
+    "premium": "Premium",
+    "trial": "Essai",
+    "firstWeek": "1ère Semaine",
+    "remaining": "{{count}} crédits restants",
+    "unlimited": "Illimité",
+    "noCredits": {
+      "title": "Plus de crédits",
+      "message": "Vous avez utilisé toutes vos extractions gratuites cette semaine. Les crédits se réinitialisent lundi.",
+      "upgrade": "Passer à Premium"
+    },
+    "reset": {
+      "title": "Crédits réinitialisés",
+      "message": "Vos crédits hebdomadaires ont été rechargés"
+    },
+    "bottomSheet": {
+      "title": "Vos Crédits",
+      "standardCredits": "Crédits hebdomadaires",
+      "referralCredits": "Bonus parrainage",
+      "standard": "standard",
+      "referral": "parrainage",
+      "nextReset": "Réinitialisation {{date}}",
+      "resetsOn": "Vos credits hebdomadaires se réinitialisent {{date}}",
+      "firstWeekBonus": "Bonus première semaine",
+      "upgradePremium": "Passer à Premium",
+      "unlimitedExtractions": "Extractions illimitées",
+      "restorePurchases": "Restaurer les achats",
+      "renewsOn": "Renouvellement {{date}}"
+    }
+  },
+  "paywall": {
+    "badge": "Accès Anticipé",
+    "headline": "Toutes vos recettes",
+    "headlineHighlight": "au même endroit.",
+    "subtitle": "Ne perdez plus jamais une recette.",
+    "features": {
+      "unlimited": {
+        "title": "Sauvegardes illimitées",
+        "description": "Sauvegardez toutes vos recettes"
+      },
+      "aiChef": {
+        "title": "Chef IA assistant",
+        "description": "Obtenez de l'aide en cuisinant"
+      },
+      "translate": {
+        "title": "Traduction automatique",
+        "description": "Cuisinez dans n'importe quelle langue"
+      },
+      "batch": {
+        "title": "Sauvegarde en lot",
+        "description": "Extrayez plusieurs recettes à la fois"
+      },
+      "comingSoon": {
+        "title": "Bientôt disponible",
+        "description": "Infos nutritionnelles, planning repas & liste de courses"
+      }
+    },
+    "pricing": {
+      "monthly": "Mensuel",
+      "yearly": "Annuel",
+      "yearlyBadge": "Économisez 33%",
+      "perMonth": "/mois",
+      "perYear": "/an"
+    },
+    "cta": "Essai gratuit",
+    "trialInfo": "{{trialPeriod}} gratuit, puis {{price}}",
+    "noTrialInfo": "Facturé {{price}}",
+    "trialDays_one": "{{count}} jour",
+    "trialDays_other": "{{count}} jours",
+    "trialWeeks_one": "{{count}} semaine",
+    "trialWeeks_other": "{{count}} semaines",
+    "restore": "Restaurer les achats",
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "errors": {
+      "loadingFailed": "Impossible de charger les tarifs",
+      "purchaseFailed": "Échec de l'achat",
+      "restoreFailed": "Impossible de restaurer les achats"
+    },
+    "success": {
+      "headline": "Bienvenue sur",
+      "thankYou": "Merci de soutenir Cuisto ! Votre abonnement nous aide à créer la meilleure application de recettes pour tous les cuisiniers.",
+      "feedbackTitle": "Vos retours sont précieux",
+      "feedbackDescription": "Des idées ou suggestions ? Nous sommes à votre écoute ! Écrivez-nous à tout moment.",
+      "continue": "Continuer"
     }
   },
   "settings": {
@@ -738,7 +847,27 @@
     "subscription": {
       "title": "Abonnement",
       "description": "Gérer votre abonnement",
-      "comingSoon": "Bientôt disponible"
+      "comingSoon": "Bientôt disponible",
+      "currentPlan": "Forfait actuel",
+      "premium": "Premium",
+      "trial": "Essai",
+      "free": "Gratuit",
+      "trialEnds": "Essai se termine {{date}}",
+      "manageSubscription": "Gérer l'abonnement",
+      "upgradeToPremium": "Passer à Premium"
+    },
+    "referral": {
+      "title": "Inviter des amis",
+      "description": "Gagnez 5 crédits par parrainage",
+      "yourCode": "Votre code de parrainage",
+      "copyCode": "Copier",
+      "copied": "Copié !",
+      "share": "Partager avec vos amis",
+      "shareMessage": "Rejoins Cuisto et obtiens 5 crédits bonus avec mon code : {{code}}\n\nTélécharger : https://cuisto.app",
+      "stats": {
+        "friendsReferred": "Amis parrainés",
+        "creditsEarned": "Crédits gagnés"
+      }
     },
     "feedback": {
       "title": "Donner un avis",

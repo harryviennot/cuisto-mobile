@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -13,10 +13,13 @@ import {
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import Toast from "react-native-toast-message";
 import { useTranslation } from "react-i18next";
 import { useExtraction } from "@/contexts/ExtractionContext";
+import { CreditsBadge, CreditsBottomSheet } from "@/components/credits";
+import * as Haptics from "expo-haptics";
 
 type ExtractionMethod = "image" | "link" | "voice" | "text";
 
@@ -26,6 +29,7 @@ export default function NewRecipeScreen() {
   const router = useRouter();
   const { isTablet } = useDeviceType();
   const { canStartNewExtraction } = useExtraction();
+  const creditsSheetRef = useRef<BottomSheetModal>(null);
 
   const handleMethodSelect = (method: ExtractionMethod) => {
     // Check if user can start a new extraction (free users limited to 1 concurrent)
@@ -40,6 +44,11 @@ export default function NewRecipeScreen() {
     router.push(`/extraction/${method}`);
   };
 
+  const handleCreditsPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    creditsSheetRef.current?.present();
+  };
+
   return (
     <View className="flex-1 bg-surface">
       <Animated.View
@@ -47,18 +56,25 @@ export default function NewRecipeScreen() {
         className="flex-1 p-5"
         style={{ paddingTop: insets.top + 24, marginBottom: isTablet ? insets.bottom + 48 : 0 }}
       >
-        <View className="mb-8">
-          <Text className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-tertiary mb-3">
-            {t("extraction.newRecipe.subtitle")}
-          </Text>
-          <Text
-            className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1]"
-            allowFontScaling={false}
-          >
-            {t("extraction.newRecipe.title")}
-            {"\n"}
-            <Text className="text-primary italic">{t("extraction.newRecipe.titleHighlight")}</Text>
-          </Text>
+        <View className="mb-8 flex-row items-stretch justify-between">
+          <View className="flex-1">
+            <Text className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground-tertiary mb-3">
+              {t("extraction.newRecipe.subtitle")}
+            </Text>
+            <Text
+              className="font-playfair-bold text-4xl text-foreground-heading leading-[1.1]"
+              allowFontScaling={false}
+            >
+              {t("extraction.newRecipe.title")}
+              {"\n"}
+              <Text className="text-primary italic">
+                {t("extraction.newRecipe.titleHighlight")}
+              </Text>
+            </Text>
+          </View>
+          <View className="items-end justify-end">
+            <CreditsBadge onPress={handleCreditsPress} />
+          </View>
         </View>
 
         <View className="flex-1 gap-4">
@@ -200,6 +216,8 @@ export default function NewRecipeScreen() {
           </View>
         </View>
       </Animated.View>
+
+      <CreditsBottomSheet ref={creditsSheetRef} />
     </View>
   );
 }

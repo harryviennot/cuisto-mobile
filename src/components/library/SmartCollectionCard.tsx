@@ -96,6 +96,8 @@ export function SmartCollectionCard({
             className={`font-playfair-bold text-lg mb-0.5 ${
               isPrimary ? "text-white" : "text-foreground-heading"
             }`}
+            numberOfLines={1}
+            adjustsFontSizeToFit
           >
             {t(i18nKeys.title)}
           </Text>
@@ -103,6 +105,8 @@ export function SmartCollectionCard({
             className={`text-[10px] font-bold tracking-widest uppercase ${
               isPrimary ? "text-white/60" : "text-foreground-tertiary"
             }`}
+            numberOfLines={1}
+            adjustsFontSizeToFit
           >
             {t(i18nKeys.subtitle)}
           </Text>

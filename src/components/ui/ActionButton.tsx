@@ -10,6 +10,8 @@ interface ActionButtonProps extends Omit<PressableProps, "style"> {
   variant?: "primary" | "secondary" | "destructive";
   size?: "default" | "small";
   className?: string;
+  rightIcon?: React.ReactNode;
+  leftIcon?: React.ReactNode;
 }
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -26,6 +28,8 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   disabled,
   onPress,
   className,
+  leftIcon,
+  rightIcon,
   ...props
 }) => {
   const scale = useSharedValue(1);
@@ -92,7 +96,7 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
       disabled={isDisabled}
       style={animatedStyle}
       className={cn(
-        "w-full flex-row items-center justify-center rounded-2xl",
+        "w-full flex-row items-center justify-center rounded-2xl gap-2",
         size === "default" ? "h-14" : "h-12",
         isDisabled ? "opacity-50" : "",
         getVariantStyles(),
@@ -103,15 +107,19 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
       {isLoading ? (
         <ActivityIndicator color={getSpinnerColor()} size="small" />
       ) : (
-        <Text
-          className={cn(
-            "font-bold uppercase tracking-widest",
-            size === "default" ? "text-sm" : "text-xs",
-            getTextStyles()
-          )}
-        >
-          {title}
-        </Text>
+        <>
+          {leftIcon}
+          <Text
+            className={cn(
+              "font-bold uppercase tracking-widest",
+              size === "default" ? "text-sm" : "text-xs",
+              getTextStyles()
+            )}
+          >
+            {title}
+          </Text>
+          {rightIcon}
+        </>
       )}
     </AnimatedPressable>
   );

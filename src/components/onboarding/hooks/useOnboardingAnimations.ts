@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useSharedValue, withTiming, runOnJS, Easing, SharedValue } from "react-native-reanimated";
-
+import * as Haptics from "expo-haptics";
 import { STEPS } from "../constants";
 
 interface UseOnboardingAnimationsProps {
@@ -40,6 +40,7 @@ export function useOnboardingAnimations({
         runOnJS(setIsAnimating)(false);
       }
     );
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
   }, [currentStep, isAnimating, animatedStep, setCurrentStep]);
 
   const goToPreviousStep = useCallback(() => {
@@ -58,6 +59,7 @@ export function useOnboardingAnimations({
         runOnJS(setIsAnimating)(false);
       }
     );
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
   }, [currentStep, isAnimating, animatedStep, setCurrentStep]);
 
   return {

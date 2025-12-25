@@ -14,7 +14,9 @@ export const authService = {
    * Returns user data including is_new_user flag (from onboarding_completed check)
    */
   getCurrentUser: async () => {
-    const response = await api.get<User>("/auth/me");
+    const response = await api.get<User>("/auth/me", {
+      skipAuthRedirect: true, // Don't trigger logout loop on 401 during init
+    });
     return response.data;
   },
 

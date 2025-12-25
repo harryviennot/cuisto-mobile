@@ -1,5 +1,5 @@
-import React, { useCallback, useRef } from "react";
-import { View, Text, Alert, Linking, Button } from "react-native";
+import React, { useCallback, useRef, useState } from "react";
+import { View, Text, Alert, Linking, Pressable } from "react-native";
 import { Stack, router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
@@ -8,7 +8,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import Animated, { useSharedValue, useAnimatedScrollHandler } from "react-native-reanimated";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import * as Sentry from "@sentry/react-native";
 import {
   GlobeIcon,
   EnvelopeIcon,
@@ -19,6 +18,7 @@ import {
   InfoIcon,
   SignOutIcon,
   TrashIcon,
+  GiftIcon,
 } from "phosphor-react-native";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,12 +31,44 @@ import {
   LanguageBottomSheet,
   ChangeEmailBottomSheet,
   AboutBottomSheet,
+  ReferralBottomSheet,
+  SubscriptionBottomSheet,
 } from "@/components/settings";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { PremiumPlanCard } from "@/components/credits";
+import { PremiumSuccessScreen } from "@/components/paywall/PremiumSuccessScreen";
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const { user, signOut } = useAuth();
+  const { isPremium, isTrialing, subscriptionExpiresAt } = useSubscription();
+
+  // DEV ONLY: Triple-tap on version to show success screen
+  const [showDevSuccess, setShowDevSuccess] = useState(false);
+  const [devTapCount, setDevTapCount] = useState(0);
+  const devTapTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleVersionTap = () => {
+    if (!__DEV__) return;
+
+    if (devTapTimeout.current) {
+      clearTimeout(devTapTimeout.current);
+    }
+
+    const newCount = devTapCount + 1;
+    setDevTapCount(newCount);
+
+    if (newCount >= 3) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setShowDevSuccess(true);
+      setDevTapCount(0);
+    } else {
+      devTapTimeout.current = setTimeout(() => {
+        setDevTapCount(0);
+      }, 500);
+    }
+  };
 
   // Animations
   const scrollY = useSharedValue(0);
@@ -50,6 +82,8 @@ export default function SettingsScreen() {
   const languageSheetRef = useRef<BottomSheetModal>(null);
   const emailSheetRef = useRef<BottomSheetModal>(null);
   const aboutSheetRef = useRef<BottomSheetModal>(null);
+  const referralSheetRef = useRef<BottomSheetModal>(null);
+  const subscriptionSheetRef = useRef<BottomSheetModal>(null);
 
   const appVersion = Constants.expoConfig?.version || "1.0.7";
 
@@ -136,6 +170,13 @@ export default function SettingsScreen() {
   // Menu Items
   // ============================================================================
 
+  const getSubscriptionDescription = () => {
+    if (isPremium) {
+      return isTrialing ? t("settings.subscription.trial") : t("settings.subscription.premium");
+    }
+    return t("settings.subscription.free");
+  };
+
   const accountItems: SettingsItem[] = [
     {
       id: "language",
@@ -161,10 +202,20 @@ export default function SettingsScreen() {
       id: "subscription",
       icon: <CreditCardIcon size={24} color="white" weight="fill" />,
       title: t("settings.subscription.title"),
-      description: t("settings.subscription.comingSoon"),
+      description: getSubscriptionDescription(),
       onPress: () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        // Placeholder - subscription not implemented yet
+        subscriptionSheetRef.current?.present();
+      },
+    },
+    {
+      id: "referral",
+      icon: <GiftIcon size={24} color="white" weight="fill" />,
+      title: t("settings.referral.title"),
+      description: t("settings.referral.description"),
+      onPress: () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        referralSheetRef.current?.present();
       },
     },
   ];
@@ -222,6 +273,11 @@ export default function SettingsScreen() {
   // Render
   // ============================================================================
 
+  // DEV ONLY: Show success screen for testing
+  if (showDevSuccess) {
+    return <PremiumSuccessScreen onContinue={() => setShowDevSuccess(false)} />;
+  }
+
   return (
     <View className="flex-1 bg-surface">
       <Stack.Screen
@@ -250,6 +306,18 @@ export default function SettingsScreen() {
           topPadding={insets.top + 60}
         />
 
+        {isPremium && (
+          <PremiumPlanCard
+            isTrialing={isTrialing}
+            subscriptionExpiresAt={subscriptionExpiresAt}
+            className="mx-5 mb-4"
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              subscriptionSheetRef.current?.present();
+            }}
+          />
+        )}
+
         <SettingsSection title={t("settings.sections.account")} items={accountItems} />
 
         <SettingsSection title={t("settings.sections.app")} items={appItems} />
@@ -260,11 +328,11 @@ export default function SettingsScreen() {
           variant="danger"
         />
 
-        <Button title="Try!" onPress={() => Sentry.captureException(new Error("First error"))} />
-
-        <Text className="text-center text-sm text-foreground-muted mt-4">
-          {t("settings.appVersion", { version: appVersion })}
-        </Text>
+        <Pressable onPress={handleVersionTap}>
+          <Text className="text-center text-sm text-foreground-muted mt-4">
+            {t("settings.appVersion", { version: appVersion })}
+          </Text>
+        </Pressable>
       </Animated.ScrollView>
 
       <LanguageBottomSheet
@@ -276,6 +344,10 @@ export default function SettingsScreen() {
       <ChangeEmailBottomSheet ref={emailSheetRef} />
 
       <AboutBottomSheet ref={aboutSheetRef} onLinkedInPress={handleLinkedIn} />
+
+      <ReferralBottomSheet ref={referralSheetRef} />
+
+      <SubscriptionBottomSheet ref={subscriptionSheetRef} />
     </View>
   );
 }

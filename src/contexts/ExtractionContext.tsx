@@ -18,6 +18,7 @@ import { API_URL } from "@/api/api-client";
 import { extractionService, SubmitExtractionRequest } from "@/api/services/extraction.service";
 import { videoDownloadService, VideoDownloadProgress } from "@/api/services/video-download.service";
 import type { ExtractionJob as BaseExtractionJob, ExtractionStatus } from "@/types/extraction";
+import { useSubscription } from "./SubscriptionContext";
 
 // ============================================================================
 // TYPES
@@ -121,6 +122,7 @@ interface SSEConnection {
 
 export function ExtractionProvider({ children }: { children: React.ReactNode }) {
   const [activeJobs, setActiveJobs] = useState<ExtractionJob[]>([]);
+  const { isPremium, canExtract, refreshCredits } = useSubscription();
 
   // Track SSE connections by job ID
   const sseConnectionsRef = useRef<Map<string, SSEConnection>>(new Map());
@@ -324,6 +326,11 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
               console.log(`[Extraction] Job ${jobId} completed via SSE`);
               isCompleted = true;
               closeSSEConnection(jobId);
+
+              // Refresh credits after extraction completes (credit was deducted server-side)
+              if (data.status === "completed") {
+                refreshCredits();
+              }
             }
           } catch (err) {
             console.error(`[Extraction] Failed to parse SSE data for ${jobId}:`, err);
@@ -351,7 +358,7 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
         });
       }
     },
-    [updateJob, closeSSEConnection, handleClientDownload]
+    [updateJob, closeSSEConnection, handleClientDownload, refreshCredits]
   );
 
   // Store createSSEConnection in ref to break circular dependency
@@ -363,18 +370,26 @@ export function ExtractionProvider({ children }: { children: React.ReactNode }) 
 
   /**
    * Check if user can start a new extraction
-   * For now, allow only one in-progress extraction for free users
-   * TODO: Integrate with premium/subscription status
+   * Premium users: unlimited concurrent extractions
+   * Free users: must have credits and no concurrent extraction
    */
   const canStartNewExtraction = useCallback((): boolean => {
-    // const inProgressJobs = activeJobs.filter(
-    //   (job) => job.status === ("pending" as ExtractionStatus) || job.status === ("processing" as ExtractionStatus)
-    // );
-    // For now, allow only 1 concurrent extraction
-    // TODO: Check isPremium from auth/subscription context
-    const isPremium = false;
-    return isPremium || activeJobs.length === 0;
-  }, [activeJobs]);
+    // Premium users can always start extractions
+    if (isPremium) return true;
+
+    // Free users need available credits
+    if (!canExtract) return false;
+
+    // Free users can only have one concurrent extraction
+    const hasActiveJob = activeJobs.some(
+      (job) =>
+        job.status === ("pending" as ExtractionStatus) ||
+        job.status === ("processing" as ExtractionStatus) ||
+        job.status === ("needs_client_download" as ExtractionStatus)
+    );
+
+    return !hasActiveJob;
+  }, [activeJobs, isPremium, canExtract]);
 
   /**
    * Start a new extraction
