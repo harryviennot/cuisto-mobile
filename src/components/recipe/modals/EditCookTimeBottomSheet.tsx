@@ -96,7 +96,7 @@ export function EditCookTimeBottomSheet({
         </ShadowItem>
 
         {/* Prep & Cook Time Sections - Side by side on tablet landscape */}
-        <View className={isTabletLandscape ? "flex-row gap-10" : ""}>
+        <View className={isTabletLandscape ? "flex-row gap-10" : "gap-2 mb-6"}>
           {/* Prep Time Section */}
           <TimeAdjuster
             label={t("recipe.editCookTime.prepTime")}
