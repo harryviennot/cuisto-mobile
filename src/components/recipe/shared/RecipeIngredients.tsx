@@ -14,31 +14,30 @@ export const RecipeIngredients = memo(function RecipeIngredients({
   recipeServings,
   selectedServings,
 }: RecipeIngredientsProps) {
-  // Helper to scale ingredient amounts
+  // Helper to scale ingredient amounts (quantity is now a number)
   const getScaledAmount = (
     ingredient: Ingredient,
     baseServings: number,
     currentServings: number
-  ) => {
-    if (!ingredient.quantity || baseServings === currentServings) {
-      return ingredient.quantity || "";
+  ): string => {
+    if (ingredient.quantity == null) {
+      return "";
+    }
+
+    if (baseServings === currentServings) {
+      return formatQuantity(ingredient.quantity);
     }
 
     const ratio = currentServings / baseServings;
-    const quantity = ingredient.quantity.toString();
+    const scaled = ingredient.quantity * ratio;
+    return formatQuantity(scaled);
+  };
 
-    // Try to parse and scale numeric values
-    const numMatch = quantity.match(/(\d+\.?\d*)/);
-    if (numMatch) {
-      const num = parseFloat(numMatch[1]);
-      const scaled = num * ratio;
-      const scaledStr = Number.isInteger(scaled)
-        ? scaled.toString()
-        : scaled.toFixed(1).replace(/\.0$/, "");
-      return quantity.replace(numMatch[1], scaledStr);
-    }
-
-    return quantity;
+  // Format quantity to a clean string (remove trailing .0)
+  const formatQuantity = (value: number): string => {
+    return Number.isInteger(value)
+      ? value.toString()
+      : value.toFixed(1).replace(/\.0$/, "");
   };
 
   // Group ingredients by group field

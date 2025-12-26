@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Minus, Plus } from "phosphor-react-native";
 import { ShadowItem } from "@/components/ShadowedSection";
 import { formatDuration } from "@/utils/formatDuration";
+import { cn } from "@/utils/cn";
 
 interface TimeAdjusterProps {
   label: string;
@@ -142,7 +143,7 @@ export const TimeAdjuster = memo(function TimeAdjuster({
   const isModified = originalValue !== undefined && value !== originalValue;
 
   return (
-    <View className={`flex-1 mb-6 ${className}`}>
+    <View className={cn("flex-1", className)}>
       {/* Label with modified indicator */}
       <View className="flex-row items-center mb-3 gap-2">
         <Text className="text-sm font-bold uppercase tracking-widest text-foreground-tertiary">

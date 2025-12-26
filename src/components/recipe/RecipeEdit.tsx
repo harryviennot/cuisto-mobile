@@ -63,13 +63,11 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(function
       servings: recipe.servings || 4,
       prep_time_minutes: recipe.timings?.prep_time_minutes || 0,
       cook_time_minutes: recipe.timings?.cook_time_minutes || 0,
+      resting_time_minutes: recipe.timings?.resting_time_minutes || 0,
       difficulty: recipe.difficulty || DifficultyLevel.MEDIUM,
       category_slug: recipe.category?.slug || null,
       tags: recipe.tags || [],
-      ingredients: (recipe.ingredients || []).map((ing) => ({
-        ...ing,
-        quantity: ing.quantity != null ? String(ing.quantity) : undefined,
-      })),
+      ingredients: recipe.ingredients || [],
       instructions: recipe.instructions || [],
     },
   });
@@ -142,7 +140,8 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(function
       timings: {
         prep_time_minutes: values.prep_time_minutes,
         cook_time_minutes: values.cook_time_minutes,
-        total_time_minutes: values.prep_time_minutes + values.cook_time_minutes,
+        resting_time_minutes: values.resting_time_minutes,
+        total_time_minutes: values.prep_time_minutes + values.cook_time_minutes + values.resting_time_minutes,
       },
       difficulty: values.difficulty,
       category: values.category_slug ? { id: "", slug: values.category_slug } : null,
@@ -173,7 +172,7 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(function
             timings: {
               prep_time_minutes: data.prep_time_minutes,
               cook_time_minutes: data.cook_time_minutes,
-              total_time_minutes: data.prep_time_minutes + data.cook_time_minutes,
+              resting_time_minutes: data.resting_time_minutes,
             },
             difficulty: data.difficulty,
             category_slug: data.category_slug || undefined,

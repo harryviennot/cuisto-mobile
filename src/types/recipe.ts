@@ -41,7 +41,7 @@ export enum DifficultyLevel {
 
 export interface Ingredient {
   name: string;
-  quantity?: string | null;
+  quantity?: number | null;
   unit?: string | null;
   notes?: string | null;
   group?: string | null;

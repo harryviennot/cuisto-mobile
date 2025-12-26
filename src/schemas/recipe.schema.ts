@@ -37,6 +37,11 @@ export const recipeMetadataSchema = z.object({
     .int("Cook time must be a whole number")
     .min(0, "Cook time cannot be negative")
     .max(1440, "Cook time must be less than 24 hours"),
+  resting_time_minutes: z
+    .number()
+    .int("Resting time must be a whole number")
+    .min(0, "Resting time cannot be negative")
+    .max(1440, "Resting time must be less than 24 hours"),
   difficulty: z.nativeEnum(DifficultyLevel, {
     message: "Please select a difficulty level",
   }),
@@ -55,7 +60,7 @@ export type RecipeCategoriesTagsFormData = z.infer<typeof recipeCategoriesTagsSc
 // Ingredient schema
 export const ingredientSchema = z.object({
   name: z.string().min(1, "Ingredient name is required"),
-  quantity: z.union([z.string(), z.null(), z.undefined()]).optional(),
+  quantity: z.union([z.number(), z.null(), z.undefined()]).optional(),
   unit: z.union([z.string(), z.null(), z.undefined()]).optional(),
   notes: z.union([z.string(), z.null(), z.undefined()]).optional(),
   group: z.union([z.string(), z.null(), z.undefined()]).optional(),
@@ -123,13 +128,15 @@ export const recipeEditSchema = z.object({
   prep_time_minutes: z
     .number()
     .int("Prep time must be a whole number")
-    .min(0, "Prep time cannot be negative")
-    .max(1440, "Prep time must be less than 24 hours"),
+    .min(0, "Prep time cannot be negative"),
   cook_time_minutes: z
     .number()
     .int("Cook time must be a whole number")
-    .min(0, "Cook time cannot be negative")
-    .max(1440, "Cook time must be less than 24 hours"),
+    .min(0, "Cook time cannot be negative"),
+  resting_time_minutes: z
+    .number()
+    .int("Resting time must be a whole number")
+    .min(0, "Resting time cannot be negative"),
   difficulty: z.nativeEnum(DifficultyLevel, {
     message: "Please select a difficulty level",
   }),

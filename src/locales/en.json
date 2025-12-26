@@ -309,6 +309,7 @@
       "servings": "Servings",
       "prepTime": "Prep Time",
       "cookTime": "Cook Time",
+      "restingTime": "Resting Time",
       "totalTime": "Total Time",
       "difficulty": "Difficulty",
       "categoriesAndTags": "Category & Tags",

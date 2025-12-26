@@ -46,9 +46,14 @@ export function ExpandableIngredientForm({
   const handleSave = () => {
     if (!name.trim()) return;
 
+    // Parse quantity string to number
+    const trimmedQuantity = quantity?.trim();
+    const parsedQuantity = trimmedQuantity ? parseFloat(trimmedQuantity) : undefined;
+    const finalQuantity = parsedQuantity !== undefined && !isNaN(parsedQuantity) ? parsedQuantity : undefined;
+
     const savedIngredient: Ingredient = {
       name: name.trim(),
-      quantity: quantity?.trim() || undefined,
+      quantity: finalQuantity,
       unit: unit?.trim() || undefined,
       notes: notes?.trim() || undefined,
       group:

@@ -18,15 +18,13 @@ export function useRecipeScaling(baseServings: number, initialServings?: number)
 
   /**
    * Scale an ingredient's quantity based on current servings
+   * Returns a formatted string for display
    */
   const scaleIngredientAmount = useCallback(
     (ingredient: Ingredient): string | undefined => {
-      if (!ingredient.quantity) return undefined;
+      if (ingredient.quantity == null) return undefined;
 
-      const amount = parseFloat(ingredient.quantity);
-      if (isNaN(amount)) return ingredient.quantity;
-
-      const scaledAmount = amount * scalingFactor;
+      const scaledAmount = ingredient.quantity * scalingFactor;
 
       // Format the number nicely
       if (scaledAmount % 1 === 0) {
@@ -58,16 +56,18 @@ export function useRecipeScaling(baseServings: number, initialServings?: number)
   );
 
   /**
-   * Scale all ingredients in a list
+   * Scale all ingredients in a list, returning new quantity as a number
    */
   const scaleIngredients = useCallback(
     (ingredients: Ingredient[]): Ingredient[] => {
       return ingredients.map((ingredient) => ({
         ...ingredient,
-        quantity: scaleIngredientAmount(ingredient) || ingredient.quantity,
+        quantity: ingredient.quantity != null
+          ? ingredient.quantity * scalingFactor
+          : ingredient.quantity,
       }));
     },
-    [scaleIngredientAmount]
+    [scalingFactor]
   );
 
   /**

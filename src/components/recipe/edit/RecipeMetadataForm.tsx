@@ -8,6 +8,7 @@ import { ShadowItem } from "@/components/ShadowedSection";
 import { TimeAdjuster } from "@/components/recipe/shared/TimeAdjuster";
 import { DifficultyLevel } from "@/types/recipe";
 import type { RecipeEditFormData } from "@/schemas/recipe.schema";
+import { formatDuration } from "@/utils/formatDuration";
 
 const formatTime = (minutes: number) => {
   if (minutes === 0) return "0m";
@@ -45,6 +46,11 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
     field: { value: cookTime, onChange: onCookTimeChange },
     fieldState: { error: cookTimeError },
   } = useController({ control, name: "cook_time_minutes" });
+
+  const {
+    field: { value: restingTime, onChange: onRestingTimeChange },
+    fieldState: { error: restingTimeError },
+  } = useController({ control, name: "resting_time_minutes" });
 
   const {
     field: { value: difficulty, onChange: onDifficultyChange },
@@ -99,15 +105,15 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
         )}
       </View>
 
-      {/* Prep & Cook Time Controls - Side by Side */}
+      {/* Time Controls */}
       <View>
-        <View className="mb-4 flex-row gap-4">
+        {/* Prep & Cook Time - Side by Side */}
+        <View className="flex-row gap-4 items-end mb-2">
           {/* Prep Time Control */}
           <TimeAdjuster
             label={t("recipe.edit.prepTime")}
             value={prepTime}
             onChange={onPrepTimeChange}
-            className="flex-1 mb-0"
           />
 
           {/* Cook Time Control */}
@@ -115,12 +121,20 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
             label={t("recipe.edit.cookTime")}
             value={cookTime}
             onChange={onCookTimeChange}
-            className="flex-1 mb-0"
           />
         </View>
+        {/* Resting Time Control */}
+        {/* <View className="mb-4"> */}
+        <TimeAdjuster
+          label={t("recipe.edit.restingTime")}
+          value={restingTime}
+          onChange={onRestingTimeChange}
+          className="mb-2"
+        />
 
-        {/* Error Messages */}
-        {(prepTimeError || cookTimeError) && (
+        {/* </View> */}
+        {/* Error Messages for Prep & Cook */}
+        {(prepTimeError || cookTimeError || restingTimeError) && (
           <View className="flex-row gap-4 mb-4">
             <View className="flex-1">
               {prepTimeError && (
@@ -132,6 +146,11 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
                 <Text className="text-sm text-red-600">{cookTimeError.message}</Text>
               )}
             </View>
+            <View className="flex-1">
+              {restingTimeError && (
+                <Text className="text-sm text-red-600">{restingTimeError.message}</Text>
+              )}
+            </View>
           </View>
         )}
 
@@ -141,7 +160,7 @@ export function RecipeMetadataForm({ control }: RecipeMetadataFormProps) {
             {t("recipe.edit.totalTime")}
           </Text>
           <Text className="text-3xl text-white" style={{ fontFamily: "PlayfairDisplay_700Bold" }}>
-            {formatTime(prepTime + cookTime)}
+            {formatDuration(prepTime + cookTime + restingTime, { t })}
           </Text>
         </ShadowItem>
       </View>
