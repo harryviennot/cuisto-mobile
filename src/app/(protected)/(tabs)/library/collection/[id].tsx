@@ -73,6 +73,7 @@ export default function CollectionDetailScreen() {
       servings: cr.servings,
       difficulty: cr.difficulty as Recipe["difficulty"],
       tags: cr.tags,
+      category: cr.category,
       source_type: cr.source_type,
       is_public: cr.is_public,
       ingredients: [],

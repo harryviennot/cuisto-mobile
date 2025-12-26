@@ -92,12 +92,11 @@ export const RecipeCard = memo(function RecipeCard({
 
   const imageHeight = fixedImageHeight ?? getImageHeight();
 
-  // Get category label from i18n translations, fallback to first tag or 'Recipe'
+  // Get category label from i18n translations, fallback to 'Recipe'
   const categoryLabel = recipe.category?.slug
     ? t("categories." + recipe.category.slug, { defaultValue: recipe.category.slug })
     : "RECIPE";
 
-  console.log("categoryLabel", categoryLabel);
   // Get translated difficulty label
   const getDifficultyLabel = (difficulty?: string) => {
     switch (difficulty?.toLowerCase()) {
