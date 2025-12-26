@@ -7,3 +7,4 @@ export * from "./extraction.service";
 export * from "./collection.service";
 export * from "./upload.service";
 export * from "./discovery.service";
+export * from "./category.service";

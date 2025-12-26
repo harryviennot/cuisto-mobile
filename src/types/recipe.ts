@@ -98,8 +98,7 @@ export interface Recipe {
   instructions: Instruction[];
   timings?: Timings;
   servings?: number;
-  category?: Category | null; // New: single category object
-  categories?: string[]; // Deprecated: kept for backwards compat
+  category?: Category | null; // Single category object
   difficulty?: DifficultyLevel;
   tags?: string[];
   image_url?: string;

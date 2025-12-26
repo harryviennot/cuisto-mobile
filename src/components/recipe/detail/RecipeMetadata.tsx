@@ -72,7 +72,7 @@ export const RecipeMetadata = memo(function RecipeMetadata({
       />
 
       {/* Tags */}
-      <RecipeTags categories={recipe.categories} tags={recipe.tags} />
+      <RecipeTags category={recipe.category} tags={recipe.tags} />
     </>
   );
 });

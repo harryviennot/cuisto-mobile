@@ -44,9 +44,9 @@ export const recipeMetadataSchema = z.object({
 
 export type RecipeMetadataFormData = z.infer<typeof recipeMetadataSchema>;
 
-// Categories and tags schema
+// Category and tags schema
 export const recipeCategoriesTagsSchema = z.object({
-  categories: z.array(z.string()).min(1, "Please select at least one category").max(5),
+  category_slug: z.string().nullable().optional(), // Single category slug
   tags: z.array(z.string()).max(10, "Maximum 10 tags allowed"),
 });
 
@@ -138,8 +138,8 @@ export const recipeEditSchema = z.object({
     message: "Please select a difficulty level",
   }),
 
-  // Categories and tags
-  categories: z.array(z.string()).min(1, "Please select at least one category").max(5),
+  // Category and tags
+  category_slug: z.string().nullable().optional(), // Single category slug
   tags: z.array(z.string()).max(10, "Maximum 10 tags allowed"),
 
   // Ingredients
