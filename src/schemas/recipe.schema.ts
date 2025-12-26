@@ -15,7 +15,7 @@ export const recipeMainInfoSchema = z.object({
     .max(1000, "Description must be less than 1000 characters")
     .optional()
     .or(z.literal("")),
-  image_url: z.string().url("Invalid image URL").optional().or(z.literal("")),
+  image_url: z.union([z.string().url("Invalid image URL"), z.literal("")]).optional(),
 });
 
 export type RecipeMainInfoFormData = z.infer<typeof recipeMainInfoSchema>;
@@ -83,11 +83,7 @@ export const instructionSchema = z.object({
     .max(2000, "Description must be less than 2000 characters"),
   timer_minutes: z
     .union([
-      z
-        .number()
-        .int("Timer must be a whole number")
-        .min(0, "Timer cannot be negative")
-        .max(1440, "Timer must be less than 24 hours"),
+      z.number().int("Timer must be a whole number").min(0, "Timer cannot be negative"),
       z.null(),
       z.undefined(),
     ])
@@ -116,7 +112,7 @@ export const recipeEditSchema = z.object({
     .max(1000, "Description must be less than 1000 characters")
     .optional()
     .or(z.literal("")),
-  image_url: z.string().url("Invalid image URL").optional().or(z.literal("")),
+  image_url: z.union([z.string().url("Invalid image URL"), z.literal("")]).optional(),
 
   // Metadata
   servings: z

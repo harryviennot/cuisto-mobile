@@ -4,6 +4,7 @@
 import { api } from "../api-client";
 import type {
   Recipe,
+  RecipeUpdateRequest,
   RecipeTimingsUpdateRequest,
   RecipeTimingsUpdateResponse,
 } from "@/types/recipe";
@@ -53,7 +54,7 @@ export const recipeService = {
   /**
    * Update a recipe
    */
-  updateRecipe: async (recipeId: string, recipe: Partial<Recipe>): Promise<Recipe> => {
+  updateRecipe: async (recipeId: string, recipe: RecipeUpdateRequest): Promise<Recipe> => {
     const response = await api.put<Recipe>(`/recipes/${recipeId}`, recipe);
     return response.data;
   },

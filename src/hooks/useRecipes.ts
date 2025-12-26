@@ -6,6 +6,7 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { recipeService } from "@/api/services/recipe.service";
 import type {
   Recipe,
+  RecipeUpdateRequest,
   RecipeTimingsUpdateRequest,
   RecipeTimingsUpdateResponse,
 } from "@/types/recipe";
@@ -206,7 +207,7 @@ export function useUpdateRecipe() {
   return useMutation<
     Recipe,
     Error,
-    { recipeId: string; data: Partial<Recipe> },
+    { recipeId: string; data: RecipeUpdateRequest },
     { previousRecipe: Recipe | undefined; previousRecipesList: any }
   >({
     mutationFn: async ({ recipeId, data }) => {

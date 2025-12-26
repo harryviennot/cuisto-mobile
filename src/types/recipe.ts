@@ -123,6 +123,24 @@ export interface Recipe {
   user_data?: UserRecipeData;
 }
 
+/**
+ * Request type for updating a recipe
+ * Uses category_slug instead of category object for API compatibility
+ */
+export interface RecipeUpdateRequest {
+  title?: string;
+  description?: string;
+  image_url?: string;
+  ingredients?: Ingredient[];
+  instructions?: Instruction[];
+  servings?: number;
+  difficulty?: DifficultyLevel;
+  tags?: string[];
+  category_slug?: string; // API accepts slug, returns category object
+  timings?: Timings;
+  is_public?: boolean;
+}
+
 export interface RecipeTimingsUpdateRequest {
   prep_time_minutes?: number;
   cook_time_minutes?: number;

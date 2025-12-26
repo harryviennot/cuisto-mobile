@@ -2,7 +2,7 @@
  * Recipe edit component with iPad landscape support
  * Displays recipe preview and edit forms in a two-column layout on tablets
  */
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState, useMemo } from "react";
 import { View, Alert, ScrollView, BackHandler } from "react-native";
 import Toast from "react-native-toast-message";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -74,8 +74,35 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(function
     },
   });
 
-  // Watch form values for live preview
-  const formValues = watch();
+  // Debounced form values for live preview (only on tablet landscape)
+  // This prevents render storms from watch() triggering on every keystroke
+  const [debouncedValues, setDebouncedValues] = useState<RecipeEditFormData | null>(null);
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    // Only watch form values when we need live preview (tablet landscape)
+    if (!isTabletLandscape) {
+      return;
+    }
+
+    const subscription = watch((values) => {
+      // Clear existing timeout
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+      // Debounce updates to prevent render storms
+      debounceTimeoutRef.current = setTimeout(() => {
+        setDebouncedValues(values as RecipeEditFormData);
+      }, 300);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [watch, isTabletLandscape]);
 
   // Handle Android hardware back button
   useEffect(() => {
@@ -98,33 +125,44 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(function
     return () => backHandler.remove();
   }, [isDirty, onDiscard, t]);
 
-  // Build preview recipe from form values
-  const previewRecipe: Recipe = {
-    ...recipe,
-    title: formValues.title,
-    description: formValues.description || undefined,
-    image_url: formValues.image_url || undefined,
-    servings: formValues.servings,
-    timings: {
-      prep_time_minutes: formValues.prep_time_minutes,
-      cook_time_minutes: formValues.cook_time_minutes,
-      total_time_minutes: formValues.prep_time_minutes + formValues.cook_time_minutes,
-    },
-    difficulty: formValues.difficulty,
-    category: formValues.category_slug ? { id: "", slug: formValues.category_slug } : null,
-    tags: formValues.tags,
-    ingredients: formValues.ingredients,
-    instructions: formValues.instructions,
-  };
+  // Build preview recipe from debounced form values (memoized)
+  // Falls back to original recipe values when no debounced values available
+  const previewRecipe = useMemo<Recipe>(() => {
+    const values = debouncedValues;
+    if (!values) {
+      // No debounced values yet, use original recipe
+      return recipe;
+    }
+    return {
+      ...recipe,
+      title: values.title,
+      description: values.description || undefined,
+      image_url: values.image_url || undefined,
+      servings: values.servings,
+      timings: {
+        prep_time_minutes: values.prep_time_minutes,
+        cook_time_minutes: values.cook_time_minutes,
+        total_time_minutes: values.prep_time_minutes + values.cook_time_minutes,
+      },
+      difficulty: values.difficulty,
+      category: values.category_slug ? { id: "", slug: values.category_slug } : null,
+      tags: values.tags,
+      ingredients: values.ingredients,
+      instructions: values.instructions,
+    };
+  }, [debouncedValues, recipe]);
 
   // Final save handler - saves all changes to the server
   const handleSaveAllChanges = handleSubmit(
     async (data) => {
+      console.log("[RecipeEdit] Save handler called, isDirty:", isDirty);
       if (!isDirty) {
+        console.log("[RecipeEdit] Form not dirty, navigating back");
         onSave?.();
         return;
       }
       try {
+        console.log("[RecipeEdit] Submitting update with data:", JSON.stringify(data, null, 2));
         await updateRecipeMutation.mutateAsync({
           recipeId: recipe.id,
           data: {
@@ -159,7 +197,16 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(function
       }
     },
     (errors) => {
-      // Validation errors are already displayed in the form
+      // Log validation errors and show toast
+      console.error("[RecipeEdit] Form validation errors:", JSON.stringify(errors, null, 2));
+      const errorMessages = Object.entries(errors)
+        .map(([field, error]) => `${field}: ${error?.message || "Invalid"}`)
+        .join(", ");
+      Toast.show({
+        type: "error",
+        text1: t("common.error"),
+        text2: errorMessages || t("recipe.edit.updateFailed"),
+      });
     }
   );
 
@@ -183,11 +230,17 @@ const RecipeEditForm = React.forwardRef<RecipeEditRef, RecipeEditProps>(function
   };
 
   // Expose methods to parent via ref
-  React.useImperativeHandle(ref, () => ({
-    save: handleSaveAllChanges,
-    discard: handleDiscardChanges,
-    isDirty,
-  }));
+  React.useImperativeHandle(ref, () => {
+    console.log("[RecipeEdit] useImperativeHandle creating ref methods");
+    return {
+      save: () => {
+        console.log("[RecipeEdit] ref.save() called");
+        handleSaveAllChanges();
+      },
+      discard: handleDiscardChanges,
+      isDirty,
+    };
+  });
 
   // Render left column (preview) - only shown in tablet landscape
   const renderPreview = () => (
