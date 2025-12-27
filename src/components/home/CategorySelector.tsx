@@ -4,10 +4,11 @@
  * Displays all categories in a horizontal scroll view.
  * Includes an "All" option at the beginning (default selected).
  */
-import React, { useCallback } from "react";
-import { View, FlatList, ActivityIndicator } from "react-native";
+import React, { useMemo } from "react";
+import { View, ActivityIndicator } from "react-native";
 import { useTranslation } from "react-i18next";
-import { CategoryChip } from "./CategoryChip";
+import { CategoryTabChip } from "./CategoryChip";
+import HorizontalTabBar, { type TabItem } from "../ui/HorizontalTabBar";
 import type { Category } from "@/types/recipe";
 
 interface CategorySelectorProps {
@@ -38,49 +39,40 @@ export function CategorySelector({
     );
   }
 
-  // Sort categories by display_order
-  const sortedCategories = [...categories].sort(
-    (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
-  );
+  // Sort categories by display_order and convert to TabItem format
+  const tabs: TabItem[] = useMemo(() => {
+    const sortedCategories = [...categories].sort(
+      (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0)
+    );
 
-  // Render individual category chip
-  const renderItem = useCallback(
-    ({ item }: { item: { slug: string; id: string | null } }) => {
-      const isAll = item.slug === "all";
-      const isSelected = isAll
-        ? selectedCategoryId === null
-        : selectedCategoryId === item.id;
+    const allTab: TabItem = {
+      id: "all",
+      label: t("discovery.categories.all", { defaultValue: "All" }),
+      value: { slug: "all", categoryId: null },
+    };
 
-      const label = isAll
-        ? t("discovery.categories.all", { defaultValue: "All" })
-        : t(`categories.${item.slug}`, { defaultValue: item.slug });
+    const categoryTabs: TabItem[] = sortedCategories.map((cat) => ({
+      id: cat.id,
+      label: t(`categories.${cat.slug}`, { defaultValue: cat.slug }),
+      value: { slug: cat.slug, categoryId: cat.id },
+    }));
 
-      return (
-        <CategoryChip
-          slug={item.slug}
-          label={label}
-          isSelected={isSelected}
-          onPress={() => onSelectCategory(isAll ? null : item.id)}
-        />
-      );
-    },
-    [selectedCategoryId, onSelectCategory, t]
-  );
+    return [allTab, ...categoryTabs];
+  }, [categories, t]);
 
-  // Prepend "All" option to the categories list
-  const dataWithAll = [
-    { slug: "all", id: null, display_order: -1 },
-    ...sortedCategories,
-  ];
+  const activeTabId = selectedCategoryId ?? "all";
+
+  const handleTabChange = (tab: TabItem) => {
+    onSelectCategory(tab.value?.categoryId ?? null);
+  };
 
   return (
-    <FlatList
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
-      data={dataWithAll}
-      keyExtractor={(item) => item.slug}
-      renderItem={renderItem}
+    <HorizontalTabBar
+      tabs={tabs}
+      activeTabId={activeTabId}
+      onTabChange={handleTabChange}
+      TabComponent={CategoryTabChip}
+      showIndicator={false}
     />
   );
 }

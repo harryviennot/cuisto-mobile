@@ -2,7 +2,7 @@
  * CategoryChip - A selectable category pill for the category filter
  */
 import React, { useCallback } from "react";
-import { Pressable, Text } from "react-native";
+import { Text } from "react-native";
 import * as Haptics from "expo-haptics";
 import type { Icon } from "phosphor-react-native";
 import {
@@ -22,6 +22,7 @@ import {
   Popcorn,
 } from "phosphor-react-native";
 import { ShadowItem } from "../ShadowedSection";
+import type { TabComponentProps } from "../ui/HorizontalTabBar";
 
 // Map category slugs to Phosphor icons
 const CATEGORY_ICONS: Record<string, Icon> = {
@@ -68,10 +69,6 @@ export function CategoryChip({ slug, label, isSelected, onPress }: CategoryChipP
     <ShadowItem
       onPress={handlePress}
       className={`flex-row gap-2 py-2.5 px-4 rounded-full ${isSelected && "border-primary bg-primary/10"}`}
-      // className={`flex-row items-center gap-2 rounded-full px-4 py-2.5 border ${isSelected
-      //     ? "border-primary bg-primary/10"
-      //     : "border-border-light bg-surface-elevated"
-      //   }`}
       style={({ pressed }) => ({
         opacity: pressed ? 0.7 : 1,
       })}
@@ -87,6 +84,37 @@ export function CategoryChip({ slug, label, isSelected, onPress }: CategoryChipP
         numberOfLines={1}
       >
         {label}
+      </Text>
+    </ShadowItem>
+  );
+}
+
+/**
+ * CategoryTabChip - Adapter for using CategoryChip with HorizontalTabBar
+ * The tab.value should contain { slug: string }
+ */
+export function CategoryTabChip({ tab, isActive, onPress }: TabComponentProps) {
+  const slug = tab.value?.slug || tab.id;
+  const IconComponent = CATEGORY_ICONS[slug] || ForkKnife;
+
+  return (
+    <ShadowItem
+      onPress={onPress}
+      className={`flex-row gap-2 py-2.5 px-4 rounded-full ${isActive && "border-primary bg-primary/10"}`}
+      style={({ pressed }) => ({
+        opacity: pressed ? 0.7 : 1,
+      })}
+    >
+      <IconComponent
+        size={16}
+        color={isActive ? "#334d43" : "#8a8177"}
+        weight={isActive ? "fill" : "regular"}
+      />
+      <Text
+        className={`text-sm font-semibold ${isActive ? "text-primary" : "text-foreground-secondary"}`}
+        numberOfLines={1}
+      >
+        {tab.label}
       </Text>
     </ShadowItem>
   );

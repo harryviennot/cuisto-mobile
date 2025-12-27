@@ -31,6 +31,7 @@ import {
 } from "@/components/home";
 import { DISCOVERY_CONSTANTS } from "@/types/discovery";
 import { useTranslation } from "react-i18next";
+import HorizontalTabBar from "@/components/ui/HorizontalTabBar";
 
 export default function Index() {
   const { t } = useTranslation();
