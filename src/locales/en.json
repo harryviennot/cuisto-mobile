@@ -482,7 +482,18 @@
       "recent": {
         "title": "Recently Added",
         "subtitle": "Fresh Recipes"
+      },
+      "popular": {
+        "title": "Popular",
+        "subtitle": "Top recipes in this category"
       }
+    },
+    "categories": {
+      "all": "All"
+    },
+    "categoryEmpty": {
+      "message": "No recipes in this category yet",
+      "showAll": "Show All Recipes"
     },
     "stats": {
       "cooked": "{{count}} cooked",

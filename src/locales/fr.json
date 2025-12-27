@@ -483,7 +483,18 @@
       "recent": {
         "title": "Ajoutées récemment",
         "subtitle": "Recettes fraîches"
+      },
+      "popular": {
+        "title": "Populaires",
+        "subtitle": "Meilleures recettes de cette catégorie"
       }
+    },
+    "categories": {
+      "all": "Tout"
+    },
+    "categoryEmpty": {
+      "message": "Aucune recette dans cette catégorie",
+      "showAll": "Voir toutes les recettes"
     },
     "stats": {
       "cooked": "{{count}} cuisinées",

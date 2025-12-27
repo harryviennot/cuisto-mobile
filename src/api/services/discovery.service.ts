@@ -97,4 +97,24 @@ export const discoveryService = {
     });
     return response.data;
   },
+
+  /**
+   * Get popular recipes, optionally filtered by category
+   * Used for category filtering on homepage
+   * Sorted by popularity score: (average_rating * rating_count) + total_times_cooked
+   */
+  getPopularByCategory: async (
+    categoryId: string | null,
+    limit: number = RECENT_PAGE_SIZE,
+    offset: number = 0
+  ): Promise<Recipe[]> => {
+    const response = await api.get<Recipe[]>("/discovery/popular", {
+      params: {
+        category_id: categoryId,
+        limit,
+        offset,
+      },
+    });
+    return response.data;
+  },
 };

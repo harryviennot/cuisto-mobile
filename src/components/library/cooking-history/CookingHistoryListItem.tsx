@@ -180,7 +180,7 @@ export const CookingHistoryListItem = memo(
               {/* Day Number */}
               <View className="w-12 items-center justify-center mr-2 gap-1">
                 <Text className="text-xs font-medium text-text-muted">{dayName}</Text>
-                <Text className="text-[48px] font-light font-playfair text-primary leading-none">
+                <Text className="text-[48px] font-light font-playfair text-primary leading-none" numberOfLines={1} adjustsFontSizeToFit>
                   {dayNumber}
                 </Text>
               </View>
